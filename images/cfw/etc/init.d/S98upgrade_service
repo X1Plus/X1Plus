@@ -1,0 +1,40 @@
+#!/bin/sh
+
+start() {
+    if [ ! -f /userdata/upgrade_not_boot ]; then
+        printf "Starting upgrade service: "
+        export LD_PRELOAD=/opt/uncurl.so
+        start-stop-daemon -S -m -b -p /var/run/upgrade_service.pid \
+            --exec /usr/bin/upgrade \
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+    else
+        printf "upgrade_not_boot is set, do not boot upgrade service\n"
+    fi
+}
+stop() {
+    printf "Stopping upgrade service: "
+    start-stop-daemon -K -q -p /var/run/upgrade_service.pid
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+    stop
+    sleep 5
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?

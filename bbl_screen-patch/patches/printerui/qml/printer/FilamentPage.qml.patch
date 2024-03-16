@@ -1,0 +1,89 @@
+--- printer_ui-orig/printerui/qml/printer/FilamentPage.qml
++++ printer_ui/printerui/qml/printer/FilamentPage.qml
+@@ -13,6 +13,7 @@
+                                 ? amsModel[amsList.currentIndex] : null
+     property var trayModel: currentFeeder ? currentFeeder.trays : []
+     property bool hasAms: feeder.hasAms
++    //property bool hasAms: true
+     property bool loading: feeder.loading
+     property var currentTray: feeder.currentTray
+     property int loadStep: feeder.loadStep
+@@ -390,7 +391,7 @@
+             }
+         }
+     }
+-
++    
+     MarginPanel {
+         id: howToPanel
+         height: 538
+@@ -416,7 +417,7 @@
+             color: Colors.gray_100
+             wrapMode: Text.WordWrap
+             visible: !loadBar.visible
+-            text: hasAms ? qsTr("Choose an AMS slot then press Load or Unload to automatically load or unload filament.")
++            text: hasAms ? qsTr("Choose an AMS slot then press Load or Unload to automatically load or unload filament. ")
+                          : qsTr("Before loading, please make sure your filament is pushed into the toolhead.")
+         }
+ 
+@@ -656,32 +657,41 @@
+                                               : qsTr("Empty")
+                     }
+ 
+-                    ZImage {
++                    Rectangle {
+                         width: parent.width
+-                        height: 60
+-                        y: 96
++                        height: parent.height/2.75
+                         anchors.horizontalCenter: parent.horizontalCenter
+-                        fillMode: Image.Pad
+-                        tintColor: {
+-                            var color = colorHeight.y >= (y + height / 2) ? "transparent" : (colorHeight.color.a !== 0 ? colorHeight.color : Colors.white_900)
+-                            var color2 = Colors.blend([color, parent.color, Colors.gray_800])
+-                            return Colors.different(color2)
+-                        }
+-                        originSource: modelData.thirdparty
+-                                ? "../../icon/edit2.svg" : "../../icon/show_eye.svg"
++                        anchors.bottom: parent.bottom
++                        radius: parent.radius
++                        opacity: 0.8
++                        layer.enabled: true
++                        color: Colors.gray_800
+                         visible: modelData.exist
++                        Rectangle {
++                            height: parent.radius
++                            anchors.top: parent.top
++                            anchors.left: parent.left
++                            anchors.right: parent.right
++                            color: parent.color
++                        }
++                        
++                        ZImage {
++                            width: 60
++                            height: 60
++                            anchors.verticalCenter: parent.verticalCenter
++                            anchors.horizontalCenter: parent.horizontalCenter
++                            fillMode: Image.Pad
++                            tintColor: Colors.gray_100
++                            originSource: modelData.thirdparty
++                                    ? "../../icon/edit2.svg" : "../../icon/show_eye.svg"
++                        }
++
+                         TapHandler {
+                             onTapped: {
+                                 if (loading) return;
+-                                if (trayItem.ListView.isCurrentItem) {
+-                                    if (!modelData.exist)
++                                if (!modelData.exist)
+                                         return
+-                                    requireEdit(modelData)
+-                                } else {
+-                                    trayItem.ListView.view.currentIndex = index
+-                                    feeder.selectTray(modelData)
+-                                    selectTray = modelData
+-                                }
++                                requireEdit(modelData)
+                             }
+                         }
+                     }

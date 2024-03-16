@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Start logging
+
+SYSLOGD_ARGS="-n -O /tmp/syslog.log -s 4096 -b 4"
+KLOGD_ARGS=-n
+DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
+
+start() {
+	printf "Starting logging: "
+
+	# If persist is enabled, log to card
+	if [ -f "/mnt/sdcard/x1plus/printers/$DEVICE_SN/logsd" ]; then
+		if [ ! -d "/mnt/sdcard/log/" ]; then
+			/bin/mkdir -p "/mnt/sdcard/log/"
+		fi
+		touch /tmp/.syslog_to_sd # Used by /opt/syslog_shim.py
+		SYSLOG_FILE="/mnt/sdcard/log/syslog.log"
+		SYSLOGD_ARGS="-n -O $SYSLOG_FILE -s 4096 -b 8"
+	fi
+
+	start-stop-daemon -b -S -q -m -p /var/run/syslogd.pid --exec /sbin/syslogd -- $SYSLOGD_ARGS
+	start-stop-daemon -b -S -q -m -p /var/run/klogd.pid --exec /sbin/klogd -- $KLOGD_ARGS
+	echo "OK"
+}
+
+stop() {
+	printf "Stopping logging: "
+	rm -f /userdata/log/syslog.log
+	start-stop-daemon -K -q -p /var/run/syslogd.pid
+	start-stop-daemon -K -q -p /var/run/klogd.pid
+	rm -f /userdata/log/syslog.log
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	cat /etc/os-release
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	stop
+	start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+	;;
+esac
+
+exit $?

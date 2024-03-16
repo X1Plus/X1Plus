@@ -1,0 +1,29 @@
+# note: Comment symbols only support '#'
+#       The comment format is consistent with the Linux script format
+#
+# This file is used to list the processes or services that need to be monitored,if it is found that the service or process is not running,
+# the second parameter will be used to start the service or process
+#
+# Use the format as follows:
+# [processes/services name] [run processes/services cmd]
+# E.g: monitor upgrade service: upgrade /etc/init.d/S90upgrade_service restart
+#
+
+#   monitor service list
+/usr/bin/upgrade            /etc/init.d/S98upgrade_service start
+/usr/bin/forward            /etc/init.d/S92forward_service start
+#/usr/bin/amt               /etc/init.d/S97amt_service start
+/usr/bin/bbl_screen         /etc/init.d/S99screen_service start
+/usr/bin/device_gate        /etc/init.d/S91device_gate start
+/usr/bin/device_manager    /etc/init.d/S91device_manager start
+/usr/bin/ipcam              /etc/init.d/S99ipcam_service start
+/usr/bin/bbl_watchdog       /etc/init.d/S90bbl_watchdog start
+/usr/bin/recorder          /etc/init.d/S93recorder_service start
+#/usr/bin/security_service  /etc/init.d/S24security_service start
+/usr/bin/xcam               /etc/init.d/S89xcam_service start
+/usr/bin/tracker            /etc/init.d/S88tracker_service start
+vsftpd                      /etc/init.d/S85vsftpd start
+/usr/sbin/mosquitto         /etc/init.d/S81mosquitto start
+/usr/bin/netService         /etc/init.d/S91netService start
+/usr/bin/bbl_storage        /etc/init.d/S81bbl_storage start
+/opt/sd_watchdog            /etc/init.d/S01sd_watchdog start

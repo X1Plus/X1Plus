@@ -1,0 +1,21 @@
+/dts-v1/;
+
+/include/ "00.00.28.36.dts"
+
+/ {
+	dsi@ffb30000 {
+		panel@1 {
+			status = "disabled";
+		};
+		panel@2 {
+			status = "okay";
+		};
+		panel@3 {
+			status = "disabled";
+		};
+		panel@4 {
+			status = "disabled";
+		};
+	};
+};
+

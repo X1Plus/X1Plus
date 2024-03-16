@@ -1,0 +1,18 @@
+{
+  "branches": ["master"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          { "path": "*.x1p", "label": "X1P Build" }
+        ],
+        "successComment": false,
+        "failComment": false
+      }
+    ]
+  ],
+  "tagFormat": "x1plus/${version}"
+}

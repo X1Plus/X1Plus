@@ -1,0 +1,26 @@
+{
+  "name": "x1p-js",
+  "version": "1.0.0",
+  "description": "JS utilities for talking to X1 printers and X1Plus CFW",
+  "main": "dist/x1p.js",
+  "scripts": {
+    "index": "ts-node src/index.ts",
+    "build": "tsc"
+  },
+  "author": "Joshua Wise",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@types/node": "^20.9.1",
+    "async-mqtt": "^2.6.3",
+    "basic-ftp": "^5.0.3",
+    "commander": "^11.0.0",
+    "node-ssh": "^13.1.0",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/node-ssdp": "^4.0.4",
+    "@types/node-ssh": "^7.0.4",
+    "ts-node": "^10.9.1"
+  }
+}

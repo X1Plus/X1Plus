@@ -1,0 +1,225 @@
+--- printer_ui-orig/printerui/qml/settings/SettingListener.qml
++++ printer_ui/printerui/qml/settings/SettingListener.qml
+@@ -1,12 +1,49 @@
+ import QtQuick 2.12
+ import UIBase 1.0
+ import Printer 1.0
++import X1PlusNative 1.0
+ 
+ import "qrc:/uibase/qml/widgets"
+ import ".."
++import "../X1Plus.js" as X1Plus
+ 
+ Rectangle {
+ 
++    /* CFW: updater */
++    
++    property var cfwVersions: ({})
++    property var modules: X1Plus.DDS.versions()
++    property var fwVersion: cfwVersions['ota'] && cfwVersions['ota']['version']
++    property var fwIsBusted: modules.some(m => {
++        if (m.name != 'ota' && m.name in cfwVersions) {
++            if (m.sw_ver.split("/")[0] != cfwVersions[m.name].version) {
++                console.log(`component ${m.name} has unexpected version ${m.sw_ver} (wanted ${cfwVersions[m.name].version})`);
++                return true;
++            }
++        }
++    })
++    property var fwDidKvetch: false
++    property var fwShouldKvetch: fwIsBusted && !fwDidKvetch
++    
++    function cfwOnCompleted() {
++        X1Plus.DDS.requestVersions();
++
++        let contents = X1Plus.loadJson("/opt/cfwversions.json");
++        if (contents) {
++            cfwVersions = contents;
++        }
++        
++        // Later, we might want to take other interesting things out of
++        // info.json, like the build date and release notes -- or even
++        // render like a QR code for each version or something.  But for
++        // now, we just transplant in the cfwVersion.
++        contents = X1Plus.loadJson("/opt/info.json");
++        if (contents && cfwVersions) {
++            cfwVersions['cfw']['version'] = contents['cfwVersion'];
++        }
++
++    }
++
+     /* Updater */
+ 
+     id: settingListener
+@@ -18,22 +55,57 @@
+ 
+     property var updatePage
+     property bool versionNotify
++    property bool overrideUpdater: false
+ 
+     onUpdatingChanged: {
+         console.log("onUpdatingChanged " + updating)
+-        if (updating) {
+-            updatePage = dialogStack.push("UpdatingPage.qml")
++        if (overrideUpdater) {
++            console.log("not displaying main update screen, because override is set");
+         } else {
+-            dialogStack.pop(updatePage)
+-            dialogStack.pop()
+-            updatePage = null
++            if (updating) {
++                updatePage = dialogStack.push("UpdatingPage.qml")
++            } else {
++                dialogStack.pop(updatePage)
++                dialogStack.pop()
++                updatePage = null
++            }
+         }
+     }
+ 
+     function popupUpdate() {
+-        if (!printIdle || !updater.hasPendingNotify || versionNotify)
++        if (!printIdle || (!updater.hasPendingNotify && !fwShouldKvetch) || versionNotify)
+             return
+         updater.clearPendingNotify()
++        
++        /* CFW should pop up the gentle warning. */
++        if (fwShouldKvetch && !(updater.consistency || updater.forceUpgrade)) {
++            // Only kvetch once per boot, when it is an appropriate time to
++            // do so.  If the user says no, then I guess it's on them.
++            fwDidKvetch = true;
++            
++            versionNotify = true;
++            dialogStack.popupDialog(
++                "TextConfirm", {
++                    name: "X1Plus version notify",
++                    type: TextConfirm.YES_NO,
++                    text: "The firmware versions on the printer's peripheral boards do not match the recommended versions for this X1Plus installation.  Printing may not be reliable, and some features may not be available.<br><br>Would you like to go to the update page?",
++                    callback: function(index) {
++                        if (index === TextConfirm.CONFIRM) {
++                            screen.jumpTo("Settings/Device")
++                            pageStack.push("VersionPage.qml")
++                        }
++                        versionNotify = false;
++                    }
++                });
++        }
++
++        /* In CFW land, we do not emit the 'a new firmware update has been
++         * detected' message.  We're running 99.00.00.00, and that's always
++         * wrong, according to `upgrade`!  */
++        if (!updater.consistency && !updater.forceUpgrade) {
++            return;
++        }
++        
+         var msg = updater.consistency
+                 ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
+                 : updater.forceUpgrade
+@@ -53,12 +125,8 @@
+                         // finished: Qt.binding(function() { return settingListener.printIdle }),
+                         callback: function(index) {
+                             if (index === TextConfirm.CONFIRM) {
+-                                if (updater.consistency) {
+-                                    DeviceManager.startUpdate()
+-                                } else {
+-                                    screen.jumpTo("Settings/Device")
+-                                    pageStack.push("VersionPage.qml")
+-                                }
++                                screen.jumpTo("Settings/Device")
++                                pageStack.push("VersionPage.qml")
+                             }
+                             versionNotify = false
+                         }
+@@ -98,6 +166,7 @@
+     property var power: DeviceManager.power
+     property bool sleep: power.hasSleep
+     property bool aboutToSleep: power.aboutToSleep
++    property bool printing: PrintManager.currentTask.stage >= PrintTask.WORKING
+ 
+     anchors.fill: parent
+     color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
+@@ -165,7 +234,7 @@
+             blackColor = !blackColor
+         }
+     }
+-
++    
+     Connections {
+         target: DeviceManager
+         ignoreUnknownSignals: false
+@@ -219,14 +288,75 @@
+             }
+         }
+     }
++    Timer {
++        id: buttonCmd
++        interval: 500
++        repeat: true
++        running: true
++        onTriggered: {
++            if (fileExist('/tmp/button_action')){
++                var cmd = X1PlusNative.popen(`cat /tmp/button_action`);
++                console.log("[x1p] button action: ", cmd);
++                X1PlusNative.system(`rm /tmp/button_action`);
++                if (cmd == "0"){
++                    if (!sleep){
++                        DeviceManager.power.switchSleep();
++                    } else {
++                        DeviceManager.power.externalWakeup();
++                    }
++                } else if (cmd=="1"){
++                    if (printing){PrintManager.currentTask.abort()};
++                } else if (cmd=="2"){
++                    if (printing){PrintManager.currentTask.pause()};
++                } else if (cmd == '3'){
++                    if (!printing){
++                        if (!fileExist(nozzlecam.imgurl)){X1PlusNative.system(`touch ${nozzlecam.imgurl}`)};
++                        //DdsListener.publishJson(0, "{\"command\":\"gcode_line\",\"param\":\"G28 \\nG0 X240 Y90 Z8 F1200 \\nM960 S4 P1 \\nM973 S3 P1 \\nM973 S1 \\nM400 P100 \\nM971 S1 P1 \\nM973 S4 \\nM960 S4 P0 \\n\",\"sequence_id\": \"2001\"}");
++                        X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_nozzlecam());
++                        nozzlecam.start();
++                    }
++                }
++            }
++        }
++    }
+ 
++   
++    Timer {
++        id: nozzlecam
++        interval: 2000
++        repeat:true
++        running:false
++        property var lastModified: ""
++        property string imgurl:'/userdata/log/cam/capture/calib_1.jpg'
++        onTriggered: {
++            if (fileExist(imgurl)){
++                var currModified = fileDate(imgurl);
++                if (lastModified !== "" && currModified !== lastModified) {
++                    X1PlusNative.system(`cp -rf ${imgurl} /mnt/sdcard/x1plus/nozzle_check.jpg`);
++                    pageStack.push("ViewImage.qml");
++                    pageStack.currentPage.setImage("file:///mnt/sdcard/x1plus/nozzle_check.jpg");
++                    currModified = "";
++                    nozzlecam.stop();
++                }
++                lastModified = currModified;
++            }
++    
++        }
++    }
+     /* Region */
+-
++    function fileDate(path){
++        return X1PlusNative.popen(`stat -c %Y ${path}`);
++    }
++    function fileExist(path){
++        var exist = X1PlusNative.popen(`test -f ${path} && echo 1`);
++        return (exist == 1);
++    }
+     Component.onCompleted: {
+         var wifiRegion = DeviceManager.getSetting("environment", "")
+         var region = DeviceManager.cloud.region
+         if ((region == "" || (wifiRegion == "CN" && region != "China")) && (DeviceManager.getSetting("wizard") === true)) {
+             dialogStack.push("ForceRegionPage.qml", { source: "force" })
+         }
++        cfwOnCompleted();
+     }
+ }

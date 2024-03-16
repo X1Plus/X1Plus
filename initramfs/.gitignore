@@ -1,0 +1,5 @@
+initramfs
+lib/*
+bin/*
+sbin/
+usr/

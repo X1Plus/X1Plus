@@ -1,0 +1,34 @@
+#KERNEL!="mmcblk*[0-9]", GOTO="sd_cards_auto_mount_end"
+#SUBSYSTEM!="block", GOTO="sd_cards_auto_mount_end"
+#ACTION=="add", PROGRAM!="/sbin/blkid %N", GOTO="sd_cards_auto_mount_end"
+#ATTRS{type}!="SD", GOTO="sd_cards_auto_mount_end"
+
+#IMPORT{program}="/sbin/blkid -o udev -p %N"
+
+#ACTION=="add", ENV{mount_options_vfat}="rw,uid=1000,gid=1000,dmask=022,fmask=133,noatime"
+
+#ACTION=="add", ENV{ID_FS_TYPE}=="vfat", RUN+="/usr/bin/mount_sdcard.sh"
+
+#ACTION=="add", ENV{mount_options_ntfs}="rw,uid=1000,gid=1000,dmask=022,fmask=133,noatime"
+
+#ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", RUN+="/bin/mount -t ntfs-3g -o %E{mount_options_ntfs} /dev/%k '/mnt/sdcard'"
+
+#ACTION=="add", ENV{mount_options_exfat}="rw,uid=1000,gid=1000,dmask=022,fmask=133,noatime"
+
+#ACTION=="add", ENV{ID_FS_TYPE}=="exfat", RUN+="/bin/mount -t exfat-fuse -o %E{mount_options_exfat} /dev/%k '/mnt/sdcard'"
+
+#ACTION=="add", ENV{mount_options_ext2}="exec,noatime"
+
+#ACTION=="add", ENV{ID_FS_TYPE}=="ext2", RUN+="/bin/mount -t ext2 -o %E{mount_options_ext2} /dev/%k '/mnt/sdcard'"
+
+#ACTION=="add", ENV{mount_options_ext3}="exec,noatime"
+
+#ACTION=="add", ENV{ID_FS_TYPE}=="ext3", RUN+="/bin/mount -t ext3 -o %E{mount_options_ext3} /dev/%k '/mnt/sdcard'"
+
+#ACTION=="add", ENV{mount_options_ext4}="exec,noatime"
+
+#ACTION=="add", ENV{ID_FS_TYPE}=="ext4", RUN+="/bin/mount -t ext4 -o %E{mount_options_ext4} /dev/%k '/mnt/sdcard'"
+
+#ACTION=="remove", RUN+="/bin/umount -l '/mnt/sdcard'"
+
+#LABEL="sd_cards_auto_mount_end"

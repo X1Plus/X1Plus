@@ -1,0 +1,24 @@
+--- printer_ui-orig/printerui/qml/main/SettingsPage.qml
++++ printer_ui/printerui/qml/main/SettingsPage.qml
+@@ -6,15 +6,14 @@
+ 
+ BaseTabPage {
+     subdir: "settings"
+-    dots: [false, updater.hasPendingNotify, false, maintain.carbon || maintain.screws]
+-    pages: [
+-        { name: "Account", title: qsTr("Account") },
++    dots: (NetworkManager.isLanOnly ? [] : [false]).concat([updater.hasPendingNotify, false, maintain.carbon || maintain.screws, false])
++    pages: (NetworkManager.isLanOnly ? [] : [ { name: "Account", title: qsTr("Account") } ]).concat([
+         { name: "Device", title: qsTr("General") },
++        //{ name: "X1PLogs", title: qsTr("Logs") },
+         { name: "Network", title: qsTr("Network") },
+-        { name: "Maintenance", title: qsTr("Maintenance") }
+-    ].filter(function(p) {
+-        return p.name !== "Account" || !NetworkManager.isLanOnly
+-    })
++        { name: "Maintenance", title: qsTr("Tools") },
++        { name: "Hardware", title: qsTr("Hardware") }
++    ])
+ 
+     property var updater: DeviceManager.updater
+     property var maintain: DeviceManager.maintain

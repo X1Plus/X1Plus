@@ -1,0 +1,34 @@
+#!/bin/sh
+
+start() {
+	printf "Starting wifi_disable_powersaving"
+	start-stop-daemon -S -m -b -p /var/run/wifi_disable_powersaving.pid --exec /usr/bin/wifi_disable_powersaving.sh
+}
+stop() {
+	printf "Stopping wifi_disable_powersaving"
+	start-stop-daemon -K -q -p /var/run/wifi_disable_powersaving.pid
+        rm -f /var/run/wifi_disable_powersaving.pid
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+	stop
+        sleep 5
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

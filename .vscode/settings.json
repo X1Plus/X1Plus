@@ -1,0 +1,11 @@
+{
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "bbl_screen-patch/printer_ui/.*",
+                "isAsync": true,
+                "cmd": "cd ${workspaceFolder}/bbl_screen-patch && ./patcher.py -g"
+            }
+        ]
+    }
+}

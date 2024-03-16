@@ -1,0 +1,34 @@
+#!/bin/sh
+
+start() {
+	printf "Starting syslog shim service: "
+    export LD_PRELOAD=/opt/python/lib/libffi.so
+	start-stop-daemon -S -m -b -p /var/run/syslog_shim_service.pid --exec /opt/python/bin/python3 -- /opt/syslog_shim.py
+}
+stop() {
+	printf "Stopping syslog shim service: "
+	start-stop-daemon -K -q -p /var/run/syslog_shim_service.pid
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+	stop
+    sleep 5
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

@@ -1,0 +1,120 @@
+--- printer_ui-orig/root.qrc
++++ printer_ui/root.qrc
+@@ -11,6 +11,7 @@
+ <file>printerui/icon/amssetting.svg</file>
+ <file>printerui/icon/auxPartCoolFan_0.svg</file>
+ <file>printerui/icon/auxPartCoolFan_1.svg</file>
++<file>printerui/icon/lockScreen.png</file>
+ <file>printerui/icon/bambo.svg</file>
+ <file>printerui/icon/bambo_text.svg</file>
+ <file>printerui/icon/brand.svg</file>
+@@ -108,6 +109,38 @@
+ <file>printerui/icon/wiredNetworkIcon.svg</file>
+ <file>printerui/icon/working.svg</file>
+ <file>printerui/icon/wried_icon.svg</file>
++<file>printerui/icon/components/mainfw.svg</file>
++<file>printerui/icon/components/console_enter.svg</file>
++<file>printerui/icon/components/mainfw.png</file>
++<file>printerui/icon/components/cfw.svg</file>
++<file>printerui/icon/components/cfw.png</file>
++<file>printerui/icon/components/ap-board.svg</file>
++<file>printerui/icon/components/cvmodel.svg</file>
++<file>printerui/icon/components/mc-board.svg</file>
++<file>printerui/icon/components/th.svg</file>
++<file>printerui/icon/components/ams.svg</file>
++<file>printerui/icon/components/ahb.svg</file>
++<file>printerui/icon/components/bambuman.png</file>
++<file>printerui/icon/components/jiayou.svg</file>
++<file>printerui/icon/components/rods.svg</file>
++<file>printerui/icon/components/selftest.svg</file>
++<file>printerui/icon/components/bedlevel.svg</file>
++<file>printerui/icon/components/lidar.svg</file>
++<file>printerui/icon/components/abl.svg</file>
++<file>printerui/icon/components/printerstats.svg</file>
++<file>printerui/icon/components/vibcomp.svg</file>
++<file>printerui/icon/components/filamentdry.svg</file>
++<file>printerui/icon/components/export.svg</file>
++<file>printerui/icon/components/search.svg</file>
++<file>printerui/icon/components/trash.svg</file>
++<file>printerui/icon/components/tweaks.svg</file>
++<file>printerui/icon/components/estop.svg</file>
++<file>printerui/icon/components/power.svg</file>
++<file>printerui/icon/components/console_shell.svg</file>
++<file>printerui/icon/components/console_shell_active.svg</file>
++<file>printerui/icon/components/console_gcode.svg</file>
++<file>printerui/icon/components/console_gcode_active.svg</file>
++<file>printerui/icon/components/refresh_color.svg</file>
+ <file>printerui/image/TouchPanelTest.png</file>
+ <file>printerui/image/ams_calibration.png</file>
+ <file>printerui/image/ams_use_boot_1.png</file>
+@@ -176,6 +209,9 @@
+ <file>printerui/qml/models/ModelInfoBar.qml</file>
+ <file>printerui/qml/models/ModelListPage.qml</file>
+ <file>printerui/qml/printer/AMSSettingPage.qml</file>
++<file>printerui/qml/printer/BedMesh.qml</file>
++<file>printerui/qml/printer/BedLevelDiag.qml</file>
++<file>printerui/qml/printer/BedTramming.qml</file>
+ <file>printerui/qml/printer/AMSUseBootPage.qml</file>
+ <file>printerui/qml/printer/AdjustPage.qml</file>
+ <file>printerui/qml/printer/AutoRefillPage.qml</file>
+@@ -195,18 +231,22 @@
+ <file>printerui/qml/printer/PrintSkipPage.qml</file>
+ <file>printerui/qml/printer/Sector.qml</file>
+ <file>printerui/qml/printer/SelfTestPage.qml</file>
+-<file>printerui/qml/printer/UtilitiesPage.qml</file>
++<file>printerui/qml/printer/VibrationComp.qml</file>
++<file>printerui/qml/printer/VibrationCompPlotter.qml</file>
+ <file>printerui/qml/settings/AccountPage.qml</file>
++<file>printerui/qml/settings/ConsolePage.qml</file>
+ <file>printerui/qml/settings/CameraLogPage.qml</file>
+ <file>printerui/qml/settings/CarbonFunction.qml</file>
+ <file>printerui/qml/settings/CertificateConfirm1Page.qml</file>
+ <file>printerui/qml/settings/CertificateConfirm2Page.qml</file>
+ <file>printerui/qml/settings/DebugPage.qml</file>
+ <file>printerui/qml/settings/DeviceInfoItem.qml</file>
++<file>printerui/qml/settings/DeviceInfo.qml</file>
+ <file>printerui/qml/settings/DeviceInfoPage.qml</file>
+ <file>printerui/qml/settings/DeviceMaintainPage.qml</file>
+ <file>printerui/qml/settings/DevicePage.qml</file>
+ <file>printerui/qml/settings/ForceRegionPage.qml</file>
++<file>printerui/qml/settings/HardwarePage.qml</file>
+ <file>printerui/qml/settings/InputPage.qml</file>
+ <file>printerui/qml/settings/MaintenancePage.qml</file>
+ <file>printerui/qml/settings/NetParaSetPage.qml</file>
+@@ -215,9 +255,14 @@
+ <file>printerui/qml/settings/RegionItem.qml</file>
+ <file>printerui/qml/settings/ReleaseNotePage.qml</file>
+ <file>printerui/qml/settings/SensorPage.qml</file>
++<file>printerui/qml/settings/ScreenLock.qml</file>
++<file>printerui/qml/settings/ScreenLockPage.qml</file>
+ <file>printerui/qml/settings/SettingListener.qml</file>
+ <file>printerui/qml/settings/UpdatingPage.qml</file>
++<file>printerui/qml/settings/UpgradeDialog.qml</file>
++<file>printerui/qml/settings/VersionDialog.qml</file>
+ <file>printerui/qml/settings/VersionPage.qml</file>
++<file>printerui/qml/settings/ViewImage.qml</file>
+ <file>printerui/qml/settings/WifiListPage.qml</file>
+ <file>printerui/qml/settings/WifiSetupPage.qml</file>
+ <file>printerui/qml/wizard/Calibrate1Page.qml</file>
+@@ -233,6 +278,16 @@
+ <file>printerui/qml/wizard/TermsPage.qml</file>
+ <file>printerui/qml/wizard/WelcomePage.qml</file>
+ <file>printerui/qml/wizard/WizardPage.qml</file>
++<file>printerui/qml/X1Plus.js</file>
++<file>printerui/qml/X1PBackButton.qml</file>
++<file>printerui/qml/x1plus/BedMeshCalibration.js</file>
++<file>printerui/qml/x1plus/Binding.js</file>
++<file>printerui/qml/x1plus/Bindable.qml</file>
++<file>printerui/qml/x1plus/DDS.js</file>
++<file>printerui/qml/x1plus/GcodeGenerator.js</file>
++<file>printerui/qml/x1plus/MeshCalcs.js</file>
++<file>printerui/qml/x1plus/ShaperCalibration.js</file>
++<file>printerui/qml/x1plus/Stats.js</file>
+ <file>printerui/text/error_texts.de.json</file>
+ <file>printerui/text/error_texts.en.json</file>
+ <file>printerui/text/error_texts.es.json</file>
+@@ -293,3 +348,4 @@
+ <file>printerui/text/terms.zh-cn.txt</file>
+ <file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
+ </qresource></RCC>
++

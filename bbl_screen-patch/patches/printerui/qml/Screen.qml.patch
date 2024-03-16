@@ -1,0 +1,90 @@
+--- printer_ui-orig/printerui/qml/Screen.qml
++++ printer_ui/printerui/qml/Screen.qml
+@@ -2,6 +2,8 @@
+ import QtQuick.Controls 2.12
+ import UIBase 1.0
+ import Printer 1.0
++import X1PlusNative 1.0
++import "X1Plus.js" as X1Plus
+ 
+ import "printer"
+ import "settings"
+@@ -9,7 +11,6 @@
+ import "."
+ 
+ Item {
+-
+     id: screen
+     width: 1280
+     height: 720
+@@ -18,10 +19,20 @@
+     property var navigator: navigator
+     property var pageStack: pageStack
+ 
++    function updateBacklight() {
++        var bright = DeviceManager.getSetting("cfw_brightness", 100);
++        X1PlusNative.updateBacklight(bright);
++    }
++
++    function updateToolheadLed() {
++        var on = DeviceManager.getSetting("cfw_toolhead_led", false);
++        X1Plus.sendGcode(`M960 S5 P${on ? 1 : 0}`);
++    }
++
+     MouseArea {
+         id: hitLostChecker
+         anchors.fill: parent
+-        enabled: DeviceManager.getSetting("debug_enabled", false)
++        enabled: false//DeviceManager.getSetting("debug_enabled", false)
+         Timer {
+             id: hitElapseTimer
+             interval: 2000
+@@ -70,6 +81,8 @@
+         }
+         Component.onCompleted: {
+             activePage = "Home"
++            updateBacklight();
++            updateToolheadLed();
+         }
+ 
+         Timer {
+@@ -129,6 +142,7 @@
+ 
+     Component.onCompleted: {
+         Printer.jumpTo.connect(jumpTo)
++        X1Plus.awaken(DeviceManager, PrintManager)
+     }
+ 
+     Loader {
+@@ -170,6 +184,11 @@
+                 console.log("dialogStack onCurrentItemChanged content " + currentItem.content)
+         }
+     }
++    
++    ScreenLock {
++        id: screenLock
++        anchors.fill: parent
++    }
+ 
+     // https://www.cnblogs.com/linuxAndMcu/p/13667894.html
+     EmbededInputPanel {
+@@ -179,7 +198,18 @@
+         id: printListener
+     }
+ 
+-    SettingListener { id: screenSaver }
++    SettingListener {
++        id: screenSaver
++        onSleepChanged: {
++            if (!sleep) {
++                updateBacklight();
++            }
++            if (sleep) {
++                screenLock.didSleep();
++            }
++        }
++    }
++    
+ 
+     FactoryLoader {}
+ }

@@ -1,0 +1,37 @@
+#!/bin/sh
+
+start() {
+    printf "Starting system monitor: "
+    export LD_PRELOAD=/opt/evdev_fix.so
+    start-stop-daemon -S -m -b -p /var/run/sys_monitor.pid \
+        --exec /usr/bin/sys_monitor.sh \
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping system monitor: "
+    start-stop-daemon -K -q -p /var/run/sys_monitor.pid \
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+    }
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

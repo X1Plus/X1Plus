@@ -1,0 +1,24 @@
+<!DOCTYPE RCC><RCC version="1.0"><qresource>
+<file>printerui/qml/DynamicString.qml</file>
+<file>printerui/qml/dialog/KexecDialog.qml</file>
+<file>printerui/qml/dialog/Success.qml</file>
+<file>printerui/qml/dialog/TextConfirm.qml</file>
+<file>printerui/qml/dialog/DialogButtonItem.qml</file>
+<file>printerui/qml/Dialog.qml</file>
+<file>printerui/qml/Choise.qml</file>
+<file>printerui/qml/Screen.qml</file>
+<file>printerui/qml/ZTextCompat.qml</file>
+<file>printerui/qml/InstallingPage.qml</file>
+<file>printerui/qml/BootOptionsPage.qml</file>
+<file>printerui/qml/SelectX1pPage.qml</file>
+<file>printerui/qml/GradientRectangle.qml</file>
+<file>printerui/qml/EmbededInputPanel.qml</file>
+<file>printerui/qml/EmergencyConsole.qml</file>
+<file>printerui/qml/SimplePager.qml</file>
+<file>printerui/image/cfw.png</file>
+<file>printerui/image/exclamation.svg</file>
+<file>printerui/image/roundHook.svg</file>
+<file>printerui/image/up.svg</file>
+<file>printerui/image/return.svg</file>
+<file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
+</qresource></RCC>

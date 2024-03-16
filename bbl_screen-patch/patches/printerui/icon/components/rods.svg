@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="128"
+   height="128"
+   viewBox="0 0 33.866666 33.866666"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
+   sodipodi:docname="rods.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="3.2180883"
+     inkscape:cx="98.661058"
+     inkscape:cy="29.831375"
+     inkscape:window-width="1430"
+     inkscape:window-height="936"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4">
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.04735;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:3.07102, 2.04735;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+         id="rect4"
+         width="37.337372"
+         height="23.433928"
+         x="-1.4038002"
+         y="6.1239228" />
+    </clipPath>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:none;stroke:#cccccc;stroke-width:2.11667;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.05833495,4.23333979;stroke-dashoffset:0.84666796;stroke-opacity:1"
+       d="M 11.685154,31.296618 V 1.2925798"
+       id="path4"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#cccccc;stroke-width:2.11667;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.05833495,4.23333979;stroke-dashoffset:0.84666796;stroke-opacity:1"
+       d="M 1.8518218,20.945458 H 31.816585"
+       id="path5"
+       sodipodi:nodetypes="cc" />
+    <circle
+       style="fill:#e5e5e5;fill-opacity:1;stroke:#cccccc;stroke-width:2.11667;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="path6"
+       cx="11.688805"
+       cy="21.082056"
+       r="3.1330304" />
+  </g>
+</svg>

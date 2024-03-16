@@ -1,0 +1,8 @@
+/bbl_screen
+/printer_ui*/
+/*.so
+/*.zip
+*.o
+*_moc.cpp
+*_moc.h
+*.ui.cpp

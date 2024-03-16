@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# X1 Plus shield
+
+start() {
+  # Determine if we are enabled or not
+  SHIELD_FLAG=$(jq -r '.cfw_shield' /config/screen/printer.json)
+  # If unset in UI, default to disable
+  if [ "${SHIELD_FLAG}" == "null" ]; then
+    SHIELD_FLAG="false"
+  fi
+  # We only want to start if enabled and in LAN mode
+  if [ "${SHIELD_FLAG}" == "false" ] || [ "$(cat /config/device/conn_mode)" != "lan" ]; then
+    echo "x1plus shield is disabled or device is in cloud mode, exiting."
+    exit 0
+  fi
+  printf "Starting x1plus shield: "
+  iptables -A OUTPUT -o wlan0 -p tcp --tcp-flags SYN,ACK SYN,ACK -j ACCEPT \
+    && iptables -A OUTPUT -o wlan0 -p tcp --tcp-flags SYN SYN -j DROP
+  [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+  printf "Stopping x1plus shield: "
+  iptables -F OUTPUT
+  [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit $?

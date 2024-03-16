@@ -1,0 +1,10 @@
+--- printer_ui-orig/printerui/qml/main/PrinterPage.qml
++++ printer_ui/printerui/qml/main/PrinterPage.qml
+@@ -10,7 +10,6 @@
+     pages: [
+         { name: "Adjust", title: qsTr("Temperature/Axis") },
+         { name: DeviceManager.build.deviceCode === "N2" ? "Filament2" : "Filament", title: qsTr("Filament") },
+-        { name: "Utilities", title: qsTr("Utilities") },
+         { name: "PrintOptions", title: qsTr("Print Options") }
+     ]
+ 

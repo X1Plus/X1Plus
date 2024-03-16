@@ -1,0 +1,54 @@
+--- printer_ui-orig/printerui/qml/main/Home2Page.qml
++++ printer_ui/printerui/qml/main/Home2Page.qml
+@@ -2,6 +2,7 @@
+ import QtQuick.Controls 2.12
+ import UIBase 1.0
+ import Printer 1.0
++import X1PlusNative 1.0
+ 
+ import ".."
+ import "../printer"
+@@ -16,6 +17,9 @@
+     property bool printing: task.stage >= PrintTask.WORKING
+     property var carouselImages: WebContents.carouselImages2
+     property bool printPrepare: task.state < PrintTask.RUNNING && task.state > PrintTask.IDLE
++    property var serialNo: DeviceManager.build.seriaNO
++    property var f1: "file://" + DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/${serialNo}/images/home.png`)
++    property var img1: imgExists(f1) ? f1: "qrc:/printerui/image/exhibition.png"
+     property var stateIcons: {
+         var icons = []
+         if (RecordManager.isTimelapseOn) {
+@@ -29,6 +33,14 @@
+ //        }
+         return icons
+     }
++    function imgExists(img){
++        var strPath = img.replace("file://","");
++        if (X1PlusNative.popen(`test -f ${strPath} && echo 1 || echo 0`) == 0){
++            return false;
++        } else {
++            return true;
++        }
++    }
+ 
+     EventTrack.pageName: "Home2"
+ 
+@@ -296,7 +308,8 @@
+         topMargin: statusPanel.topMargin
+         bottomMargin: statusPanel.bottomMargin
+         color: hmsItem.visible ? Colors.gray_700: Colors.gray_600
+-
++        
++        
+         ZCarouselView {
+             anchors.fill: parent
+             anchors.margins: 10
+@@ -304,7 +317,7 @@
+             orientation: Qt.Vertical
+             visible: !hmsItem.visible && !printStep.visible
+             model: carouselImages.length === 0
+-                   ? [ "qrc:/printerui/image/exhibition1.png" ]
++                   ? [ img1 ]
+                    : carouselImages.map(function(i) { return i.imageUrl })
+         }
+ 

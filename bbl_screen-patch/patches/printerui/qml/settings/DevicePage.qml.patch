@@ -1,0 +1,574 @@
+--- printer_ui-orig/printerui/qml/settings/DevicePage.qml
++++ printer_ui/printerui/qml/settings/DevicePage.qml
+@@ -3,14 +3,45 @@
+ import QtQml 2.12
+ import UIBase 1.0
+ import Printer 1.0
++import X1PlusNative 1.0
+ 
+ import "qrc:/uibase/qml/widgets"
+ import ".."
++import "../printer"
+ 
+ Item {
+ 
+     property var build: DeviceManager.build
+     property var storage: DeviceManager.storage
++    property var isShield: DeviceManager.getSetting("cfw_shield", false)
++    property var changeName:""
++    function setShield(shield) {
++        isShield = shield;
++        DeviceManager.putSetting("cfw_shield", isShield);
++        if (shield) {
++            X1PlusNative.system(`/etc/init.d/S71x1plus_shield start`);
++            console.log("[x1p] shield mode enabled");
++        } else {
++            X1PlusNative.system(`/etc/init.d/S71x1plus_shield stop`);
++            console.log("[x1p] shield mode disabled");
++        }
++    }
++    
++    Timer {
++        id: waitSyncTimer
++        interval: 3000
++        repeat: true
++        running: false
++        onTriggered: {
++            if (NetworkManager.lanOnlySyncing)
++                return;
++            /* done syncing, go reboot into shield mode */
++            X1PlusNative.system(`sync;reboot`);
++        }
++    }
++    function waitSyncAndReboot() {
++        waitSyncTimer.start();
++    }
+ 
+     onVisibleChanged: {
+         DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
+@@ -22,6 +53,7 @@
+ 
+     property var infoItems: SimpleItemModel {
+         DeviceInfoItem { title: qsTr("Device"); value: build.name
++            property var onClicked: triggerName
+         }
+         DeviceInfoItem { title: qsTr("Language"); value: DeviceManager.languageTitle
+             function onClicked() {
+@@ -31,8 +63,8 @@
+                 choisePad.choiseCallback = function(c) { DeviceManager.languageTitle = c }
+                 choisePad.popupFor()
+             } }
+-        DeviceInfoItem { title: qsTr("Firmware Version"); value: build.version
+-            dot: DeviceManager.updater.hasNewVersion || DeviceManager.updater.consistency
++        DeviceInfoItem { title: qsTr("Firmware Version"); value: screenSaver.fwVersion
++            dot: screenSaver.fwIsBusted
+             property var onClicked: triggerVersion
+         }
+         DeviceInfoItem { title: qsTr("Video"); value: models[number]
+@@ -56,79 +88,59 @@
+                 }
+                 choisePad.popupFor()
+             } }
+-        DeviceInfoItem { title: qsTr("Auto-Sleep"); value: modelNames[DeviceManager.power.mode]
+-            property var modelNames: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")]
+-            function onClicked() {
+-                choisePad.name = "powerModePad"
+-                choisePad.choiseModel = modelNames
+-                choisePad.choise = choisePad.choiseModel[DeviceManager.power.mode]
+-                choisePad.choiseCallback = function(m) { DeviceManager.power.mode = choisePad.choiseModel.indexOf(m) }
+-                choisePad.popupFor()
+-            } }
+-//        DeviceInfoItem { title: qsTr("Theme"); value: Colors.dayNightMode ? qsTr("Dark") : qsTr("Light")
+-//            function onClicked() { Colors.dayNightMode = !Colors.dayNightMode }}
+-//        DeviceInfoItem { title: qsTr("Model Name"); value: build.product }
+-        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
+-            function onClicked() { pageStack.push("DeviceInfoPage.qml") }
++        DeviceInfoItem { title: qsTr("Screen lock"); value: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")][DeviceManager.power.mode] + ", " + ["screen saver", "swipe to unlock", "passcode"][DeviceManager.getSetting("cfw_locktype", 0)]
++            function onClicked() { pageStack.push("ScreenLockPage.qml") }
+         }
+-//        DeviceInfoItem { title: qsTr("Certification"); value: ""
+-//            function onClicked() { certPanel.visible = true }
+-//        }
+-        DeviceInfoItem { title: qsTr("Export Log to SD Card"); value: ""
+-            property var onClicked: exportLog }
+-        DeviceInfoItem { title: qsTr("Restore Factory Settings"); value: ""
+-            property var onClicked: restoreFactorySettings }
+-    }
+ 
+-    function triggerVersion() {
+-        if (DeviceManager.updater.consistency
+-                && PrintManager.currentTask.stage < PrintTask.WORKING) {
+-            dialogStack.popupDialog(
+-                        "TextConfirm", {
+-                            name: "Version notify version is abnormal",
+-                            type: TextConfirm.YES_NO,
+-                            text: qsTr("The firmware version is abnormal. Repair and update are required, otherwise the printing cannot be started. Do you want to update now?"),
+-                            onYes: function(index) { DeviceManager.startUpdate() },
+-                            onNo: function(index) { pageStack.push("VersionPage.qml") }
+-                        })
+-            return
++        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
++            function onClicked() { pageStack.push("DeviceInfo.qml") }
+         }
+-        pageStack.push("VersionPage.qml")
+     }
+ 
+-    function formatStorage() {
+-        var format = function() {
+-            if (!DeviceManager.formatStorage())
+-                return
+-            dialogStack.popupDialog("WorkProgress", {
+-                                 name: "Format storage",
+-                                 message: qsTr("Formatting..."),
+-                                 // must let "finished" go through 0->1 that can close this dialog...
+-                                 /* below, for "return !DeviceManager.storage.internal" situation: 
+-                                        "DeviceManager_linux.cpp" "storage_.internal_" is exists of "/mnt/sdcard/"(sd card mount here), and "storage_.hasExternal_" is exists of "/dev/mmcblk2"(sd card it self)
+-                                        in "devicemanager.cpp" there is a timer periodic execution "DeviceManager::updateDeviceInfos"
+-                                        to update info, in "DeviceManager::formatStorage2()" of "DeviceManager_linux.cpp" let "syncInfos_ |= DI_Storage"
+-                                        that next time "DeviceManager::updateDeviceInfos" will update sd card info,
+-                                        when sd formatting "storage_.internal_" will go through 0->1 if things goes normal
+-                                    below, for "return !DeviceManager.formattingSDCard" situation: 
+-                                        use "activeInfos_.setFlag(DI_FORMAT_SDCARD);" and "activeInfos_.setFlag(DI_FORMAT_SDCARD, false);"
+-                                        in "DeviceManager::formatStorage2()" to close this dialog
+-                                 */
+-                                 finished: Qt.binding(function() {
+-                                     // return !DeviceManager.storage.internal
+-                                     return !DeviceManager.formattingSDCard
+-                                 })
+-                             })
+-        }
++    function triggerName() {
+         dialogStack.popupDialog("TextConfirm", {
+-                             name: "Format storage",
+-                             text: qsTr("Data cannot be recovered after formatting the SD Card. Are you sure you want to format?"),
+-                             titles: [qsTr("Format"), qsTr("Cancel")],
+-                             onYes: format
++                             name: "Device name",
++                             text: qsTr("To change the name of your device, please use the slicer or the Bambu app."),
++                             type: TextConfirm.CONFIRM
++     
+                          })
++      /*  dialogStack.push("InputPage.qml", {
++                                 input_head_text : "",
++                                 input_text : build.name,
++                                 max_input_num : 50,
++                                 isUsePassWord : false,
++                                 isInputShow : true,
++                                 isInputting_obj : rect_isInputting_obj,
++                                 output_obj : changeName });*/
++        
++    }
++    function triggerVersion() {
++        //DeviceManager.updateVersion();
++        pageStack.push("VersionPage.qml")
+     }
+ 
+-    function exportLog() {
++    //Device name change - this method below (mqtt publication to 
++    ///device/request/update {"name":"devicename"})
++    //This works great and /config/device/name is updated, but the slicer
++    //and app are not updated.
++    /*QtObject {
++        id: rect_isInputting_obj
++        property bool isInputting: false
++        onIsInputtingChanged: {
++            if(!isInputting){
++                console.log("[x1p]",changeName);
++                var mstr = JSON.stringify({"update":{"sequence_id":"0","name",changeName}});
++                //console.log("[x1p] Device name changed from "+ build.name + " to " + change);
++                console.log("[x1p]", mstr);
++//JSON.stringify({"name": changeName, "sequence_id": "0" }));
++           
++                X1PlusNative.system(`source /usr/bin/mqtt_repub.sh name ${mstr}`);
++                DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
++                
++            }
++        }
++    }/*
++    /*function exportLog() {
+         var export_ = function(index) {
+ //            if (!DeviceManager.exportSystemLog())
+ //                return
+@@ -173,30 +185,36 @@
+                                         onYes: restore
+                                     })
+         }
+-    }
++    }*/
++
+ 
++    
+     MarginPanel {
+         id: ctrlPanel
+         width: 463
+-        height: parent.height
++        anchors.top: parent.top
++        anchors.bottom: parent.bottom
+         radius: 15
+         color: Colors.gray_800
++        anchors.left: parent.left
++        leftMargin: 10
++        bottomMargin: 10
+ 
+         MarginPanel {
+             id: sdIdStorage
+-            x:20
+-            y:15
+-            width: 245
+-            height: 155
++            anchors.horizontalCenter: parent.horizontalCenter
++            anchors.top: parent.top
++            topMargin: 26
++            width: 426
++            height: 135
+             marginColor: "transparent"
+-            rightRadiusOff: true
+-            color: Colors.gray_700
++            color: Colors.gray_600
+ 
+             ZText {
+                 id: sdName
+                 maxWidth: parent.width - 10
+-                anchors.bottom: parent.bottom
+-                anchors.bottomMargin: 72
++                anchors.top: parent.top
++                anchors.topMargin: 15
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 color: Colors.gray_200
+                 font: Fonts.body_40
+@@ -206,6 +224,7 @@
+             ZText {
+                 id: sdSpace
+                 anchors.top: sdName.bottom
++                anchors.topMargin: 10
+                 anchors.horizontalCenter: sdName.horizontalCenter
+                 color: Colors.font2
+                 font: Fonts.body_24
+@@ -215,12 +234,12 @@
+ 
+             ZProgressBar {
+                 id: sdProgressBar
+-                width: 185
++                width: parent.width - 30
+                 height: 8
+                 type: ZProgressBarAppearance.Secondary
+                 size: ZProgressBarAppearance.Middle
+-                anchors.top: parent.top
+-                anchors.topMargin: 122
++                anchors.top: sdSpace.bottom
++                anchors.topMargin: 10
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 backgroundColor: StateColors.get("gray_500")
+                 progressColor: Colors.brand
+@@ -229,35 +248,11 @@
+         }
+ 
+         MarginPanel {
+-            id: formatSD
+-            width: 187
+-            height: 155
+-            anchors.left: parent.left
+-            anchors.leftMargin: 241+20
+-            anchors.top: sdIdStorage.top
+-            marginColor: "transparent"
+-            leftRadiusOff: true
+-            color: formatBtn.color
+-
+-            ZButton {
+-                id: formatBtn
+-                anchors.fill: parent
+-                type: ZButtonAppearance.Tertiary
+-                backgroundColor: StateColors.get("gray_600_pressed")
+-                textColor: StateColors.get("gray_300")
+-                text: qsTr("Format")
+-                onClicked: {
+-                    formatStorage()
+-                }
+-            }
+-        }
+-
+-        MarginPanel {
+             id: video
+             width: 426
+             height: 186
+             anchors.top: sdIdStorage.bottom
+-            anchors.topMargin: 20
++            anchors.topMargin: 26
+             anchors.left: sdIdStorage.left
+             color: Colors.gray_600
+             radius: 15
+@@ -327,7 +322,7 @@
+         MarginPanel {
+             id: lanOnly
+             width: 426
+-            height: 178
++            height: 220
+             anchors.top: sdIdStorage.bottom
+             anchors.topMargin: 16
+             anchors.left: sdIdStorage.left
+@@ -338,35 +333,50 @@
+             Text {
+                 id: lanOnlyText
+                 anchors.top: parent.top
+-                anchors.topMargin: 20
++                anchors.topMargin: 25
+                 anchors.left: parent.left
+                 anchors.leftMargin: 24
+                 color: Colors.gray_100
+-                font: Fonts.body_30
+-                text: qsTr("LAN Only")
++                font: Fonts.body_28
++                text: qsTr("Network")
+             }
+ 
+-            ZSwitchButton {
+-                id: lanOnlyButton
+-                anchors.right: line1.right
+-                anchors.top: lanOnlyText.top
+-                dynamicChecked: NetworkManager.isLanOnly
+-                enabled: !NetworkManager.lanOnlySyncing
+-                onToggled: {
+-                    if (checked) {
+-                        var checked2 = checked
++            /* NetworkManager.isLanOnly */
++            /* NetworkManager.lanOnlySyncing is true when busy */
++            Choise {
++                id: choiceLanOnly
++                anchors.right: parent.right
++                anchors.rightMargin: 25
++                anchors.verticalCenter: lanOnlyText.verticalCenter
++                width: right - lanOnlyText.right - 25
++                textFont: Fonts.body_26
++                listTextFont: Fonts.body_28
++                backgroundColor: Colors.gray_500
++                model: ["Bambu cloud", "LAN         " /* freaking QML */, "LAN + shield"]
++                currentIndex: !NetworkManager.isLanOnly ? 0 : !isShield ? 1 : 2
++                readOnly: NetworkManager.lanOnlySyncing
++                onChoiseTapped: {
++                    var expectedIndex = !NetworkManager.isLanOnly ? 0 : !isShield ? 1 : 2;
++                    if (currentIndex == expectedIndex) {
++                        return;
++                    }
++                    if (currentIndex == 0) {
++                        setShield(false);
++                        NetworkManager.isLanOnly = false;
++                    } else if (currentIndex == 1) {
+                         dialogStack.popupDialog(
+                                     "TextConfirm", {
+                                         name: "Turn off LAN Only",
+-                                        text: qsTr("Enabling LAN Only mode will disconnect all Bambu Studio and Bambu Handy connected to the device. Do you want to continue?"),
++                                        text: qsTr("Enabling LAN mode will disconnect all Bambu Studio and Bambu Handy connected to the device. Do you want to continue?"),
+                                         defaultButton: 1,
+                                         onYes: function() {
+-                                            NetworkManager.isLanOnly = checked2
++                                            setShield(false);
++                                            NetworkManager.isLanOnly = true;
+                                             if (!RecordManager.rtspServerOn) {
+                                                 dialogStack.popupDialog(
+                                                             "TextConfirm", {
+                                                                 name: "rtsp server on",
+-                                                                text: qsTr("Do you need to open LAN Mode Liveview?"),
++                                                                text: qsTr("Do you want to turn on the LAN live view server?"),
+                                                                 defaultButton: 0,
+                                                                 onYes: function() {
+                                                                     rtspServerBtn.checked = true
+@@ -374,27 +384,62 @@
+                                                                 }
+                                                             })
+                                             }
++                                        },
++                                        onNo: function() {
++                                            currentIndex = 0;
++                                            choiseTapped();
+                                         }
+                                     })
+                     } else {
+-                        NetworkManager.isLanOnly = checked
++                        dialogStack.popupDialog(
++                                    "TextConfirm", {
++                                        name: "Enter shield mode",
++                                        text: qsTr("X1Plus Shield Mode is an enhancement to LAN mode that uses iptables to block outbound connections from the printer.  You will still be able to connect to the printer via FTP and MQTT, but the printer will not be able to download toolhead firmware.  Enabling shield mode requires restarting your printer.  Enable now?"),
++                                        defaultButton: 0,
++                                        titles :[ qsTr("Enable shield and restart"), qsTr("Enable LAN mode only") ],
++                                        onYes: function() {
++                                            setShield(true);
++                                            NetworkManager.isLanOnly = true;
++                                            waitSyncAndReboot();
++                                        },
++                                        onNo: function() {
++                                            currentIndex = 1;
++                                            choiseTapped();
++                                        }
++                                    })
+                     }
+                 }
+             }
+ 
+-            ZLineSplitter {
+-                id: line1
+-                alignment: Qt.AlignTop
+-                padding: 24
+-                offset: 66
+-                color: Colors.gray_400
++            Text {
++                id: rtspServerTx
++                anchors.left: lanOnlyText.left
++                anchors.top: choiceLanOnly.bottom
++                anchors.topMargin: 20
++                font: Fonts.body_28
++                color: Colors.gray_100
++                width: 310
++                wrapMode: Text.WordWrap
++                text: qsTr("LAN Only Liveview")
++            }
++
++            ZSwitchButton {
++                id: rtspServerBtn
++                anchors.verticalCenter: rtspServerTx.verticalCenter
++                anchors.right: parent.right
++                anchors.rightMargin: 25
++                dynamicChecked: RecordManager.rtspServerOn
++                enabled: !RecordManager.syncingRtspServer
++                onToggled: {
++                    RecordManager.rtspServerOn = checked
++                }
+             }
+ 
+             ZText {
+                 id: accessCodeText
+                 maxWidth: 320
+-                anchors.top: line1.top
+-                anchors.topMargin: 28
++                anchors.top: rtspServerBtn.bottom
++                anchors.topMargin: 25
+                 anchors.left: lanOnlyText.left
+                 color: Colors.brand
+                 font: Fonts.body_24
+@@ -407,8 +452,7 @@
+                 height: width
+                 radius: width / 2
+                 anchors.top: accessCodeText.top
+-                anchors.right: line1.right
+-                anchors.rightMargin: 10
++                anchors.horizontalCenter: rtspServerBtn.horizontalCenter
+                 type: ZButtonAppearance.Secondary
+                 iconPosition: ZButtonAppearance.Center
+                 paddingX: 0
+@@ -434,9 +478,9 @@
+         }
+ 
+         MarginPanel {
+-            id: rtspServer
++            id: enableSsh
+             width: 426
+-            height: 108
++            height: 160
+             anchors.top: lanOnly.bottom
+             anchors.topMargin: 16
+             anchors.left: lanOnly.left
+@@ -445,28 +489,84 @@
+             marginColor: "transparent"
+ 
+             Text {
+-                id: rtspServerTx
++                id: enableSshTx
+                 anchors.left: parent.left
+-                anchors.leftMargin: 30
+-                anchors.verticalCenter: parent.verticalCenter
+-                font: Fonts.body_24
++                anchors.leftMargin: 24
++                anchors.top: parent.top
++                anchors.topMargin: 20
++                font: Fonts.body_28
+                 color: Colors.gray_100
+                 width: 310
+                 wrapMode: Text.WordWrap
+-                text: qsTr("LAN Only Liveview")
++                text: qsTr("Enable SSH Server")
+             }
+ 
+             ZSwitchButton {
+-                id: rtspServerBtn
++                id: enableSshBtn
+                 anchors.right: parent.right
+                 anchors.rightMargin: 24
+-                anchors.verticalCenter: parent.verticalCenter
+-                dynamicChecked: RecordManager.rtspServerOn
+-                enabled: !RecordManager.syncingRtspServer
++                anchors.verticalCenter: enableSshTx.verticalCenter
++                dynamicChecked: DeviceManager.getSetting("cfw_sshd", false)
+                 onToggled: {
+-                    RecordManager.rtspServerOn = checked
++                    DeviceManager.putSetting("cfw_sshd", checked)
++                    dynamicChecked = checked
++                    if (checked) {
++                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd start`);
++                    } else {
++                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd stop`);
++                    }
+                 }
+             }
++            
++            ZText {
++                property var rootpw: DeviceManager.getSetting("cfw_rootpw", "")
++                function regenRootPw() {
++                    var newpw = X1PlusNative.popen(`dd if=/dev/urandom bs=10 count=1 | md5sum | cut -c 1-12`); // now THAT is cheesy!
++                    DeviceManager.putSetting("cfw_rootpw", newpw);
++                    rootpw = newpw;
++                    X1PlusNative.system(`/etc/init.d/S70x1plus_sshd new_password`);
++                }
++            
++                id: rootpwText
++                maxWidth: 320
++                anchors.top: enableSshTx.bottom
++                anchors.topMargin: 28
++                anchors.left: enableSshTx.left
++                color: Colors.brand
++                font: Fonts.body_24
++                text: qsTr("Root password: ") + "<br><font size=\"4\" color=\"#00AE42\">" + (rootpw == "" ? "[not yet set]" : rootpw) + "</font>"
++            }
++
++            ZButton {
++                id: refreshRootPwBtn
++                width: 46
++                height: width
++                radius: width / 2
++                anchors.horizontalCenter: enableSshBtn.horizontalCenter
++                anchors.verticalCenter: rootpwText.verticalCenter
++                type: ZButtonAppearance.Secondary
++                iconPosition: ZButtonAppearance.Center
++                paddingX: 0
++                iconSize: 46
++                textColor: StateColors.get("gray_100")
++                icon: "../../icon/refresh.svg"
++                onClicked: {
++                    rootpwText.regenRootPw()
++                    rootpwRotationId.start()
++                }
++
++                RotationAnimation {
++                    id: rootpwRotationId
++                    target: refreshRootPwBtn.iconItem
++                    property: "rotation"
++                    loops: 1
++                    alwaysRunToEnd: true
++                    duration: 1000
++                    from: 0
++                    to: 360
++                }
++            }
++
+         }
+     }
+ 
+@@ -476,7 +576,9 @@
+         anchors.right: parent.right
+         anchors.top: parent.top
+         anchors.bottom: parent.bottom
+-        leftMargin: 16
++        leftMargin: 14
++        rightMargin: 10
++        bottomMargin: 10
+         radius: 15
+         color: Colors.gray_600
+ 

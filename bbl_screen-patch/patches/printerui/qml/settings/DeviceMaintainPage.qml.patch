@@ -1,0 +1,41 @@
+--- printer_ui-orig/printerui/qml/settings/DeviceMaintainPage.qml
++++ printer_ui/printerui/qml/settings/DeviceMaintainPage.qml
+@@ -25,7 +25,6 @@
+             dataText = qsTr("The lead screw may need to be lubricated. Please refer to the following link for operation.")
+         }
+     }
+-
+     Text {
+         id: tipsTx
+         width: 900
+@@ -103,21 +102,14 @@
+             pageStack.pop()
+         }
+     }
+-    ZButton {
+-        id: returnBtn
+-        anchors.top: parent.top
+-        anchors.topMargin: 15
+-        anchors.right: parent.right
+-        anchors.rightMargin: 18
+-        width: 88
+-        height: width
+-        iconSize: -1
+-        type: ZButtonAppearance.Secondary
+-        icon: "../../icon/close.svg"
+-        visible: !completeBtn.visible
+-        radius: width / 2
+-        onClicked: {
+-            pageStack.pop()
++    Item {
++        X1PBackButton {
++            id: returnButton
++            onClicked: { 
++                pageStack.pop()
++            }
+         }
+-    }
++    }   
++    
+ }
++

@@ -1,0 +1,46 @@
+--- printer_ui-orig/printerui/qml/dialog/ErrorPrompt.qml
++++ printer_ui/printerui/qml/dialog/ErrorPrompt.qml
+@@ -46,11 +46,11 @@
+                     dialogStack.popupDialog(
+                                 "TextConfirm", {
+                                     name: "LAN Only Report",
+-                                    text: qsTr("Please export log to SD card and create a ticket on the official website（www.bambulab.com）to report your problem."),
++                                    text: qsTr("If you would like to submit a support ticker, please reboot, load stock firmware, and upload your logs from there."),
+                                     defaultButton: 0,
+                                     onYes: function() {
+-                                        Printer.jumpTo("Settings/Device")
+-                                        stack1.currentPage.currentPage.exportLog();
++                                        //Printer.jumpTo("Settings/Device")
++                                        //stack1.currentPage.currentPage.exportLog();
+                                     }
+                                 })
+ 
+@@ -66,7 +66,8 @@
+             isDefault: true
+             onClicked: {
+                 if (task.stage === PrintTask.PAUSED) {
+-                    task.resume()
++                    task.resume();
++                    console.log('[x1p] Printer resumed from touchscreen after error');
+                 } else {
+                     task.pause()
+                 }
+@@ -83,7 +84,8 @@
+                                 text: qsTr("After stopping printing, it cannot be recovered. Are you sure to stop printing?"),
+                                 defaultButton: 1,
+                                 onYes: function() {
+-                                    task1.abort()
++                                    task1.abort();
++                                    console.log('[x1p] Printer aborted from touchscreen');
+                                 }
+                             })
+             }
+@@ -165,6 +167,8 @@
+             }
+         }
+         dynamicErrorMsg.input = msg
++        console.log('[x1p] ErrorPrompt - error message reported on touchscreen:', msg);
++
+     }
+ 
+     Item {

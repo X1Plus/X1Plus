@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# This is not a Tesla
+
+start() {
+	ln -sf /tmp/syslog.log /userdata/log/syslog.log
+	for i in tutk_av.log tutk_global.log tutk_iotc.log; do
+		ln -fs /dev/null /userdata/log/$i
+	done
+}
+
+stop() {
+	for i in syslog.log tutk_av.log tutk_global.log tutk_iotc.log; do
+		rm -f /userdata/log/$i
+	done
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	stop
+	start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

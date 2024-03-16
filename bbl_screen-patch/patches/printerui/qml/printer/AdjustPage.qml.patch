@@ -1,0 +1,32 @@
+--- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
++++ printer_ui/printerui/qml/printer/AdjustPage.qml
+@@ -205,9 +205,6 @@
+                     }
+ 
+                     onClicked: {
+-                        if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) !== PrintManager.AXIS_HOMED_ALL) {
+-                            limitFrame()
+-                        }
+                         axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
+                     }
+ 
+@@ -800,9 +797,6 @@
+                 EventTrack.itemName: "bigSector_" + modelData.name
+ 
+                 onClicked: {
+-                    if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) != PrintManager.AXIS_HOMED_ALL) {
+-                        limitFrame()
+-                    }
+                     axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
+                 }
+             }
+@@ -818,9 +812,6 @@
+                 EventTrack.itemName: "smallSector_" + modelData.name
+ 
+                 onClicked: {
+-                    if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) != PrintManager.AXIS_HOMED_ALL) {
+-                        limitFrame()
+-                    }
+                     axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
+                 }
+             }

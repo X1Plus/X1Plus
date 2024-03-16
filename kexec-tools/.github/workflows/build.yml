@@ -1,0 +1,74 @@
+name: Build
+
+on: push
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch:
+        - arm
+        - arm64
+        - hppa
+        - i686
+        - m68k
+        - mips
+        - mipsel
+        - powerpc
+        - powerpc64
+        - powerpc64le
+        - sh4
+        - s390x
+        - x86_64-x32
+        include:
+          - arch: x86_64
+          - arch: x86_64
+            libxen: libxen
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set Environment
+      env:
+        LIBXEN: ${{ matrix.libxen }}
+        ARCH: ${{ matrix.arch }}
+      run: |
+        case $LIBXEN in
+          libxen) EXTRA_PKGS+=" libxen-dev" ;;
+        esac
+
+        case $ARCH in
+          arm)         GNU_ARCH="arm-linux-gnueabi" ;;
+          arm64)       GNU_ARCH="aarch64-linux-gnu" ;;
+          x86_64)      ;;
+          x86_64-x32)  GNU_ARCH="x86_64-linux-gnux32"
+                       CROSS_COMPILER_PKG="gcc-x86-64-linux-gnux32" ;;
+          *)           GNU_ARCH="$ARCH-linux-gnu" ;;
+        esac
+
+        if [ -n "$GNU_ARCH" ]; then
+          if [ -z "$CROSS_COMPILER_PKG" ]; then
+            CROSS_COMPILER_PKG="gcc-$GNU_ARCH"
+          fi
+          EXTRA_PKGS+=" $CROSS_COMPILER_PKG"
+          CONFIG_FLAGS+=" --host=$GNU_ARCH"
+        fi
+
+        echo "EXTRA_PKGS=$EXTRA_PKGS" >> $GITHUB_ENV
+        echo "CONFIG_FLAGS=$CONFIG_FLAGS" >> $GITHUB_ENV
+
+    - name: Install Dependencies
+      if: env.EXTRA_PKGS != ''
+      run: |
+        sudo apt-get update
+        sudo apt-get -q=2 install ${{ env.EXTRA_PKGS }}
+
+    - name: Build
+      run: |
+        ./bootstrap
+        ./configure ${{ env.CONFIG_FLAGS }}
+        make -j"$(nproc)" distcheck \
+          DISTCHECK_CONFIGURE_FLAGS="${{ env.CONFIG_FLAGS }}"
+

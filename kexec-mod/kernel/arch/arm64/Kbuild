@@ -1,0 +1,29 @@
+# -*- makefile -*-
+# Build script for kexec-mod
+#
+# Copyright (C) 2021 Fabian Mastenbroek.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+obj-m += kexec_mod_$(ARCH).o
+kexec_mod_$(ARCH)-y := machine_kexec_drv.o machine_kexec_compat.o
+kexec_mod_$(ARCH)-y += idmap.o cpu-reset.o hyp-shim.o
+kexec_mod_$(ARCH)-y += machine_kexec.o orig/relocate_kernel.o
+
+ccflags-y := -I$(src)/ -fno-unwind-tables -fno-asynchronous-unwind-tables
+
+clean-dirs := orig
+
+$(obj)/orig :
+	mkdir -p $@
+
+$(obj)/orig/machine_kexec.c : | $(obj)/orig
+	ln -sf $(KDIR)/arch/$(ARCH)/kernel/machine_kexec.c $@
+
+$(obj)/orig/relocate_kernel.S : | $(obj)/orig
+	ln -sf $(KDIR)/arch/$(ARCH)/kernel/relocate_kernel.S $@
+
+$(obj)/machine_kexec.c :: $(obj)/orig/machine_kexec.c

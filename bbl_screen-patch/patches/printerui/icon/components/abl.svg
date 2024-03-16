@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="svg360" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 143.58 143.58">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke-width: 8px;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke: #ccc;
+        stroke-miterlimit: 32;
+      }
+
+      .cls-2, .cls-3 {
+        font-family: Arial-BoldMT, Arial;
+        font-size: 17.9px;
+        font-weight: 700;
+      }
+
+      .cls-2, .cls-3, .cls-4 {
+        fill: #ccc;
+      }
+
+      .cls-3 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-4 {
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <g>
+    <polyline class="cls-1" points="103.63 90.31 60.58 80.24 60.58 33.91"/>
+    <polygon class="cls-4" points="99.09 80.12 100.74 89.64 95.04 97.43 117.58 93.58 99.09 80.12"/>
+    <polygon class="cls-4" points="69.47 40.65 60.58 36.87 51.69 40.65 60.58 19.58 69.47 40.65"/>
+  </g>
+  <g>
+    <line class="cls-1" x1="60.58" y1="80.24" x2="38.31" y2="109.22"/>
+    <polygon class="cls-4" points="35.37 98.46 40.12 106.87 49.46 109.29 29.58 120.58 35.37 98.46"/>
+  </g>
+  <text class="cls-2" transform="translate(119.71 99.96)"><tspan x="0" y="0">X</tspan></text>
+  <text class="cls-3" transform="translate(17.06 137.39)"><tspan x="0" y="0">Y</tspan></text>
+  <text class="cls-2" transform="translate(55.24 15.26)"><tspan x="0" y="0">Z</tspan></text>
+</svg>

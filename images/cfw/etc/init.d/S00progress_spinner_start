@@ -1,0 +1,11 @@
+#!/bin/sh
+
+start() {
+   start-stop-daemon -S -m -b -p /var/run/progress_spinner.pid --exec /usr/bin/progress_spinner.sh
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+esac

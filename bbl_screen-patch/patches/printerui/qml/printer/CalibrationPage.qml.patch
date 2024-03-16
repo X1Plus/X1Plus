@@ -1,0 +1,157 @@
+--- printer_ui-orig/printerui/qml/printer/CalibrationPage.qml
++++ printer_ui/printerui/qml/printer/CalibrationPage.qml
+@@ -20,49 +20,77 @@
+         id: usagePanel
+         width: 677
+         anchors.top: parent.top
+-        topMargin: 25
++        topMargin: 26
+         anchors.bottom: parent.bottom
+         bottomMargin: 26
+         anchors.left: parent.left
+-        leftMargin: 15
++        leftMargin: 26
+ 
+         Text {
+-            x: 25
+-            y: 75
++            id: guideLabel
++            anchors.horizontalCenter: parent.horizontalCenter
++            anchors.top: parent.top
++            anchors.topMargin: 20
+             font: Fonts.head_36
+             color: Colors.brand
+             text: qsTr("Calibration Step Selection")
+         }
+ 
+-        Repeater {
+-            model: calibraSelect
+-
+-            Item {
+-                x: 36
+-                y: [122, 170, 218, 423][index]
+-                ZCheckBox {
+-                    font: Fonts.head_28
+-                    checked: modelData[1]
+-                    textColor: StateColors.get("gray_100")
+-                    text: modelData[0]
+-                    enabled: startButton.enabled
+-                    checkBoxIcon: startButton.enabled
+-
+-                    EventTrack.itemName: "calibrateCheck_" + index
++        ZLineSplitter {
++            id: stepSplit2
++            anchors.top: guideLabel.bottom
++            anchors.topMargin: 10
++            alignment: Qt.AlignTop
++            padding: 15
++            color: Colors.brand
++        }
+ 
+-                    onToggled: {
+-                        calibraSelect[index][1] = checked
++        Column {
++            anchors.top: stepSplit2.bottom
++            anchors.topMargin: 30
++            anchors.left: parent.left
++            anchors.leftMargin: 20
++            anchors.right: parent.right
++            anchors.rightMargin: 20
++            
++            spacing: 32
++
++            Repeater {
++                model: calibraSelect
++
++                Item {
++                    width: parent.width
++                    height: checkbox.height + ((modelData[2] != "") ? (modelText.contentHeight + modelText.anchors.topMargin) : 0)
++                    ZCheckBox {
++                        id: checkbox
++                        anchors.top: parent.top
++                        anchors.left: parent.left
++                        font: Fonts.head_28
++                        checked: modelData[1]
++                        textColor: StateColors.get("gray_100")
++                        text: modelData[0]
++                        enabled: startButton.enabled
++                        checkBoxIcon: startButton.enabled
++
++                        EventTrack.itemName: "calibrateCheck_" + index
++
++                        onToggled: {
++                            calibraSelect[index][1] = checked
++                        }
+                     }
+-                }
+ 
+-                Text {
+-                    x: 46
+-                    y: 46
+-                    width: 590
+-                    font: Fonts.body_24
+-                    color: Colors.gray_300
+-                    wrapMode: Text.WordWrap
+-                    text: modelData[2]
++                    Text {
++                        id: modelText
++                        anchors.left: parent.left
++                        anchors.leftMargin: 46
++                        anchors.top: checkbox.bottom
++                        anchors.topMargin: 12
++                        anchors.right: parent.right
++                        font: Fonts.body_24
++                        color: Colors.gray_300
++                        wrapMode: Text.WordWrap
++                        text: modelData[2]
++                    }
+                 }
+             }
+         }
+@@ -74,9 +102,9 @@
+         anchors.top: parent.top
+         anchors.left: usagePanel.right
+         anchors.right: parent.right
+-        leftMargin: 20
+-        topMargin: 25
+-        rightMargin: 15
++        leftMargin: 14
++        topMargin: 26
++        rightMargin: 26
+ 
+         Text {
+             x: 23
+@@ -115,9 +143,9 @@
+         anchors.top: stepPanel.bottom
+         anchors.bottom: parent.bottom
+         bottomMargin: 26
+-        leftMargin: 20
+-        topMargin: 10
+-        rightMargin: 13
++        leftMargin: 14
++        topMargin: 14
++        rightMargin: 26
+ 
+         ZButton {
+             id: startButton
+@@ -146,17 +174,10 @@
+         }
+     }
+ 
+-    ZButton {
+-        x: 18
+-        y: 15
+-        height: width
+-        width: 88
+-        cornerRadius: width / 2
+-        iconSize: -1
+-        type: ZButtonAppearance.Secondary
+-        icon: "../../icon/return.svg"
++    X1PBackButton {
++        id: back
+         onClicked: {
+-            calibration.parent.pop()
++            pageStack.pop()
+         }
+     }
+ }

@@ -1,0 +1,29 @@
+/dts-v1/;
+
+/include/ "00.00.28.36.dts"
+
+/ {
+	dsi@ffb30000 {
+		panel@1 {
+			status = "disabled";
+		};
+		panel@2 {
+			status = "disabled";
+		};
+		panel@3 {
+			status = "disabled";
+		};
+		panel@4 {
+			status = "okay";
+		};
+	};
+	i2c@ff540000 {
+		tlsc6x_ts@2e {
+			status = "disa";
+		};
+		focaltech@38 {
+			status = "okay";
+		};
+	};
+};
+

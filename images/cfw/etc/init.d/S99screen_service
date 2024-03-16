@@ -1,0 +1,41 @@
+#!/bin/sh
+
+QTCACHE=/.cache/QtProject/bbl_screen
+
+start() {
+    printf "Starting screen service: "
+    source /usr/bin/screen_start.sh
+    [[ $QTCACHE -ot /opt/bbl_screen_patch ]] && rm -rf $QTCACHE
+    start-stop-daemon -S -m -b -p /var/run/screen_service.pid \
+        --exec /opt/bbl_screen_patch \
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping screen service: "
+    start-stop-daemon -K -q -p /var/run/screen_service.pid
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+    stop
+    sleep 5
+    start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    restart
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

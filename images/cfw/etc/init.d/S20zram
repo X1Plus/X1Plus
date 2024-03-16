@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ x"$1" = "xstart" ]; then
+	echo "Enabling 192MB of zram..."
+	echo 192M > /sys/block/zram0/disksize
+	echo 100 > /proc/sys/vm/swappiness
+	echo 1 > /proc/sys/vm/dirty_background_ratio
+	mkswap /dev/zram0
+	swapon /dev/zram0
+fi

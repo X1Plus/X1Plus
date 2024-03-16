@@ -1,0 +1,112 @@
+--- printer_ui-orig/printerui/qml/printer/SelfTestPage.qml
++++ printer_ui/printerui/qml/printer/SelfTestPage.qml
+@@ -19,14 +19,46 @@
+         id: usagePanel
+         width: 677
+         height: parent.height
+-
+         anchors.top: parent.top
+-        topMargin: 60
+         anchors.bottom: parent.bottom
+-        bottomMargin: 57
+         anchors.left: parent.left
+-        leftMargin: 15
++        leftMargin: 26
++        topMargin: 26
++        bottomMargin: 26
++        
++        Text {
++            id: guideLabel
++            anchors.horizontalCenter: parent.horizontalCenter
++            anchors.top: parent.top
++            anchors.topMargin: 20
++            font: Fonts.head_36
++            color: Colors.brand
++            text: usageTexts[0][0]
++        }
+ 
++        ZLineSplitter {
++            id: stepSplit2
++            anchors.top: guideLabel.bottom
++            anchors.topMargin: 10
++            alignment: Qt.AlignTop
++            padding: 15
++            color: Colors.brand
++        }
++
++        Text {
++            anchors.left: parent.left
++            anchors.leftMargin: 20
++            anchors.right: parent.right
++            anchors.rightMargin: 20
++            anchors.top: stepSplit2.bottom
++            anchors.topMargin: 30
++            font: Fonts.body_30
++            color: Colors.gray_300
++            wrapMode: Text.WordWrap
++            text: usageTexts[0][1]
++        }
++        
++        /*
+         Repeater {
+             model: usageTexts
+ 
+@@ -50,17 +82,19 @@
+                 }
+             }
+         }
++        */
+     }
+ 
+     MarginPanel {
+         id: stepPanel
+-        height: 494
++        height: 585
+         anchors.top: parent.top
+         anchors.left: usagePanel.right
+         anchors.right: parent.right
+-        leftMargin: 20
+-        topMargin: 60
+-        rightMargin: 15
++        leftMargin: 14
++        topMargin: 26
++        bottomMargin: 26
++        rightMargin: 26
+ 
+         Text {
+             x: 23
+@@ -99,10 +133,10 @@
+         anchors.right: parent.right
+         anchors.top: stepPanel.bottom
+         anchors.bottom: parent.bottom
+-        bottomMargin: 57
+-        leftMargin: 20
+-        topMargin: 10
+-        rightMargin: 13
++        bottomMargin: 26
++        leftMargin: 14
++        topMargin: 14
++        rightMargin: 26
+ 
+         ZButton {
+             id: startButton
+@@ -117,17 +151,9 @@
+         }
+     }
+ 
+-    ZButton {
+-        x: 18
+-        y: 15
+-        height: width
+-        width: 88
+-        cornerRadius: width / 2
+-        iconSize: -1
+-        type: ZButtonAppearance.Secondary
+-        icon: "../../icon/return.svg"
++    X1PBackButton {
+         onClicked: {
+-            selfTestPage.parent.pop()
++            pageStack.pop()
+         }
+     }
+ }

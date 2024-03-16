@@ -1,0 +1,56 @@
+#!/bin/sh
+
+/opt/kexec/evtest --query /dev/input/by-path/platform-gpio-keys-event EV_KEY KEY_POWER
+POWER_PRESSED=$?
+/opt/kexec/evtest --query /dev/input/by-path/platform-gpio-keys-event EV_KEY KEY_STOP
+STOP_PRESSED=$?
+if [ $POWER_PRESSED -eq 10 -a $STOP_PRESSED -eq 10 ]; then
+    echo "check_kexec: emergency boot override enabled by holding POWER and ESTOP keys; booting stock firmware.  hope you meant to do this"
+    exit 0
+fi
+
+# Get device SN
+if [ -f /oem/device/sn ]; then
+    BBL_SN=$(cat /oem/device/sn)
+else
+    BBL_SN=$(bbl_3dpsn 2> /dev/null)
+fi
+
+# Is our quick boot flag set?
+if [ -f /mnt/sdcard/x1plus/printers/$BBL_SN/quick-boot ]; then
+    # Before we do, are there any NEW x1p files?!
+    QUICK_BOOT=0 # Default to enable
+    for x1p in $(ls -1 /mnt/sdcard/*.x1p | sed -e 's|/mnt/sdcard/||g' | sed -e 's|.x1p||g'); do
+        # Doesn't exist, bomb out
+        if [ ! -d "/mnt/sdcard/x1plus/kernel/${x1p}" ]; then
+            QUICK_BOOT=1 # Disable
+        fi
+    done
+    # If we are good to go, quick boot.
+    if [ "${QUICK_BOOT}" -eq "0" ]; then
+        echo "Skipping UI and booting into CFW via kexec!"
+        /opt/kexec/boot
+        exit 0 # We won't make it here but whatever
+    fi
+fi
+
+echo 'Starting pre-boot GUI.'
+
+# Make sure that we mark this as a successful boot.
+/usr/bin/updateEngine --misc=now
+
+if [ -f /usr/bin/screen_start.sh ]; then
+    . /usr/bin/screen_start.sh
+else
+    export QT_QPA_FB_DRM=1
+    export QT_QPA_GENERIC_PLUGINS=evdevkeyboard
+    export QT_QPA_EVDEV_KEYBOARD_PARAMETERS=/dev/input/event3
+    export QT_QUICK_ROTATE_SCREEN=270
+    export QT_IM_MODULE=qtvirtualkeyboard
+fi
+LD_PRELOAD=/opt/kexec/kexec_ui.so \
+/usr/bin/bbl_screen
+
+echo "Leaving S75kexec/check_kexec and resuming boot"
+
+exit 0
