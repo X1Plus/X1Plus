@@ -8,7 +8,7 @@
  
  import ".."
  import "../printer"
-@@ -11,8 +12,22 @@
+@@ -11,6 +12,20 @@
  
      property var carouselImages: hmsPanel.visible
                                   ? WebContents.carouselImages2 : WebContents.carouselImages1
@@ -17,9 +17,7 @@
 +    property var f1: "file://"+ DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
 +    property var img1: imgExists(f1) ? f1: "qrc:/printerui/image/exhibition1.png"
 +    property var img2: imgExists(f2) ? f2: "qrc:/printerui/image/exhibition.png"
- 
-     EventTrack.pageName: "Home"
-+    
++ 
 +    function imgExists(img){
 +        var strPath = img.replace("file://","");
 +        if (X1PlusNative.popen(`test -f ${strPath} && echo 1 || echo 0`) == 0){
@@ -31,7 +29,7 @@
  
      MarginPanel {
          id: showPanel
-@@ -30,8 +45,8 @@
+@@ -28,8 +43,8 @@
              interval: 10000
              orientation: hmsPanel.visible ? Qt.Vertical : Qt.Horizontal
              model: carouselImages.length === 0

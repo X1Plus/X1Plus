@@ -46,7 +46,7 @@
  
      onVisibleChanged: {
          DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
-@@ -22,6 +53,7 @@
+@@ -18,6 +49,7 @@
  
      property var infoItems: SimpleItemModel {
          DeviceInfoItem { title: qsTr("Device"); value: build.name
@@ -54,7 +54,7 @@
          }
          DeviceInfoItem { title: qsTr("Language"); value: DeviceManager.languageTitle
              function onClicked() {
-@@ -31,8 +63,8 @@
+@@ -27,8 +59,8 @@
                  choisePad.choiseCallback = function(c) { DeviceManager.languageTitle = c }
                  choisePad.popupFor()
              } }
@@ -65,7 +65,7 @@
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +88,59 @@
+@@ -52,111 +84,23 @@
                  }
                  choisePad.popupFor()
              } }
@@ -81,10 +81,12 @@
 -//        DeviceInfoItem { title: qsTr("Theme"); value: Colors.dayNightMode ? qsTr("Dark") : qsTr("Light")
 -//            function onClicked() { Colors.dayNightMode = !Colors.dayNightMode }}
 -//        DeviceInfoItem { title: qsTr("Model Name"); value: build.product }
--        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
--            function onClicked() { pageStack.push("DeviceInfoPage.qml") }
 +        DeviceInfoItem { title: qsTr("Screen lock"); value: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")][DeviceManager.power.mode] + ", " + ["screen saver", "swipe to unlock", "passcode"][DeviceManager.getSetting("cfw_locktype", 0)]
 +            function onClicked() { pageStack.push("ScreenLockPage.qml") }
++        }
+         DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
+-            function onClicked() { pageStack.push("DeviceInfoPage.qml") }
++            function onClicked() { pageStack.push("DeviceInfo.qml") }
          }
 -//        DeviceInfoItem { title: qsTr("Certification"); value: ""
 -//            function onClicked() { certPanel.visible = true }
@@ -93,26 +95,24 @@
 -            property var onClicked: exportLog }
 -        DeviceInfoItem { title: qsTr("Restore Factory Settings"); value: ""
 -            property var onClicked: restoreFactorySettings }
--    }
+     }
  
 -    function triggerVersion() {
 -        if (DeviceManager.updater.consistency
 -                && PrintManager.currentTask.stage < PrintTask.WORKING) {
 -            dialogStack.popupDialog(
 -                        "TextConfirm", {
--                            name: "Version notify version is abnormal",
+-                            name: "Version notify",
 -                            type: TextConfirm.YES_NO,
 -                            text: qsTr("The firmware version is abnormal. Repair and update are required, otherwise the printing cannot be started. Do you want to update now?"),
 -                            onYes: function(index) { DeviceManager.startUpdate() },
 -                            onNo: function(index) { pageStack.push("VersionPage.qml") }
 -                        })
 -            return
-+        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
-+            function onClicked() { pageStack.push("DeviceInfo.qml") }
-         }
+-        }
 -        pageStack.push("VersionPage.qml")
-     }
- 
+-    }
+-
 -    function formatStorage() {
 -        var format = function() {
 -            if (!DeviceManager.formatStorage())
@@ -120,20 +120,8 @@
 -            dialogStack.popupDialog("WorkProgress", {
 -                                 name: "Format storage",
 -                                 message: qsTr("Formatting..."),
--                                 // must let "finished" go through 0->1 that can close this dialog...
--                                 /* below, for "return !DeviceManager.storage.internal" situation: 
--                                        "DeviceManager_linux.cpp" "storage_.internal_" is exists of "/mnt/sdcard/"(sd card mount here), and "storage_.hasExternal_" is exists of "/dev/mmcblk2"(sd card it self)
--                                        in "devicemanager.cpp" there is a timer periodic execution "DeviceManager::updateDeviceInfos"
--                                        to update info, in "DeviceManager::formatStorage2()" of "DeviceManager_linux.cpp" let "syncInfos_ |= DI_Storage"
--                                        that next time "DeviceManager::updateDeviceInfos" will update sd card info,
--                                        when sd formatting "storage_.internal_" will go through 0->1 if things goes normal
--                                    below, for "return !DeviceManager.formattingSDCard" situation: 
--                                        use "activeInfos_.setFlag(DI_FORMAT_SDCARD);" and "activeInfos_.setFlag(DI_FORMAT_SDCARD, false);"
--                                        in "DeviceManager::formatStorage2()" to close this dialog
--                                 */
 -                                 finished: Qt.binding(function() {
--                                     // return !DeviceManager.storage.internal
--                                     return !DeviceManager.formattingSDCard
+-                                     return !DeviceManager.storage.internal
 -                                 })
 -                             })
 -        }
@@ -146,121 +134,78 @@
 +                             name: "Device name",
 +                             text: qsTr("To change the name of your device, please use the slicer or the Bambu app."),
 +                             type: TextConfirm.CONFIRM
-+     
                           })
-+      /*  dialogStack.push("InputPage.qml", {
-+                                 input_head_text : "",
-+                                 input_text : build.name,
-+                                 max_input_num : 50,
-+                                 isUsePassWord : false,
-+                                 isInputShow : true,
-+                                 isInputting_obj : rect_isInputting_obj,
-+                                 output_obj : changeName });*/
-+        
-+    }
+     }
+-
+-    function exportLog() {
+-        var export_ = function(index) {
+-//            if (!DeviceManager.exportSystemLog())
+-//                return
+-            dialogStack.popupDialog("WorkProgress", {
+-                                 name: "Export log",
+-                                 message: qsTr("Exporting system log..."),
+-                                 finished: Qt.binding(function() {
+-                                     return !DeviceManager.exportingSystemLog
+-                                 })
+-                             })
+-        }
+-        dialogStack.popupDialog("ExportLog", {
+-                             name: "Export log",
+-                             text: qsTr("Exporting the system logs takes about 1GB of space and will last about 3 minutes. Make sure that the SD card has been inserted and that there is enough space left, do not insert or remove the SD card during the export process."),
+-                             titles: [qsTr("Cancel"), qsTr("Export")],
+-                             defaultButton: TextConfirm.NO,
+-                             onExport: export_
+-                         })
+-    }
+-
+-    function restoreFactorySettings() {
+-        var restore = function() {
+-            DeviceManager.restoreFactorySettings()
+-            dialogStack.popupDialog("WorkProgress", {
+-                                 name: "Restore factory settings",
+-                                 message: qsTr("Restoring factory settings..."),
+-                                 finished: Qt.binding(function() {
+-                                     return !DeviceManager.restoringFactorySettings
+-                                 })
+-                             })
+-        }
+-        if (PrintManager.currentTask.stage >= PrintTask.WORKING) {
+-            dialogStack.popupDialog("TextConfirm", {
+-                                        name: "Restore factory settings during printing",
+-                                        text: qsTr("Restoring factory settings is not supported during printing."),
+-                                        type: TextConfirm.CONFIRM
+-                                    })
+-        } else {
+-            dialogStack.popupDialog("TextConfirm", {
+-                                        name: "Restore factory settings",
+-                                        text: "<p>" + qsTr("Are you sure to restore factory settings?") + "</p>" + "<font color=\"#FF6F00\">" + qsTr("\nPlease move the hot bed to the central position before restoring the factory settings.") + "</font>",
+-                                        onYes: restore
+-                                    })
+-        }
 +    function triggerVersion() {
-+        //DeviceManager.updateVersion();
 +        pageStack.push("VersionPage.qml")
      }
  
--    function exportLog() {
-+    //Device name change - this method below (mqtt publication to 
-+    ///device/request/update {"name":"devicename"})
-+    //This works great and /config/device/name is updated, but the slicer
-+    //and app are not updated.
-+    /*QtObject {
-+        id: rect_isInputting_obj
-+        property bool isInputting: false
-+        onIsInputtingChanged: {
-+            if(!isInputting){
-+                console.log("[x1p]",changeName);
-+                var mstr = JSON.stringify({"update":{"sequence_id":"0","name",changeName}});
-+                //console.log("[x1p] Device name changed from "+ build.name + " to " + change);
-+                console.log("[x1p]", mstr);
-+//JSON.stringify({"name": changeName, "sequence_id": "0" }));
-+           
-+                X1PlusNative.system(`source /usr/bin/mqtt_repub.sh name ${mstr}`);
-+                DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
-+                
-+            }
-+        }
-+    }/*
-+    /*function exportLog() {
-         var export_ = function(index) {
- //            if (!DeviceManager.exportSystemLog())
- //                return
-@@ -173,30 +185,36 @@
-                                         onYes: restore
-                                     })
-         }
--    }
-+    }*/
-+
- 
-+    
      MarginPanel {
-         id: ctrlPanel
-         width: 463
--        height: parent.height
-+        anchors.top: parent.top
-+        anchors.bottom: parent.bottom
-         radius: 15
-         color: Colors.gray_800
-+        anchors.left: parent.left
-+        leftMargin: 10
-+        bottomMargin: 10
- 
-         MarginPanel {
+@@ -170,7 +114,7 @@
              id: sdIdStorage
--            x:20
--            y:15
+             x:20
+             y:15
 -            width: 245
--            height: 155
-+            anchors.horizontalCenter: parent.horizontalCenter
-+            anchors.top: parent.top
-+            topMargin: 26
-+            width: 426
-+            height: 135
++            width: parent.width-40
+             height: 155
              marginColor: "transparent"
--            rightRadiusOff: true
--            color: Colors.gray_700
-+            color: Colors.gray_600
- 
-             ZText {
-                 id: sdName
-                 maxWidth: parent.width - 10
--                anchors.bottom: parent.bottom
--                anchors.bottomMargin: 72
-+                anchors.top: parent.top
-+                anchors.topMargin: 15
-                 anchors.horizontalCenter: parent.horizontalCenter
-                 color: Colors.gray_200
-                 font: Fonts.body_40
-@@ -206,6 +224,7 @@
-             ZText {
-                 id: sdSpace
-                 anchors.top: sdName.bottom
-+                anchors.topMargin: 10
-                 anchors.horizontalCenter: sdName.horizontalCenter
-                 color: Colors.font2
-                 font: Fonts.body_24
-@@ -215,12 +234,12 @@
+             rightRadiusOff: true
+@@ -199,7 +143,7 @@
  
              ZProgressBar {
                  id: sdProgressBar
 -                width: 185
-+                width: parent.width - 30
++                width: 403
                  height: 8
                  type: ZProgressBarAppearance.Secondary
                  size: ZProgressBarAppearance.Middle
--                anchors.top: parent.top
--                anchors.topMargin: 122
-+                anchors.top: sdSpace.bottom
-+                anchors.topMargin: 10
-                 anchors.horizontalCenter: parent.horizontalCenter
-                 backgroundColor: StateColors.get("gray_500")
-                 progressColor: Colors.brand
-@@ -229,35 +248,11 @@
+@@ -213,30 +157,6 @@
          }
  
          MarginPanel {
@@ -291,13 +236,7 @@
              id: video
              width: 426
              height: 186
-             anchors.top: sdIdStorage.bottom
--            anchors.topMargin: 20
-+            anchors.topMargin: 26
-             anchors.left: sdIdStorage.left
-             color: Colors.gray_600
-             radius: 15
-@@ -327,7 +322,7 @@
+@@ -311,7 +231,7 @@
          MarginPanel {
              id: lanOnly
              width: 426
@@ -306,11 +245,11 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -338,35 +333,50 @@
+@@ -322,35 +242,50 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
--                anchors.topMargin: 20
+-                anchors.topMargin: 30
 +                anchors.topMargin: 25
                  anchors.left: parent.left
                  anchors.leftMargin: 24
@@ -372,7 +311,7 @@
                                                                  defaultButton: 0,
                                                                  onYes: function() {
                                                                      rtspServerBtn.checked = true
-@@ -374,27 +384,62 @@
+@@ -358,27 +293,62 @@
                                                                  }
                                                              })
                                              }
@@ -408,7 +347,7 @@
 -                id: line1
 -                alignment: Qt.AlignTop
 -                padding: 24
--                offset: 66
+-                offset: 86
 -                color: Colors.gray_400
 +            Text {
 +                id: rtspServerTx
@@ -442,19 +381,19 @@
 +                anchors.top: rtspServerBtn.bottom
 +                anchors.topMargin: 25
                  anchors.left: lanOnlyText.left
-                 color: Colors.brand
-                 font: Fonts.body_24
-@@ -407,8 +452,7 @@
-                 height: width
+                 color: Colors.gray_100
+                 font: Fonts.head_24
+@@ -392,8 +362,7 @@
                  radius: width / 2
                  anchors.top: accessCodeText.top
+                 anchors.topMargin: -12
 -                anchors.right: line1.right
 -                anchors.rightMargin: 10
 +                anchors.horizontalCenter: rtspServerBtn.horizontalCenter
                  type: ZButtonAppearance.Secondary
                  iconPosition: ZButtonAppearance.Center
                  paddingX: 0
-@@ -434,9 +478,9 @@
+@@ -419,9 +388,9 @@
          }
  
          MarginPanel {
@@ -466,7 +405,7 @@
              anchors.top: lanOnly.bottom
              anchors.topMargin: 16
              anchors.left: lanOnly.left
-@@ -445,28 +489,84 @@
+@@ -430,28 +399,84 @@
              marginColor: "transparent"
  
              Text {
@@ -560,15 +499,4 @@
 +
          }
      }
- 
-@@ -476,7 +576,9 @@
-         anchors.right: parent.right
-         anchors.top: parent.top
-         anchors.bottom: parent.bottom
--        leftMargin: 16
-+        leftMargin: 14
-+        rightMargin: 10
-+        bottomMargin: 10
-         radius: 15
-         color: Colors.gray_600
  

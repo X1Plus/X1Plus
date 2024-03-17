@@ -1,8 +1,8 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -205,9 +205,6 @@
-                     }
- 
+@@ -194,9 +194,6 @@
+                     icon: "../../icon/" + modelData.tip + ".svg"
+                     text: modelData.name
                      onClicked: {
 -                        if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) !== PrintManager.AXIS_HOMED_ALL) {
 -                            limitFrame()
@@ -10,9 +10,9 @@
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
                      }
  
-@@ -800,9 +797,6 @@
-                 EventTrack.itemName: "bigSector_" + modelData.name
- 
+@@ -749,9 +746,6 @@
+                 textColor: StateColors.get("white_900_checked_disabled")
+                 radius: 239
                  onClicked: {
 -                    if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) != PrintManager.AXIS_HOMED_ALL) {
 -                        limitFrame()
@@ -20,9 +20,9 @@
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
                  }
              }
-@@ -818,9 +812,6 @@
-                 EventTrack.itemName: "smallSector_" + modelData.name
- 
+@@ -763,9 +757,6 @@
+                 textColor: StateColors.get("gray_400_checked_disabled")
+                 radius: 133
                  onClicked: {
 -                    if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) != PrintManager.AXIS_HOMED_ALL) {
 -                        limitFrame()

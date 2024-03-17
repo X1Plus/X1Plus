@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/dialog/ErrorPrompt.qml
 +++ printer_ui/printerui/qml/dialog/ErrorPrompt.qml
-@@ -46,11 +46,11 @@
+@@ -36,11 +36,11 @@
                      dialogStack.popupDialog(
                                  "TextConfirm", {
                                      name: "LAN Only Report",
@@ -15,7 +15,7 @@
                                      }
                                  })
  
-@@ -66,7 +66,8 @@
+@@ -56,7 +56,8 @@
              isDefault: true
              onClicked: {
                  if (task.stage === PrintTask.PAUSED) {
@@ -25,7 +25,7 @@
                  } else {
                      task.pause()
                  }
-@@ -83,7 +84,8 @@
+@@ -73,7 +74,8 @@
                                  text: qsTr("After stopping printing, it cannot be recovered. Are you sure to stop printing?"),
                                  defaultButton: 1,
                                  onYes: function() {
@@ -35,7 +35,7 @@
                                  }
                              })
              }
-@@ -165,6 +167,8 @@
+@@ -155,6 +157,8 @@
              }
          }
          dynamicErrorMsg.input = msg

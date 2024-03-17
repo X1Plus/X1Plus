@@ -1,0 +1,40 @@
+--- printer_ui-orig/printerui/qml/wizard/ConnectPage.qml
++++ printer_ui/printerui/qml/wizard/ConnectPage.qml
+@@ -14,7 +14,7 @@
+     property var wifiListModel: NetworkManager.wifiList
+     property bool skipable: true
+     property bool finished: wifiNetwork.ssid !== ""
+-    property bool hasWried: DeviceManager.build.deviceCode === "C13"
++    property bool isX1E: DeviceManager.build.deviceCode === "C13"
+ 
+     property bool current: SwipeView.isCurrentItem
+     property var network: NetworkManager.network
+@@ -22,9 +22,7 @@
+     property bool hasNetworkSubCard: NetworkManager.networkSubCardState
+ 
+     onCurrentChanged: {
+-        if (hasWried) {
+-            NetworkManager.getNetworkInfo("eth0")
+-        }
++        NetworkManager.getNetworkInfo("eth0")
+         NetworkManager.getNetworkInfo("wlan0")
+         NetworkManager.filterWifiConnected = !current
+     }
+@@ -43,7 +41,7 @@
+         id: wlanRect
+         x: 24
+         height: parent.height
+-        width: hasWried ? 804 : 1232
++        width: 804
+         radius: 15
+         color: Colors.gray_700
+         visible: hasNetworkSubCard
+@@ -189,7 +187,7 @@
+ 
+     Rectangle {
+         id: wriedRect
+-        visible: hasWried && hasNetworkSubCard
++        visible: isX1E && hasNetworkSubCard
+         width: 404
+         height: parent.height
+         anchors.left: wlanRect.right

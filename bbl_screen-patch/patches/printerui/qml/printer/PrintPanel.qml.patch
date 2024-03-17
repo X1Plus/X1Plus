@@ -1,0 +1,13 @@
+--- printer_ui-orig/printerui/qml/printer/PrintPanel.qml
++++ printer_ui/printerui/qml/printer/PrintPanel.qml
+@@ -14,9 +14,7 @@
+     onVisibleChanged: {
+         DeviceManager.activeDeviceInfos(DeviceManager.DI_LED_LIGHT, visible)
+         NetworkManager.getNetworkInfo("wlan0")
+-        if (DeviceManager.build.deviceCode === "C13") {
+-            NetworkManager.getNetworkInfo("eth0")
+-        }
++        NetworkManager.getNetworkInfo("eth0")
+         NetworkManager.setNetworkInfoPushOn(visible)
+     }
+ 

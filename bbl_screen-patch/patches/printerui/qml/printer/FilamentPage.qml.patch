@@ -8,7 +8,7 @@
      property bool loading: feeder.loading
      property var currentTray: feeder.currentTray
      property int loadStep: feeder.loadStep
-@@ -390,7 +391,7 @@
+@@ -388,7 +389,7 @@
              }
          }
      }
@@ -17,7 +17,7 @@
      MarginPanel {
          id: howToPanel
          height: 538
-@@ -416,7 +417,7 @@
+@@ -414,7 +415,7 @@
              color: Colors.gray_100
              wrapMode: Text.WordWrap
              visible: !loadBar.visible
@@ -26,7 +26,7 @@
                           : qsTr("Before loading, please make sure your filament is pushed into the toolhead.")
          }
  
-@@ -656,32 +657,41 @@
+@@ -647,32 +648,41 @@
                                                : qsTr("Empty")
                      }
  

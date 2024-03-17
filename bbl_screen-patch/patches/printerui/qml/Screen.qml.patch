@@ -48,7 +48,7 @@
          }
  
          Timer {
-@@ -129,6 +142,7 @@
+@@ -127,6 +140,7 @@
  
      Component.onCompleted: {
          Printer.jumpTo.connect(jumpTo)
@@ -56,7 +56,7 @@
      }
  
      Loader {
-@@ -170,6 +184,11 @@
+@@ -160,6 +174,11 @@
                  console.log("dialogStack onCurrentItemChanged content " + currentItem.content)
          }
      }
@@ -68,7 +68,7 @@
  
      // https://www.cnblogs.com/linuxAndMcu/p/13667894.html
      EmbededInputPanel {
-@@ -179,7 +198,18 @@
+@@ -169,7 +188,18 @@
          id: printListener
      }
  

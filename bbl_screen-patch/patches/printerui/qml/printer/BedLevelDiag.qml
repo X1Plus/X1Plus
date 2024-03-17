@@ -188,7 +188,7 @@ Item {
                     ctx.fill();
                 }
             }
-
+            //need to fix scale glitch
             // draw a scale
             var gradient = ctx.createLinearGradient(0, 0, 0, YBED);
             var rangec = Math.floor((1 - maxh / range) * 255);
@@ -207,11 +207,8 @@ Item {
             ctx.textBaseline = 'top';
             ctx.fillText(maxh.toFixed(2) + "mm", XBED + 35, 0);
             
-            // don't render 0.00mm if it's right up against an existing label
-            if (midpt > 0.1 && midpt < 0.9) {
-                ctx.textBaseline = 'middle';
-                ctx.fillText("0.00mm", XBED + 35, YBED * midpt);
-            }
+            ctx.textBaseline = 'middle';
+            ctx.fillText("0.00mm", XBED + 35, YBED * midpt);
             
             ctx.textBaseline = 'bottom';
             ctx.fillText(minh.toFixed(2) + "mm", XBED + 35, YBED);

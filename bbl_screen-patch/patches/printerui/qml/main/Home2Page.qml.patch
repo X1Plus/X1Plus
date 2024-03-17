@@ -31,9 +31,9 @@
 +        }
 +    }
  
-     EventTrack.pageName: "Home2"
- 
-@@ -296,7 +308,8 @@
+     MarginPanel {
+         id: taskPanel
+@@ -294,7 +306,8 @@
          topMargin: statusPanel.topMargin
          bottomMargin: statusPanel.bottomMargin
          color: hmsItem.visible ? Colors.gray_700: Colors.gray_600
@@ -43,7 +43,7 @@
          ZCarouselView {
              anchors.fill: parent
              anchors.margins: 10
-@@ -304,7 +317,7 @@
+@@ -302,7 +315,7 @@
              orientation: Qt.Vertical
              visible: !hmsItem.visible && !printStep.visible
              model: carouselImages.length === 0

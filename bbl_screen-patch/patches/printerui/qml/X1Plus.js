@@ -9,23 +9,6 @@
 .import "./x1plus/BedMeshCalibration.js" as X1PlusBedMeshCalibration
 .import "./x1plus/ShaperCalibration.js" as X1PlusShaperCalibration
 
-/* Back-end model logic for X1Plus's UI
- *
- * Copyright (c) 2023 - 2024 Joshua Wise, and the X1Plus authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 console.log("X1Plus.js starting up");
 
 var X1Plus = X1Plus || {};

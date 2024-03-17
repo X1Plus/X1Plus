@@ -114,7 +114,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +125,8 @@
+@@ -48,12 +120,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -129,7 +129,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +166,7 @@
+@@ -93,6 +161,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -137,7 +137,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +234,7 @@
+@@ -160,7 +229,7 @@
              blackColor = !blackColor
          }
      }
@@ -146,10 +146,11 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +288,75 @@
+@@ -210,4 +279,73 @@
              }
          }
      }
++
 +    Timer {
 +        id: buttonCmd
 +        interval: 500
@@ -181,7 +182,7 @@
 +            }
 +        }
 +    }
- 
++ 
 +   
 +    Timer {
 +        id: nozzlecam
@@ -205,21 +206,17 @@
 +    
 +        }
 +    }
-     /* Region */
--
++
 +    function fileDate(path){
 +        return X1PlusNative.popen(`stat -c %Y ${path}`);
 +    }
++
 +    function fileExist(path){
 +        var exist = X1PlusNative.popen(`test -f ${path} && echo 1`);
 +        return (exist == 1);
 +    }
-     Component.onCompleted: {
-         var wifiRegion = DeviceManager.getSetting("environment", "")
-         var region = DeviceManager.cloud.region
-         if ((region == "" || (wifiRegion == "CN" && region != "China")) && (DeviceManager.getSetting("wizard") === true)) {
-             dialogStack.push("ForceRegionPage.qml", { source: "force" })
-         }
++
++     Component.onCompleted: {
 +        cfwOnCompleted();
-     }
++     }
  }

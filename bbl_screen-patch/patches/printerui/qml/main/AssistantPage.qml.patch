@@ -1,0 +1,67 @@
+--- printer_ui-orig/printerui/qml/main/AssistantPage.qml
++++ printer_ui/printerui/qml/main/AssistantPage.qml
+@@ -29,27 +29,27 @@
+     property var healthMsgList: PrintManager.currentTask.healthMsgList
+ 
+     pageHandler: function handle() {
+-        if (activePage == "SelfTest" || activePage == "Diagnose")
++        if (activePage == "Diagnose")
+             return false;
+         stack.switchPage("Diagnose") // not change activePage
+         healthMsgList.filterModule =
+                 UIBase.enumValue("HealthMessage", "Module", activePage)
+     }
+ 
+-    ZButton {
+-        id: selfTestButton
+-        paddingX: 10
+-        icon: "../../icon/selftest.svg"
+-        anchors.verticalCenter: pageIndicator.verticalCenter
+-        anchors.right: parent.right
+-        anchors.rightMargin: 20
+-        verticalTapMargin: 10
+-        checked: true
+-        text: qsTr("Device self-test")
+-        onClicked: {
+-            activePage = "SelfTest"
+-        }
+-    }
++//    ZButton {
++//        id: selfTestButton
++//        paddingX: 10
++//        icon: "../../icon/selftest.svg"
++//        anchors.verticalCenter: pageIndicator.verticalCenter
++//        anchors.right: parent.right
++//        anchors.rightMargin: 20
++//        verticalTapMargin: 10
++//        checked: true
++//        text: qsTr("Device self-test")
++//        onClicked: {
++//            activePage = "SelfTest"
++//        }
++//    }
+ 
+     onVisibleChanged: {
+         if (!visible)
+@@ -61,14 +61,14 @@
+                     return
+                 }
+             }
+-            activePage = "SelfTest"
++            activePage = "Diagnose"
+         }
+     }
+ 
+-    Component.onCompleted: {
+-        pageIndicator.x = 20
+-        pageIndicator.width = Qt.binding(function() {
+-            return width - selfTestButton.width - 60
+-        })
+-    }
++//    Component.onCompleted: {
++//        pageIndicator.x = 20
++//        pageIndicator.width = Qt.binding(function() {
++//            return width - selfTestButton.width - 60
++//        })
++//    }
+ }

@@ -30,7 +30,7 @@ Item {
 
     MarginPanel {
         id: title
-        height: 68 + 39 + 30
+        height: 68 + 39 + 30 + line.height
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -73,6 +73,17 @@ Item {
                 text: qsTr("Return")
                 onClicked: { parent.parent.parent.parent.pop() }
             }
+
+            Rectangle {
+                id: line
+                height: 1
+                anchors.left: brandImage.left
+                anchors.right: parent.right
+                anchors.rightMargin: 64
+                anchors.top: brandImage.bottom
+                anchors.topMargin: 30
+                color: Colors.gray_500
+            }
         }
     }
 
@@ -82,9 +93,9 @@ Item {
         anchors.right: parent.right
         anchors.top: title.bottom
         anchors.bottom: parent.bottom
-        leftMargin: 26
-        rightMargin: 26
-        bottomMargin: 26
+        leftMargin: 16
+        rightMargin: 16
+        bottomMargin: 16
         radius: 15
         color: Colors.gray_600
 
