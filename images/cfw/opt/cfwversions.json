@@ -1,16 +1,15 @@
 {
     "cfw": { "dialogName": "X1Plus firmware", "version": "[version error]", "alwaysNoUpgrade": true, "noUpgrade": "To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time." },
-    "ota": { "dialogName": "Bambu Lab base firmware", "version": "01.07.02.00", "alwaysNoUpgrade": true, "noUpgrade": "To install a new version of the custom firmware, copy the new x1p file to root of the the SD card, power cycle the printer, and select the installer at startup time" },
-    "rv1126": { "version": "00.00.28.55", "noUpgrade": "This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card."  },
-    "th": { "version": "00.00.07.12", "paths": {
-        "th07": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/th_rev7-firmware-v00.00.07.12-20231031102713_product.bin.sig", "md5": "20eacbc29a81fa42daf93a8693cbc113" },
-        "th09": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/th_rev9-firmware-v00.00.07.12-20231031102810_product.bin.sig", "md5": "7549a5096c530a1ba43e92f4ad0e3261" }
+    "ota": { "dialogName": "Bambu Lab base firmware", "version": "01.00.02.00", "alwaysNoUpgrade": true, "noUpgrade": "To install a new version of the custom firmware, copy the new x1p file to root of the the SD card, power cycle the printer, and select the installer at startup time" },
+    "rv1126": { "version": "00.00.25.76", "noUpgrade": "This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card."  },
+    "th": { "version": "00.00.06.29", "paths": {
+        "th01": { "url": "https://public-cdn.bambulab.com/upgrade/device/C13/01.00.02.00/product/3c4ba4dc42/th_rev1-firmware-v00.00.06.29-20230830194248_product.bin.sig", "md5": "c77f87193bd672838a1ac0821b766167" },
     } },
-    "mc": { "version": "00.00.22.37", "paths": {
-        "mc07": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/mc_rev7-firmware-v00.00.22.37-20240105142231_product.bin.sig", "md5": "321bbb11cbf1101d9a0e6d42f6ad4ae3" }
+    "mc": { "version": "00.00.18.53", "paths": {
+        "mc01": { "url": "https://public-cdn.bambulab.com/upgrade/device/C13/01.00.02.00/product/3c4ba4dc42/mc_rev1-firmware-v00.00.18.53-20231010100559_product.bin.sig", "md5": "99420a2465511498d4cd751a9624d9df" }
     } },
-    "xm": { "version": "00.01.02.02", "paths": {
-        "": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/xm/00.01.02.02/product/xm_v00.01.02.02-20230328103404_product.rknn.sig", "md5": "50c4487de44fec31d63dd8f8c3464446" }
+    "ctc": { "version": "00.00.04.86", "paths": {
+        "ct01": { "url": "https://public-cdn.bambulab.com/upgrade/device/C13/01.00.02.00/product/3c4ba4dc42/ctc_rev1-firmware-v00.00.04.86-20231122172451_product.bin.sig", "md5": "14d6981f014deb0412fa00a76e966b6e" }
     } },
     "ams": { "version": "00.00.06.40", "paths": {
         "ams07": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-A001/00.00.06.40/product/ams_rev7-firmware-v00.00.06.40-20230906130758_product.bin.sig", "md5": "5b94fcf898d949531efa437e9d2f15c8" },

@@ -15,7 +15,7 @@ Item {
         { "friendly": "AP board", "bambu": "rv1126", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
         { "friendly": "MC board", "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
         { "friendly": "Toolhead", "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
-        { "friendly": "Computer vision model", "bambu": "xm", "cfw": "xm", "icon": "../../icon/components/cvmodel.svg" },
+        { "friendly": "Chamber Temperature Controller", "bambu": "ctc", "cfw": "ctc", "icon": "../../icon/components/filamentdry.svg" },
         { "friendly": "AMS hub", "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
         { "friendly": "AMS #1", "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
         { "friendly": "AMS #2", "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
