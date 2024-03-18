@@ -19,6 +19,9 @@ glob /usr/lib * 0 0 usr/lib/
 
 file /system/lib/modules/bcmdhd.ko  755 0 0
 
+file /system/etc/firmware/fw_bcm43438a1.bin 755 0 0
+file /system/etc/firmware/clm_bcm43438a1.blob 755 0 0
+
 glob /opt               755 0 0 -type d opt/
 glob /opt               755 0 0 -type f -nonrecursive opt/
 glob /opt                 * 0 0 -type f -path "opt/*/*" opt/
