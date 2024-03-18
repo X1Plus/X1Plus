@@ -15,6 +15,7 @@
 <file>printerui/qml/EmbededInputPanel.qml</file>
 <file>printerui/qml/EmergencyConsole.qml</file>
 <file>printerui/qml/SimplePager.qml</file>
+<file>printerui/qml/settings/CarbonFunction.qml</file>
 <file>printerui/image/cfw.png</file>
 <file>printerui/image/exclamation.svg</file>
 <file>printerui/image/roundHook.svg</file>
