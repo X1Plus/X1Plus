@@ -17,7 +17,10 @@ glob /usr/etc/system * 0 0 -type f -path "usr/etc/system/*.xml" -nonrecursive us
 glob /lib * 0 0 lib
 glob /usr/lib * 0 0 usr/lib/
 
-file /system/lib/modules/bcmdhd.ko  755 0 0
+file /system/lib/modules/brcmfmac.ko 755 0 0
+file /system/lib/modules/brcmutil.ko 755 0 0
+file /system/lib/modules/cfg80211.ko 755 0 0
+file /system/lib/modules/compat.ko 755 0 0
 
 file /system/etc/firmware/fw_bcm43438a1.bin 755 0 0
 file /system/etc/firmware/clm_bcm43438a1.blob 755 0 0
@@ -39,6 +42,7 @@ slink /var/run/utmp 0777 0 0 /dev/null
 
 # whiteouts
 nod /etc/init.d/S50fcgiwrap 0 0 0 c 0 0
+nod /usr/bin/wl 0 0 0 c 0 0
 
 #nod /lib/optee_armtz/1db57234-dacd-462d-9bb1-ae79de44e2a5.ta 0 0 0 c 0 0
 nod /lib/optee_armtz/380231ac-fb99-47ad-a689-9e017eb6e78a.ta 0 0 0 c 0 0
