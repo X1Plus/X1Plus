@@ -65,5 +65,5 @@ evdev_fix.so: evdev_fix.c
 	$(TARGET_CC) -c -o $@ $< $(CXXFLAGS) -I $(QT5_INCL_PATH)
 
 %.ui.cpp:: %/root.qrc $$(addprefix $$(*F)/,$$(shell grep file $$(*F)/root.qrc | sed -e 's/.*>\(.*\)<.*/\1/'))
-	cd $(dir $<); rcc $(notdir $<) --format-version=2 > $(CURDIR)/$@
+	cd $(dir $<); rcc $(notdir $<) --format-version=2 | sed 's/static const unsigned char qt_resource_name/extern const unsigned char qt_resource_name/' > $(CURDIR)/$@
 

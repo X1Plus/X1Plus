@@ -37,6 +37,7 @@
 #include <cstdio>
 #include <sys/mman.h>
 #include <dlfcn.h>
+#include <QtCore/QtEndian>
 
 namespace X1Plus {
 #include "minizip/ioapi.c"
@@ -520,17 +521,23 @@ SWIZZLE(ssize_t, write, int fd, const void *p, size_t n)
 
 /*** Qt init and resource replacement ***/
 
-SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int a, unsigned char const* b, unsigned char const* c, unsigned char const* d)
-    static int regcount = 0;
-    printf("qRegisterResourceData version %d, %p %p %p\n", a, b, c, d);
-    if ((uintptr_t)b < 0x1000000) {
-        /* we want to skip the second resource blob loaded *from the main binary's memory space* */
-        regcount++;
-        if (regcount == 2) {
-            printf("...skipped...\n");
-        }
+extern const unsigned char qt_resource_name[];
+
+SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int version, unsigned char const* tree, unsigned char const* name, unsigned char const* data)
+    QString qname;
+    qname.resize(qFromBigEndian<qint16>(name));
+    qFromBigEndian<ushort>(name + 6, qname.size(), qname.data());
+    const char *sname = qname.toLatin1().data();
+    
+    printf("qRegisterResourceData version %d, %p %p %p (%s)\n", version, tree, name, data, sname);
+
+    if (strcmp("printerui", sname) == 0 && name != qt_resource_name)
+    {
+        printf("...skipped...\n");
+        return;
     }
-    next(a, b, c, d);
+
+    next(version, tree, name, data);
 } 
 
 SWIZZLE(int, getifaddrs, void *p)
