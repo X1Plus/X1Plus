@@ -13,12 +13,13 @@ function InstallerGui(props: InstallerProps) {
   const [printerAccessCode, setPrinterAccessCode] = useState(null);
   const [printerSshPassword, setPrinterSshPassword] = useState(null);
   const [installRightClicks, setInstallRightClicks] = useState(0);
+  const [isManualIp, setIsManualIp] = useState(false);
   
-  function serialForIp(ip: string) {
-    return props.printersAvailable.find(p => p.ip == ip).serial;
+  function serialForIp(ip: string): string|null {
+    return props.printersAvailable.find(p => p.ip == ip)?.serial || null;
   }
 
-  function updatePrinter(val: string) {
+  async function updatePrinter(val: string) {
     if (val == printerIp)
       return;
     setPrinterIp(val);
@@ -27,8 +28,14 @@ function InstallerGui(props: InstallerProps) {
       console.log(`InstallerGui: disconnecting`);
       window.electronAPI.connectPrinter(null, null, null);
     } else {
-      const cachedAccessCode = window.electronAPI.getStore(`printers.${serialForIp(val)}.accessCode`);
-      const cachedSshPassword = window.electronAPI.getStore(`printers.${serialForIp(val)}.sshPassword`);
+      const serial = serialForIp(val);
+      let cachedAccessCode;
+      let cachedSshPassword;
+      if (serial) {
+        cachedAccessCode = window.electronAPI.getStore(`printers.${serial}.accessCode`);
+        cachedSshPassword = window.electronAPI.getStore(`printers.${serial}.sshPassword`);
+      }
+      
       const accessCode = cachedAccessCode || printerAccessCode;
       if (cachedAccessCode) {
         console.log(`InstallerGui: trying stored access code`);
@@ -41,24 +48,24 @@ function InstallerGui(props: InstallerProps) {
       }
       if (accessCode && accessCode.length == 8) {
         console.log(`InstallerGui: connecting because printer changed: ${val}`);
-        window.electronAPI.connectPrinter(val, serialForIp(val), accessCode, sshPassword);
+        window.electronAPI.connectPrinter(val, accessCode, serial, sshPassword);
       }
     }
   }
   
-  function updateAccessCode(val: string) {
+  async function updateAccessCode(val: string) {
     setPrinterAccessCode(val);
     if (val.length == 8) {
       console.log(`InstallerGui: connecting because printer access code changed: ${val}`);
-      window.electronAPI.connectPrinter(printerIp, serialForIp(printerIp), val, printerSshPassword);
+      window.electronAPI.connectPrinter(printerIp, val, serialForIp(printerIp), printerSshPassword);
     }
   }
   
-  function updateSshPassword(val: string) {
+  async function updateSshPassword(val: string) {
     setPrinterSshPassword(val);
     if (val.length == 8) {
       console.log(`InstallerGui: connecting because printer ssh password changed: ${val}`);
-      window.electronAPI.connectPrinter(printerIp, serialForIp(printerIp), printerAccessCode, val);
+      window.electronAPI.connectPrinter(printerIp, printerAccessCode, serialForIp(printerIp), val);
     }
   }
 
@@ -88,9 +95,23 @@ function InstallerGui(props: InstallerProps) {
               <Grid.Col span={6}>
                 <p><b>Which printer?</b></p>
                 <Select placeholder="Choose a printer"
-                        value={printerIp} onChange={updatePrinter}
-                        data={props.printersAvailable.map((p) => ({ value: p.ip, label: `${p.ip} (${p.serial})` }) )}
+                        value={printerIp} onChange={(v) => {
+                          if (v == "$manual-input") {
+                            setIsManualIp(true);
+                            setPrinterIp(null);
+                          } else {
+                            setIsManualIp(false);
+                            updatePrinter(v);
+                          }
+                        }}
+                        data={[
+                          ...props.printersAvailable.map((p) => ({ value: p.ip, label: `${p.ip} (${p.serial})` }) ),
+                          { value: "$manual-input", label: "Manually enter address..." }
+                        ]}
                         disabled={props.isConnecting} />
+                { isManualIp && <span>
+                  <TextInput placeholder="192.168.1.XXX" value={printerIp} onChange={(ev) => updatePrinter(ev.currentTarget.value)} disabled={props.isConnecting}/>
+                </span> }
               </Grid.Col>
               <Grid.Col span={6}>
                 { printerIp != null &&

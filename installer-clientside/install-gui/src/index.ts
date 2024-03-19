@@ -41,6 +41,9 @@ const FLAG2_SSHD_IS_RUNNING = 16;
 
 const LEGACY_EXPLOIT_INSTALL_ALLOWED = false;
 
+const MQTT_TIMEOUT = 15000;
+const CONNECT_TIMEOUT = 10000;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -227,8 +230,49 @@ async function connectSsh(sshPassword: string) {
   updateProps();
 }
 
-async function connectPrinter(ip: string, serial: string, accessCode: string, sshPassword?: string) {
+async function timeoutPromise<T>(ms: number, promise: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("timeout"));
+    }, ms);
+    promise.then((value) => {
+      clearTimeout(timeout);
+      resolve(value);
+    }, (reason) => {
+      clearTimeout(timeout);
+      reject(reason);
+    });
+  });
+}
+
+async function querySerial(ip: string, accessCode: string): Promise<string|null> {
+  const printer = new Printer(ip);
+  try {
+    await timeoutPromise(CONNECT_TIMEOUT, printer.authenticate(accessCode));
+    const serial = await timeoutPromise<string>(MQTT_TIMEOUT, printer.mqttRecvAsync((topic, msg: any, resolve) => {
+      if (topic.startsWith('/device/')) {
+        resolve(topic.split('/')[2]);
+      }
+    }));
+    return serial;
+  } catch(e) {
+    if (e.message == "timeout") {
+      console.log(`index.js: querySerial/connect timed out`);
+      return null;
+    } else {
+      throw e;
+    }
+  } finally {
+    printer.disconnect();
+  }
+}
+
+async function connectPrinter(ip: string, accessCode: string, serial?: string, sshPassword?: string) {
   console.log(`index.js: connecting to printer ${ip} ${serial} ${accessCode} ${sshPassword}`);
+  if (!serial) {
+    console.log(`index.js: no serial, trying to find it`);
+    serial = await querySerial(ip, accessCode);
+  }
   if (printer) {
     if (printer.host == ip && printer.serial == serial) {
       if (!printer.sshClient && props.printerIsFirmwareR && sshPassword) {
@@ -479,11 +523,12 @@ async function startRecovery() {
 app.on('ready', () => {
   ipcMain.on('log', async (ev, ...args) => { console.log(...args); });
   ipcMain.on('subscribeInstallerProps', async(ev) => { updateProps = () => ev.reply('newInstallerProps', props); updateProps(); });
-  ipcMain.on('connectPrinter', async (ev, ip: string, serial: string, accessCode: string, sshPassword?: string) => await connectPrinter(ip, serial, accessCode, sshPassword));
+  ipcMain.on('connectPrinter', async (ev, ip: string, accessCode: string, serial?: string, sshPassword?: string) => await connectPrinter(ip, accessCode, serial, sshPassword));
   ipcMain.on('startInstall', async (ev) => await startInstall());
   ipcMain.on('startRecovery', async (ev) => await startRecovery());
   ipcMain.on('setParams', async (ev, _params: InstallerParams) => { params = {...params, ..._params}; });
   ipcMain.on('getStore', async (ev, val) => ev.returnValue = store.get(val));
+  ipcMain.handle('querySerial', async (ev, ip: string, accessCode: string) => querySerial(ip, accessCode))
   createWindow();
 });
 
