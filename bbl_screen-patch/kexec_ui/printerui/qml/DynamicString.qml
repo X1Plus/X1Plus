@@ -15,41 +15,25 @@ QtObject {
     property var object
 
     onInputChanged: {
-        var lastObject = object;
         if (input.indexOf("${") >= 0) {
-            var script = UIBase.fileContent("qrc:/printerui/qml/DynamicString.qml");
-            // "xxx${a+b}yyy" -> "xxx"+(a+b)+"yyy"
-            script = script.replace("<" + "stub>",
-                                    input.replace(/\$\{([\w()\.\+\-\*\ \/\&\|]+)\}/g, "\"+($1)+\""))
-            object = Qt.createQmlObject(script, this, "DynamicString.qml");
-            value = Qt.binding(function() { return object.value })
+            var replinput = '"' + input.replace(/\$\{([\w()\.\+\-\*\ \/\&\|]+)\}/g, "\"+($1)+\"") + '"';
+            value = Qt.binding(function() { return eval(replinput) })
         } else {
             value = input
-            object = null
         }
-        if (lastObject)
-            lastObject.destroy()
     }
 
     property var inputs
     property var values: ["<stubs>"]
 
-    property var objects
-
     onInputsChanged: {
-        var lastObjects = objects;
         if (inputs.findIndex(function(e) { return e.indexOf("${") >= 0 }) >= 0) {
-            var script = UIBase.fileContent("qrc:/printerui/qml/DynamicString.qml");
-            script = script.replace("<" + "stubs>", inputs.map(function(i) {
-                return i.replace(/\$\{([\w()\.]+)\}/g, "\"+($1)+\"")
-            }).join("\",\""))
-            objects = Qt.createQmlObject(script, this, "DynamicString.qml");
-            values = Qt.binding(function() { return objects.values })
+            var replinput = inputs.map(function(i) {
+                return '"' + i.replace(/\$\{([\w()\.\+\-\*\ \/\&\|]+)\}/g, "\"+($1)+\"") + '"'
+            })
+            values = Qt.binding(function() { return replinput.map(function(i) { return eval(i); } ); })
         } else {
             values = inputs
-            objects = null
         }
-        if (lastObjects)
-            lastObjects.destroy()
     }
 }

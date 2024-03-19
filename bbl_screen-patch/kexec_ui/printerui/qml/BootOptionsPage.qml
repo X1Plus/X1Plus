@@ -7,9 +7,7 @@ import X1PlusNative 1.0
 
 import "qrc:/uibase/qml/widgets"
 
-import "printer"
 import "settings"
-import "factory"
 import "."
 
 Rectangle {
