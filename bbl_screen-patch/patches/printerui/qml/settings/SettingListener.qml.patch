@@ -160,20 +160,20 @@
          var region = DeviceManager.cloud.region
          if ((region == "" || (wifiRegion == "CN" && region != "China")) && (DeviceManager.getSetting("wizard") === true)) {
 -            dialogStack.push("ForceRegionPage.qml", { source: "force" })
-+            # dialogStack.push("ForceRegionPage.qml", { source: "force" })
++            // dialogStack.push("ForceRegionPage.qml", { source: "force" })
 +            dialogStack.popupDialog("TextConfirm", {
-+											name: "Hold up",
-+											text: qsTr("The region setting of your device is mismatched with the cloud region setting. Print current settings to log?"),
-+											type: TextConfirm.YES_NO,
-+											defaultButton: 1,
-+											onYes: function() {
-+												console.log("[x1p] DeviceManager getSetting: ", wifiRegion, "DeviceManager cloud region:", region);
-+											},
-+											onNo: function() {
-+												console.log("[x1p] Wifi region not matching settings.");
++                    name: "Hold up",
++                    text: qsTr("The region setting of your device is mismatched with the cloud region setting. Print current settings to log?"),
++                    type: TextConfirm.YES_NO,
++                    defaultButton: 1,
++                    onYes: function() {
++                        console.log("[x1p] DeviceManager getSetting: ", wifiRegion, "DeviceManager cloud region:", region);
++                    },
++                    onNo: function() {
++                        console.log("[x1p] Wifi region not matching settings.");
 +
-+											},
-+										})
++                    },
++                })
          }
 +        cfwOnCompleted();
      }
