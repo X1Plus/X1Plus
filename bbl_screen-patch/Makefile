@@ -34,6 +34,7 @@ printer_ui.so.xdelta: bbl_screen printer_ui.so
 printer_ui-orig: bbl_screen
 	@rm -rfv $@
 	./extract_qrc.py $< $@
+	cd $@/printerui; for qm in *.qm; do lconvert $$qm -o `basename $$qm .qm`.ts; done; rm *.qm
 
 ifeq ("$(NO_AUTO_PATCH)","")
 printer_ui: printer_ui-orig $$(shell find patches)
@@ -64,6 +65,10 @@ evdev_fix.so: evdev_fix.c
 %.ui.o: %.ui.cpp
 	$(TARGET_CC) -c -o $@ $< $(CXXFLAGS) -I $(QT5_INCL_PATH)
 
-%.ui.cpp:: %/root.qrc $$(addprefix $$(*F)/,$$(shell grep file $$(*F)/root.qrc | sed -e 's/.*>\(.*\)<.*/\1/'))
+%.qm: %.ts
+	@lconvert $< -o $@
+
+%.ui.cpp: %/root.qrc $$(addprefix $$(*F)/,$$(shell grep file $$(*F)/root.qrc | sed -e 's/.*>\(.*\)<.*/\1/'))
 	cd $(dir $<); rcc $(notdir $<) --format-version=2 | sed 's/static const unsigned char qt_resource_name/extern const unsigned char qt_resource_name/' > $(CURDIR)/$@
+	cd $(dir $<)/printerui; rm *.qm || true
 
