@@ -56,9 +56,18 @@ var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
 var DeviceManager = null;
 var PrintManager = null;
+var PrintTask = null;
 
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
 X1Plus.emulating = emulating;
+
+var isIdle = null;
+var hasSleep = null;
+var aboutToSleep = null;
+
+var gpioEvents = ["Reboot     ", "Set temp   ", "Pause print", "Abort print", "Sleep/wake ", "Run macro  "];
+X1Plus.gpioEvents = gpioEvents;
+
 
 function loadJson(path) {
 	let xhr = new XMLHttpRequest();
@@ -119,10 +128,16 @@ X1Plus.formatTime = formatTime;
  * PrintManager passed down, and the real QML environment is truly alive. 
  * These things happen from 'awaken'.
  */
-function awaken(_DeviceManager, _PrintManager) {
+
+
+function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	console.log("X1Plus.js awakening");
 	X1Plus.DeviceManager = _DeviceManager;
 	X1Plus.PrintManager = _PrintManager;
+	X1Plus.PrintTask = _PrintTask;
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
+	X1Plus.isIdle = _PrintManager.currentTask.stage < _PrintTask.WORKING;
+	X1Plus.hasSleep = _DeviceManager.power.hasSleep;
+	X1Plus.aboutToSleep= _DeviceManager.power.aboutToSleep; 
 }

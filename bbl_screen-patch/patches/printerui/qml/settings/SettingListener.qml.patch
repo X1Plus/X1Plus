@@ -146,79 +146,34 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +288,75 @@
+@@ -219,14 +288,28 @@
              }
          }
      }
-+    Timer {
-+        id: buttonCmd
-+        interval: 500
-+        repeat: true
-+        running: true
-+        onTriggered: {
-+            if (fileExist('/tmp/button_action')){
-+                var cmd = X1PlusNative.popen(`cat /tmp/button_action`);
-+                console.log("[x1p] button action: ", cmd);
-+                X1PlusNative.system(`rm /tmp/button_action`);
-+                if (cmd == "0"){
-+                    if (!sleep){
-+                        DeviceManager.power.switchSleep();
-+                    } else {
-+                        DeviceManager.power.externalWakeup();
-+                    }
-+                } else if (cmd=="1"){
-+                    if (printing){PrintManager.currentTask.abort()};
-+                } else if (cmd=="2"){
-+                    if (printing){PrintManager.currentTask.pause()};
-+                } else if (cmd == '3'){
-+                    if (!printing){
-+                        if (!fileExist(nozzlecam.imgurl)){X1PlusNative.system(`touch ${nozzlecam.imgurl}`)};
-+                        //DdsListener.publishJson(0, "{\"command\":\"gcode_line\",\"param\":\"G28 \\nG0 X240 Y90 Z8 F1200 \\nM960 S4 P1 \\nM973 S3 P1 \\nM973 S1 \\nM400 P100 \\nM971 S1 P1 \\nM973 S4 \\nM960 S4 P0 \\n\",\"sequence_id\": \"2001\"}");
-+                        X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_nozzlecam());
-+                        nozzlecam.start();
-+                    }
-+                }
-+            }
-+        }
-+    }
- 
-+   
-+    Timer {
-+        id: nozzlecam
-+        interval: 2000
-+        repeat:true
-+        running:false
-+        property var lastModified: ""
-+        property string imgurl:'/userdata/log/cam/capture/calib_1.jpg'
-+        onTriggered: {
-+            if (fileExist(imgurl)){
-+                var currModified = fileDate(imgurl);
-+                if (lastModified !== "" && currModified !== lastModified) {
-+                    X1PlusNative.system(`cp -rf ${imgurl} /mnt/sdcard/x1plus/nozzle_check.jpg`);
-+                    pageStack.push("ViewImage.qml");
-+                    pageStack.currentPage.setImage("file:///mnt/sdcard/x1plus/nozzle_check.jpg");
-+                    currModified = "";
-+                    nozzlecam.stop();
-+                }
-+                lastModified = currModified;
-+            }
+-
 +    
-+        }
-+    }
      /* Region */
 -
-+    function fileDate(path){
-+        return X1PlusNative.popen(`stat -c %Y ${path}`);
-+    }
-+    function fileExist(path){
-+        var exist = X1PlusNative.popen(`test -f ${path} && echo 1`);
-+        return (exist == 1);
-+    }
++    
      Component.onCompleted: {
          var wifiRegion = DeviceManager.getSetting("environment", "")
          var region = DeviceManager.cloud.region
          if ((region == "" || (wifiRegion == "CN" && region != "China")) && (DeviceManager.getSetting("wizard") === true)) {
-             dialogStack.push("ForceRegionPage.qml", { source: "force" })
+-            dialogStack.push("ForceRegionPage.qml", { source: "force" })
++            # dialogStack.push("ForceRegionPage.qml", { source: "force" })
++            dialogStack.popupDialog("TextConfirm", {
++											name: "Hold up",
++											text: qsTr("The region setting of your device is mismatched with the cloud region setting. Print current settings to log?"),
++											type: TextConfirm.YES_NO,
++											defaultButton: 1,
++											onYes: function() {
++												console.log("[x1p] DeviceManager getSetting: ", wifiRegion, "DeviceManager cloud region:", region);
++											},
++											onNo: function() {
++												console.log("[x1p] Wifi region not matching settings.");
++
++											},
++										})
          }
 +        cfwOnCompleted();
      }
