@@ -103,6 +103,8 @@ function InstallerGui(props: InstallerProps) {
                           if (v == "$manual-input") {
                             setIsManualIp(true);
                             setPrinterIp(null);
+                            setPrinterAccessCode(null);
+                            setPrinterSshPassword(null);
                           } else {
                             setIsManualIp(false);
                             updatePrinter(v);
@@ -118,7 +120,7 @@ function InstallerGui(props: InstallerProps) {
                 </span> }
               </Grid.Col>
               <Grid.Col span={6}>
-                { printerIp != null &&
+                { printerIp != null && printerIp.trim().length > 0 &&
                   <>
                     <p><b>What's the LAN Access Code for this printer?</b></p>
                     <TextInput placeholder="abcd1234" value={printerAccessCode} onChange={(ev) => updateAccessCode(ev.currentTarget.value)} disabled={props.isConnecting || props.isConnected} />
