@@ -5,6 +5,7 @@
 .import "./x1plus/Stats.js" as X1PlusStats
 .import "./x1plus/MeshCalcs.js" as X1PlusMeshCalcs
 .import "./x1plus/Binding.js" as X1PlusBinding
+.import "./x1plus/GpioActions.js" as X1PlusGpioKeys
 .import "./x1plus/GcodeGenerator.js" as X1PlusGcodeGenerator
 .import "./x1plus/BedMeshCalibration.js" as X1PlusBedMeshCalibration
 .import "./x1plus/ShaperCalibration.js" as X1PlusShaperCalibration
@@ -45,6 +46,8 @@ X1Plus.BedMeshCalibration = X1PlusBedMeshCalibration;
 var BedMeshCalibration = X1PlusBedMeshCalibration;
 X1Plus.ShaperCalibration = X1PlusShaperCalibration;
 var ShaperCalibration = X1PlusShaperCalibration;
+X1Plus.GpioKeys = X1PlusGpioKeys;
+var GpioKeys  = X1PlusGpioKeys;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -53,7 +56,6 @@ ShaperCalibration.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
-
 var DeviceManager = null;
 var PrintManager = null;
 var PrintTask = null;
@@ -65,8 +67,6 @@ var isIdle = null;
 var hasSleep = null;
 var aboutToSleep = null;
 
-var gpioEvents = ["Reboot     ", "Set temp   ", "Pause print", "Abort print", "Sleep/wake ", "Run macro  "];
-X1Plus.gpioEvents = gpioEvents;
 
 
 function loadJson(path) {
@@ -137,7 +137,8 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	X1Plus.PrintTask = _PrintTask;
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
-	X1Plus.isIdle = _PrintManager.currentTask.stage < _PrintTask.WORKING;
+	GpioKeys.awaken();
+	// X1Plus.isIdle = _PrintManager.currentTask.stage < _PrintTask.WORKING;
 	X1Plus.hasSleep = _DeviceManager.power.hasSleep;
 	X1Plus.aboutToSleep= _DeviceManager.power.aboutToSleep; 
 }

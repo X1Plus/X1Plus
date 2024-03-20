@@ -8,6 +8,7 @@ var X1Plus = null;
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
+
 function publish(topic, json) {
     _DdsListener.publishJson(topic, JSON.stringify(json));
 }
@@ -59,52 +60,54 @@ _DdsListener.gotDdsEvent.connect(function(topic, dstr) {
             }
         } else if (datum["gpio"] == "action" ){
             var action_code = parseInt(datum["action_code"]);
-            switch (action_code){
-                case 0:
-                    console.log("[x1p] Gpiokeys - Reboot"); 
-                    X1Plus.system(`reboot`);
-                    break;
-                case 1:
-                    var setT;
-                    if (!X1Plus.isIdle) { return};
-                    let params = datum["param"];
-                    if (params.nozzle){
-                        setT = parseInt(params.nozzle);
-                        if (setT <=300 && setT > 0){
-                            X1Plus.sendGcode(`M104 S${setT}`);   
-                            console.log("[x1p] Gpiokeys - Preheat nozzle to ", setT);       
-                        }
-                    } else if (params.bed){
-                        setT = parseInt(params.bed);
-                        if (setT <=110 && setT > 0){
-                            X1Plus.sendGcode(`M140 S${setT}`); 
-                            console.log("[x1p] Gpiokeys - Preheat bed to ", setT); 
-                        }             
-                    }
-                    break;
-                case 2:
-                    if (!X1Plus.isIdle) { X1Plus.PrintManager.currentTask.pause()};
-                    console.log("[x1p] Gpiokeys - Pause print");
-                    break;
-                case 3:
-                    if (!X1Plus.isIdle) { X1Plus.PrintManager.currentTask.abort()};
-                    console.log("[x1p] Gpiokeys - Abort print");
-                    break;
-                case 4:
-                    if (!X1Plus.hasSleep){
-                        X1Plus.DeviceManager.power.switchSleep();
-                    } else {
-                        X1Plus.DeviceManager.power.externalWakeup();
-                    }
-                    console.log("[x1p] Gpiokeys - toggle LCD");		
-                    break;
-                case 5:
-                    console.log("[x1p] Macro executed from /opt/gpiokeys.py");
-                    break;
-                default:
-                    console.log("[x1p] Error in parsing gpiokeys dds message");
+            X1Plus.GpioKeys.handleAction(action_code,datum["param"]);
+        }
+        //     switch (action_code){
+        //         case 0:
+        //             console.log("[x1p] Gpiokeys - Reboot"); 
+        //             X1Plus.system(`reboot`);
+        //             break;
+        //         case 1:
+        //             var setT;
+        //             if (!X1Plus.isIdle) { return};
+        //             let params = datum["param"];
+        //             if (params.nozzle){
+        //                 setT = parseInt(params.nozzle);
+        //                 if (setT <=300 && setT > 0){
+        //                     X1Plus.sendGcode(`M104 S${setT}`);   
+        //                     console.log("[x1p] Gpiokeys - Preheat nozzle to ", setT);       
+        //                 }
+        //             } else if (params.bed){
+        //                 setT = parseInt(params.bed);
+        //                 if (setT <=110 && setT > 0){
+        //                     X1Plus.sendGcode(`M140 S${setT}`); 
+        //                     console.log("[x1p] Gpiokeys - Preheat bed to ", setT); 
+        //                 }             
+        //             }
+        //             break;
+        //         case 2:
+        //             if (!X1Plus.isIdle) { X1Plus.PrintManager.currentTask.pause()};
+        //             console.log("[x1p] Gpiokeys - Pause print");
+        //             break;
+        //         case 3:
+        //             if (!X1Plus.isIdle) { X1Plus.PrintManager.currentTask.abort()};
+        //             console.log("[x1p] Gpiokeys - Abort print");
+        //             break;
+        //         case 4:
+        //             if (!X1Plus.hasSleep){
+        //                 X1Plus.DeviceManager.power.switchSleep();
+        //             } else {
+        //                 X1Plus.DeviceManager.power.externalWakeup();
+        //             }
+        //             console.log("[x1p] Gpiokeys - toggle LCD");		
+        //             break;
+        //         case 5:
+        //             console.log("[x1p] Macro executed from /opt/gpiokeys.py");
+        //             break;
+        //         default:
+        //             console.log("[x1p] Error in parsing gpiokeys dds message");
 
-            }
-        }   
+        //     }
+        // }   
     }
 });
