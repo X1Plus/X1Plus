@@ -121,9 +121,9 @@ function versionIsFirmwareR(version: string) {
 async function checkPrinterOtaVersion() {
   const printStatus: any = await printer.waitPrintStatus();
   await printer.mqttSend({info: { sequence_id: '0', command: 'get_version' }});
-  props.printerOtaVersion = await printer.mqttRecvAsync((topic, msg: any, resolve) => {
+  props.printerOtaVersion = await printer.mqttRecvAsync((topic, msg: any) => {
     if ('info' in msg) {
-      resolve(msg['info']['module'][0]['sw_ver']);
+      return msg['info']['module'][0]['sw_ver'];
     }
   });
 
@@ -171,9 +171,9 @@ async function checkPrinterOtaVersion() {
 
 async function checkPrinterUpdateHistory() {
   await printer.mqttSend({upgrade: { sequence_id: '0', command: 'get_history' }});
-  const firmwares: [any] = await printer.mqttRecvAsync((topic, msg: any, resolve) => {
+  const firmwares: [any] = await printer.mqttRecvAsync((topic, msg: any) => {
     if (msg.upgrade && 'firmware_optional' in msg.upgrade) {
-      resolve(msg['upgrade']['firmware_optional'] || []);
+      return msg['upgrade']['firmware_optional'] || [];
     }
   });
   props.printerCanHasFirmwareRUpgrade = firmwares.some(fw => versionIsFirmwareR(fw.firmware.version) || fw.firmware.type == "firmware_r");
@@ -249,15 +249,17 @@ async function querySerial(ip: string, accessCode: string): Promise<string|null>
   const printer = new Printer(ip);
   try {
     await timeoutPromise(CONNECT_TIMEOUT, printer.authenticate(accessCode));
-    const serial = await timeoutPromise<string>(MQTT_TIMEOUT, printer.mqttRecvAsync((topic, msg: any, resolve) => {
-      if (topic.startsWith('/device/')) {
-        resolve(topic.split('/')[2]);
+    console.log(`index.js: querySerial connected`);
+    const serial = await timeoutPromise<string>(MQTT_TIMEOUT, printer.mqttRecvAsync((topic, msg: any) => {
+      if (topic.startsWith('device/')) {
+        return topic.split('/')[2];
       }
     }));
+    console.log(`index.js: querySerial got serial ${serial}`);
     return serial;
   } catch(e) {
     if (e.message == "timeout") {
-      console.log(`index.js: querySerial/connect timed out`);
+      console.log(`index.js: querySerial connect timed out`);
       return null;
     } else {
       throw e;
@@ -366,11 +368,11 @@ const installStepsCommon: InstallStep[] = [
     fn: async () => {
       props.intraStatus = "Use the installer on the printer's LCD to complete installation.";
       updateProps();
-      await printer.mqttRecvAsync((topic, msg: any, resolve) => {
+      await printer.mqttRecvAsync((topic, msg: any) => {
         if ('upgrade' in msg && msg['upgrade']['command'] == 'x1plus') {
           console.log(JSON.stringify(msg['upgrade']));
           if (msg['upgrade']['progress_complete']) {
-            resolve(true);
+            return true;
           }
           if (msg['upgrade']['progress']) {
             props.intraStatus = msg['upgrade']['progress'];

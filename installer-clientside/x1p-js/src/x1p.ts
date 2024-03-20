@@ -81,13 +81,15 @@ export class Printer {
         this.sshPort = 2222;
     }
     
-    mqttRecvAsync<T>(fn: (topic: string, msg: object, resolve: (T) => void, reject: (any) => void) => void) {
+    mqttRecvAsync<T>(filterMapFn: (topic: string, msg: object) => T) {
       const _this = this;
       return new Promise<T>((resolve, reject) => {
         function msg(topic: string, message: Uint8Array) {
-          fn(topic, JSON.parse(new TextDecoder().decode(message)),
-              (x: T) => { _this.mqttClient.off('message', msg); resolve(x); },
-              (x: any) => { _this.mqttClient.off('message', msg); reject(x); });
+          const result = filterMapFn(topic, JSON.parse(new TextDecoder().decode(message)))
+          if (result !== undefined) {
+            _this.mqttClient.off('message', msg);
+            resolve(result);
+          }
         }
         _this.mqttClient.on('message', msg);
       });
@@ -101,9 +103,9 @@ export class Printer {
       if (this.printStatus !== undefined) {
         return this.printStatus;
       }
-      return await this.mqttRecvAsync((topic, msg, resolve) => {
+      return await this.mqttRecvAsync((topic, msg) => {
         if ('print' in msg && ((msg['print']['msg'] === undefined) || (msg['print']['msg'] === 0))) {
-          resolve(msg.print);
+          return msg.print;
         }
       });
     }
@@ -144,7 +146,7 @@ export class Printer {
             });
             
             console.log("x1p.ts::Printer: waiting for serial number message...");
-            this.serial = await this.mqttRecvAsync((topic, msg, resolve) => resolve(topic.split('/')[1]));
+            this.serial = await this.mqttRecvAsync((topic, msg) => topic.split('/')[1]);
             console.log(`x1p.ts::Printer: we appear to be serial number ${this.serial}`);
             
             console.log("x1p.ts::Printer: sending initial pushall request");
