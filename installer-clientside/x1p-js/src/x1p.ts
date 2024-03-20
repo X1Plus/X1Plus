@@ -75,10 +75,11 @@ export class Printer {
     mqttClient?: mqtt.AsyncMqttClient;
     sshClient?: NodeSSH;
 
-    constructor(host: string) {
+    constructor(host: string, accessCode?: string) {
         this.host = host;
         this.sshUser = "x1plus";
         this.sshPort = 2222;
+        this.accessCode = accessCode;
     }
     
     mqttRecvAsync<T>(filterMapFn: (topic: string, msg: object) => T) {
@@ -109,19 +110,22 @@ export class Printer {
         }
       });
     }
-    
-    async authenticate(accessCode?: string) {
-        if (accessCode !== undefined) {
-            this.accessCode = accessCode;
-        }
-        
+
+    setAccessCode(accessCode: string) {
+        this.accessCode = accessCode;
+    }
+
+    async authenticate() {
         if (this.accessCode === undefined) {
             throw new Error("call to authenticate() without an accessCode");
         }
-        
+        await Promise.all([this.authenticateMqtt(), this.authenticateFTP()]);
+        console.log("x1p.ts::Printer: authenticated");
+    }
+    
+    async authenticateMqtt() {
         try {
-            await this.disconnect();
-
+            await this.disconnectMqtt();
             console.log("x1p.ts::Printer: connecting to MQTT broker...");
             try {
                 this.mqttClient = await mqtt.connectAsync(`mqtts://${this.host}/`, { 'username': 'bblp', 'password': this.accessCode, 'rejectUnauthorized': false});
@@ -151,44 +155,54 @@ export class Printer {
             
             console.log("x1p.ts::Printer: sending initial pushall request");
             this.mqttSend({ pushing: { sequence_id: "0", command: "pushall" } });
-
-            console.log("x1p.ts::Printer: connecting to FTP server...");
-            try {
-                const ftpClient = new FTPClient(this.ftpsTimeout);
-                await ftpClient.access({host: this.host, port: this.ftpsPort, user: this.ftpsUser, password: this.accessCode, secure: 'implicit', secureOptions: {rejectUnauthorized: false, secureProtocol: 'TLSv1_2_method'}});
-                this.ftpClient = ftpClient;
-            } catch (e) {
-                try {
-                    console.log(`x1p.ts::Printer: ${e}, maybe falling back on insecure FTP?`);
-                    const ftpClient = new FTPClient(this.ftpsTimeout);
-                    await ftpClient.access({host: this.host, user: this.ftpsUser, password: this.accessCode,});
-                    this.ftpClient = ftpClient;
-                } catch (e2) {
-                    throw e;
-                }
-            }
-            console.log("x1p.ts::Printer: authenticated");
         } catch (e) {
-            await this.disconnect();
+            await this.disconnectMqtt();
             throw e;
+        }
+    }
+
+    async authenticateFTP() {
+        try {
+            await this.disconnectFTP();
+            console.log("x1p.ts::Printer: connecting to FTP server...");
+            const ftpClient = new FTPClient(this.ftpsTimeout);
+            await ftpClient.access({host: this.host, port: this.ftpsPort, user: this.ftpsUser, password: this.accessCode, secure: 'implicit', secureOptions: {rejectUnauthorized: false, secureProtocol: 'TLSv1_2_method'}});
+            this.ftpClient = ftpClient;
+        } catch (e) {
+            try {
+                console.log(`x1p.ts::Printer: ${e}, maybe falling back on insecure FTP?`);
+                const ftpClient = new FTPClient(this.ftpsTimeout);
+                await ftpClient.access({host: this.host, user: this.ftpsUser, password: this.accessCode,});
+                this.ftpClient = ftpClient;
+            } catch (e2) {
+                throw e;
+            }
+        }
+    }
+    
+    async disconnectMqtt() {
+        if (this.mqttClient) {
+            await this.mqttClient.end();
+            this.mqttClient = null;
+        }
+    }
+
+    async disconnectFTP() {
+        if (this.ftpClient) {
+            await this.ftpClient.close();
+            this.ftpClient = null;
+        }
+    }
+
+    async disconnectSSH() {
+        if (this.sshClient) {
+            await this.sshClient.dispose();
+            this.sshClient = null;
         }
     }
     
     async disconnect() {
-        if (this.mqttClient) {
-            this.mqttClient.end();
-            this.mqttClient = null;
-        }
-        
-        if (this.ftpClient) {
-            this.ftpClient.close();
-            this.ftpClient = null;
-        }
-        
-        if (this.sshClient) {
-            this.sshClient.dispose();
-            this.sshClient = null;
-        }
+        await Promise.all([this.disconnectMqtt(), this.disconnectFTP(), this.disconnectSSH()]);
     }
 
     async connectSSH() {
