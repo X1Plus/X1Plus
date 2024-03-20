@@ -75,7 +75,7 @@ def dump_rootfs(f, dir):
 
 def main(in_file, out_file):
     if not KEY_MATERIAL:
-        print("Please set environment variable UPDATE_KEY_MATERIAL to the update key")
+        print("Please set environment variable UPDATE_KEY_MATERIAL to the update key -- see the toplevel README.md for more on this")
         exit(1)
     if not in_file.endswith(".sig"):
         print("Input file must end with .sig")
