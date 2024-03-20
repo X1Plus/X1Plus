@@ -18,6 +18,10 @@ function InstallerGui(props: InstallerProps) {
   function serialForIp(ip: string): string|null {
     return props.printersAvailable.find(p => p.ip == ip)?.serial || null;
   }
+  if (serialForIp(printerIp) && isManualIp) {
+    /* if we have a serial, it is definitely in the list at this point */
+    setIsManualIp(false);
+  }
 
   async function updatePrinter(val: string) {
     if (val == printerIp)
@@ -95,7 +99,7 @@ function InstallerGui(props: InstallerProps) {
               <Grid.Col span={6}>
                 <p><b>Which printer?</b></p>
                 <Select placeholder="Choose a printer"
-                        value={printerIp} onChange={(v) => {
+                        value={isManualIp ? "$manual-input" : printerIp} onChange={(v) => {
                           if (v == "$manual-input") {
                             setIsManualIp(true);
                             setPrinterIp(null);
@@ -106,11 +110,11 @@ function InstallerGui(props: InstallerProps) {
                         }}
                         data={[
                           ...props.printersAvailable.map((p) => ({ value: p.ip, label: `${p.ip} (${p.serial})` }) ),
-                          { value: "$manual-input", label: "Manually enter address..." }
+                          { value: "$manual-input", label: "Enter printer IP address manually..." }
                         ]}
                         disabled={props.isConnecting} />
                 { isManualIp && <span>
-                  <TextInput placeholder="192.168.1.XXX" value={printerIp} onChange={(ev) => updatePrinter(ev.currentTarget.value)} disabled={props.isConnecting}/>
+                  <TextInput placeholder="aa.bb.cc.dd" value={printerIp} onChange={(ev) => updatePrinter(ev.currentTarget.value)} disabled={props.isConnecting}/>
                 </span> }
               </Grid.Col>
               <Grid.Col span={6}>

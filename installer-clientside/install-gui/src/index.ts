@@ -42,7 +42,7 @@ const FLAG2_SSHD_IS_RUNNING = 16;
 const LEGACY_EXPLOIT_INSTALL_ALLOWED = false;
 
 const MQTT_TIMEOUT = 15000;
-const CONNECT_TIMEOUT = 10000;
+const CONNECT_TIMEOUT = 3000;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -249,13 +249,17 @@ async function querySerial(ip: string, accessCode: string): Promise<string|null>
   const printer = new Printer(ip);
   try {
     await timeoutPromise(CONNECT_TIMEOUT, printer.authenticate(accessCode));
-    console.log(`index.js: querySerial connected`);
+    console.log(`index.js: querySerial(${ip}) connected`);
     const serial = await timeoutPromise<string>(MQTT_TIMEOUT, printer.mqttRecvAsync((topic, msg: any) => {
       if (topic.startsWith('device/')) {
         return topic.split('/')[2];
       }
     }));
-    console.log(`index.js: querySerial got serial ${serial}`);
+    console.log(`index.js: querySerial(${ip}) got serial ${serial}`);
+    if (!props.printersAvailable.some((p) => p.ip == ip)) {
+      props.printersAvailable.push({ip: ip, serial: serial});
+      updateProps();
+    }
     return serial;
   } catch(e) {
     if (e.message == "timeout") {
@@ -271,10 +275,6 @@ async function querySerial(ip: string, accessCode: string): Promise<string|null>
 
 async function connectPrinter(ip: string, accessCode: string, serial?: string, sshPassword?: string) {
   console.log(`index.js: connecting to printer ${ip} ${serial} ${accessCode} ${sshPassword}`);
-  if (!serial) {
-    console.log(`index.js: no serial, trying to find it`);
-    serial = await querySerial(ip, accessCode);
-  }
   if (printer) {
     if (printer.host == ip && printer.serial == serial) {
       if (!printer.sshClient && props.printerIsFirmwareR && sshPassword) {
@@ -297,9 +297,14 @@ async function connectPrinter(ip: string, accessCode: string, serial?: string, s
   props.isConnected = false;
   props.readyToInstall = false;
 
-  if (!ip || !serial || !accessCode) {
+  if (!ip || !accessCode) {
     updateProps();
     return;
+  }
+
+  if (!serial) {
+    console.log(`index.js: no serial, trying to find it`);
+    serial = await querySerial(ip, accessCode);
   }
 
   printer = new Printer(ip);
