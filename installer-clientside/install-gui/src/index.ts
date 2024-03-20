@@ -246,21 +246,22 @@ async function timeoutPromise<T>(ms: number, promise: Promise<T>): Promise<T> {
 }
 
 async function querySerial(ip: string, accessCode: string): Promise<string|null> {
-  const printer = new Printer(ip);
+  const printer = new Printer(ip, accessCode);
   try {
-    await timeoutPromise(CONNECT_TIMEOUT, printer.authenticate(accessCode));
+    await timeoutPromise(CONNECT_TIMEOUT, printer.authenticateMqtt());
     console.log(`index.js: querySerial(${ip}) connected`);
-    const serial = await timeoutPromise<string>(MQTT_TIMEOUT, printer.mqttRecvAsync((topic, msg: any) => {
-      if (topic.startsWith('device/')) {
-        return topic.split('/')[2];
+    if (printer.serial) {
+      console.log(`index.js: querySerial using handshake serial ${printer.serial}`);
+      if (!props.printersAvailable.some((p) => p.ip == ip)) {
+        props.printersAvailable.push({ip: ip, serial: printer.serial});
+        updateProps();
       }
-    }));
-    console.log(`index.js: querySerial(${ip}) got serial ${serial}`);
-    if (!props.printersAvailable.some((p) => p.ip == ip)) {
-      props.printersAvailable.push({ip: ip, serial: serial});
-      updateProps();
+      return printer.serial;
+    } else {
+      console.log(`index.js: querySerial got no serial from handshake`);
+      return null;
     }
-    return serial;
+    
   } catch(e) {
     if (e.message == "timeout") {
       console.log(`index.js: querySerial connect timed out`);
@@ -269,7 +270,7 @@ async function querySerial(ip: string, accessCode: string): Promise<string|null>
       throw e;
     }
   } finally {
-    printer.disconnect();
+    await printer.disconnect();
   }
 }
 
@@ -305,14 +306,18 @@ async function connectPrinter(ip: string, accessCode: string, serial?: string, s
   if (!serial) {
     console.log(`index.js: no serial, trying to find it`);
     serial = await querySerial(ip, accessCode);
+    if (!serial) {
+      updateProps();
+      return;
+    }
   }
 
-  printer = new Printer(ip);
+  printer = new Printer(ip, accessCode);
   props.isConnecting = true;
   props.lastConnectionError = "";
   updateProps();
   try {
-    await printer.authenticate(accessCode);
+    await printer.authenticate();
     const printStatus: any = await printer.waitPrintStatus();
     const hasSdCard = printStatus['sdcard'] === true;
     await checkPrinterUpdateHistory();
