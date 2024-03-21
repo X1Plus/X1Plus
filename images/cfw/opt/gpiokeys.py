@@ -8,7 +8,7 @@ KEY_STOP = 128
 #KEY_DOOR = 134 #DOOR SENSOR
 
 LONG_PRESS_THRESHOLD = 0.850 # seconds
-CFG_FILE = "/mnt/sdcard/x1plus/buttons.json"
+CFG_FILE = "/config/screen/printer.json"
 
 # Ensure that these stay in sync with HardwarePage.qml!
 ACTION_REBOOT = 0
@@ -17,31 +17,18 @@ ACTION_PAUSE_PRINT = 2
 ACTION_ABORT_PRINT = 3
 ACTION_TOGGLE_SCREENSAVER = 4
 ACTION_MACRO = 5
-<<<<<<< Updated upstream
-
-gpio_dds_publisher = dds.publisher('device/request/print')
-=======
->>>>>>> Stashed changes
 
 gpio_dds_publisher = dds.publisher('device/request/print')
 
-def get_button_action(button_name, press_type, default_value):  
+def get_printer_setting(key, default_value):
     try:
-        if os.path.exists(CFG_FILE):
-            with open(CFG_FILE, "r") as file:
-                data = json.load(file)
-                button_config = data.get(button_name, {})
-                action_setting = button_config.get(press_type, default_value)
-                return action_setting
+        with open(CFG_FILE, "r") as file:
+            data = json.load(file)
+            return data.get(key, default_value)
     except Exception as e:
-        print(f"Error loading setting for {button_name} {press_type} from {CFG_FILE}: {e}")
+        print(f"error loading key {key} from {CFG_FILE}: {e}")
         return default_value
-<<<<<<< Updated upstream
 
-=======
-    else:
-        return default_value     	
->>>>>>> Stashed changes
 def send_gcode(file_path):
     if not os.path.isfile(file_path):
         print(f"file {file_path} does not exist")
@@ -58,13 +45,8 @@ def event_handler(action_setting):
         params = {}
 
     elif isinstance(action_setting, dict):
-<<<<<<< Updated upstream
         action_code = action_setting.get("action_code", ACTION_TOGGLE_SCREENSAVER)
         params = action_setting.get("param", {}) if isinstance(action_setting.get("param"), dict) else {}
-=======
-        action_code = action_setting.get("action", ACTION_TOGGLE_SCREENSAVER)
-        params = action_setting.get("parameters", {}) if isinstance(action_setting.get("param"), dict) else {}
->>>>>>> Stashed changes
     else:
         print("Error: Invalid action setting")
         return
@@ -76,16 +58,9 @@ def event_handler(action_setting):
         gpio_dds_publisher(dds_payload)
     elif action_code == ACTION_MACRO:
         file_path = params.get("file_path", "")
-<<<<<<< Updated upstream
         if file_path.endswith(".py"):
             os.system(f"/opt/python/bin/python3 {file_path}")
             print(f"Run python script:{file_path}")
-=======
-        args = params.get("arguments","")
-        if file_path.endswith(".py"):
-            os.system(f"/opt/python/bin/python3 {file_path} {args}")
-            print(f"Run python script:{file_path} {args}")
->>>>>>> Stashed changes
         elif file_path.endswith(".gcode"):
             print(f"Run gcode {file_path}")
             send_gcode(file_path)
@@ -95,27 +70,19 @@ class Button:
         self.pressed = None
         self.scancode = scancode
         self.name = name
-        self.default_short = {"action": default_short, "parameters": {}}
-        self.default_long = {"action": default_long, "parameters": {}}
-
+        self.default_short = default_short
+        self.default_long = default_long
+    
     def press(self):
         self.pressed = time.time()
-
+    
     def release(self):
-<<<<<<< Updated upstream
     	action = get_printer_setting(f"cfw_gpio_{self.name}")
         if time.time() - self.pressed < LONG_PRESS_THRESHOLD:
         	
             event_handler(get_printer_setting(action["short"], self.default_short))
         else:
             event_handler(get_printer_setting(action["long"], self.default_long))
-=======
-        elapsed_time = time.time() - self.pressed
-        press_type = "shortPress" if elapsed_time < LONG_PRESS_THRESHOLD else "longPress"
-        action_setting = get_button_action(f"cfw_{self.name}", press_type,
-                                           self.default_short if press_type == "shortPress" else self.default_long)
-        event_handler(action_setting)
->>>>>>> Stashed changes
         self.pressed = None
         pass
         

@@ -96,7 +96,7 @@
  <file>printerui/qml/settings/WifiListPage.qml</file>
  <file>printerui/qml/settings/WifiSetupPage.qml</file>
  <file>printerui/qml/wizard/Calibrate1Page.qml</file>
-@@ -233,6 +278,17 @@
+@@ -233,6 +278,16 @@
  <file>printerui/qml/wizard/TermsPage.qml</file>
  <file>printerui/qml/wizard/WelcomePage.qml</file>
  <file>printerui/qml/wizard/WizardPage.qml</file>
@@ -107,14 +107,13 @@
 +<file>printerui/qml/x1plus/Bindable.qml</file>
 +<file>printerui/qml/x1plus/DDS.js</file>
 +<file>printerui/qml/x1plus/GcodeGenerator.js</file>
-+<file>printerui/qml/x1plus/GpioActions.js</file>
 +<file>printerui/qml/x1plus/MeshCalcs.js</file>
 +<file>printerui/qml/x1plus/ShaperCalibration.js</file>
 +<file>printerui/qml/x1plus/Stats.js</file>
  <file>printerui/text/error_texts.de.json</file>
  <file>printerui/text/error_texts.en.json</file>
  <file>printerui/text/error_texts.es.json</file>
-@@ -293,3 +349,4 @@
+@@ -293,3 +348,4 @@
  <file>printerui/text/terms.zh-cn.txt</file>
  <file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
  </qresource></RCC>
