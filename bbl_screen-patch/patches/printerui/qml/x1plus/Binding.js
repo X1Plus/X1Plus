@@ -19,8 +19,24 @@ var _refBindableRoot = _componentFactory.createObject(); // Otherwise, it will g
 function makeBinding(initval) {
     let obj = _componentFactory.createObject();
     obj.bound = initval;
-    return [function() { return obj.bound; }, obj.boundChanged, function (v) { obj.bound = v; } ];
+
+    // Enhanced setter for objects
+    function setBound(v) {
+        obj.bound = v;
+        obj.boundChanged(); // Manually trigger the change signal
+    }
+
+    return [
+        function() { return obj.bound; },
+        obj.boundChanged,
+        setBound
+    ];
 }
+// function makeBinding(initval) {
+//     let obj = _componentFactory.createObject();
+//     obj.bound = initval;
+//     return [function() { return obj.bound; }, obj.boundChanged, function (v) { obj.bound = v; } ];
+// }
 
 /* It appears that you cannot exfiltrate a signal, though.  Doing so results in:
  *   qrc:/printerui/qml/Screen.qml:92: Error: Function.prototype.connect: this object is not a signal
