@@ -1,0 +1,103 @@
+--- printer_ui-orig/printerui/qml/models/ModelListPage.qml
++++ printer_ui/printerui/qml/models/ModelListPage.qml
+@@ -33,15 +33,17 @@
+         clip: true
+         delegate: modelComp
+ 
+-        footer: Item {
+-            width: modelGrid.width
+-            height: modelGrid.height - modelGrid.cellHeight * 2
+-            visible: ModelManager.modelCount > 0
+-            AnimatedImage {
+-                anchors.centerIn: parent
+-                source: "qrc:/uibase/icon/progress_loading.gif"
+-                visible: ModelManager.loading
+-            }
++//        cacheBuffer: 0 // no cache delegates outside the view, but screen slow a bit, not use this
++
++//        footer: Item {
++//            width: modelGrid.width
++//            height: modelGrid.height - modelGrid.cellHeight * 2
++//            visible: ModelManager.modelCount > 0
++//            AnimatedImage {
++//                anchors.centerIn: parent
++//                source: "qrc:/uibase/icon/progress_loading.gif"
++//                visible: ModelManager.loading
++//            }
+ //            Text {
+ //                anchors.centerIn: parent
+ //                font: Fonts.body_24
+@@ -49,12 +51,12 @@
+ //                text: qsTr("------------ The end ------------")
+ //                visible: ModelManager.atEnd
+ //            }
+-        }
++//        }
+ 
+-        onFlickEnded: {
+-            if (contentY > height)
+-                ModelManager.loadMore();
+-        }
++//        onFlickEnded: {
++//            if (contentY > height)
++//                ModelManager.loadMore();
++//        }
+     }
+ 
+ //    ListView {
+@@ -83,12 +85,12 @@
+         text: ModelManager.errorString
+     }
+ 
+-    AnimatedImage {
+-        id: loading
+-        anchors.centerIn: parent
+-        source: "qrc:/uibase/icon/progress_loading.gif"
+-        visible: ModelManager.modelCount === 0 && ModelManager.loading
+-    }
++//    AnimatedImage {
++//        id: loading
++//        anchors.centerIn: parent
++//        source: "qrc:/uibase/icon/progress_loading.gif"
++//        visible: ModelManager.modelCount === 0 && ModelManager.loading
++//    }
+ 
+     SimplePager {
+         id: pager
+@@ -107,15 +109,17 @@
+             width: 252
+             height: 266
+ 
+-            MarginPanel {
++            Rectangle {
+                 id: imagePanel
+-                width: parent.width
++                width: 252 // thumbnailUrl pic size. do not let pic transformed
+                 height: 188
+                 radius: 15
+-                bottomRadiusOff: true
++//                bottomRadiusOff: true
+                 color: Colors.gray_500
++                clip: true
+ 
+                 ZRoundedImage {
++                    // set "fillMode: Image.Pad" and "cache: false" inside
+                     anchors.fill: parent
+                     cornerRadii: [15, 15, 0, 0]
+                     minimumFillRate: .66
+@@ -123,6 +127,7 @@
+                 }
+ 
+                 Image {
++                    cache: false
+                     anchors.left: parent.left
+                     anchors.top: parent.top
+                     visible: modelData.isHistory
+@@ -171,6 +176,7 @@
+                         width: ListView.view.width / ListView.view.model.length
+                         height: ListView.view.height
+                         Image {
++                            cache: false
+                             width: 20; height: width
+                             anchors.verticalCenter: parent.verticalCenter
+                             source: "../../icon/" + modelData.key + ".svg"

@@ -1,0 +1,518 @@
+--- printer_ui-orig/printerui/qml/printer/PrintOptionsPage.qml
++++ printer_ui/printerui/qml/printer/PrintOptionsPage.qml
+@@ -17,21 +17,27 @@
+         clip: true
+         contentHeight: myColumn.implicitHeight
+ 
++        background: Rectangle {
++            anchors.fill: parent
++            color: Colors.gray_700
++        }
++
+         Column {
+             id: myColumn
+             width: scroll.width
+-            spacing: 20
++            spacing: 10
+ 
+             MarginPanel {
+                 id: printMonitorId
+                 width: scroll.width
+-                height: printMonitorCheckBox.checked ? 180 : 110
++                height: printMonitorCheckBox.checked ?
++                            printMonitorCheckBox.height + printMonitorTx.height : printMonitorCheckBox.height
+                 bottomMargin: 20
+                 radius: 15
+ 
+                 ZCheckBox {
+                     id: printMonitorCheckBox
+-                    height: 110
++                    height: 80
+                     width: scroll.width
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+@@ -49,7 +55,7 @@
+ 
+                 ZText {
+                     id: printMonitorTx
+-                    height: 70
++                    height: 65
+                     maxWidth: scroll.width - 70
+                     anchors.top: printMonitorCheckBox.bottom
+                     anchors.left: parent.left
+@@ -64,7 +70,7 @@
+                 Choise {
+                     id: sensitivity
+                     width: 237
+-                    height: 50
++                    height: 60
+                     anchors.left: printMonitorTx.right
+                     anchors.top: printMonitorTx.top
+                     anchors.topMargin: -10
+@@ -88,13 +94,14 @@
+             MarginPanel {
+                 id: buildPlateMarkerId
+                 width: scroll.width
+-                height: buildPlateMarkerCheckBox.checked ? 180 : 110
++                height: buildPlateMarkerCheckBox.checked ?
++                            buildPlateMarkerCheckBox.height + defectiveSkip.height : buildPlateMarkerCheckBox.height
+                 bottomMargin: 20
+                 radius: 15
+ 
+                 ZCheckBox {
+                     id: buildPlateMarkerCheckBox
+-                    height: 110
++                    height: 80
+                     width: scroll.width
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+@@ -111,7 +118,7 @@
+ 
+                 ZText {
+                     id: defectiveSkip
+-                    height: 70
++//                    height: 65    based on the dynamic height of the text
+                     width: scroll.width - 70
+                     anchors.top: buildPlateMarkerCheckBox.bottom
+                     anchors.topMargin: -15
+@@ -128,13 +135,13 @@
+             MarginPanel {
+                 id: firstLayerId
+                 width: scroll.width
+-                height: 110
++                height: firstLayerCheckBox.height
+                 bottomMargin: 20
+                 radius: 15
+ 
+                 ZCheckBox {
+                     id: firstLayerCheckBox
+-                    height: 110
++                    height: 80
+                     width: scroll.width
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+@@ -152,13 +159,13 @@
+             MarginPanel {
+                 id: stepLossRecoveryId
+                 width: scroll.width
+-                height: 110
++                height: stepLossRecoveryCheckBox.height
+                 bottomMargin: 20
+                 radius: 15
+ 
+                 ZCheckBox {
+                     id: stepLossRecoveryCheckBox
+-                    height: 110
++                    height: 80
+                     width: scroll.width
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+@@ -173,75 +180,101 @@
+                 }
+             }
+ 
+-            MarginPanel {
+-                id: doorOpenLayerId
+-                width: scroll.width
+-                height: doorOpenCheckBox.checked ? 180 : 110
+-                bottomMargin: 20
+-                radius: 15.
+-                visible: false
+-
+-                ZCheckBox {
+-                    id: doorOpenCheckBox
+-                    height: 110
+-                    width: scroll.width
+-                    anchors.top: parent.top
+-                    anchors.left: parent.left
+-                    anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.doorOpenState != 0
+-                    textColor: StateColors.get("gray_100")
+-                    font: Fonts.body_30
+-                    text: qsTr("Door opening detection")
+-                    onToggled: {
+-                        printConfig.doorOpenState = checked
+-                    }
+-                }
+-
+-                ZText {
+-                    id: doorOpenLayerTx
+-                    height: 70
+-                    maxWidth: scroll.width - 70
+-                    anchors.top: doorOpenCheckBox.bottom
+-                    anchors.left: parent.left
+-                    anchors.leftMargin: 60
+-                    visible: doorOpenCheckBox.checked
+-                    wrapMode: Text.WordWrap
+-                    color: Colors.gray_300
+-                    font: Fonts.body_24
+-                    text: qsTr("Action when door open detected in printing is ")
+-                }
+-
+-                Choise {
+-                    id: doorOpenLevelCh
+-                    width: 330
+-                    height: 60
+-                    anchors.left: doorOpenLayerTx.right
+-                    anchors.top: doorOpenLayerTx.top
+-                    anchors.topMargin: -15
+-                    anchors.leftMargin: 3
+-                    model: doorOpenLevelModel
+-                    textColor: Colors.brand
+-                    visible: doorOpenCheckBox.checked
+-
+-                    onCurrentIndexChanged: {
+-                        printConfig.doorOpenState = currentIndex + 1;
+-                    }
+-                    Binding on currentIndex {
+-                        value: printConfig.doorOpenState - 1
+-                    }
+-                }
+-            }
++//            MarginPanel {
++//                id: doorOpenLayerId
++//                width: scroll.width
++//                height: doorOpenCheckBox.checked ?
++//                            doorOpenCheckBox.height + doorOpenLayerTx.height : doorOpenCheckBox.height
++//                bottomMargin: 20
++//                radius: 15.
++//                visible: false
++
++//                ZCheckBox {
++//                    id: doorOpenCheckBox
++//                    height: 80
++//                    width: scroll.width
++//                    anchors.top: parent.top
++//                    anchors.left: parent.left
++//                    anchors.leftMargin: 27
++//                    dynamicChecked: printConfig.doorOpenState != 0
++//                    textColor: StateColors.get("gray_100")
++//                    font: Fonts.body_30
++//                    text: qsTr("Door opening detection")
++//                    onToggled: {
++//                        printConfig.doorOpenState = checked
++//                    }
++//                }
++
++//                ZText {
++//                    id: doorOpenLayerTx
++//                    height: 65
++//                    maxWidth: scroll.width - 70
++//                    anchors.top: doorOpenCheckBox.bottom
++//                    anchors.left: parent.left
++//                    anchors.leftMargin: 60
++//                    visible: doorOpenCheckBox.checked
++//                    wrapMode: Text.WordWrap
++//                    color: Colors.gray_300
++//                    font: Fonts.body_24
++//                    text: qsTr("Action when door open detected in printing is ")
++//                }
++
++//                Choise {
++//                    id: doorOpenLevelCh
++//                    width: 330
++//                    height: 60
++//                    anchors.left: doorOpenLayerTx.right
++//                    anchors.top: doorOpenLayerTx.top
++//                    anchors.topMargin: -15
++//                    anchors.leftMargin: 3
++//                    model: doorOpenLevelModel
++//                    textColor: Colors.brand
++//                    visible: doorOpenCheckBox.checked
++
++//                    onCurrentIndexChanged: {
++//                        printConfig.doorOpenState = currentIndex + 1;
++//                    }
++//                    Binding on currentIndex {
++//                        value: printConfig.doorOpenState - 1
++//                    }
++//                }
++//            }
++
++//            MarginPanel {
++//                id: hotbedForeignId
++//                width: scroll.width
++//                height: hotbedForeignBox.height
++//                bottomMargin: 20
++//                radius: 15
++//                visible: false
++
++//                ZCheckBox {
++//                    id: hotbedForeignBox
++//                    height: 80
++//                    width: scroll.width
++//                    anchors.top: parent.top
++//                    anchors.left: parent.left
++//                    anchors.leftMargin: 27
++//                    dynamicChecked: printConfig.isHotbedForeignOn
++//                    textColor: StateColors.get("gray_100")
++//                    font: Fonts.body_30
++//                    text: qsTr("Hot bed foreign body detection")
++//                    onToggled: {
++//                        printConfig.isHotbedForeignOn = checked
++//                    }
++//                }
++//            }
+ 
+             MarginPanel {
+                 id: sdCardLayerId
+                 width: scroll.width
+-                height: 110
++                height: sdCardCheckBox.height
+                 bottomMargin: 20
+                 radius: 15
+ 
+                 ZCheckBox {
+                     id: sdCardCheckBox
+-                    height: 110
++                    height: 80
+                     width: scroll.width
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+@@ -256,126 +289,126 @@
+                 }
+             }
+ 
+-            MarginPanel {
+-                id: allowSkipPartsId
+-                width: scroll.width
+-                height: 110
+-                bottomMargin: 20
+-                radius: 15
+-                visible: false
+-
+-                ZCheckBox {
+-                    id: allowSkipPartsCheckBox
+-                    height: 110
+-                    width: scroll.width
+-                    anchors.top: parent.top
+-                    anchors.left: parent.left
+-                    anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.isAllowSkipPartsOn
+-                    textColor: StateColors.get("gray_100")
+-                    font: Fonts.body_30
+-                    text: qsTr("Allow Skip Parts")
+-                    onToggled: {
+-                        printConfig.isAllowSkipPartsOn = checked
+-                    }
+-                }
+-            }
+-
+-            MarginPanel {
+-                id: customStopBtn
+-                width: scroll.width
+-                height: 220
+-                bottomMargin: 20
+-                radius: 15
+-                visible: false
+-
+-                ZText {
+-                    id: stopButtonTx
+-                    anchors.top: parent.top
+-                    anchors.topMargin: 35
+-                    anchors.left: parent.left
+-                    anchors.leftMargin: 35
+-                    font: Fonts.body_30
+-                    color: Colors.gray_100
+-                    text: "自定义机器顶部停止按钮"
+-                }
+-
+-                Rectangle {
+-                    anchors.top: stopButtonTx.bottom
+-                    anchors.topMargin: 19
+-                    anchors.left: stopButtonTx.left
+-                    anchors.leftMargin: 19
+-                    RadioButton {
+-                        id: radioBtn1
+-                        anchors.top: parent.top
+-                        anchors.topMargin: 20
+-                        checked: true
+-                        indicator: Rectangle {
+-                            implicitWidth: 22
+-                            implicitHeight: 22
+-                            x: radioBtn1.leftPadding
+-                            radius: 11
+-                            border.color: radioBtn1.checked ? Colors.brand : Colors.gray_300
+-                            color: radioBtn1.checked ? Colors.brand : Colors.gray_600
+-                            Rectangle {
+-                                width: 8
+-                                height: 8
+-                                x: 7
+-                                y: 7
+-                                radius: 4
+-                                color: Colors.white_900
+-                                visible: radioBtn1.checked
+-                            }
+-                        }
+-
+-                        ZText {
+-                            id: radioTx1
+-                            anchors.left: radioBtn1.right
+-                            anchors.top: radioBtn1.top
+-                            anchors.topMargin: -5
+-                            maxWidth: 975
+-                            font: Fonts.body_24
+-                            color: Colors.gray_300
+-                            text: "暂停打印:运动规划缓冲区运动完成后,去垃圾桶"
+-                        }
+-                    }
+-
+-                    RadioButton {
+-                        id: radioBtn2
+-                        anchors.top: radioBtn1.top
+-                        anchors.topMargin: 50
+-                        checked: false
+-                        indicator: Rectangle {
+-                            implicitWidth: 22
+-                            implicitHeight: 22
+-                            x: radioBtn2.leftPadding
+-                            radius: 11
+-                            border.color: radioBtn2.checked ? Colors.brand : Colors.gray_300
+-                            color: radioBtn2.checked ? Colors.brand : Colors.gray_600
+-                            Rectangle {
+-                                width: 8
+-                                height: 8
+-                                x: 7
+-                                y: 7
+-                                radius: 4
+-                                color: Colors.white_900
+-                                visible: radioBtn2.checked
+-                            }
+-                        }
+-
+-                        ZText {
+-                            id: radioTx2
+-                            anchors.left: radioBtn2.right
+-                            anchors.top: radioBtn2.top
+-                            anchors.topMargin: -5
+-                            maxWidth: 975
+-                            font: Fonts.body_24
+-                            color: Colors.gray_300
+-                            text: "关闭电机:关闭电机电流，电机不会维持力矩(就是如果卡到大小,会松开)"
+-                        }
+-                    }
+-                }
+-            }
++//            MarginPanel {
++//                id: allowSkipPartsId
++//                width: scroll.width
++//                height: 110
++//                bottomMargin: 20
++//                radius: 15
++//                visible: false
++
++//                ZCheckBox {
++//                    id: allowSkipPartsCheckBox
++//                    height: 110
++//                    width: scroll.width
++//                    anchors.top: parent.top
++//                    anchors.left: parent.left
++//                    anchors.leftMargin: 27
++//                    dynamicChecked: printConfig.isAllowSkipPartsOn
++//                    textColor: StateColors.get("gray_100")
++//                    font: Fonts.body_30
++//                    text: qsTr("Allow Skip Parts")
++//                    onToggled: {
++//                        printConfig.isAllowSkipPartsOn = checked
++//                    }
++//                }
++//            }
++
++//            MarginPanel {
++//                id: customStopBtn
++//                width: scroll.width
++//                height: 220
++//                bottomMargin: 20
++//                radius: 15
++//                visible: false
++
++//                ZText {
++//                    id: stopButtonTx
++//                    anchors.top: parent.top
++//                    anchors.topMargin: 35
++//                    anchors.left: parent.left
++//                    anchors.leftMargin: 35
++//                    font: Fonts.body_30
++//                    color: Colors.gray_100
++//                    text: "自定义机器顶部停止按钮"
++//                }
++
++//                Rectangle {
++//                    anchors.top: stopButtonTx.bottom
++//                    anchors.topMargin: 19
++//                    anchors.left: stopButtonTx.left
++//                    anchors.leftMargin: 19
++//                    RadioButton {
++//                        id: radioBtn1
++//                        anchors.top: parent.top
++//                        anchors.topMargin: 20
++//                        checked: true
++//                        indicator: Rectangle {
++//                            implicitWidth: 22
++//                            implicitHeight: 22
++//                            x: radioBtn1.leftPadding
++//                            radius: 11
++//                            border.color: radioBtn1.checked ? Colors.brand : Colors.gray_300
++//                            color: radioBtn1.checked ? Colors.brand : Colors.gray_600
++//                            Rectangle {
++//                                width: 8
++//                                height: 8
++//                                x: 7
++//                                y: 7
++//                                radius: 4
++//                                color: Colors.white_900
++//                                visible: radioBtn1.checked
++//                            }
++//                        }
++
++//                        ZText {
++//                            id: radioTx1
++//                            anchors.left: radioBtn1.right
++//                            anchors.top: radioBtn1.top
++//                            anchors.topMargin: -5
++//                            maxWidth: 975
++//                            font: Fonts.body_24
++//                            color: Colors.gray_300
++//                            text: "暂停打印:运动规划缓冲区运动完成后,去垃圾桶"
++//                        }
++//                    }
++
++//                    RadioButton {
++//                        id: radioBtn2
++//                        anchors.top: radioBtn1.top
++//                        anchors.topMargin: 50
++//                        checked: false
++//                        indicator: Rectangle {
++//                            implicitWidth: 22
++//                            implicitHeight: 22
++//                            x: radioBtn2.leftPadding
++//                            radius: 11
++//                            border.color: radioBtn2.checked ? Colors.brand : Colors.gray_300
++//                            color: radioBtn2.checked ? Colors.brand : Colors.gray_600
++//                            Rectangle {
++//                                width: 8
++//                                height: 8
++//                                x: 7
++//                                y: 7
++//                                radius: 4
++//                                color: Colors.white_900
++//                                visible: radioBtn2.checked
++//                            }
++//                        }
++
++//                        ZText {
++//                            id: radioTx2
++//                            anchors.left: radioBtn2.right
++//                            anchors.top: radioBtn2.top
++//                            anchors.topMargin: -5
++//                            maxWidth: 975
++//                            font: Fonts.body_24
++//                            color: Colors.gray_300
++//                            text: "关闭电机:关闭电机电流，电机不会维持力矩(就是如果卡到大小,会松开)"
++//                        }
++//                    }
++//                }
++//            }
+         }
+ 
+         Component.onCompleted: {

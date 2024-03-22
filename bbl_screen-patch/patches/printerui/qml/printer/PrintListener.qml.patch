@@ -1,6 +1,25 @@
 --- printer_ui-orig/printerui/qml/printer/PrintListener.qml
 +++ printer_ui/printerui/qml/printer/PrintListener.qml
-@@ -43,6 +43,10 @@
+@@ -4,6 +4,7 @@
+ Item {
+ 
+     property bool printing: PrintManager.currentTask.stage >= PrintTask.WORKING
++    property var printState: PrintManager.currentTask.state
+ 
+     onPrintingChanged: {
+         DeviceManager.power.externalWakeup()
+@@ -32,8 +33,8 @@
+         ignoreUnknownSignals: false
+         onNotify: {
+             if (type === PrintManager.Finish || type === PrintManager.Failed) {
+-                if (name == "print") {
+-                    dialogStack.popupDialog("PrintFinish", {errorMsg: msg})
++                if (name == "print" && (printState == PrintTask.FINISH || printState == PrintTask.FAILED)) {
++                    dialogStack.popupDialog("PrintFinish", { errorMsg: msg, name: name })
+                     return
+                 }
+             } else if(type == PrintManager.Notice) {
+@@ -43,6 +44,10 @@
                  }
              }
  

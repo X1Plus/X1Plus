@@ -1,0 +1,23 @@
+--- printer_ui-orig/printerui/text/filaments.json
++++ printer_ui/printerui/text/filaments.json
+@@ -10,6 +10,7 @@
+     "Bambu PETG-CF": {"filament_id": "GFG50","filament_is_support": "0","nozzle_temperature": [240, 270],"required_nozzle_HRC": 40,"type": "PETG-CF"},
+     "Bambu PLA Aero": {"filament_id": "GFA11","filament_is_support": "0","nozzle_temperature": [210, 260],"required_nozzle_HRC": 3,"type": "PLA-AERO"},
+     "Bambu PLA Basic": {"filament_id": "GFA00","filament_is_support": "0","nozzle_temperature": [190, 240],"required_nozzle_HRC": 3,"type": "PLA"},
++    "Bambu PLA Glow": {"filament_id": "GFA12","filament_is_support": "0","nozzle_temperature": [190, 240],"required_nozzle_HRC": 3,"type": "PLA"},
+     "Bambu PLA Marble": {"filament_id": "GFA07","filament_is_support": "0","nozzle_temperature": [190, 240],"required_nozzle_HRC": 3,"type": "PLA"},
+     "Bambu PLA Matte": {"filament_id": "GFA01","filament_is_support": "0","nozzle_temperature": [190, 240],"required_nozzle_HRC": 3,"type": "PLA"},
+     "Bambu PLA Metal": {"filament_id": "GFA02","filament_is_support": "0","nozzle_temperature": [190, 240],"required_nozzle_HRC": 3,"type": "PLA"},
+@@ -22,10 +23,11 @@
+     "Bambu Support G": {"filament_id": "GFS01","filament_is_support": "1","nozzle_temperature": [260, 300],"required_nozzle_HRC": 3,"type": "PA"},
+     "Bambu Support W": {"filament_id": "GFS00","filament_is_support": "1","nozzle_temperature": [190, 240],"required_nozzle_HRC": 3,"type": "PLA"},
+     "Bambu TPU 95A": {"filament_id": "GFU01","filament_is_support": "0","nozzle_temperature": [200, 250],"required_nozzle_HRC": 3,"type": "TPU"},
++    "Bambu TPU 95A HF": {"filament_id": "GFU00","filament_is_support": "0","nozzle_temperature": [200, 250],"required_nozzle_HRC": 3,"type": "TPU"},
+     "Generic ABS": {"filament_id": "GFB99","filament_is_support": "0","nozzle_temperature": [240, 280],"required_nozzle_HRC": 3,"type": "ABS"},
+     "Generic ASA": {"filament_id": "GFB98","filament_is_support": "0","nozzle_temperature": [240, 280],"required_nozzle_HRC": 3,"type": "ASA"},
+     "Generic HIPS": {"filament_id": "GFS98","filament_is_support": "1","nozzle_temperature": [220, 270],"required_nozzle_HRC": 3,"type": "HIPS"},
+-    "Generic PA": {"filament_id": "GFN99","filament_is_support": "0","nozzle_temperature": [260, 300],"required_nozzle_HRC": 3,"type": "PA"},
++    "Generic PA": {"filament_id": "GFN99","filament_is_support": "0","nozzle_temperature": [240, 280],"required_nozzle_HRC": 3,"type": "PA"},
+     "Generic PA-CF": {"filament_id": "GFN98","filament_is_support": "0","nozzle_temperature": [260, 300],"required_nozzle_HRC": 40,"type": "PA-CF"},
+     "Generic PC": {"filament_id": "GFC99","filament_is_support": "0","nozzle_temperature": [260, 290],"required_nozzle_HRC": 3,"type": "PC"},
+     "Generic PETG": {"filament_id": "GFG99","filament_is_support": "0","nozzle_temperature": [220, 270],"required_nozzle_HRC": 3,"type": "PETG"},

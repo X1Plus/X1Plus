@@ -1,0 +1,205 @@
+--- printer_ui-orig/printerui/qml/models/ModelDetailPage.qml
++++ printer_ui/printerui/qml/models/ModelDetailPage.qml
+@@ -97,6 +97,7 @@
+         }
+ 
+         ZButton {
++            id: modelSwitchPre
+             x: 32
+             height: width
+             anchors.verticalCenter: parent.verticalCenter
+@@ -110,6 +111,7 @@
+         }
+ 
+         ZButton {
++            id: modelSwitchNext
+             height: width
+             anchors.right: parent.right
+             anchors.rightMargin: 32
+@@ -152,6 +154,7 @@
+                 text: useAMS ? qsTr("Filament selection") : qsTr("Filament")
+             }
+             ZButton {
++                id: amsHelp
+                 anchors.left: filamentSelectionTx.right
+                 anchors.verticalCenter: parent.verticalCenter
+                 backgroundColor: StateColors.get("transparent")
+@@ -181,6 +184,7 @@
+             delegate: filamentComp
+ 
+             ZButton {
++                id: filaSwitch
+                 width: parent.cellWidth - 10
+                 height: parent.cellHeight - 10
+                 x: parent.cellWidth * 3
+@@ -227,19 +231,23 @@
+             spacing: 8
+             model: switchs
+             visible: plates.length > 0
+-            delegate: ZCheckBox {
+-                id: checkBoxTx
+-                font: Fonts.body_28
+-                textColor: StateColors.get("gray_100")
+-                text: modelData.title
+-                tapMargin: 5
+-                checked: modelData.value
+-                onCheckedChanged: {
+-                    modelData.value = checked
++            delegate: Item {
++                width: checkBoxTx.width
++                height: checkBoxTx.height
++                ZCheckBox {
++                    id: checkBoxTx
++                    font: Fonts.body_28
++                    textColor: StateColors.get("gray_100")
++                    text: modelData.title
++                    tapMargin: 5
++                    checked: modelData.value
++                    onCheckedChanged: {
++                        modelData.value = checked
++                    }
+                 }
+-
+                 ZButton {
+-                    anchors.verticalCenter: parent.verticalCenter
++                    id: printOptionHelpBtn
++                    anchors.verticalCenter: checkBoxTx.verticalCenter
+                     anchors.left: checkBoxTx.right
+                     anchors.leftMargin: 5
+                     backgroundColor: StateColors.get("transparent")
+@@ -321,10 +329,12 @@
+ 
+                 var checkList
+                 if (hasAmsMapping) {
+-                    checkList = [ checkNULL, checkTPU, checkProhibitCF, checkPVA, checkCF ]
++                    checkList = [ checkNULL, checkTPU, checkProhibitCF, checkPVA, checkCF]
+                 } else {
+                     checkList = [checkFilamentMatch]
+                 }
++                checkList.push(checkPrintModel)
++                checkList.push(checkNozzleDiameters)
+                 checkFilaments(checkList);
+             }
+ 
+@@ -352,7 +362,7 @@
+                 if(!filaments.some(function(m) {
+                     if (m === null)
+                         return false
+-                    return (m.type === Filament.TPU)
++                    return (m.type === "TPU")
+                 })) {
+                     return null
+                 }
+@@ -383,7 +393,7 @@
+                 if(!filaments.some(function(m) {
+                     if (m === null)
+                         return false
+-                    return (m.type === Filament.PVA)
++                    return (m.type === "PVA")
+                 })) {
+                     return null
+                 }
+@@ -398,8 +408,8 @@
+                 if(!filaments.some(function(m) {
+                     if (m === null)
+                         return false
+-                    return ((m.thirdparty && (m.type === Filament.PET_CF || m.type === Filament.PA_CF
+-                                              || m.type === Filament.PLA_CF || m.type === Filament.PETG_CF)))
++                    return ((m.thirdparty && (m.type === "PET_CF" || m.type === "PA_CF"
++                                              || m.type === "PLA_CF" || m.type === "PETG_CF")))
+                 }))
+                     return null
+                 return {
+@@ -436,13 +446,46 @@
+                     return null
+                 }
+             }
++
++            function checkPrintModel()
++            {
++                var modelType = PrintManager.currentTask.printerModelCheck(plate.printerModelId)
++                console.log("checkPrintModel modelType: ", modelType, (modelType === 1), (modelType === 2))
++                if (modelType === PrintTask.Warning) {
++                    return {
++                        name: "Machine type mismatch, warning printing",
++                        text: qsTr("Your sliced file is not consistent with the current printer model. Continue?"),
++                    }
++                } else if (modelType === PrintTask.Prohibit) {
++                    return {
++                        name: "Machine type mismatch, printing prohibited",
++                        type: TextConfirm.CONFIRM_ONLY,
++                        text: qsTr("Your sliced file is not compatible with current printer model. This file can't be printed."),
++                    }
++                }
++                return null
++            }
++
++            function checkNozzleDiameters()
++            {
++                var nozzleDiameters = PrintManager.currentTask.nozzleDiametersCheck(plate.nozzleDiameters)
++                console.log("checkNozzleDiameters nozzleDiameters: ", nozzleDiameters, (nozzleDiameters === 1), (nozzleDiameters === 2))
++                if (nozzleDiameters === PrintTask.Prohibit) {
++                    return {
++                        name: "Nozzle diameter mismatch, warning printing",
++                        type: TextConfirm.CONFIRM_ONLY,
++                        text: qsTr("The nozzle diameter in sliced file is not consistent with the current nozzle setting. This file can't be printed."),
++                    }
++                }
++                return null
++            }
+         }
+     }
+ 
+     Component {
+         id: filamentComp
+ 
+-       GradientRectangle {
++        GradientRectangle {
+             id: rec1
+             width: (!largeIcon ? normalCellWidth : filamentGrid.cellWidth) - 10
+             height: (!largeIcon ? normalCellHeight : filamentGrid.cellHeight) - 10
+@@ -468,7 +511,7 @@
+                 horizontalAlignment: Text.AlignHCenter
+                 verticalAlignment: Text.AlignVCenter
+                 color: modelData == null ? "transparent" : Colors.different(modelData.color)
+-                visible: modelData != null && modelData.type !== Filament.UNKNOWN
++                visible: modelData != null && (modelData.type !== "UNKNOWN")
+                 text: modelData == null ? "" : hasAmsMapping ? modelData.typeName
+                              : (modelData.typeName + "").replace(" ", "\n")
+             }
+@@ -594,7 +637,7 @@
+             height: GridView.view.cellHeight - 10
+ 
+             property bool selectable: filamentPad.filamentType === (modelData.typeName + "")
+-                                      || Filament.UNKNOWN === modelData.type
++                                      || (modelData.type === "" || modelData.type === "UNKNOWN")
+ 
+             Text {
+                 id: name
+@@ -605,7 +648,7 @@
+                 text: digitalConversion((modelData.index).toString().padStart(2, "0"))
+             }
+ 
+-           GradientRectangle {
++            GradientRectangle {
+                 y: 22
+                 width: parent.width
+                 height: parent.height - 22
+@@ -789,12 +832,12 @@
+             },
+         ]
+ 
+-        property var filament: Filament { type: Filament.PLA; color: "#EA4E38" }
++        property var filament: Filament { type: "PLA"; color: "#EA4E38" }
+         property var amsTrays: SimpleItemModel {
+-            Filament { id: firstTray; type: Filament.PLA; color: "#C041C2"; property int index: 0; property bool exist: true; property bool colored: true }
+-            Filament { type: Filament.UNKNOWN; property int index: 1; property bool exist: true }
+-            Filament { type: Filament.PLA; color: "#4146C2"; property int index: 2; property bool exist: true; property bool colored: true }
+-            Filament { type: Filament.PLA; color: "#F28638"; property int index: 3; property bool exist: true; property bool colored: true }
++            Filament { id: firstTray; type: "PLA"; color: "#C041C2"; property int index: 0; property bool exist: true; property bool colored: true }
++            Filament { type: "UNKNOWN"; property int index: 1; property bool exist: true }
++            Filament { type: "PLA"; color: "#4146C2"; property int index: 2; property bool exist: true; property bool colored: true }
++            Filament { type: "PLA"; color: "#F28638"; property int index: 3; property bool exist: true; property bool colored: true }
+         }
+         property var amsMapping: [firstTray]
+ 

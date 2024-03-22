@@ -1,6 +1,18 @@
 --- printer_ui-orig/printerui/qml/printer/CalibrationPage.qml
 +++ printer_ui/printerui/qml/printer/CalibrationPage.qml
-@@ -19,20 +19,31 @@
+@@ -10,55 +10,86 @@
+ 
+     property var task: PrintManager.currentTask
+     property var calibraSelect: [
+-        [qsTr("Bed leveling"), true, ""],
+-        [qsTr("Micro Lidar Calibration"), true, qsTr("Capture the images of laser line at different position, then calibrate the spatial relation between the lasers and the camera, which is applied during depth measurement.")],
+-        [qsTr("Resonance frequency identification"), true, qsTr("Vibrating the printer with different frquency and measuring the repond , to figure out the resonance propertys of the mechanical system and apply them in the vibration suppression.")]
++        [qsTr("Bed leveling"), true, "", 1],
++        [qsTr("Micro Lidar Calibration"), true, qsTr("Capture the images of laser line at different position, then calibrate the spatial relation between the lasers and the camera, which is applied during depth measurement."), 0],
++        [qsTr("Resonance frequency identification"), true, qsTr("Vibrating the printer with different frquency and measuring the repond , to figure out the resonance propertys of the mechanical system and apply them in the vibration suppression."), 2]
+     ]
+ 
+     MarginPanel {
          id: usagePanel
          width: 677
          anchors.top: parent.top
@@ -25,6 +37,8 @@
              text: qsTr("Calibration Step Selection")
          }
  
+-        Repeater {
+-            model: calibraSelect
 +        ZLineSplitter {
 +            id: stepSplit2
 +            anchors.top: guideLabel.bottom
@@ -33,11 +47,78 @@
 +            padding: 15
 +            color: Colors.brand
 +        }
-+
-         Repeater {
-             model: calibraSelect
  
-@@ -66,17 +77,17 @@
+-            Item {
+-                x: 36
+-                y: [112, 170, 375][index]
+-                ZCheckBox {
+-                    font: Fonts.head_28
+-                    checked: modelData[1]
+-                    textColor: StateColors.get("gray_100")
+-                    text: modelData[0]
+-                    enabled: startButton.enabled
+-                    checkBoxIcon: startButton.enabled
+-                    onToggled: {
+-                        calibraSelect[index][1] = checked
++        Column {
++            anchors.top: stepSplit2.bottom
++            anchors.topMargin: 30
++            anchors.left: parent.left
++            anchors.leftMargin: 20
++            anchors.right: parent.right
++            anchors.rightMargin: 20
++            
++            spacing: 32
++
++            Repeater {
++                model: calibraSelect
++
++                Item {
++                    width: parent.width
++                    height: checkbox.height + ((modelData[2] != "") ? (modelText.contentHeight + modelText.anchors.topMargin) : 0)
++                    ZCheckBox {
++                        id: checkbox
++                        anchors.top: parent.top
++                        anchors.left: parent.left
++                        font: Fonts.head_28
++                        checked: modelData[1]
++                        textColor: StateColors.get("gray_100")
++                        text: modelData[0]
++                        enabled: startButton.enabled
++                        checkBoxIcon: startButton.enabled
++
++                        EventTrack.itemName: "calibrateCheck_" + index
++
++                        onToggled: {
++                            calibraSelect[index][1] = checked
++                        }
+                     }
+-                }
+ 
+-                Text {
+-                    x: 46
+-                    y: 46
+-                    width: 590
+-                    font: Fonts.body_24
+-                    color: Colors.gray_300
+-                    wrapMode: Text.WordWrap
+-                    text: modelData[2]
++                    Text {
++                        id: modelText
++                        anchors.left: parent.left
++                        anchors.leftMargin: 46
++                        anchors.top: checkbox.bottom
++                        anchors.topMargin: 12
++                        anchors.right: parent.right
++                        font: Fonts.body_24
++                        color: Colors.gray_300
++                        wrapMode: Text.WordWrap
++                        text: modelData[2]
++                    }
+                 }
+             }
+         }
+@@ -66,17 +97,17 @@
  
      MarginPanel {
          id: stepPanel
@@ -56,20 +137,32 @@
          Text {
              x: 23
 -            y: 29
-+            y: 24
++            y: 15
              font: Fonts.head_28
              color: Colors.brand
              text: qsTr("Calibration Flow")
-@@ -85,7 +96,7 @@
+@@ -85,7 +116,7 @@
          ZLineSplitter {
              id: stepSplit
              alignment: Qt.AlignTop
 -            offset: 80
-+            offset: 70
++            offset: 60
              padding: 15
              color: Colors.brand
          }
-@@ -110,10 +121,10 @@
+@@ -95,9 +126,9 @@
+             anchors.left: stepSplit.left
+             anchors.top: stepSplit.bottom
+             anchors.right: parent.right
+-            anchors.topMargin: 25
++            anchors.topMargin: 20
+             barColor: Colors.brand
+-            stepOffset: 80
++            stepOffset: 75
+             finishIcon: "../../icon/step_ok.svg"
+             step: task.prepareStep
+             steps: task.prepareSteps
+@@ -110,10 +141,10 @@
          anchors.right: parent.right
          anchors.top: stepPanel.bottom
          anchors.bottom: parent.bottom
@@ -84,7 +177,31 @@
  
          ZButton {
              id: startButton
-@@ -141,17 +152,9 @@
+@@ -123,7 +154,12 @@
+             enabled: task.stage < PrintTask.WORKING
+             onClicked: {
+                 // May pop up error dialog if filament not loaded
+-                if (!(calibraSelect[0][1] || calibraSelect[1][1] || calibraSelect[2][1])) {
++                var option = 0;
++                for (var i = 0; i < calibraSelect.length; i++) {
++                    option += calibraSelect[i][1] ? (1 << calibraSelect[i][3]) : 0
++                }
++
++                if (option === 0) {
+                     dialogStack.popupDialog(
+                                 "TextConfirm", {
+                                     name: "calibraSelect",
+@@ -131,27 +167,16 @@
+                                     text: qsTr("At least one item needs to be selected for calibration.")
+                                 })
+                 } else {
+-                    var bed= calibraSelect[1][1] ? 1 : 0
+-                    var xcam= calibraSelect[0][1] ? 2 : 0
+-                    var vibration= calibraSelect[2][1] ? 4 : 0
+-                    var option= xcam + bed  + vibration;
+                     PrintManager.calibrate(option)
+                 }
+             }
          }
      }
  
@@ -98,6 +215,7 @@
 -        type: ZButtonAppearance.Secondary
 -        icon: "../../icon/return.svg"
 +    X1PBackButton {
++        id: back
          onClicked: {
 -            calibration.parent.pop()
 +            pageStack.pop()

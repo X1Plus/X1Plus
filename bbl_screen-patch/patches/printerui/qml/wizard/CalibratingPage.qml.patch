@@ -1,0 +1,45 @@
+--- printer_ui-orig/printerui/qml/wizard/CalibratingPage.qml
++++ printer_ui/printerui/qml/wizard/CalibratingPage.qml
+@@ -44,7 +44,7 @@
+     }
+ 
+     Timer {
+-        interval: 5 * 60 * 1000 // 5 minutes
++        interval: 20 * 60 * 1000 // 20 minutes
+         running: calibrating
+         onTriggered: {
+             parent.timeout = true
+@@ -57,6 +57,7 @@
+         y: 25
+         height: 300
+         anchors.horizontalCenter: parent.horizontalCenter
++        anchors.horizontalCenterOffset: -20
+         visible: !qrcodeImage.visible
+         cache: false
+         source: visible ? "../../image/frame.svg" : ""
+@@ -67,6 +68,7 @@
+         y: 25
+         size: 304
+         anchors.horizontalCenter: parent.horizontalCenter
++        anchors.horizontalCenterOffset: -20
+         visible: failed && !calibrating
+         data: task.errorHelpUrl
+         onDataChanged: {
+@@ -94,7 +96,7 @@
+         id: progressText
+         anchors.horizontalCenter: parent.horizontalCenter
+         anchors.top: failed ? qrcodeImage.bottom : frameImage.bottom
+-        anchors.topMargin: 22
++        anchors.topMargin: 20
+         font: Fonts.head_44
+         color: failed ? Colors.warning : Colors.brand
+         visible: calibrating
+@@ -118,7 +120,7 @@
+     ZButton {
+         id: caliBtn
+         anchors.bottom: parent.bottom
+-        anchors.bottomMargin: 66
++        anchors.bottomMargin: 50
+         anchors.horizontalCenter: parent.horizontalCenter
+         text: failed ? qsTr("Recalibrate") : qsTr("Calibrate")
+         visible: !calibrating && !finished

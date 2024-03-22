@@ -1,0 +1,232 @@
+--- printer_ui-orig/printerui/qml/settings/NetworkPage.qml
++++ printer_ui/printerui/qml/settings/NetworkPage.qml
+@@ -6,7 +6,8 @@
+ import "qrc:/uibase/qml/widgets"
+ import ".."
+ 
+-Item {
++Rectangle {
++    color: Colors.gray_700
+ 
+     property var network: NetworkManager.network
+     property bool wifiIsOn: network.isOn && network.powerState
+@@ -28,10 +29,16 @@
+ 
+     MarginPanel {
+         id: wifiPanel
+-        width: (parent.width - 24) / 2
+-        height: parent.height
+-        anchors.bottomMargin: 24
++        anchors.top: parent.top
++        anchors.left: parent.left
++        anchors.right: parent.horizontalCenter
++        leftMargin: 10
++        rightMargin: 7
++        anchors.bottom: parent.bottom
++        bottomMargin: 10
++        radius: 15
+         visible: hasNetworkSubCard
++        color: Colors.gray_800
+ 
+         Item {
+             id: wlanTitle
+@@ -67,6 +74,7 @@
+                 anchors.leftMargin: 8
+ //                color: currentNetwork == "wlan0" ? Colors.brand : Colors.warning
+                 color: network.powerState ? Colors.brand : Colors.warning
++                visible: hasWried
+             }
+ 
+             ZSwitchButton {
+@@ -195,12 +203,14 @@
+                 text: "<font size=\"3\" color=\"#E1E1E1\">" + qsTr("IP:") + "</font>" + " " + ((network.ipv4.byteLength === 0) ? qsTr("Network unavaliabe") : network.ipv4)
+             }
+             Image { // net_edit icon
++                id: wifiEditIcon
+                 width: 36
+                 height: 36
+                 anchors.top: parent.top
+                 anchors.topMargin: 20
+                 anchors.right: parent.right
+                 anchors.rightMargin: 20
++                visible: hasWried && network.state !== Network.DISCONNECTED && network.state !== Network.DISABLE
+                 source: "../../icon/net_edit.svg"
+             }
+             Text {
+@@ -214,6 +224,7 @@
+             // Click to enter the network parameters setting page of WLAN
+             MouseArea {
+                 anchors.fill: parent
++                visible: wifiEditIcon.visible
+                 onClicked: {
+                     pageStack.push("NetParaSetPage.qml", {isWired: false, network: network})
+                 }
+@@ -265,7 +276,7 @@
+             type: ZButtonAppearance.Secondary
+             iconPosition: ZButtonAppearance.Right
+             iconPadding: -1
+-            visible: wifiIsOn
++            visible: wifiIsOn && hasWried
+             text: qsTr("Install Certificates")
+             icon: "../../icon/certificate.svg"
+             onClicked: {
+@@ -276,13 +287,16 @@
+ 
+     MarginPanel {
+         id: rightPanel
+-        width: (parent.width - 24) / 2
+-        height: parent.height
++        anchors.top: parent.top
+         anchors.left: wifiPanel.right
+-        leftMargin: 24
++        leftMargin: 14
+         anchors.right: parent.right
+-        rightMargin: 16
+-        bottomMargin: 24
++        rightMargin: 10
++        anchors.bottom: parent.bottom
++        bottomMargin: 10
++        radius: 15
++        color: Colors.gray_800
++
+         visible: hasNetworkSubCard
+ 
+         Item {
+@@ -364,15 +378,33 @@
+                 }
+             }
+ 
+-            Text {
+-                id: connectState
++            Item {
++                id: connectItem
+                 anchors.top: wiredNetworkItem.bottom
+                 anchors.bottom: line3.top
+                 anchors.left: wiredNetworkItem.left
+-                font: Fonts.body_36
+-                visible: wiredIsOn
+-                color: wiredNetwork.state === Network.CONNECTED ? Colors.brand : Colors.warning
+-                text: wiredNetwork.state === Network.CONNECTED ? qsTr("Connected") : wiredNetwork.state === Network.DISCONNECTED ? qsTr("Cable not connected") : qsTr("No Internet")
++                width: 468
++                Text {
++                    id: connectState
++                    anchors.verticalCenter: parent.verticalCenter
++                    font: Fonts.body_36
++                    visible: wiredIsOn
++                    color: wiredNetwork.state === Network.CONNECTED ? Colors.brand : Colors.warning
++                    text: wiredNetwork.state === Network.CONNECTED ? qsTr("Connected") : wiredNetwork.state === Network.DISCONNECTED ? qsTr("Cable not connected") : qsTr("No Internet")
++                }
++
++                Text {
++                    id: domainTx
++                    width: parent.width - connectState.implicitWidth
++                    anchors.left: connectState.right
++                    anchors.leftMargin: 10
++                    anchors.verticalCenter: parent.verticalCenter
++                    color: Colors.gray_300
++                    visible: wiredNetwork.state === Network.CONNECTED
++                    font: Fonts.body_28
++                    wrapMode: Text.Wrap
++                    text: wiredNetwork.domain
++                }
+             }
+ 
+             ZLineSplitter {
+@@ -385,9 +417,38 @@
+                 color: Colors.gray_500
+             }
+ 
++            ZButton {
++                id: wiredConnectBtn
++                anchors.left: wiredNetworkItem.left
++                anchors.top: line3.bottom
++                height: 86
++                width: 468
++                icon: "../../icon/right.svg"
++                type: ZButtonAppearance.Secondary
++                iconPosition: ZButtonAppearance.Right
++                iconPadding: -1
++                textSize: 36
++                paddingX: 0
++                textColor: StateColors.get("gray_100")
++                text: qsTr("Enable authentication")
++                visible: wiredIsOn
++                onClicked: {
++                    pageStack.push("CertificateConfirm2Page.qml", { ssid: qsTr("IEEE802.1X Authentication"), ssidBak: "wired", devName: "eth0", keyMgmt: "IEEE8021X" })
++                }
++            }
++
++            ZLineSplitter {
++                id: line4
++                anchors.top: wiredConnectBtn.bottom
++                alignment: Qt.AlignTop
++                padding: 36
++                visible: wiredIsOn
++                color: Colors.gray_500
++            }
++
+             Item {
+                 id: infoPanel2
+-                anchors.top: line3.bottom
++                anchors.top: line4.bottom
+                 height: 132
+                 anchors.left: wiredNetworkItem.left
+                 anchors.right: wiredNetworkItem.right
+@@ -400,15 +461,17 @@
+                     color: Colors.gray_300
+                     font: Fonts.body_36
+                     maxWidth: 360
+-                    text: "<font size=\"3\" color=\"#E1E1E1\">" + qsTr("IP:") + "</font>" + " " + ((wiredNetwork.state === Network.DISABLE || !wiredNetwork.powerState) ? qsTr("Network unavaliabe") : wiredNetwork.ipv4)
++                    text: "<font size=\"3\" color=\"#E1E1E1\">" + qsTr("IP:") + "</font>" + " " + ((wiredNetwork.ipv4.byteLength === 0 || !wiredNetwork.powerState) ? qsTr("Network unavaliabe") : wiredNetwork.ipv4)
+                 }
+                 Image { // net_edit icon
++                    id: wiredEditIcon
+                     width: 36
+                     height: 36
+                     anchors.top: parent.top
+                     anchors.topMargin: 20
+                     anchors.right: parent.right
+                     anchors.rightMargin: 0
++                    visible: wiredNetwork.powerState && wiredNetwork.state !== Network.DISABLE && wiredNetwork.state !== Network.DISCONNECTED
+                     source: "../../icon/net_edit.svg"
+                 }
+                 Text {
+@@ -422,7 +485,7 @@
+                 // Click to enter the network parameters setting page of Wired Net
+                 MouseArea {
+                     anchors.fill: parent
+-                    enabled: wiredNetwork.powerState && (wiredNetwork.state !== Network.DISABLE)
++                    enabled: wiredEditIcon.visible
+                     onClicked: {
+                         pageStack.push("NetParaSetPage.qml", {isWired: true, network: wiredNetwork})
+                     }
+@@ -430,7 +493,7 @@
+             }
+ 
+             ZLineSplitter {
+-                id: line4
++                id: line5
+                 anchors.top: infoPanel2.bottom
+                 alignment: Qt.AlignTop
+                 padding: 36
+@@ -440,7 +503,7 @@
+ 
+             ZButton {
+                 id: networkTestBtn2
+-                anchors.top: line4.bottom
++                anchors.top: line5.bottom
+                 anchors.topMargin: 16
+                 anchors.left: parent.left
+                 anchors.leftMargin: 20
+@@ -520,9 +583,9 @@
+                                 })
+                 } else if (modelData.securityEnabled) {
+                     dialogStack.push("WifiSetupPage.qml", { ssid: modelData.ssid, ssidBak: modelData.ssidBak })
+-                } else if(modelData.authenticationType == "EAP"){
++                } else if(modelData.authenticationType == "EAP" && hasWried) {
+                     pageStack.push("CertificateConfirm2Page.qml", { ssid: modelData.ssid, ssidBak: modelData.ssidBak })
+-                } else {
++                } else if (modelData.authenticationType == "OPEN") {
+                     NetworkManager.setupWifi(modelData.ssid, modelData.ssidBak, "OPEN");
+                 }
+             }

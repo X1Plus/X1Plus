@@ -1,0 +1,17 @@
+--- printer_ui-orig/printerui/qml/wizard/LicensePage.qml
++++ printer_ui/printerui/qml/wizard/LicensePage.qml
+@@ -13,12 +13,12 @@
+     property string nextButton: qsTr("Agree")
+ 
+     property string language: DeviceManager.language
+-        property string licenseRealLanguage: (language == "sv") ? "en" : language
++    property string licenseRealLanguage: (language == "sv") ? "en" : language
+     property string license: UIBase.fileContent("qrc:/printerui/text/license." +
+                                                 licenseRealLanguage + ".txt")
+ 
+     property string licenseTitle: qsTr("End-User Software Licensing Agreement")
+-        property string licenseDetailRealLanguage: (language == "sv" || "zh-tw") ? "en" : language
++    property string licenseDetailRealLanguage: (language == "sv" || language == "zh-tw") ? "en" : language
+     property string licenseDetail: UIBase.fileContent("qrc:/printerui/text/terms." +
+                                                 licenseDetailRealLanguage + ".txt")
+     // "zh-tw" and "sv" show licenseDetail use "en"

@@ -1,0 +1,20 @@
+--- printer_ui-orig/printerui/qml/settings/DebugPage.qml
++++ printer_ui/printerui/qml/settings/DebugPage.qml
+@@ -14,6 +14,8 @@
+     id: page
+     color: Colors.gray_600
+ 
++    property var environmentModel: ["cn", "com", "qa", "dev", "pre", "pre-us"]
++
+     MouseArea {
+         anchors.fill: parent
+         onDoubleClicked: {
+@@ -284,7 +286,7 @@
+         RowLayout {
+             Text {
+                 text: "Error Test"
+-                font: Fonts.body_36
++                font: Fonts.body_30
+                 color: Colors.gray_100
+             }
+             Rectangle {

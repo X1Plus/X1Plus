@@ -8,7 +8,23 @@
      property bool loading: feeder.loading
      property var currentTray: feeder.currentTray
      property int loadStep: feeder.loadStep
-@@ -388,7 +389,7 @@
+@@ -101,6 +102,7 @@
+             }
+ 
+             ZButton {
++                id: virtualTrayHelpPadBtn
+                 anchors.top: parent.top
+                 anchors.topMargin: 20
+                 width: parent.width
+@@ -228,6 +230,7 @@
+             }
+ 
+             ZButton {
++                id: humidityHelpBtn
+                 width: 87
+                 height: 43
+                 anchors.bottom: trayPanel.bottom
+@@ -388,7 +391,7 @@
              }
          }
      }
@@ -17,7 +33,7 @@
      MarginPanel {
          id: howToPanel
          height: 538
-@@ -414,7 +415,7 @@
+@@ -414,7 +417,7 @@
              color: Colors.gray_100
              wrapMode: Text.WordWrap
              visible: !loadBar.visible
@@ -26,7 +42,7 @@
                           : qsTr("Before loading, please make sure your filament is pushed into the toolhead.")
          }
  
-@@ -647,32 +648,41 @@
+@@ -647,32 +650,41 @@
                                                : qsTr("Empty")
                      }
  

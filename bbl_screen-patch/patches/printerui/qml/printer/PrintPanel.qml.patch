@@ -1,13 +1,91 @@
 --- printer_ui-orig/printerui/qml/printer/PrintPanel.qml
 +++ printer_ui/printerui/qml/printer/PrintPanel.qml
-@@ -14,9 +14,7 @@
-     onVisibleChanged: {
-         DeviceManager.activeDeviceInfos(DeviceManager.DI_LED_LIGHT, visible)
-         NetworkManager.getNetworkInfo("wlan0")
--        if (DeviceManager.build.deviceCode === "C13") {
--            NetworkManager.getNetworkInfo("eth0")
--        }
-+        NetworkManager.getNetworkInfo("eth0")
-         NetworkManager.setNetworkInfoPushOn(visible)
-     }
+@@ -85,54 +85,52 @@
+             delegate: tempComp
+         }
  
+-        ZButton {
++        ZCarouselView {
+             id: amsRegion
+-            width: parent.width
++            width: parent.width  -20
+             height: 82
+             anchors.bottom: parent.bottom
++            anchors.horizontalCenter: parent.horizontalCenter
+             visible: hasAms
+-            type: ZButtonAppearance.Secondary
++            running: hasAms
++            orientation: Qt.Vertical
++            interval: 3000
++            model: PrintManager.feeder.feeders
+ 
+-            ZCarouselView {
+-                id: amsList
+-                anchors.fill: parent
+-                anchors.margins: 10
+-                running: hasAms
+-                orientation: Qt.Vertical
+-                interval: 3000
+-                model: PrintManager.feeder.feeders
+-
+-                delegate: Item {
+-                    width: amsList.width
+-                    height: amsList.height
+-
+-                    ListView {
+-                        anchors.fill: parent
+-                        orientation: ListView.Horizontal
+-                        model: modelData.trays
+-                        delegate: Item {
+-                            width: amsList.width / 4
+-                            height: amsList.height
+-                            GradientRectangle {
+-                                width: 20
+-                                height: 28
+-                                anchors.centerIn: parent
+-                                radius: 4
+-                                border.width: 1
+-                                border.color: modelData.colored ? "transparent" : Colors.gray_400
+-                                color: modelData.exist ? modelData.color : Colors.gray_800
+-                                colors: modelData.colors
+-                                colorsType: modelData.ctype
+-                                marginCol: Colors.gray_800
+-                            }
++            delegate: Item {
++                width: amsRegion.width
++                height: amsRegion.height
++
++                ListView {
++                    anchors.fill: parent
++                    orientation: ListView.Horizontal
++                    model: modelData.trays
++                    delegate: Item {
++                        width: amsRegion.width / 4
++                        height: amsRegion.height
++                        GradientRectangle {
++                            width: 20
++                            height: 28
++                            anchors.centerIn: parent
++                            radius: 4
++                            border.width: 1
++                            border.color: modelData.colored ? "transparent" : Colors.gray_400
++                            color: modelData.exist ? modelData.color : Colors.gray_800
++                            colors: modelData.colors
++                            colorsType: modelData.ctype
++                            marginCol: Colors.gray_800
+                         }
+                     }
+                 }
+             }
+ 
+-            MouseArea {
++            MouseArea { // TapHandler cannot work
+                 anchors.fill: parent
++
++                signal amsRegionBtn();
++
+                 onClicked: {
++                    amsRegionBtn()
+                     Printer.jumpTo("Printer/Filament")
+                 }
+             }

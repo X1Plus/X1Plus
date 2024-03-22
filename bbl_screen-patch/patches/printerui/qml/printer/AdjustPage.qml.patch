@@ -1,6 +1,14 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -194,9 +194,6 @@
+@@ -150,6 +150,7 @@
+             }
+ 
+             ZButton {
++                id: axisHome
+                 width: 103
+                 height: 103
+                 anchors.centerIn: parent
+@@ -194,9 +195,6 @@
                      icon: "../../icon/" + modelData.tip + ".svg"
                      text: modelData.name
                      onClicked: {
@@ -10,7 +18,38 @@
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
                      }
  
-@@ -749,9 +746,6 @@
+@@ -346,8 +344,13 @@
+         onPressed: {
+             mouse.accepted = true
+         }
++
++        signal speedPad_close();
+         onReleased: {
+-            speedPad.target = null
++            if(speedPad.target) {
++                speedPad.target = null
++                speedPad_close();
++            }
+             fanPad.target = null
+             tempList.currentIndex = -1
+         }
+@@ -369,6 +372,7 @@
+             if (target != null)
+                 speedMode = PrintManager.currentTask.printSpeedMode
+         }
++
+         onSpeedModeChanged: {
+             if (target != null) {
+                 PrintManager.currentTask.printSpeedMode = speedMode
+@@ -716,6 +720,7 @@
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 ZSwitchButton {
+                     id: switchFanBtn
++                    iconSize: 42
+                     dynamicChecked : modelData.isOn
+                     onToggled: {
+                         modelData.isOn = !modelData.isOn
+@@ -749,9 +754,6 @@
                  textColor: StateColors.get("white_900_checked_disabled")
                  radius: 239
                  onClicked: {
@@ -20,7 +59,7 @@
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
                  }
              }
-@@ -763,9 +757,6 @@
+@@ -763,9 +765,6 @@
                  textColor: StateColors.get("gray_400_checked_disabled")
                  radius: 133
                  onClicked: {

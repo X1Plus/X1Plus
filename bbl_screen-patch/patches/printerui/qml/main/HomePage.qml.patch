@@ -17,7 +17,7 @@
 +    property var f1: "file://"+ DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
 +    property var img1: imgExists(f1) ? f1: "qrc:/printerui/image/exhibition1.png"
 +    property var img2: imgExists(f2) ? f2: "qrc:/printerui/image/exhibition.png"
-+ 
++
 +    function imgExists(img){
 +        var strPath = img.replace("file://","");
 +        if (X1PlusNative.popen(`test -f ${strPath} && echo 1 || echo 0`) == 0){

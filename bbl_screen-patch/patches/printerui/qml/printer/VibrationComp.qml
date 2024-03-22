@@ -15,14 +15,15 @@ Item {
     id: vibcomp
     property string tab: "&nbsp;&nbsp;&nbsp;&nbsp;"
     property var task: PrintManager.currentTask
-    property var sweepArgs: ["10", "220"]
+    property var sweepArgs: loadSweepArgs()
     property var _cal: X1Plus.ShaperCalibration
 
-    Component.onCompleted:{
-        sweepArgs = DeviceManager.getSetting("cfw_vc",null);
-        if (!(sweepArgs instanceof Array) || sweepArgs.length != 2) {
-            sweepArgs = ["10", "220"];
+    function loadSweepArgs() {
+        var a = DeviceManager.getSetting("cfw_vc",null);
+        if (!(a instanceof Object) || !a.low || !a.high) {
+            a = { "low": "10", "high": "220"};
         }
+        return a;
     }
 
     Item {
@@ -178,7 +179,7 @@ Item {
             enabled: task.stage < PrintTask.WORKING && !_cal.isActive()
             text: qsTr("Run frequency sweep")
             onClicked: {
-                _cal.start(parseInt(sweepArgs[0]), parseInt(sweepArgs[1]));
+                _cal.start(parseInt(sweepArgs.low), parseInt(sweepArgs.high));
                 console.log("[x1p] Starting vibration comp");
             }
         }
@@ -203,11 +204,11 @@ Item {
             textFont: Fonts.body_18
             listTextFont: Fonts.body_18
             model: ["10", "20","30", "40", "50", "60"]
-            placeHolder: sweepArgs[0]
-            currentIndex: model.indexOf(sweepArgs[0])
+            placeHolder: sweepArgs.low
+            currentIndex: model.indexOf(sweepArgs.low)
             onCurrentTextChanged: {
                 if (currentText != ""){
-                    sweepArgs[0] = currentText;
+                    sweepArgs.low = currentText;
                     DeviceManager.putSetting("cfw_vc",sweepArgs);
                 }
                     
@@ -232,11 +233,11 @@ Item {
             textFont: Fonts.body_18
             listTextFont: Fonts.body_18
             model: ["200", "210","220", "230", "240", "250"]
-            placeHolder: sweepArgs[1]
-            currentIndex: model.indexOf(sweepArgs[1])
+            placeHolder: sweepArgs.high
+            currentIndex: model.indexOf(sweepArgs.high)
             onCurrentTextChanged: {
                 if (currentText != "") {
-                    sweepArgs[1] = currentText;
+                    sweepArgs.high = currentText;
                     DeviceManager.putSetting("cfw_vc",sweepArgs);
                 }
             }

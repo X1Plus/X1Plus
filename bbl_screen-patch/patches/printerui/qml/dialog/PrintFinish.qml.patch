@@ -1,0 +1,11 @@
+--- printer_ui-orig/printerui/qml/dialog/PrintFinish.qml
++++ printer_ui/printerui/qml/dialog/PrintFinish.qml
+@@ -41,7 +41,7 @@
+     property var model
+     //property var plates: model.plates
+     property var filaments: model.filaments
+-    property var typeKeys: UIBase.enumKeys("Filament", "Type")
++//    property var typeKeys: UIBase.enumKeys("Filament", "Type")
+ 
+     property var infos: [
+ //        {key: "plate", value: plates.length + qsTr("Plate")},

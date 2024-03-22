@@ -1,0 +1,23 @@
+--- printer_ui-orig/printerui/qml/printer/HealthMessage.qml
++++ printer_ui/printerui/qml/printer/HealthMessage.qml
+@@ -101,6 +101,7 @@
+             }
+ 
+             ZButton {
++                id: closeMsgBtn
+                 width: 53
+                 height: parent.height
+                 anchors.right: parent.right
+@@ -172,9 +173,12 @@
+ 
+             }
+ 
++            signal clicked();
++
+             TapHandler {
+                 gesturePolicy: TapHandler.ReleaseWithinBounds
+                 onTapped: {
++                    clicked()
+                     if (msgItem.ListView.isCurrentItem)
+                         msgItem.ListView.view.currentIndex = -1;
+                     else

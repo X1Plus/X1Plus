@@ -1,0 +1,45 @@
+--- printer_ui-orig/printerui/qml/printer/PrintSkipPage.qml
++++ printer_ui/printerui/qml/printer/PrintSkipPage.qml
+@@ -21,8 +21,17 @@
+         anchors.leftMargin: 24
+         width: 542
+         height: width
++        color: "transparent"
+         bottomRadiusOff: true
+ 
++        ZImage {
++            width: 542
++            height: 628*(542/600)
++            anchors.top: parent.top
++            anchors.left: parent.left
++            source: "../../icon/printPlate.svg"
++        }
++
+         ZPaintedImage {
+             id: ima
+             anchors.fill: parent
+@@ -57,6 +66,7 @@
+     MarginPanel {
+         anchors.top: pickImage.bottom
+         anchors.left: pickImage.left
++        anchors.topMargin: 25
+         width: pickImage.width
+         height: 68
+         topRadiusOff: true
+@@ -78,6 +88,7 @@
+         anchors.top: pickImage.top
+         anchors.left: pickImage.right
+         anchors.leftMargin: 24
++        anchors.topMargin: 12
+         width: 488 + 16
+         height: 488 + 16
+         border.color: Colors.white_900
+@@ -110,7 +121,7 @@
+         width: 162
+         height: 74
+         anchors.bottom: parent.bottom
+-        anchors.bottomMargin: 39
++        anchors.bottomMargin: 61
+         anchors.left: pickImage.right
+         anchors.leftMargin: 24
+         text: qsTr("Back")

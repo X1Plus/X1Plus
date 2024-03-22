@@ -1,0 +1,284 @@
+--- printer_ui-orig/printerui/qml/printer/FilamentPad.qml
++++ printer_ui/printerui/qml/printer/FilamentPad.qml
+@@ -14,19 +14,20 @@
+     property var editing: QtObject {
+         property string color: ""
+         property string name: ""
+-        property string brand: ""
++        property string vendor: ""
++        property string type: ""
+         property string filamentId: ""
+         property var temperatures: ({})
+     }
+     property var temperature: tempTypeCombo.currentText === ""
+                            ? ({first: 0, second: 0})
+                            : editing.temperatures[tempTypeCombo.currentText]
+-    property var materials: UIBase.enumKeys("Filament", "Type").slice(0, -1)
++//    property var materials: UIBase.enumKeys("Filament", "Type").slice(0, -1)
+     property var presetFilaments: PrintManager.feeder.presetFilaments
+-    property var names: brandCombo.currentText === ""
++    property var names: vendorCombo.currentText === ""
+                         ? []
+-                        : presetFilaments[brandCombo.currentText].map(function(f) {
+-                            return (f.name + "").substring(brandCombo.currentText.length + 1)
++                        : presetFilaments[vendorCombo.currentText].map(function(f) {
++                            return f.name+""
+                         })
+     property var tempTypes: UIBase.enumKeys("Filament", "TempType")
+     property bool extCaliEditable: PrintManager.currentTask.stage < PrintTask.WORKING
+@@ -62,7 +63,7 @@
+             if (!filament.isColorVaild) {
+                 editing.color = ""
+             }
+-            brandCombo.currentIndex = presetFilaments.keys().indexOf(editing.brand)
++            vendorCombo.currentIndex = presetFilaments.keys().indexOf(editing.vendor)
+             tempTypeCombo.currentIndex = 0
+         } else if (pad.parent && pad.parent.currentItem === this) {
+             pad.parent.pop()
+@@ -70,8 +71,9 @@
+     }
+ 
+     function sync(f, t) {
+-        t.brand = f.brand
++        t.vendor = f.vendor
+         t.name = f.name
++        t.type = f.type
+         t.color = f.color
+         t.filamentId = f.filamentId
+         var tt = t.temperatures
+@@ -83,7 +85,7 @@
+     }
+ 
+     Item {
+-        x: 51
++        x: 40
+ 
+         Item {
+             id: filamentRegion
+@@ -99,7 +101,7 @@
+             }
+ 
+             Choise {
+-                id: brandCombo
++                id: vendorCombo
+                 width: 308
+                 x: 280
+                 anchors.verticalCenter: parent.verticalCenter
+@@ -109,40 +111,42 @@
+ 
+                 onCurrentTextChanged: {
+                     if (!down) return
+-                    editing.brand = currentText
+-                    console.log("editing.brand " + editing.brand)
++                    editing.vendor = currentText
++                    console.log("editing.vendor " + editing.vendor)
+                 }
+             }
+ 
+             Choise {
+                 id: nameCombo
+                 width: 360
+-                anchors.left: brandCombo.right
++                anchors.left: vendorCombo.right
+                 anchors.leftMargin: 38
+                 anchors.verticalCenter: parent.verticalCenter
+-                model: names// names.map(name => String(name).replace("Support", "Sup").replace(" G", ".PA").replace(" W", ".PLA"))
++                model: names//names.map(name => String(name).replace("Support", "Sup").replace(" G", ".PA").replace(" W", ".PLA"))
+                 placeHolder: qsTr("Material")
+                 readOnly: !pad.editable
+ 
+                 onModelChanged: {
+-                    currentIndex = names.indexOf(editing.name.substring(brandCombo.currentText.length + 1))
++                    currentIndex = names.indexOf(editing.name)
++                    console.log("filamentPad vendorText:", vendorCombo.currentText, "vendorIndex:", vendorCombo.currentIndex, "nameText:", nameCombo.currentText, "nameIndex:", nameCombo.currentIndex, "editing.name:", editing.name)
+                 }
+ 
+                 onCurrentTextChanged: {
+                     if (!down || currentText == "") return
+-                    editing.name = brandCombo.currentText + " " + names[currentIndex]
+-                    var preset = presetFilaments[brandCombo.currentText].find(function(f) {
++                    editing.name = names[currentIndex]
++                    var preset = presetFilaments[vendorCombo.currentText].find(function(f) {
+                         return String(f.name) === editing.name
+                     })
+                     editing.temperatures = preset.temperatures
+                     editing.filamentId = preset.filamentId
++                    editing.type = preset.type
+                 }
+             }
+ 
+             Text {
+                 id: snLabel
+                 x: 280
+-                anchors.top: brandCombo.bottom
++                anchors.top: vendorCombo.bottom
+                 anchors.verticalCenter: parent.verticalCenter
+                 visible: filament ? !filament.thirdparty : false
+                 font: Fonts.body_30
+@@ -213,7 +217,7 @@
+             anchors.topMargin: 88
+             visible: false
+ 
+-            Text {
++            ZText {
+                 id: tempTypeLabel
+                 anchors.verticalCenter: parent.verticalCenter
+                 font: Fonts.body_34
+@@ -237,13 +241,12 @@
+             anchors.topMargin: 116
+             enabled: pad.editable
+ 
+-            Text {
++            ZText {
+                 id: tempLabel
+-                width: 200
++                maxWidth: 250
+                 anchors.verticalCenter: parent.verticalCenter
+                 font: Fonts.body_34
+                 color: Colors.gray_100
+-                wrapMode: Text.WordWrap
+                 text: qsTr("Nozzle Temperature")
+             }
+ 
+@@ -323,7 +326,7 @@
+             Text {
+                 id: pressureAdvanceTx
+                 anchors.verticalCenter: parent.verticalCenter
+-                width: 300
++                width: 280
+                 font: Fonts.body_32
+                 wrapMode: Text.WordWrap
+                 color: Colors.gray_100
+@@ -331,7 +334,7 @@
+             }
+ 
+             Choise {
+-                id: brandNameCombo
++                id: vendorNameCombo
+                 width: 308
+                 x: 280
+                 anchors.verticalCenter: parent.verticalCenter
+@@ -341,26 +344,26 @@
+                 selectCount: 3.5
+ 
+                 onModelChanged: {
+-                    brandNameCombo.currentIndex = -1
++                    vendorNameCombo.currentIndex = -1
+                     for (var i = 0; i < extrusionCaliModel.extCaliList.length; i++) {
+                         if (filament.caliIdx === extrusionCaliModel.extCaliList[i].caliIdx) {
+-                            brandNameCombo.currentIndex = i
++                            vendorNameCombo.currentIndex = i
+                         }
+                     }
+-                    console.log("FilamentPad Brand Name currentIndex: ", currentIndex, " currentText: ", currentText)
++                    console.log("FilamentPad vendor Name currentIndex: ", currentIndex, " currentText: ", currentText)
+                 }
+             }
+ 
+             Text {
+                 id: knValueTx
+-                anchors.left: brandNameCombo.right
++                anchors.left: vendorNameCombo.right
+                 anchors.leftMargin: 23
+                 anchors.verticalCenter: parent.verticalCenter
+                 font: Fonts.body_34
+                 color: Colors.gray_100
+-                visible: brandNameCombo.currentIndex >= 0
++                visible: vendorNameCombo.currentIndex >= 0
+                 text: {
+-                    var currentIndex = brandNameCombo.currentIndex
++                    var currentIndex = vendorNameCombo.currentIndex
+                     var isArray = currentIndex >= 0
+                     var k_value = isArray ? extrusionCaliModel.extCaliList[currentIndex].k_value : 0
+                     var n_coef = isArray ? extrusionCaliModel.extCaliList[currentIndex].n_coef : 0
+@@ -391,12 +394,12 @@
+             onClicked: {
+                 console.log("FilamentPad Reset editable", editable)
+                 if (editable) {
+-                    brandCombo.currentIndex = -1
++                    vendorCombo.currentIndex = -1
+                     editing.color = ""
+                     editing.name = ""
+                     nameCombo.currentIndex = -1
+                 }
+-                brandNameCombo.currentIndex = -1
++                vendorNameCombo.currentIndex = -1
+             }
+         }
+ 
+@@ -410,11 +413,11 @@
+             text: qsTr("Confirm")
+ 
+             onClicked: {
+-                console.log("FilamentPad Confirm nameCombo:", nameCombo.currentText, " brandCombo:", brandCombo.currentText, " brandNameCombo:", brandNameCombo.currentText, " color:", editing.color, "index",filament.index)
++                console.log("FilamentPad Confirm nameCombo:", nameCombo.currentText, " vendorCombo:", vendorCombo.currentText, " vendorNameCombo:", vendorNameCombo.currentText, " color:", editing.color, "index",filament.index)
+                 if (nameCombo.currentIndex >= 0 && editing.color !== "")
+-                    editing.name = brandCombo.currentText + " " + nameCombo.currentText
++                    editing.name = vendorCombo.currentText + " " + nameCombo.currentText
+                 else {
+-                    if (editing.color === "" && brandCombo.currentIndex < 0) {
++                    if (editing.color === "" && vendorCombo.currentIndex < 0) {
+                         if (editable) {
+                             PrintManager.feeder.resetTray(filament)
+                         }
+@@ -426,7 +429,7 @@
+                     } else {
+                         dialogStack.popupDialog(
+                                     "TextConfirm", {
+-                                        name: "select filament info",
++                                        name: "select filament info need select",
+                                         type: TextConfirm.CONFIRM_ONLY,
+                                         text: qsTr("You need to select the material type and color first.")
+                                     })
+@@ -435,18 +438,18 @@
+                 }
+ 
+                 if (filament.index !== 254) {
+-                    if (nameCombo.currentText.indexOf("TPU") != -1 || (brandCombo.currentText == "Bambu" && (nameCombo.currentText.indexOf("PET-CF") != -1 || nameCombo.currentText.indexOf("PA6-CF") != -1))) {
++                    if (nameCombo.currentText.indexOf("TPU") != -1 || (((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("PET-CF") != -1 || nameCombo.currentText.indexOf("PA6-CF") != -1))) {
+                         dialogStack.popupDialog(
+                                     "TextConfirm", {
+-                                        name: "select filament info",
++                                        name: "select filament info not supported",
+                                         type: TextConfirm.CONFIRM_ONLY,
+                                         text: qsTr("\"%1\" is not supported by AMS.").arg(editing.name)
+                                     })
+                         return
+-                    } else if(brandCombo.currentText != "Bambu" && (nameCombo.currentText.indexOf("-CF") != -1 || nameCombo.currentText.indexOf("PVA") != -1)) {
++                    } else if(((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("-CF") != -1 || nameCombo.currentText.indexOf("PVA") != -1)) {
+                         dialogStack.popupDialog(
+                                     "TextConfirm", {
+-                                        name: "select filament info",
++                                        name: (nameCombo.currentText.indexOf("-CF") != -1) ? "select filament info hard brittle" : "select filament info damp",
+                                         type: TextConfirm.CONFIRM_ONLY,
+                                         text: (nameCombo.currentText.indexOf("-CF") != -1) ?
+                                                   qsTr("\"%1\" filaments are hard brittle. It's easy to break or get stuck in AMS, please use with caution.").arg(editing.name)
+@@ -457,11 +460,11 @@
+ 
+                 sync(editing, filament)
+                 if(nameCombo.currentIndex != -1) {
+-                    filament.loadFrom(presetFilaments[brandCombo.currentText][nameCombo.currentIndex])
++                    filament.loadFrom(presetFilaments[vendorCombo.currentText][nameCombo.currentIndex])
+                 }
+ 
+-                if (brandNameCombo.currentIndex >= 0) {
+-                    var selectCaliIdx = extrusionCaliModel.extCaliList[brandNameCombo.currentIndex].caliIdx
++                if (vendorNameCombo.currentIndex >= 0) {
++                    var selectCaliIdx = extrusionCaliModel.extCaliList[vendorNameCombo.currentIndex].caliIdx
+                     if (filament.caliIdx !== selectCaliIdx) {
+                         PrintManager.feeder.selectExtrusionCali(editing.filamentId, filament.index, selectCaliIdx)
+                     }
+@@ -664,9 +667,13 @@
+                         fillMode: Image.Stretch
+                         originSource: "../../icon/transparent.svg"
+                     }
++
++                    signal clicked();
++
+                     TapHandler {
+                         gesturePolicy: TapHandler.ReleaseWithinBounds
+                         onTapped: {
++                            clicked()
+                             editing.color = modelData
+                             colorPad.visible = false
+                             moreColorPad.visible = false

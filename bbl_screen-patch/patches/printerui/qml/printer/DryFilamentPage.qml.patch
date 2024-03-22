@@ -9,6 +9,24 @@
  
          Image {
              anchors.centerIn: parent
+@@ -102,7 +102,7 @@
+         anchors.left: parent.left
+         anchors.top: switchPanel1.bottom
+         anchors.bottom: parent.bottom
+-        leftMargin: 27
++        leftMargin: 26
+         topMargin: 14
+         bottomMargin: 26
+ 
+@@ -181,7 +181,7 @@
+         anchors.top: parent.top
+         anchors.bottom: parent.bottom
+         leftMargin: 14
+-        rightMargin: 21
++        rightMargin: 26
+         topMargin: switchPanel1.topMargin
+         bottomMargin: switchPanel2.bottomMargin
+         Text {
 @@ -448,15 +448,7 @@
          }
      }

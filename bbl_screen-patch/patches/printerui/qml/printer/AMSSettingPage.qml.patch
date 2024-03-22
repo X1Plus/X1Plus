@@ -1,0 +1,73 @@
+--- printer_ui-orig/printerui/qml/printer/AMSSettingPage.qml
++++ printer_ui/printerui/qml/printer/AMSSettingPage.qml
+@@ -34,7 +34,7 @@
+         detailOn: qsTr("The AMS will measure the spool's remaining capacity after the filament infomation is updated. During printing, remaining capacity will be updated automatically.")
+     }
+     property var switchFilamentOn: PrintSettingItem {
+-        title: qsTr("AMS auto switch filament")
++        title: qsTr("AMS auto switch filament") // in en .ts is "AMS filament backup" for now
+         value: feeder.isAutoSwitchFilamentOn
+         onSetValue: feeder.isAutoSwitchFilamentOn = value
+         detailOff: ""
+@@ -55,12 +55,17 @@
+                 dynamicChecked: modelData.value
+                 text: modelData.title
+                 onToggled: modelData.setValue(checked)
++                // sync setting, in filamentfeeder.cpp the value update 
++                // in update() just when msg returned from ap, so it react delays
++                // because msg returned from ap is some like 2s periodicity
+             }
+ 
+             Text {
+                 id: textInfo
+-                x: 38
+-                y: 40
++                anchors.top: checkSwitch.bottom
++                anchors.topMargin: 5
++                anchors.left: checkSwitch.left
++                anchors.leftMargin: 38
+                 width: 508
+                 font: Fonts.body_22
+                 color: Colors.gray_300
+@@ -86,13 +91,13 @@
+         ListView {
+             id: listSwitch
+             anchors.fill: parent
+-            anchors.topMargin: 20
++            anchors.topMargin: 50
+             anchors.leftMargin: 20
+             anchors.bottomMargin: 10
+             anchors.rightMargin: 10
+             clip: true
+             model: switchOn
+-            spacing: 10
++            spacing: 20
+             delegate: switchComp
+         }
+ 
+@@ -132,6 +137,7 @@
+             width: 440
+             anchors.horizontalCenter: parent.horizontalCenter
+             anchors.top: caliImage.bottom
++            anchors.topMargin: 30
+             wrapMode: Text.WordWrap
+             font: Fonts.body_24
+             color: Colors.gray_300
+@@ -152,7 +158,7 @@
+             onClicked: {
+                 // May pop up error dialog if filament not loaded
+                 dialogStack.popupDialog("TextConfirm", {
+-                                          name: "AMS calibration confirm",
++                                          name: "AMS calibration confirm are you sure",
+                                           type: TextConfirm.CONFIRM_ONLY,
+                                           text: qsTr("This function has not been finalized yet."),
+ //                                          text: qsTr("AMS calibration takes several minutes. Are you sure to initialize the AMS?"),
+@@ -176,7 +182,7 @@
+         radius: 5
+         onClicked: {
+             dialogStack.popupDialog("TextConfirm", {
+-                                        name: "AMS calibration confirm",
++                                        name: "AMS calibration confirm reset",
+                                         type: TextConfirm.YES_NO,
+                                         text: qsTr("AMS ID will be reset. If you want a specific ID sequence, disconnect all AMS before resetting and connect in the desired order after resetting."),
+                                         onYes: function() {

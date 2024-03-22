@@ -1,0 +1,17 @@
+--- printer_ui-orig/printerui/qml/wizard/Calibrate1Page.qml
++++ printer_ui/printerui/qml/wizard/Calibrate1Page.qml
+@@ -24,7 +24,7 @@
+     Text {
+         id: readmeText
+         width: 910
+-        anchors.horizontalCenter: parent.horizontalCenter
++        x: (parent.width - contentWidth)/2
+         anchors.top: frameImage.bottom
+         anchors.topMargin: 80
+         wrapMode: Text.WordWrap
+@@ -32,5 +32,4 @@
+         color: Colors.gray_300
+         text: qsTr("Before calibration, ensure that the cushion pad is removed.")
+     }
+-
+ }

@@ -1,0 +1,13 @@
+--- printer_ui-orig/printerui/qml/wizard/TermsPage.qml
++++ printer_ui/printerui/qml/wizard/TermsPage.qml
+@@ -15,6 +15,10 @@
+     property var details
+     property alias region: regionList.currentIndex
+ 
++    MouseArea {
++        anchors.fill: parent
++    }
++
+     Rectangle {
+         id: ctrlRegion
+         width: 120

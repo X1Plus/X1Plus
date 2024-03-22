@@ -1,18 +1,16 @@
 --- printer_ui-orig/printerui/qml/printer/Choise.qml
 +++ printer_ui/printerui/qml/printer/Choise.qml
-@@ -15,6 +15,11 @@
+@@ -15,6 +15,9 @@
      property var selectCount: 7.5
  
      id: comboBox
 +
 +    signal choiseTapped(); // "activated" signal cannot use, use this insted
-+    // EventTrack.event: "choiseTapped"
-+    // EventTrack.extraInfo: { "control": "Choise", "currentIndex": currentIndex, "currentItemText": currentText }
 +
      height: 60
      background: Rectangle { visible: !readOnly; color: backgroundColor; radius: 15; border.width: 0 }
      contentItem: ZText {
-@@ -55,7 +60,7 @@
+@@ -55,7 +58,7 @@
              font: listTextFont
              color: Colors.gray_100
              padding: 16
@@ -21,7 +19,7 @@
              verticalAlignment: Text.AlignVCenter
              text: modelData
              TapHandler {
-@@ -63,6 +68,7 @@
+@@ -63,6 +66,7 @@
                  onTapped: {
                      comboBox.currentIndex = index
                      comboBox.popup.close()

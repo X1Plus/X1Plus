@@ -1,0 +1,24 @@
+--- printer_ui-orig/printerui/qml/settings/AccountPage.qml
++++ printer_ui/printerui/qml/settings/AccountPage.qml
+@@ -123,16 +123,12 @@
+         }
+ 
+         ZButton {
+-            width: 68
+-            height: width
+-            anchors.top: parent.top
+-            anchors.right: parent.right
+-            anchors.margins: 20
+-            cornerRadius: width / 2
+-            type: ZButtonAppearance.Secondary
+-            iconSize: 0
+-            icon: "../../icon/exit.svg"
++            anchors.top: nameText.bottom
++            anchors.topMargin: 60
++            anchors.horizontalCenter: parent.horizontalCenter
++            type: ZButtonAppearance.Primitive
+             visible: !wizardMode
++            text: qsTr("Log out")
+             onClicked: {
+                 var callback = function(index) {
+                     if (index !== 0)

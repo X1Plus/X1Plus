@@ -52,3 +52,33 @@
                     : carouselImages.map(function(i) { return i.imageUrl })
          }
  
+@@ -310,7 +323,7 @@
+             id: printStep
+             anchors.fill: parent
+             anchors.leftMargin: 20
+-            anchors.topMargin: 40
++            anchors.topMargin: 25
+             anchors.rightMargin: 20
+             visible: stepBar.step < stepBar.steps.length && !hmsItem.visible
+ 
+@@ -334,7 +347,7 @@
+             ZLineSplitter {
+                 id: stepSplitter
+                 alignment: Qt.AlignTop
+-                offset: 60
++                offset: 50
+                 color: Colors.brand
+             }
+ 
+@@ -342,9 +355,9 @@
+                 id: stepBar
+                 width: parent.width
+                 anchors.top: stepSplitter.bottom
+-                anchors.topMargin: 60
++                anchors.topMargin: 20
+                 barColor: Colors.brand
+-                stepOffset: 90
++                stepOffset: 75
+                 finishIcon: "../../icon/step_ok.svg"
+                 steps: task.prepareSteps
+                 step: task.prepareStep

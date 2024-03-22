@@ -1,0 +1,14 @@
+--- printer_ui-orig/printerui/qml/wizard/LoginPage.qml
++++ printer_ui/printerui/qml/wizard/LoginPage.qml
+@@ -10,6 +10,11 @@
+     property string title: qsTr("Login")
+     property bool finished: AccountManager.account.name !== ""
+     property bool skipable: true
++    property bool current: SwipeView.isCurrentItem
++
++    onCurrentChanged: {
++        AccountManager.setIsCurrPageAccount(current)
++    }
+ 
+     AccountPage {
+         anchors.fill: parent

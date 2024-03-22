@@ -50,7 +50,7 @@
      /* Updater */
  
      id: settingListener
-@@ -18,22 +55,57 @@
+@@ -18,42 +55,78 @@
  
      property var updatePage
      property bool versionNotify
@@ -114,7 +114,20 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -48,12 +120,8 @@
+                     ? qsTr("An important update was detected and needs to be run before printing can continue. Do you want to update now? You can also update later from \"Settings > General > Version\".")
+                     : qsTr("A new firmware update has been detected. Would you like to go to the update page?")
++        var dialog_name  = updater.consistency
++                ? "Version notify version is abnormal"
++                : updater.forceUpgrade
++                    ? "Version notify important version is detected"
++                    : "Version notify new version is abnormal"
+         versionNotify = true
+         dialogStack.popupDialog(
+                     "TextConfirm", {
+-                        name: "Version notify",
++                        name: dialog_name,
+                         type: TextConfirm.YES_NO,
+                         text: msg,
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -129,7 +142,7 @@
                              }
                              versionNotify = false
                          }
-@@ -93,6 +161,7 @@
+@@ -93,6 +166,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -137,7 +150,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -160,7 +229,7 @@
+@@ -160,7 +234,7 @@
              blackColor = !blackColor
          }
      }
@@ -146,7 +159,36 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -210,4 +279,73 @@
+@@ -175,22 +249,26 @@
+         if (!printIdle || !(DeviceManager.getSetting("carbon", false) || DeviceManager.getSetting("screws", false)))
+             return
+ 
+-        var msg="";
++        var msg=  "";
++        var dialog_name = "Maintain";
+         console.log("SettingListener::Maintain maintain.carbon", maintain.carbon, "maintain.screws", maintain.screws)
+         if (maintain.carbon) {
+             msg += qsTr("It is detected that carbon rods may need to be cleaned. ")
++            dialog_name += " need cleaned"
+             DeviceManager.putSetting("carbon", false)//The pop-up window has been popped. There is no need to pop up the window again
+         }
+         if(maintain.screws) {
+             msg += qsTr("It is detected that the lead screws may need lubrication. ")
++            dialog_name += " need lubrication"
+             DeviceManager.putSetting("screws", false)
+         }
+         msg += qsTr("Would you like to go to the maintenance page?");
++        dialog_name += " go maintain page"
+ 
+         var stack = pageStack
+         dialogStack.popupDialog(
+                     "TextConfirm", {
+-                        name: "Maintain",
++                        name: dialog_name,
+                         type: TextConfirm.YES_NO,
+                         text: msg,
+                         callback: function(index) {
+@@ -210,4 +288,71 @@
              }
          }
      }
@@ -182,7 +224,6 @@
 +            }
 +        }
 +    }
-+ 
 +   
 +    Timer {
 +        id: nozzlecam
@@ -210,13 +251,12 @@
 +    function fileDate(path){
 +        return X1PlusNative.popen(`stat -c %Y ${path}`);
 +    }
-+
 +    function fileExist(path){
 +        var exist = X1PlusNative.popen(`test -f ${path} && echo 1`);
 +        return (exist == 1);
 +    }
 +
-+     Component.onCompleted: {
++    Component.onCompleted: {
 +        cfwOnCompleted();
-+     }
++    }
  }
