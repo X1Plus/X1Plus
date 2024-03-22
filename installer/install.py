@@ -270,7 +270,9 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
                         break
                     f.write(buf)
                     curlen += len(buf)
-                    report_interim_progress(f"Downloading... ({curlen} / {totlen} bytes)")
+                    curlen_mb = round(int(curlen) / 1024 / 1024, 2)
+                    totlen_mb = round(int(totlen) / 1024 / 1024, 2)
+                    report_interim_progress(f"Downloading... ({curlen_mb} / {totlen_mb} MB)") 
             report_interim_progress("Verifying download...")
         except Exception as e:
             report_failure(f"Download failed.", e)
