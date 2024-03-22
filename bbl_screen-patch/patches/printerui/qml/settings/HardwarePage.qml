@@ -21,19 +21,6 @@ Rectangle {
     property var maintain: DeviceManager.maintain
     property var brightness: DeviceManager.getSetting("cfw_brightness", 100.0)
     property var toolheadLED: DeviceManager.getSetting("cfw_toolhead_led", false)
-    property var buttonModel: X1Plus.gpioEvents
-    // property var dialog_jsonKey
-    // property var macroFile: ""  
-    // property var buttonActions: [
-    //     { name: "Reboot", val: 0 },
-    //     { name: "Set temp", val: 1 },
-    //     { name: "Pause print", val: 2 },
-    //     { name: "Abort print", val: 3 },
-    //     { name: "Sleep/wake", val: 4 },
-    //     // { name: "Nozzle cam", val: 5 },
-    //     { name: "Run macro", val: 6 }
-    // ]
-    // property var pidofBtn: 0
 
     Timer {
         id: dispBrightnessChangeTimer
@@ -49,7 +36,6 @@ Rectangle {
             DeviceManager.maintain.getAccessories()
         }
     }
-    
     // function pathDialog(inputtxt,inputtitle){
     //         dialogStack.push("InputPage.qml", {
     //                             input_head_text : inputtitle,
@@ -301,8 +287,59 @@ Rectangle {
                 buttonHelpPad.popup()
             }
         }
-         GridLayout {
+      
+        ZButton {
+            id: reloadgpio
+            anchors.top: parent.top
+            property bool isChanged: false
+            anchors.topMargin: 10
+            anchors.right: printMP.right
+            anchors.rightMargin: 15
+            type: ZButtonAppearance.Secondary
+            icon: isChanged ? "../../icon/components/refresh_color.svg" : "../../icon/refresh.svg"
+            height: width
+            width: 69
+            visible:true
+            cornerRadius: width / 2
+            iconSize: -1
+            onClicked:{
+                if (isChanged) {isChanged = (!isChanged)};
+                dialogStack.popupDialog(
+                                "TextConfirm", {
+                                    name: "reset to defaults",
+                                    text: qsTr("Reset button mapping to default settings?"),
+                                    type: TextConfirm.YES_NO,
+                                    defaultButton: 1,
+                                    onYes: function() {
+                                        buttonGrid.resetComboBoxDefaults();
+                                        console.log("[x1p] Resetting button mappings to defaults (power button: short = toggle lcd, long = reboot; estop button: short = pause print, long = abort print)");
+                                    },
+                                })
+        
+            }
+        }
+        
+        ZLineSplitter {
+            id: line3
+            alignment: Qt.AlignTop
+            y: 95
+            padding: 24
+            color: Colors.gray_600
+        }
+        
+        Text {
+            id: buttonsTx
+            anchors.top: line3.bottom
+            anchors.topMargin: 24
+            anchors.left: interfaceTx.left
+            color: Colors.gray_400
+            font: Fonts.body_30
+            text: qsTr("Buttons")
+        }
+
+        GridLayout {
             id: buttonGrid
+            
             anchors.top: buttonsTx.bottom
             anchors.topMargin: 14 /* we can shrink this a little for the text separation above */
             anchors.leftMargin: 32
@@ -312,9 +349,18 @@ Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
             columns: 3
-            
             property var imageHeight: 25
-
+            function resetComboBoxDefaults() {
+                var defaults = X1Plus.GpioKeys.resetToDefaultActions(); 
+                
+                for (var i = 0; i < buttonGrid.children.length; i++) {
+                    var loader = buttonGrid.children[i];
+                    if (loader.item) { 
+                        loader.item.defaultSelection = X1Plus.GpioKeys.getDefault(loader.item.btn, loader.item.pressType);
+                        loader.item.currentIndex = loader.item.defaultSelection;
+                    }
+                }
+            }
             Text {
                 Layout.row: 0
                 Layout.column: 1
@@ -342,6 +388,45 @@ Rectangle {
                 Layout.preferredHeight: 56
                 source: "../../icon/components/power.svg"
             }
+            
+            Component {
+                id: choiceMenu
+                Choise {
+                    property var pressType: ""
+                    property var btn: ""
+                    property var defaultSelection
+                    textFont: Fonts.body_24
+                    listTextFont: Fonts.body_24
+                    width: 115
+                    model: X1Plus.GpioKeys.buttonActions.map(a => a.name)
+                    placeHolder:""
+                    currentIndex: defaultSelection
+                    onCurrentTextChanged: { 
+                        if(!down) return;
+                        let actionVal = X1Plus.GpioKeys.buttonActions.find(a => a.name === currentText).val;
+                        if (actionVal !== undefined) {
+                            console.log(`[x1p] {item.btn} {item.pressType} - {actionaVal}`);
+                            X1Plus.GpioKeys.updateButtonAction(item.btn, item.pressType, actionVal, {});
+                        }
+                    }
+                    Binding on currentIndex{
+                        value: model.indexOf(X1Plus.GpioKeys.getActionText(btn, pressType))
+                    }                  
+                }
+            }
+          
+            Loader {
+                Layout.fillWidth: true
+                sourceComponent: choiceMenu
+                onLoaded: { item.btn = "cfw_power"; item.pressType = "shortPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
+            }
+
+            Loader {
+                Layout.fillWidth: true
+                sourceComponent: choiceMenu
+                onLoaded: {item.btn =  "cfw_power"; item.pressType = "longPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
+            }
+
             Image {
                 Layout.row: 2
                 Layout.column: 0
@@ -349,227 +434,20 @@ Rectangle {
                 Layout.preferredHeight: 56
                 source: "../../icon/components/estop.svg"
             }
-            Choise {
-                id: powerShortPress
-                Layout.row: 1
-                Layout.column: 1
-                textFont: Fonts.body_24
-                listTextFont: Fonts.body_24
-                width: 115
-                model: buttonModel
-                onCurrentTextChanged: {
-                    if(!down) return
-                    // {"cfw_gpio_power": {
-                    //     "short": [4, ""],
-                    //     "long": [0, ""],
 
-                    // }}
-                    console.log("[x1p] cfw_power_short changed:", currentText)
-                }
+            Loader {
+                Layout.fillWidth: true
+                sourceComponent: choiceMenu
+                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "shortPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
             }
 
-            Choise {
-                id: powerLongPress
-                Layout.row: 1
-                Layout.column: 2
-                textFont: Fonts.body_24
-                listTextFont: Fonts.body_24
-                width: 115
-                model: buttonModel
-                onCurrentTextChanged: {
-                    if(!down) return
-                    console.log("[x1p] cfw_power_long changed:", currentText)
-                }
+            Loader {
+                Layout.fillWidth: true
+                sourceComponent: choiceMenu
+                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "longPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
             }
-
-
-            Choise {
-                id: estopShortPress
-                Layout.row: 2
-                Layout.column: 1 
-                textFont: Fonts.body_24
-                listTextFont: Fonts.body_24
-                width: 115
-                model: buttonModel
-                onCurrentTextChanged: {
-                    if(!down) return
-                    console.log("[x1p] cfw_estop_short changed:", currentText)
-                }
-            }
-
-            Choise {
-                id: estopLongPress
-                Layout.row: 2
-                Layout.column: 2
-                textFont: Fonts.body_24
-                listTextFont: Fonts.body_24
-                width: 115
-                model: buttonModel
-                onCurrentTextChanged: {
-                    if(!down) return
-                    console.log("[x1p] cfw_estop_long changed:", currentText)
-                }
-            }
+            
         }
-        // ZButton {
-        //     id: reloadgpio
-        //     anchors.top: parent.top
-        //     property bool isChanged: false
-        //     anchors.topMargin: 10
-        //     anchors.right: printMP.right
-        //     anchors.rightMargin: 15
-        //     type: ZButtonAppearance.Secondary
-        //     icon: isChanged ? "../../icon/components/refresh_color.svg" : "../../icon/refresh.svg"
-        //     height: width
-        //     width: 69
-        //     visible:false
-        //     cornerRadius: width / 2
-        //     iconSize: -1
-        //     onClicked:{
-        //         if (isChanged) {isChanged = (!isChanged)};
-        //         dialogStack.popupDialog(
-        //                         "TextConfirm", {
-        //                             name: "reset to defaults",
-        //                             text: qsTr("Reset button mapping to default settings?"),
-        //                             type: TextConfirm.YES_NO,
-        //                             defaultButton: 1,
-        //                             onYes: function() {
-        //                                 DeviceManager.putSetting("cfw_power_short","4");
-        //                                 DeviceManager.putSetting("cfw_power_long","0");
-        //                                 DeviceManager.putSetting("cfw_estop_short","2");
-        //                                 DeviceManager.putSetting("cfw_estop_long","3");
-        //                                 X1PlusNative.system(`/etc/init.d/S82gpiokeys restart`);
-        //                                 console.log("[x1p] Resetting button mappings to defaults (power button: short = toggle lcd, long = reboot; estop button: short = pause print, long = abort print)");
-        //                             },
-        //                         })
-        
-        //     }
-        // }
-        
-        ZLineSplitter {
-            id: line3
-            alignment: Qt.AlignTop
-            y: 95
-            padding: 24
-            color: Colors.gray_600
-        }
-        
-        Text {
-            id: buttonsTx
-            anchors.top: line3.bottom
-            anchors.topMargin: 24
-            anchors.left: interfaceTx.left
-            color: Colors.gray_400
-            font: Fonts.body_30
-            text: qsTr("Buttons")
-        }
-
-        // GridLayout {
-        //     id: buttonGrid
-            
-        //     anchors.top: buttonsTx.bottom
-        //     anchors.topMargin: 14 /* we can shrink this a little for the text separation above */
-        //     anchors.leftMargin: 32
-        //     anchors.rightMargin: 32
-        //     rowSpacing: 20
-        //     columnSpacing: 20
-        //     anchors.left: parent.left
-        //     anchors.right: parent.right
-        //     columns: 3
-            
-        //     property var imageHeight: 25
-
-        //     Text {
-        //         Layout.row: 0
-        //         Layout.column: 1
-        //         Layout.fillWidth: true
-        //         horizontalAlignment: Text.AlignHCenter
-        //         font: Fonts.body_24
-        //         color: Colors.gray_100
-        //         text: qsTr("Short Press")
-        //     }
-            
-        //     Text {
-        //         Layout.row: 0
-        //         Layout.column: 2
-        //         Layout.fillWidth: true
-        //         horizontalAlignment: Text.AlignHCenter
-        //         font: Fonts.body_24
-        //         color: Colors.gray_100
-        //         text: qsTr("Long Press")
-        //     }
-            
-        //     Image {
-        //         Layout.row: 1
-        //         Layout.column: 0
-        //         Layout.preferredWidth: 56
-        //         Layout.preferredHeight: 56
-        //         source: "../../icon/components/power.svg"
-        //     }
-            
-        //     Component {
-        //         id: choiceMenu
-        //         Choise {
-        //             property var jsonKey: ""
-        //             property var defaultSelection: "0"
-        //             property var jsonval: DeviceManager.getSetting(jsonKey, defaultSelection)
-        //             textFont: Fonts.body_24
-        //             listTextFont: Fonts.body_24
-        //             width: 115
-        //             model: buttonActions.map(a => a.name)
-        //             placeHolder: buttonActions[currentIndex].name
-        //             currentIndex: buttonActions.findIndex(pair => pair.val == String(jsonval).charAt(0))
-        //             onCurrentTextChanged: { 
-        //                 if(!down) return;
-        //                 dialog_jsonKey = jsonKey;
-        //                 var idx = buttonActions[currentIndex].val;
-        //                 if (idx == 6) {
-        //                     rect_isInputting_obj.setType = "macro";
-        //                     pathDialog("/mnt/sdcard/x1plus/macros/", "Enter macro filepath<br>(.gcode or .py)");
-        //                 } else if (idx == 1){
-        //                     rect_isInputting_obj.setType = "temp";
-        //                     pathDialog("nozzle 100", "ex: 'nozzle 100' or 'bed 45'<br>Replace value with temp (°C)");
-  
-        //                 } else {
-        //                     DeviceManager.putSetting(jsonKey, idx);
-        //                 }
-        //                 X1PlusNative.system(`/etc/init.d/S82gpiokeys restart`);
-        //             }
-        //         }
-        //     }
-            
-        //     Loader {
-        //         Layout.fillWidth: true
-        //         sourceComponent: choiceMenu
-        //         onLoaded: { item.jsonKey = "cfw_power_short"; item.defaultSelection = "4" /* screen lock */; }
-        //     }
-
-        //     Loader {
-        //         Layout.fillWidth: true
-        //         sourceComponent: choiceMenu
-        //         onLoaded: { item.jsonKey = "cfw_power_long"; item.defaultSelection = "0" /* reboot */; }
-        //     }
-
-        //     Image {
-        //         Layout.row: 2
-        //         Layout.column: 0
-        //         Layout.preferredWidth: 56
-        //         Layout.preferredHeight: 56
-        //         source: "../../icon/components/estop.svg"
-        //     }
-
-        //     Loader {
-        //         Layout.fillWidth: true
-        //         sourceComponent: choiceMenu
-        //         onLoaded: { item.jsonKey = "cfw_estop_short"; item.defaultSelection = "2" /* pause print */; }
-        //     }
-
-        //     Loader {
-        //         Layout.fillWidth: true
-        //         sourceComponent: choiceMenu
-        //         onLoaded: { item.jsonKey = "cfw_estop_long"; item.defaultSelection = "3" /* abort print */; }
-        //     }
-        // }
 
         ZLineSplitter {
             id: lineLights
@@ -656,7 +534,9 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        DeviceManager.maintain.getAccessories()
+        DeviceManager.maintain.getAccessories();
+        // let t  = X1Plus.GpioKeys._loadSettings(false);
+        // console.log(t);
     }
 
     PopupPad {

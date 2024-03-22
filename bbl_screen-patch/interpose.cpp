@@ -27,6 +27,9 @@
 #include <QtQml/qqml.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -224,6 +227,35 @@ eject:
         close(fd);
     }
 
+    /*first attempt at an atomic rewrite save*/
+    Q_INVOKABLE void atomicSaveFile(QString filename, const QByteArray &buf) {
+        QFileInfo fileInfo(filename);
+        QString tempFilename = fileInfo.absoluteDir().absoluteFilePath("temp_" + fileInfo.fileName());
+
+        std::string tempFile = tempFilename.toStdString();
+        std::string targetFilenameStr = filename.toStdString();
+
+        int fd = open(tempFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd < 0) {
+            printf("atomic rewrite: %s open() error\n", tempFile.c_str());
+            return;
+        }
+
+        if (write(fd, buf.constData(), buf.size()) != buf.size()) {
+            printf("atomic rewrite: Error writing to %s\n", tempFile.c_str());
+            close(fd);
+
+            unlink(tempFile.c_str());
+            return;
+        }
+
+        close(fd);
+
+        if (rename(tempFile.c_str(), targetFilenameStr.c_str()) != 0) {
+            printf("atomic rewrite: Error moving %s to %s\n", tempFile.c_str(), targetFilenameStr.c_str());
+            unlink(tempFile.c_str());
+        }
+    }
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
 private:
     static const int minBacklightValue = 50;

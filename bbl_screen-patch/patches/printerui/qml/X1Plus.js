@@ -53,6 +53,7 @@ Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
 BedMeshCalibration.X1Plus = X1Plus;
 ShaperCalibration.X1Plus = X1Plus;
+GpioKeys.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -67,7 +68,10 @@ var isIdle = null;
 var hasSleep = null;
 var aboutToSleep = null;
 
-
+function atomicWriteJson(path, json) {
+	_X1PlusNative.atomicSaveFile(emulating + path, JSON.stringify(json));
+}
+X1Plus.atomicWriteJson = atomicWriteJson;
 
 function loadJson(path) {
 	let xhr = new XMLHttpRequest();
