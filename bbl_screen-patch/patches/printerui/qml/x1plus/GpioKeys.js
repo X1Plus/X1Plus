@@ -151,7 +151,7 @@ function handleAction(action_code, datum) {
             break;
         case ACTION_SET_TEMP:
             var setT;
-            if (!X1Plus.isIdle) { return };
+            if (!X1Plus.isIdle()) { return };
             let params = datum["param"];
             if (params.nozzle) {
                 setT = parseInt(params.nozzle);
@@ -168,15 +168,15 @@ function handleAction(action_code, datum) {
             }
             break;
         case ACTION_PAUSE_PRINT:
-            if (!X1Plus.isIdle) { X1Plus.PrintManager.currentTask.pause() };
+            if (!X1Plus.isIdle()) { X1Plus.PrintManager.currentTask.pause() };
             console.log("[x1p] Gpiokeys - Pause print");
             break;
         case ACTION_ABORT_PRINT:
-            if (!X1Plus.isIdle) { X1Plus.PrintManager.currentTask.abort() };
+            if (!X1Plus.isIdle()) { X1Plus.PrintManager.currentTask.abort() };
             console.log("[x1p] Gpiokeys - Abort print");
             break;
         case ACTION_TOGGLE_SCREENSAVER:
-            if (!X1Plus.hasSleep) {
+            if (!X1Plus.hasSleep()) {
                 X1Plus.DeviceManager.power.switchSleep();
             } else {
                 X1Plus.DeviceManager.power.externalWakeup();
