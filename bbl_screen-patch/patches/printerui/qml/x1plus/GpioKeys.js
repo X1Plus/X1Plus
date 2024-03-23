@@ -65,7 +65,7 @@ function getDefault(btn, pressType) {
 function resetToDefaultActions() {
     var defaultsApplied = JSON.parse(JSON.stringify(buttonConfigs)); 
     _setGpio(defaultsApplied); 
-    X1Plus.atomicWriteJson(settings_file, defaultsApplied);
+    X1Plus.atomicSaveJson(settings_file, defaultsApplied);
     console.log("[x1p] gpio button settings restored to defaults.");
     return defaultsApplied; 
 }
@@ -93,7 +93,7 @@ function updateButtonAction(buttonName, pressType, actionVal, _parameters = {}) 
     _gpio[buttonName][pressType].default = getDefault(buttonName,pressType);
    
     _setGpio(_gpio);
-    X1Plus.atomicWriteJson(settings_file, _gpio);
+    X1Plus.atomicSaveJson(settings_file, _gpio);
 }
 
 

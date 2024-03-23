@@ -68,10 +68,6 @@ var isIdle = null;
 var hasSleep = null;
 var aboutToSleep = null;
 
-function atomicWriteJson(path, json) {
-	_X1PlusNative.atomicSaveFile(emulating + path, JSON.stringify(json));
-}
-X1Plus.atomicWriteJson = atomicWriteJson;
 
 function loadJson(path) {
 	let xhr = new XMLHttpRequest();
@@ -88,6 +84,11 @@ function saveJson(path, json) {
 	_X1PlusNative.saveFile(emulating + path, JSON.stringify(json));
 }
 X1Plus.saveJson = saveJson;
+
+function atomicSaveJson(path, json) {
+	_X1PlusNative.atomicSaveFile(emulating + path, JSON.stringify(json));
+}
+X1Plus.atomicSaveJson = atomicSaveJson;
 
 function sendGcode(gcode_line){
 	var payload = {
