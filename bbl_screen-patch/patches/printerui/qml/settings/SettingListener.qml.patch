@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,15 +1,51 @@
+@@ -1,12 +1,49 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -11,8 +11,9 @@
 +import "../X1Plus.js" as X1Plus
  
  Rectangle {
-+    
+ 
 +    /* CFW: updater */
++    
 +    property var cfwVersions: ({})
 +    property var modules: X1Plus.DDS.versions()
 +    property var fwVersion: cfwVersions['ota'] && cfwVersions['ota']['version']
@@ -29,6 +30,7 @@
 +    
 +    function cfwOnCompleted() {
 +        X1Plus.DDS.requestVersions();
++
 +        let contents = X1Plus.loadJson("/opt/cfwversions.json");
 +        if (contents) {
 +            cfwVersions = contents;
@@ -44,15 +46,11 @@
 +        }
 +
 +    }
- 
++
      /* Updater */
  
      id: settingListener
-+    
-     property var updater: DeviceManager.updater
-     property bool updating: updater.status > Updater.IDLE
-     property bool printIdle: PrintManager.currentTask.stage < PrintTask.WORKING
-@@ -18,22 +54,57 @@
+@@ -18,22 +55,57 @@
  
      property var updatePage
      property bool versionNotify
@@ -116,7 +114,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +124,8 @@
+@@ -53,12 +125,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -131,7 +129,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +165,7 @@
+@@ -98,6 +166,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -139,7 +137,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +233,7 @@
+@@ -165,7 +234,7 @@
              blackColor = !blackColor
          }
      }
@@ -148,7 +146,7 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +287,16 @@
+@@ -219,14 +288,14 @@
              }
          }
      }
@@ -156,14 +154,12 @@
 +    
      /* Region */
 -
-+    
      Component.onCompleted: {
          var wifiRegion = DeviceManager.getSetting("environment", "")
          var region = DeviceManager.cloud.region
          if ((region == "" || (wifiRegion == "CN" && region != "China")) && (DeviceManager.getSetting("wizard") === true)) {
              dialogStack.push("ForceRegionPage.qml", { source: "force" })
          }
-+       
 +        cfwOnCompleted();
      }
  }
