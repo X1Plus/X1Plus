@@ -41,6 +41,9 @@ const FLAG2_SSHD_IS_RUNNING = 16;
 
 const LEGACY_EXPLOIT_INSTALL_ALLOWED = false;
 
+const MQTT_TIMEOUT = 15000;
+const CONNECT_TIMEOUT = 3000;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -118,9 +121,9 @@ function versionIsFirmwareR(version: string) {
 async function checkPrinterOtaVersion() {
   const printStatus: any = await printer.waitPrintStatus();
   await printer.mqttSend({info: { sequence_id: '0', command: 'get_version' }});
-  props.printerOtaVersion = await printer.mqttRecvAsync((topic, msg: any, resolve) => {
+  props.printerOtaVersion = await printer.mqttRecvAsync((topic, msg: any) => {
     if ('info' in msg) {
-      resolve(msg['info']['module'][0]['sw_ver']);
+      return msg['info']['module'][0]['sw_ver'];
     }
   });
 
@@ -168,9 +171,9 @@ async function checkPrinterOtaVersion() {
 
 async function checkPrinterUpdateHistory() {
   await printer.mqttSend({upgrade: { sequence_id: '0', command: 'get_history' }});
-  const firmwares: [any] = await printer.mqttRecvAsync((topic, msg: any, resolve) => {
+  const firmwares: [any] = await printer.mqttRecvAsync((topic, msg: any) => {
     if (msg.upgrade && 'firmware_optional' in msg.upgrade) {
-      resolve(msg['upgrade']['firmware_optional'] || []);
+      return msg['upgrade']['firmware_optional'] || [];
     }
   });
   props.printerCanHasFirmwareRUpgrade = firmwares.some(fw => versionIsFirmwareR(fw.firmware.version) || fw.firmware.type == "firmware_r");
@@ -227,7 +230,51 @@ async function connectSsh(sshPassword: string) {
   updateProps();
 }
 
-async function connectPrinter(ip: string, serial: string, accessCode: string, sshPassword?: string) {
+async function timeoutPromise<T>(ms: number, promise: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("timeout"));
+    }, ms);
+    promise.then((value) => {
+      clearTimeout(timeout);
+      resolve(value);
+    }, (reason) => {
+      clearTimeout(timeout);
+      reject(reason);
+    });
+  });
+}
+
+async function querySerial(ip: string, accessCode: string): Promise<string|null> {
+  const printer = new Printer(ip, accessCode);
+  try {
+    await timeoutPromise(CONNECT_TIMEOUT, printer.authenticateMqtt());
+    console.log(`index.js: querySerial(${ip}) connected`);
+    if (printer.serial) {
+      console.log(`index.js: querySerial using handshake serial ${printer.serial}`);
+      if (!props.printersAvailable.some((p) => p.ip == ip)) {
+        props.printersAvailable.push({ip: ip, serial: printer.serial});
+        updateProps();
+      }
+      return printer.serial;
+    } else {
+      console.log(`index.js: querySerial got no serial from handshake`);
+      return null;
+    }
+    
+  } catch(e) {
+    if (e.message == "timeout") {
+      console.log(`index.js: querySerial connect timed out`);
+      return null;
+    } else {
+      throw e;
+    }
+  } finally {
+    await printer.disconnect();
+  }
+}
+
+async function connectPrinter(ip: string, accessCode: string, serial?: string, sshPassword?: string) {
   console.log(`index.js: connecting to printer ${ip} ${serial} ${accessCode} ${sshPassword}`);
   if (printer) {
     if (printer.host == ip && printer.serial == serial) {
@@ -251,17 +298,26 @@ async function connectPrinter(ip: string, serial: string, accessCode: string, ss
   props.isConnected = false;
   props.readyToInstall = false;
 
-  if (!ip || !serial || !accessCode) {
+  if (!ip || !accessCode) {
     updateProps();
     return;
   }
 
-  printer = new Printer(ip);
+  if (!serial) {
+    console.log(`index.js: no serial, trying to find it`);
+    serial = await querySerial(ip, accessCode);
+    if (!serial) {
+      updateProps();
+      return;
+    }
+  }
+
+  printer = new Printer(ip, accessCode);
   props.isConnecting = true;
   props.lastConnectionError = "";
   updateProps();
   try {
-    await printer.authenticate(accessCode);
+    await printer.authenticate();
     const printStatus: any = await printer.waitPrintStatus();
     const hasSdCard = printStatus['sdcard'] === true;
     await checkPrinterUpdateHistory();
@@ -322,11 +378,11 @@ const installStepsCommon: InstallStep[] = [
     fn: async () => {
       props.intraStatus = "Use the installer on the printer's LCD to complete installation.";
       updateProps();
-      await printer.mqttRecvAsync((topic, msg: any, resolve) => {
+      await printer.mqttRecvAsync((topic, msg: any) => {
         if ('upgrade' in msg && msg['upgrade']['command'] == 'x1plus') {
           console.log(JSON.stringify(msg['upgrade']));
           if (msg['upgrade']['progress_complete']) {
-            resolve(true);
+            return true;
           }
           if (msg['upgrade']['progress']) {
             props.intraStatus = msg['upgrade']['progress'];
@@ -479,11 +535,12 @@ async function startRecovery() {
 app.on('ready', () => {
   ipcMain.on('log', async (ev, ...args) => { console.log(...args); });
   ipcMain.on('subscribeInstallerProps', async(ev) => { updateProps = () => ev.reply('newInstallerProps', props); updateProps(); });
-  ipcMain.on('connectPrinter', async (ev, ip: string, serial: string, accessCode: string, sshPassword?: string) => await connectPrinter(ip, serial, accessCode, sshPassword));
+  ipcMain.on('connectPrinter', async (ev, ip: string, accessCode: string, serial?: string, sshPassword?: string) => await connectPrinter(ip, accessCode, serial, sshPassword));
   ipcMain.on('startInstall', async (ev) => await startInstall());
   ipcMain.on('startRecovery', async (ev) => await startRecovery());
   ipcMain.on('setParams', async (ev, _params: InstallerParams) => { params = {...params, ..._params}; });
   ipcMain.on('getStore', async (ev, val) => ev.returnValue = store.get(val));
+  ipcMain.handle('querySerial', async (ev, ip: string, accessCode: string) => querySerial(ip, accessCode))
   createWindow();
 });
 

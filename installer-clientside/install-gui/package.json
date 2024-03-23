@@ -10,7 +10,8 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "serve-mqtt": "sleep 4 && cat mqtt_sample.json | mosquitto_pub -r -t 'device/000000000000000/report' -l & mosquitto"
   },
   "keywords": [],
   "author": {

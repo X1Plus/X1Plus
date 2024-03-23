@@ -8,3 +8,9 @@ it.  Thanks.
 * `pushd x1p-js; npm i; npm run build; popd`
 * `pushd ../; make; ln -s ...whatever.../latest.x1p; popd`
 * `pushd install-gui; npm i; bash pack-em-all.sh; popd`
+
+# Local MQTT test server
+
+Under `install-gui`, you can run `npm run mqtt-serve` to do quick tests with 
+a dummy MQTT server, requires `mosquitto` and its utilities (`mosquitto-clients` 
+on Ubuntu).

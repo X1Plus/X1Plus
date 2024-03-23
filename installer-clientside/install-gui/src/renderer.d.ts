@@ -1,11 +1,12 @@
 export interface IElectronAPI {
   log: (...args: any[]) => void;
   subscribeInstallerProps: () => void;
-  connectPrinter: (ip: string, serial: string, accessCode: string, sshPassword?: string) => Promise<void>;
+  connectPrinter: (ip: string, accessCode: string, serial?: string, sshPassword?: string) => Promise<void>;
   startInstall: () => void;
   startRecovery: () => void;
   getStore: (key: string) => any;
   setParams: (params: InstallerParams) => void;
+  querySerial: (ip: string, accessCode: string) => Promise<string|null>;
 }
 
 declare global {
