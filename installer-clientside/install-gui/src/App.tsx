@@ -102,7 +102,7 @@ function InstallerGui(props: InstallerProps) {
                         value={isManualIp ? "$manual-input" : printerIp} onChange={(v) => {
                           if (v == "$manual-input") {
                             setIsManualIp(true);
-                            setPrinterIp(null);
+                            updatePrinter(null);
                             setPrinterAccessCode(null);
                             setPrinterSshPassword(null);
                           } else {
