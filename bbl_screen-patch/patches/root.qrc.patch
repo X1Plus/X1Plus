@@ -107,7 +107,7 @@
 +<file>printerui/qml/x1plus/Bindable.qml</file>
 +<file>printerui/qml/x1plus/DDS.js</file>
 +<file>printerui/qml/x1plus/GcodeGenerator.js</file>
-+<file>printerui/qml/x1plus/GpioActions.js</file>
++<file>printerui/qml/x1plus/GpioKeys.js</file>
 +<file>printerui/qml/x1plus/MeshCalcs.js</file>
 +<file>printerui/qml/x1plus/ShaperCalibration.js</file>
 +<file>printerui/qml/x1plus/Stats.js</file>
