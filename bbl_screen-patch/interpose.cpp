@@ -418,7 +418,7 @@ SUB_TOPIC_EXPANDO
 
 int DdsNode_new_get_sub_topic_count(void *p) {
     printf("swizzled call for get_sub_topic_count -> %d\n", DdsNode_orig_get_sub_topic_count(p) + 1);
-    return DdsNode_orig_get_sub_topic_count(p) + 1;
+    return DdsNode_orig_get_sub_topic_count(p) + 2;
 }
 
 rxfcn_t DdsNode_new_get_sub_topic_callback(void *p, int i) {
@@ -447,6 +447,9 @@ rxfcn_t DdsNode_new_get_sub_topic_callback(void *p, int i) {
 const char *DdsNode_new_get_sub_topic_name(void *p, int i) {
     if (i == DdsNode_orig_get_sub_topic_count(p)) {
         return "device/report/mc_print";
+    }
+    if (i == (DdsNode_orig_get_sub_topic_count(p) + 1)) {
+        return "device/x1plus";
     }
     return DdsNode_orig_get_sub_topic_name(p, i);
 }

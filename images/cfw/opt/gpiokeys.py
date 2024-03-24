@@ -13,23 +13,23 @@ KEY_STOP = 128
 #KEY_DOOR = 134 #DOOR SENSOR
 
 
-gpio_dds_publisher = dds.publisher('device/request/print')
+gpio_dds_publisher = dds.publisher('device/x1plus')
 
 def send_dds(name, press_type):
-	dds_payload = json.dumps({
-		"command": "gpio_event",
-		"button": name,
-		"param": press_type,
-		"sequence_id": "0"
-	})
-	gpio_dds_publisher(dds_payload)
-
+    dds_payload = json.dumps({
+        "gpio": {
+            "button": name,
+            "event": press_type
+        }
+    })
+    gpio_dds_publisher(dds_payload)
 
 class Button:
     def __init__(self, scancode, name):
         self.pressed = None
         self.scancode = scancode
         self.name = name
+
     def press(self):
         self.pressed = time.time()
 
@@ -38,12 +38,11 @@ class Button:
         press_type = "shortPress" if elapsed_time < LONG_PRESS_THRESHOLD else "longPress"
         send_dds(self.name, press_type)
         self.pressed = None
-        pass
         
 
 buttons = [
-    Button(scancode = KEY_POWER, name = "cfw_power"),
-    Button(scancode = KEY_STOP,  name = "cfw_estop"),
+    Button(scancode = KEY_POWER, name = "power"),
+    Button(scancode = KEY_STOP,  name = "estop"),
 ]
 
 device = InputDevice("/dev/input/by-path/platform-gpio-keys-event")
@@ -64,6 +63,5 @@ try:
 except:
 	dds.shutdown()
 	raise
-
 finally:
     device.ungrab()

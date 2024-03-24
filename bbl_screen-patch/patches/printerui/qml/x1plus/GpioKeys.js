@@ -5,10 +5,8 @@
 var X1Plus = null;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
-var _fPath;
-var _fName = "buttons.json";
+var CONFIG_FILE = "buttons.json";
 
-//This needs to be removed
 const ACTION_TOGGLE_SCREENSAVER = "ACTION_TOGGLE_SCREENSAVER";
 const ACTION_REBOOT = "ACTION_REBOOT";
 const ACTION_PAUSE_PRINT = "ACTION_PAUSE";
@@ -17,20 +15,20 @@ const ACTION_SCREENLOCK = "ACTION_SCREENLOCK";
 const ACTION_RUN_MACRO = "ACTION_MACRO";
 
 var buttonActions = [
-    { name: "Reboot", val: ACTION_REBOOT },
-    { name: "Screenlock", val: ACTION_SCREENLOCK },
-    { name: "Pause print", val: ACTION_PAUSE_PRINT},
-    { name: "Abort print", val: ACTION_ABORT_PRINT },
-    { name: "Sleep/wake", val:ACTION_TOGGLE_SCREENSAVER},
-    { name: "Run macro", val: ACTION_RUN_MACRO}
+    { name: QT_TR_NOOP("Reboot"), val: ACTION_REBOOT },
+    { name: QT_TR_NOOP("Screenlock"), val: ACTION_SCREENLOCK },
+    { name: QT_TR_NOOP("Pause print"), val: ACTION_PAUSE_PRINT},
+    { name: QT_TR_NOOP("Abort print"), val: ACTION_ABORT_PRINT },
+    { name: QT_TR_NOOP("Sleep/wake"), val:ACTION_TOGGLE_SCREENSAVER},
+    { name: QT_TR_NOOP("Run macro"), val: ACTION_RUN_MACRO}
 ]
 
 var buttonConfigs = {
-    "cfw_power": {
+    "power": {
         "shortPress": { action: ACTION_TOGGLE_SCREENSAVER, parameters: {}, default: ACTION_TOGGLE_SCREENSAVER }, 
         "longPress": { action: ACTION_REBOOT, parameters: {}, default: ACTION_REBOOT }, 
     },
-    "cfw_estop": {
+    "estop": {
         "shortPress": { action: ACTION_PAUSE_PRINT, parameters: {}, default: ACTION_PAUSE_PRINT },
         "longPress": { action: ACTION_ABORT_PRINT, parameters: {}, default: ACTION_ABORT_PRINT }, 
     }
@@ -39,18 +37,12 @@ var gpio = ({});
 var [gpioBinding, gpioChanged, _setGpio] = Binding.makeBinding(gpio);
 
 
-function awaken(){
-    //We should move this mkdir out of here eventually
-    _fPath = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
-    _X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + _fPath);
-    _loadSettings(false);
-}
 
 //this is a mess, can clean this up a lot more later.. 4 pretty identical getter functions! 
 
 /**
  * Gets the action value (e.g., ACTION_REBOOT) for a specified button and press type.
- * @param {string} buttonName - The name of the button (e.g., "cfw_power").
+ * @param {string} buttonName - The name of the button (e.g., "power").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  * @return {string} The action value associated with the button and press type.
  */
@@ -65,7 +57,7 @@ function getActionValue(buttonName, pressType) {
 
 /**
  * Retrieves the default action for a specified button and press type
- * @param {string} buttonName - The name of the button ("cfw_power" or "cfw_estop").
+ * @param {string} buttonName - The name of the button ("power" or "estop").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  * @return {string} - The default setting for the specified button event
  */
@@ -79,7 +71,7 @@ function getDefault(btn, pressType) {
 }
 /**
  * Retrieves the default action for a specified button and press type
- * @param {string} btn - The name of the button ("cfw_power" or "cfw_estop").
+ * @param {string} btn - The name of the button ("power" or "estop").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  * @return {int} - The default index for the specified button event
  */
@@ -102,13 +94,13 @@ function getDefaultIndex(btn, pressType) {
 function resetToDefaultActions() {
     var defaultsApplied = JSON.parse(JSON.stringify(buttonConfigs)); 
     _setGpio(defaultsApplied); 
-    X1Plus.atomicSaveJson(`/${_fPath}/${_fName}`, defaultsApplied);
+    X1Plus.atomicSaveJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`, defaultsApplied);
     console.log("[x1p] gpio button settings restored to defaults.");
 }
 
 /**
  * Updates the action and parameters for a given button's press type.
- * @param {string} buttonName - The name of the button ("cfw_power" or "cfw_estop").
+ * @param {string} buttonName - The name of the button ("power" or "estop").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  * @param {string} actionStr - The value of the action to set.
  * @param {Object} _parameters - Parameters for the action.
@@ -124,13 +116,13 @@ function updateButtonAction(buttonName, pressType, actionStr, _parameters = {}) 
     _gpio[buttonName][pressType].default = getDefault(buttonName, pressType);
    
     _setGpio(_gpio);
-    X1Plus.atomicSaveJson(`/${_fPath}/${_fName}`, _gpio);
+    X1Plus.atomicSaveJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`, _gpio);
     return
 }
 
 /**
  * Retrieves the action text for a given button type and press type.
- * @param {string} buttonName - The name of the button ("cfw_power" or "cfw_estop").
+ * @param {string} buttonName - The name of the button ("power" or "estop").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  * @return {string} - The action text.
  */
@@ -148,9 +140,8 @@ function getActionText(buttonName, pressType) {
     return "";
 }
 
-function _loadSettings(noload) {
-    if (noload) return;
-    let loadedSettings = X1Plus.loadJson(`/${_fPath}/${_fName}`);
+function _loadSettings() {
+    let loadedSettings = X1Plus.loadJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`);
     if (loadedSettings && Object.keys(loadedSettings).length > 0) {
         console.log("[x1p] Loaded settings:", JSON.stringify(loadedSettings));
         _setGpio(loadedSettings);
@@ -164,24 +155,20 @@ function _loadSettings(noload) {
  * handle button action given dds message
  * @param {Object} datum
  */
-function _setAction(datum) {
+function _handleButton(button, event) {
     var btn = '';
     var param = '';
     var _gpio = gpioBinding();
     var action_code;
-    if (datum['gpio_event']) {
-        btn = datum["button"] || '';
-        param = datum["param"] || '';
-    }
+    var parameters;
     
-    if (_gpio[btn] && _gpio[btn][param]) {
-        action_code = _gpio[btn][param].action;
-        parameters = _gpio[btn][param].parameters;
-        defaults = _gpio[btn][param].default;
+    if (_gpio[button] && _gpio[button][event]) {
+        action_code = _gpio[button][event].action;
+        parameters = _gpio[button][event].parameters;
     } else {
-        console.log(`[x1p] gpiokeys - invalid action ${datum}`);
+        console.log(`[x1p] gpiokeys - invalid action ${button} / ${event}`);
     }
-    console.log("[x1p] gpio button", action_code,datum); 
+    console.log("[x1p] gpio button", action_code, button, event); 
     switch (action_code) {
         case ACTION_REBOOT:
             console.log("[x1p] Gpiokeys - Reboot");
@@ -214,4 +201,14 @@ function _setAction(datum) {
         default:
             console.log("[x1p] Error in parsing gpiokeys dds message");
     }
+}
+
+function awaken(){
+    _loadSettings();
+    X1Plus.DDS.registerHandler("device/x1plus", function(datum) {
+        console.log("device/x1plus", datum);
+        if (datum.gpio) {
+            _handleButton(datum.gpio.button, datum.gpio.event);
+        }
+    });
 }

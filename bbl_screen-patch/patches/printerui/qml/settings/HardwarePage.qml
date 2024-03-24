@@ -353,7 +353,7 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu 
-                onLoaded: { item.btn = "cfw_power"; item.pressType = "shortPress";
+                onLoaded: { item.btn = "power"; item.pressType = "shortPress";
                 var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
                 var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
                     return action.val === actionVal;
@@ -367,7 +367,7 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "cfw_power"; item.pressType = "longPress";
+                onLoaded: {item.btn =  "power"; item.pressType = "longPress";
                 var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
                 var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
                     return action.val === actionVal;
@@ -388,7 +388,7 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "shortPress";
+                onLoaded: {item.btn =  "estop"; item.pressType = "shortPress";
                 var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
                 var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
                     return action.val === actionVal;
@@ -401,7 +401,7 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "longPress";
+                onLoaded: {item.btn =  "estop"; item.pressType = "longPress";
                 var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
                 var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
                     return action.val === actionVal;

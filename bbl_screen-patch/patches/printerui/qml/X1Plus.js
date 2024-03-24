@@ -60,6 +60,7 @@ var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 var DeviceManager = null;
 var PrintManager = null;
 var PrintTask = null;
+var printerConfigDir = null;
 
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
 X1Plus.emulating = emulating;
@@ -70,7 +71,7 @@ function isIdle() {
 X1Plus.isIdle = isIdle;
 
 function hasSleep() {
-	return _DeviceManager.power.hasSleep;
+	return DeviceManager.power.hasSleep;
 }
 X1Plus.hasSleep = hasSleep;
 
@@ -136,6 +137,8 @@ X1Plus.formatTime = formatTime;
 
 /* Some things can only happen after we have a DeviceManager and
  * PrintManager passed down, and the real QML environment is truly alive. 
+ * Submodules also don't get access to the global X1Plus object until after
+ * they are loaded, and they might need to do work touching other modules. 
  * These things happen from 'awaken'.
  */
 function awaken(_DeviceManager, _PrintManager, _PrintTask) {
@@ -143,6 +146,8 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	X1Plus.DeviceManager = DeviceManager = _DeviceManager;
 	X1Plus.PrintManager = PrintManager = _PrintManager;
 	X1Plus.PrintTask = PrintTask = _PrintTask;
+	X1Plus.printerConfigDir = printerConfigDir = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
+	_X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + printerConfigDir);
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();

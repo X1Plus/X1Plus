@@ -8,12 +8,31 @@ var X1Plus = null;
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
-
 function publish(topic, json) {
     _DdsListener.publishJson(topic, JSON.stringify(json));
 }
 
+var _handlers = [];
+function registerHandler(topic, callback) {
+    _handlers.push({ topic: topic, fn: callback });
+}
+
+_DdsListener.gotDdsEvent.connect(function(topic, message) {
+    var data = null;
+    for (const i in _handlers) {
+        const handler = _handlers[i];
+        if (handler.topic == topic) {
+            if (data == null) {
+                data = JSON.parse(message);
+            }
+            handler.fn(data);
+        }
+    }
+});
+
+
 var [versions, versionsChanged, _setVersions] = Binding.makeBinding([]);
+
 function requestVersions() {
     publish("device/request/info", {"command": "get_version", "sequence_id": "0" });
     if (X1Plus.emulating) {
@@ -30,38 +49,19 @@ function requestVersions() {
     }
 }
 
+registerHandler("device/report/info", function(datum) {
+    if (datum.command == "get_version") {
+        _setVersions(datum.module);
+    }
+});
+
+
 var [gcodeAction, gcodeActionChanged, _setGcodeAction] = Binding.makeBinding(-1);
 
-var ddsTopicHandlers = [
-    {
-        topic: "device/report/print",
-        handle: function(data) {
-            if (data["command"] == "push_status" && data["print_gcode_action"]){
-                if (gcodeAction() != data["print_gcode_action"]) {
-                    _setGcodeAction(data["print_gcode_action"]);
-                }
-            } else if (data["command"] == "gpio_event"){
-                X1Plus.GpioKeys._setAction(data);
-            }
+registerHandler("device/report/print", function(datum) {
+    if (datum.command == "push_status" && datum.print_gcode_action) {
+        if (gcodeAction() != datum.print_gcode_action) {
+            _setGcodeAction(datum.print_gcode_action);
         }
-    },
-    {
-        topic: "device/report/info",
-        handle: function(data) {
-            if (datum["command"] != "get_version")
-            return;
-            _setVersions(datum['module']);
-        }
-    }
-];
-
-
-_DdsListener.gotDdsEvent.connect(function(topic, message) {
-    var handler = ddsTopicHandlers.find(function(handler) {
-        return handler.topic === topic;
-    });
-    if (handler) {
-        var data = JSON.parse(message);
-        handler.handle(data);
     }
 });
