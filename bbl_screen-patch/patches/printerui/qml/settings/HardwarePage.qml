@@ -36,72 +36,6 @@ Rectangle {
             DeviceManager.maintain.getAccessories()
         }
     }
-    // function pathDialog(inputtxt,inputtitle){
-    //         dialogStack.push("InputPage.qml", {
-    //                             input_head_text : inputtitle,
-    //                             input_text : inputtxt,
-    //                             max_input_num : 50,
-    //                             isUsePassWord : false,
-    //                             isInputShow : true,
-    //                             isInputting_obj : rect_isInputting_obj,
-    //                             output_obj : inputText});    
-    //     }
-        
-    // // function fileExist(path){
-    // //     var exist = X1PlusNative.popen(`test -f ${path} && echo 1`);
-    // //     return (exist == 1);
-    // // }
-    // // function fileDate(path){
-    // //     return X1PlusNative.popen(`stat -c %Y ${path}`);
-    // // }
-    // QtObject {
-    //     id: rect_isInputting_obj
-    //     property bool isInputting: false
-    //     property string setType:""
-    //     onIsInputtingChanged: {
-    //         if(!isInputting){
-    //             if (setType == "temp"){
-    //                 let splitKey = inputText.text.trim().split(' ');
-    //                 if (splitKey.length < 2){
-    //                     return;
-    //                 } else {
-    //                     let setT = splitKey[1]; 
-    //                     if (splitKey[0] == "bed") {
-    //                         if (setT > 110){
-    //                             setT=35;
-    //                             console.log("[x1p] invalid set temperature input");
-    //                         }
-    //                     } else if (splitKey[0] == "nozzle"){
-    //                         if (setT > 300){
-    //                             setT=100;
-    //                             console.log("[x1p] invalid set temperature input");
-    //                         }
-    //                     } else {
-    //                         return;
-    //                     }
-    //                     DeviceManager.putSetting(dialog_jsonKey, `1 ${splitKey[0]} ${setT}`);
-    //                 }
-    //             } else {
-    //                 macroFile = inputText.text;         
-    //                 console.log("[x1p]",macroFile);
-    //                 if (macroFile.endsWith(".py")){
-    //                     DeviceManager.putSetting(dialog_jsonKey, `6 ${macroFile}`);
-    //                 } else if (macroFile.endsWith(".gcode")){
-    //                     DeviceManager.putSetting(dialog_jsonKey, `6 ${macroFile}`);
-    //                 } else {
-    //                     DeviceManager.putSetting(dialog_jsonKey, "0"); //incorrect filetype entered.. lazy way to error handle
-    //                 }
-    //             }
-    //             setType = "";
-    //         }
-    //     }
-    // }
-    // Text {
-    //     id: inputText
-    //     visible: false
-    //     text: macroFile
-    // }
-
 
     
     MarginPanel {
@@ -356,8 +290,7 @@ Rectangle {
                 for (var i = 0; i < buttonGrid.children.length; i++) {
                     var loader = buttonGrid.children[i];
                     if (loader.item) { 
-                        loader.item.defaultSelection = X1Plus.GpioKeys.getDefault(loader.item.btn, loader.item.pressType);
-                        loader.item.currentIndex = loader.item.defaultSelection;
+                        loader.item.currentIndex = X1Plus.GpioKeys.getDefaultIndex(loader.item.btn, loader.item.pressType);
                     }
                 }
             }
@@ -398,33 +331,50 @@ Rectangle {
                     textFont: Fonts.body_24
                     listTextFont: Fonts.body_24
                     width: 115
-                    model: X1Plus.GpioKeys.buttonActions.map(a => a.name)
-                    placeHolder:""
-                    currentIndex: defaultSelection
+                    model: X1Plus.GpioKeys.buttonActions.map(a => qsTr(a.name))
+                    placeHolder:defaultSelection
                     onCurrentTextChanged: { 
-                        if(!down) return;
-                        let actionVal = X1Plus.GpioKeys.buttonActions.find(a => a.name === currentText).val;
-                        if (actionVal !== undefined) {
-                            console.log(`[x1p] {item.btn} {item.pressType} - {actionaVal}`);
-                            X1Plus.GpioKeys.updateButtonAction(item.btn, item.pressType, actionVal, {});
+                        if (!down) return;
+                        let actionStr = X1Plus.GpioKeys.buttonActions.find(a => qsTr(a.name) === currentText).val;
+                        if (actionStr !== undefined) {
+                            console.log(`[x1p] ${item.btn} ${item.pressType} - ${actionStr}`);
+                            X1Plus.GpioKeys.updateButtonAction(item.btn, item.pressType, actionStr, {});
                         }
                     }
-                    Binding on currentIndex{
-                        value: model.indexOf(X1Plus.GpioKeys.getActionText(btn, pressType))
-                    }                  
+        
+                
+                    Binding on placeHolder {
+                        value: X1Plus.GpioKeys.getActionText(btn, pressType)
+                    }
+          
                 }
             }
-          
+            //these need some cleanup   ^^^ looks worse than before, probably time to quit for now       
             Loader {
                 Layout.fillWidth: true
-                sourceComponent: choiceMenu
-                onLoaded: { item.btn = "cfw_power"; item.pressType = "shortPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
+                sourceComponent: choiceMenu 
+                onLoaded: { item.btn = "cfw_power"; item.pressType = "shortPress";
+                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
+                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
+                    return action.val === actionVal;
+                });
+                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
+                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
+            
+                }
             }
 
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "cfw_power"; item.pressType = "longPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
+                onLoaded: {item.btn =  "cfw_power"; item.pressType = "longPress";
+                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
+                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
+                    return action.val === actionVal;
+                });
+                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
+                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
+                }
             }
 
             Image {
@@ -438,13 +388,27 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "shortPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
+                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "shortPress";
+                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
+                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
+                    return action.val === actionVal;
+                });
+                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
+                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
+                }
             }
 
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "longPress";item.defaultSelection = X1Plus.GpioKeys.getDefault(item.btn,item.pressType); item.placeHolder =  X1Plus.GpioKeys.getActionText(item.btn, item.pressType)}
+                onLoaded: {item.btn =  "cfw_estop"; item.pressType = "longPress";
+                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
+                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
+                    return action.val === actionVal;
+                });
+                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
+                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
+                }
             }
             
         }
@@ -535,8 +499,6 @@ Rectangle {
 
     Component.onCompleted: {
         DeviceManager.maintain.getAccessories();
-        // let t  = X1Plus.GpioKeys._loadSettings(false);
-        // console.log(t);
     }
 
     PopupPad {

@@ -32,35 +32,36 @@ function requestVersions() {
 
 var [gcodeAction, gcodeActionChanged, _setGcodeAction] = Binding.makeBinding(-1);
 
-_DdsListener.gotDdsEvent.connect(function(topic, dstr) {
-    const datum = JSON.parse(dstr);
-    if (topic == "device/report/info") {
-        if (datum["command"] != "get_version")
-            return;
-        _setVersions(datum['module']);
-    } else if (topic == "device/report/print") {
-        if (datum["command"] == "push_status") {
-            if (gcodeAction() != datum["print_gcode_action"]) {
-                _setGcodeAction(datum["print_gcode_action"]);
+var ddsTopicHandlers = [
+    {
+        topic: "device/report/print",
+        handle: function(data) {
+            if (data["command"] == "push_status" && data["print_gcode_action"]){
+                if (gcodeAction() != data["print_gcode_action"]) {
+                    _setGcodeAction(data["print_gcode_action"]);
+                }
+            } else if (data["command"] == "gpio_event"){
+                X1Plus.GpioKeys._setAction(data);
             }
+        }
+    },
+    {
+        topic: "device/report/info",
+        handle: function(data) {
+            if (datum["command"] != "get_version")
+            return;
+            _setVersions(datum['module']);
         }
     }
-});
-_DdsListener.gotDdsEvent.connect(function(topic, dstr) {
-    const datum = JSON.parse(dstr);
-    console.log("x1p",dstr);
-    if (topic == "device/report/info") {
-        if (datum["command"] != "get_version")
-            return;
-        _setVersions(datum['module']);
-    } else if (topic == "device/report/print") {
-        if (datum["command"] == "push_status") {
-            if (gcodeAction() != datum["print_gcode_action"]) {
-                _setGcodeAction(datum["print_gcode_action"]);
-            }
-        } else if (datum["gpio"] == "action" ){
-            var action_code = parseInt(datum["action_code"]);
-            X1Plus.GpioKeys.handleAction(action_code,datum["param"]);
-        }
+];
+
+
+_DdsListener.gotDdsEvent.connect(function(topic, message) {
+    var handler = ddsTopicHandlers.find(function(handler) {
+        return handler.topic === topic;
+    });
+    if (handler) {
+        var data = JSON.parse(message);
+        handler.handle(data);
     }
 });
