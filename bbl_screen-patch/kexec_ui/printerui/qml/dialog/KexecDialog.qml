@@ -19,13 +19,13 @@ Item {
 
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "yes_confirm"; title: "Start from SD card"
+            name: "yes_confirm"; title: qsTr("Start from SD card")
             isDefault: defaultButton == 0
             onClicked: { countdown = 0 }
             visible: hasSdCard && countdown > 0
         }
         DialogButtonItem {
-            name: "no"; title: "Startup options..."
+            name: "no"; title: qsTr("Startup options...")
             isDefault: defaultButton == 1
             onClicked: { timer.stop(); dialogStack.replace("../BootOptionsPage.qml", {hasSdCard: hasSdCard}); }
             visible: countdown > 0
@@ -70,8 +70,8 @@ Item {
         font: Fonts.body_36
         color: Colors.gray_100
         wrapMode: Text.Wrap
-        text: hasSdCard ? "Bootable SD card detected."
-                        : "No bootable SD card detected."
+        text: hasSdCard ? qsTr("Bootable SD card detected.")
+                        : qsTr("No bootable SD card detected.")
     }
     
     Text {
@@ -84,8 +84,10 @@ Item {
         font: Fonts.body_32
         color: Colors.gray_200
         wrapMode: Text.Wrap
-        text: hasSdCard ? (countdown > 0) ? ("Your printer will automatically boot from the SD card in " + countdown + " seconds.")
-                                          : "Your printer is rebooting into the OS on the inserted SD card."
-                        : "Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation."
+        text: hasSdCard 
+            ? (countdown > 0) 
+                ? qsTr("Your printer will automatically boot from the SD card in %1 seconds.").arg(countdown)
+                : qsTr("Your printer is rebooting into the OS on the inserted SD card.")
+            : qsTr("Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.")
     }
 }

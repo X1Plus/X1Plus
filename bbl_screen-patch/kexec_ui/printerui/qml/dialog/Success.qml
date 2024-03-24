@@ -12,7 +12,7 @@ Item {
     property alias textFont: textContent.font
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "reboot"; title: "Reboot"
+            name: "reboot"; title: qsTr("Reboot")
             isDefault: true
             onClicked: function() { X1PlusNative.system("echo b > /proc/sysrq-trigger"); }
         }
@@ -36,6 +36,6 @@ Item {
         font: Fonts.body_30
         color: Colors.gray_100
         wrapMode: Text.Wrap
-        text: "<center><b>Success!</b></center><br><br>X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!"
+        text: qsTr("<center><b>Success!</b></center><br><br>X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!")
     }
 }
