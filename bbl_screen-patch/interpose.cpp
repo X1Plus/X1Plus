@@ -38,6 +38,7 @@
 #include <sys/mman.h>
 #include <dlfcn.h>
 #include <QtCore/QtEndian>
+#include <linux/wireless.h>
 
 namespace X1Plus {
 #include "minizip/ioapi.c"
@@ -544,6 +545,38 @@ SWIZZLE(int, getifaddrs, void *p)
     if (needs_emulation_workarounds)
         return -1;
     return next(p);
+}
+
+SWIZZLE(int, ioctl, int fd, unsigned long req, void *p)
+    if (req == SIOCGIWMODE) {
+        struct iwreq *wrq = (struct iwreq *)p;
+        wrq->u.mode = IW_MODE_INFRA;
+        return 0;
+    } else if (req == SIOCGIWSTATS) {
+        struct iwreq *wrq = (struct iwreq *)p;
+        struct iw_statistics *stats = (struct iw_statistics *) wrq->u.data.pointer;
+        
+        /* this is astonishingly cheesy, but life is too long to write
+         * netlink code, and anyway, it's not like they didn't do it first,
+         * so */
+        FILE *iwfp = ::popen("wpa_cli -i wlan0 signal_poll | grep RSSI | cut -d= -f2", "r");
+        if (!iwfp)
+            return -1;
+        char buf[128];
+        if (fgets(buf, sizeof(buf), iwfp) == NULL) {
+            pclose(iwfp);
+            return -1;
+        }
+        pclose(iwfp);
+        int rssi = atoi(buf);
+        if (rssi == 0)
+            rssi = -199;
+        stats->qual.level = 0x100 + rssi;
+        stats->qual.updated = 10;
+        printf("ioctl SIOCGIWSTATS: return rssi %d\n", rssi);
+        return 0;
+    }
+    return next(fd, req, p);
 }
 
 #include "interpose.moc.h"

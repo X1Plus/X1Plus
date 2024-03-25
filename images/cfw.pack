@@ -35,6 +35,8 @@ file /opt/evdev_fix.so 755 0 0
 file /opt/dds.py 644 0 0
 file /opt/libdds_intf.so 755 0 0
 
+file /sbin/iwconfig 755 0 0
+
 glob /opt/python * 0 0 opt/python/
 
 slink /root/.ssh 0777 0 0 /config/sshd
