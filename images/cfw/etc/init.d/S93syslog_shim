@@ -2,7 +2,6 @@
 
 start() {
 	printf "Starting syslog shim service: "
-    export LD_PRELOAD=/opt/python/lib/libffi.so
 	start-stop-daemon -S -m -b -p /var/run/syslog_shim_service.pid --exec /opt/python/bin/python3 -- /opt/syslog_shim.py
 }
 stop() {
