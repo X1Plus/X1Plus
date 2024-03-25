@@ -336,7 +336,7 @@ Rectangle {
                     }
                 }
             }
-            //these need some cleanup   ^^^ looks worse than before, probably time to quit for now       
+
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu 

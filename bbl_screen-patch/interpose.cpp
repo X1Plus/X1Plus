@@ -227,7 +227,6 @@ eject:
         close(fd);
     }
 
-    /*first attempt at an atomic rewrite save*/
     Q_INVOKABLE void atomicSaveFile(QString filename, const QByteArray &buf) {
         QFileInfo fileInfo(filename);
         QString tempFilename = fileInfo.absoluteDir().absoluteFilePath("temp_" + fileInfo.fileName());
