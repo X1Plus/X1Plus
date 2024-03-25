@@ -2,7 +2,6 @@
 
 start() {
 	printf "Grabbing gpiokeys"
-	export LD_PRELOAD=/opt/python/lib/libffi.so
 	start-stop-daemon -S -m -b -p /var/run/gpiokeys.pid --exec /opt/python/bin/python3 -- /opt/gpiokeys.py
 }
 stop() {
