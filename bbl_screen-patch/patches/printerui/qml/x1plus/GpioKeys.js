@@ -129,7 +129,7 @@ function _handleButton(button, event) {
     switch (config.action) {
         case ACTION_REBOOT:
             console.log("[x1p] Gpiokeys - Reboot");
-            X1Plus.system(`reboot`);
+            _X1PlusNative.system(`reboot`);
             break;
         case ACTION_SCREENLOCK:
             X1Plus.DeviceManager.power.switchSleep();
