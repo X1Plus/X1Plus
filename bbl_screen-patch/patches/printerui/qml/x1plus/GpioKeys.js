@@ -5,7 +5,7 @@
 var X1Plus = null;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
-var CONFIG_FILE = "buttons.json";
+const CONFIG_FILE = "buttons.json";
 
 const ACTION_TOGGLE_SCREENSAVER = "ACTION_TOGGLE_SCREENSAVER";
 const ACTION_REBOOT = "ACTION_REBOOT";
@@ -14,87 +14,48 @@ const ACTION_ABORT_PRINT = "ACTION_ABORT";
 const ACTION_SCREENLOCK = "ACTION_SCREENLOCK";
 const ACTION_RUN_MACRO = "ACTION_MACRO";
 
-var buttonActions = [
+const DEFAULTS = {
+    "power": { "shortPress": { action: ACTION_TOGGLE_SCREENSAVER }, "longPress": { action: ACTION_REBOOT } },
+    "estop": { "shortPress": { action: ACTION_PAUSE_PRINT }, "longPress": { action: ACTION_ABORT_PRINT } }
+};
+
+const BUTTON_ACTIONS = [
+    { name: QT_TR_NOOP("Sleep/wake"), val: ACTION_TOGGLE_SCREENSAVER },
     { name: QT_TR_NOOP("Reboot"), val: ACTION_REBOOT },
-    { name: QT_TR_NOOP("Screenlock"), val: ACTION_SCREENLOCK },
+    { name: QT_TR_NOOP("Lock screen"), val: ACTION_SCREENLOCK },
     { name: QT_TR_NOOP("Pause print"), val: ACTION_PAUSE_PRINT},
     { name: QT_TR_NOOP("Abort print"), val: ACTION_ABORT_PRINT },
-    { name: QT_TR_NOOP("Sleep/wake"), val:ACTION_TOGGLE_SCREENSAVER},
-    { name: QT_TR_NOOP("Run macro"), val: ACTION_RUN_MACRO}
-]
+    /* { name: QT_TR_NOOP("Run macro"), val: ACTION_RUN_MACRO }, */
+];
 
-var buttonConfigs = {
-    "power": {
-        "shortPress": { action: ACTION_TOGGLE_SCREENSAVER, parameters: {}, default: ACTION_TOGGLE_SCREENSAVER }, 
-        "longPress": { action: ACTION_REBOOT, parameters: {}, default: ACTION_REBOOT }, 
-    },
-    "estop": {
-        "shortPress": { action: ACTION_PAUSE_PRINT, parameters: {}, default: ACTION_PAUSE_PRINT },
-        "longPress": { action: ACTION_ABORT_PRINT, parameters: {}, default: ACTION_ABORT_PRINT }, 
-    }
+const BUTTON_MAPPING_OLD = {
+    "0": ACTION_REBOOT,
+    /* "1": SET_TEMP no longer exists */
+    "2": ACTION_PAUSE_PRINT,
+    "3": ACTION_ABORT_PRINT,
+    "4": ACTION_TOGGLE_SCREENSAVER,
+    /* "5": nozzle cam no longer exists */
+    /* "6": run macro no longer exists */
 };
-var gpio = ({});
-var [gpioBinding, gpioChanged, _setGpio] = Binding.makeBinding(gpio);
 
-
-
-//this is a mess, can clean this up a lot more later.. 4 pretty identical getter functions! 
+var [keyBindings, keyBindingsChanged, _setKeyBindings] = Binding.makeBinding({});
 
 /**
- * Gets the action value (e.g., ACTION_REBOOT) for a specified button and press type.
+ * Looks up the current binding for a specific action, or returns a default if none exists.
  * @param {string} buttonName - The name of the button (e.g., "power").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  * @return {string} The action value associated with the button and press type.
  */
-function getActionValue(buttonName, pressType) {
-    if (buttonConfigs[buttonName] && buttonConfigs[buttonName][pressType]) {
-        return buttonConfigs[buttonName][pressType].action;
-    } else {
-        console.log(`No action found for ${buttonName} ${pressType}.`);
-        return null;
-    }
-}
-
-/**
- * Retrieves the default action for a specified button and press type
- * @param {string} buttonName - The name of the button ("power" or "estop").
- * @param {string} pressType - The type of press ("shortPress" or "longPress").
- * @return {string} - The default setting for the specified button event
- */
-function getDefault(btn, pressType) {
-    if (buttonConfigs[btn] && buttonConfigs[btn][pressType]) {
-        return buttonConfigs[btn][pressType].default;
-    } else {
-        console.log(`Configuration for ${btn} ${pressType} not found.`);
-        return "";
-    }
-}
-/**
- * Retrieves the default action for a specified button and press type
- * @param {string} btn - The name of the button ("power" or "estop").
- * @param {string} pressType - The type of press ("shortPress" or "longPress").
- * @return {int} - The default index for the specified button event
- */
-function getDefaultIndex(btn, pressType) {
-    var defaultAction = buttonConfigs[btn] ? buttonConfigs[btn][pressType] ? buttonConfigs[btn][pressType].action : null : null;
-    
-    if (defaultAction !== null) {
-        for (var i = 0; i < buttonActions.length; i++) {
-            if (buttonActions[i].val === defaultAction) {
-                return i;
-            }
-        }
-    }
-
-    return 0;
+function getBinding(buttonName, pressType) {
+    var _gpio = keyBindings();
+    return (_gpio[buttonName] && _gpio[buttonName][pressType]) || (DEFAULTS[buttonName] && DEFAULTS[buttonName][pressType]);
 }
 
 
 /*Creates a deep copy of the default settings object */
 function resetToDefaultActions() {
-    var defaultsApplied = JSON.parse(JSON.stringify(buttonConfigs)); 
-    _setGpio(defaultsApplied); 
-    X1Plus.atomicSaveJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`, defaultsApplied);
+    _setKeyBindings(JSON.parse(JSON.stringify(DEFAULTS)));
+    _saveSettings();
     console.log("[x1p] gpio button settings restored to defaults.");
 }
 
@@ -105,71 +66,67 @@ function resetToDefaultActions() {
  * @param {string} actionStr - The value of the action to set.
  * @param {Object} _parameters - Parameters for the action.
  */
-function updateButtonAction(buttonName, pressType, actionStr, _parameters = {}) {
-    var _gpio = gpioBinding();
+function setBinding(buttonName, pressType, actionStr, _parameters = {}) {
+    /* Do a read-modify-write to avoid blowing away user changes to the JSON file. */
+    _loadSettings();
+
+    var _gpio = keyBindings();
     if (!_gpio[buttonName] || !_gpio[buttonName][pressType]) {
         console.log(`[x1p] Invalid or missing configuration for button: ${buttonName}, pressType: ${pressType}`);
         return; 
     }
     _gpio[buttonName][pressType].action = actionStr; 
     _gpio[buttonName][pressType].parameters = _parameters;
-    _gpio[buttonName][pressType].default = getDefault(buttonName, pressType);
-   
-    _setGpio(_gpio);
-    X1Plus.atomicSaveJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`, _gpio);
-    return
+    _setKeyBindings(keyBindings());
+
+    _saveSettings();
 }
 
-/**
- * Retrieves the action text for a given button type and press type.
- * @param {string} buttonName - The name of the button ("power" or "estop").
- * @param {string} pressType - The type of press ("shortPress" or "longPress").
- * @return {string} - The action text.
- */
-function getActionText(buttonName, pressType) {
-    var _gpio = gpioBinding();
-    if (_gpio[buttonName] && _gpio[buttonName][pressType]) {
-        let actionStr = _gpio[buttonName][pressType].action;
-        if (actionStr) {
-            console.log(`Action text for ${buttonName} ${pressType}: ${actionStr}`);
-            return actionStr;
-        } else {
-            console.log(`[x1p] Action not found for ${buttonName}, pressType: ${pressType}.`);
-        }
+function _mapOldSetting(old, newbtn, newpress) {
+    var oldSetting = X1Plus.DeviceManager.getSetting(old);
+    if (oldSetting !== null && oldSetting !== undefined && BUTTON_MAPPING_OLD[oldSetting]) {
+        setBinding(newbtn, newpress, BUTTON_MAPPING_OLD[oldSetting]);
+        X1Plus.DeviceManager.putSetting(old, undefined);
     }
-    return "";
 }
 
 function _loadSettings() {
     let loadedSettings = X1Plus.loadJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`);
     if (loadedSettings && Object.keys(loadedSettings).length > 0) {
-        console.log("[x1p] Loaded settings:", JSON.stringify(loadedSettings));
-        _setGpio(loadedSettings);
+        console.log("[x1p] Loaded key bindings:", JSON.stringify(loadedSettings));
+        _setKeyBindings(loadedSettings);
     } else {
         console.log("[x1p] no settings file found. loading default actions.");
-        resetToDefaultActions(); 
+        resetToDefaultActions();
+        _mapOldSetting("cfw_power_short", "power", "shortPress");
+        _mapOldSetting("cfw_power_long",  "power", "longPress");
+        _mapOldSetting("cfw_estop_short", "estop", "shortPress");
+        _mapOldSetting("cfw_estop_long",  "estop", "longPress");
     }
+}
+
+function _saveSettings() {
+    X1Plus.atomicSaveJson(`${X1Plus.printerConfigDir}/${CONFIG_FILE}`, keyBindings());
+    console.log("[x1p] Saved key bindings:", JSON.stringify(keyBindings()));
 }
 
 /**
  * handle button action given dds message
- * @param {Object} datum
+ * @param {string} button - The name of the button ("power" or "estop").
+ * @param {string} pressType - The type of press ("shortPress" or "longPress").
  */
 function _handleButton(button, event) {
     var btn = '';
     var param = '';
-    var _gpio = gpioBinding();
-    var action_code;
-    var parameters;
+    var _gpio = keyBindings();
+    var config = getBinding(button, event);
     
-    if (_gpio[button] && _gpio[button][event]) {
-        action_code = _gpio[button][event].action;
-        parameters = _gpio[button][event].parameters;
-    } else {
+    if (!config) {
         console.log(`[x1p] gpiokeys - invalid action ${button} / ${event}`);
+        return;
     }
-    console.log("[x1p] gpio button", action_code, button, event); 
-    switch (action_code) {
+    console.log("[x1p] gpio button", config.action, button, event); 
+    switch (config.action) {
         case ACTION_REBOOT:
             console.log("[x1p] Gpiokeys - Reboot");
             X1Plus.system(`reboot`);

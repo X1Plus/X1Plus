@@ -245,7 +245,7 @@ Rectangle {
                                     type: TextConfirm.YES_NO,
                                     defaultButton: 1,
                                     onYes: function() {
-                                        buttonGrid.resetComboBoxDefaults();
+                                        X1Plus.GpioKeys.resetToDefaultActions();
                                         console.log("[x1p] Resetting button mappings to defaults (power button: short = toggle lcd, long = reboot; estop button: short = pause print, long = abort print)");
                                     },
                                 })
@@ -284,16 +284,7 @@ Rectangle {
             anchors.right: parent.right
             columns: 3
             property var imageHeight: 25
-            function resetComboBoxDefaults() {
-                var defaults = X1Plus.GpioKeys.resetToDefaultActions(); 
-                
-                for (var i = 0; i < buttonGrid.children.length; i++) {
-                    var loader = buttonGrid.children[i];
-                    if (loader.item) { 
-                        loader.item.currentIndex = X1Plus.GpioKeys.getDefaultIndex(loader.item.btn, loader.item.pressType);
-                    }
-                }
-            }
+
             Text {
                 Layout.row: 0
                 Layout.column: 1
@@ -327,54 +318,35 @@ Rectangle {
                 Choise {
                     property var pressType: ""
                     property var btn: ""
-                    property var defaultSelection
+                    property var curSelection: X1Plus.GpioKeys.getBinding(btn, pressType).action
                     textFont: Fonts.body_24
                     listTextFont: Fonts.body_24
                     width: 115
-                    model: X1Plus.GpioKeys.buttonActions.map(a => qsTr(a.name))
-                    placeHolder:defaultSelection
-                    onCurrentTextChanged: { 
+                    model: X1Plus.GpioKeys.BUTTON_ACTIONS.map(a => qsTr(a.name))
+                    Binding on currentIndex {
+                        value: X1Plus.GpioKeys.BUTTON_ACTIONS.findIndex(a => a.val === curSelection)
+                    }
+                    onCurrentIndexChanged: { 
                         if (!down) return;
-                        let actionStr = X1Plus.GpioKeys.buttonActions.find(a => qsTr(a.name) === currentText).val;
+                        let actionStr = X1Plus.GpioKeys.BUTTON_ACTIONS[currentIndex].val;
                         if (actionStr !== undefined) {
                             console.log(`[x1p] ${item.btn} ${item.pressType} - ${actionStr}`);
-                            X1Plus.GpioKeys.updateButtonAction(item.btn, item.pressType, actionStr, {});
+                            X1Plus.GpioKeys.setBinding(item.btn, item.pressType, actionStr);
                         }
                     }
-        
-                
-                    Binding on placeHolder {
-                        value: X1Plus.GpioKeys.getActionText(btn, pressType)
-                    }
-          
                 }
             }
             //these need some cleanup   ^^^ looks worse than before, probably time to quit for now       
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu 
-                onLoaded: { item.btn = "power"; item.pressType = "shortPress";
-                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
-                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
-                    return action.val === actionVal;
-                });
-                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
-                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
-            
-                }
+                onLoaded: { item.btn = "power"; item.pressType = "shortPress"; }
             }
 
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "power"; item.pressType = "longPress";
-                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
-                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
-                    return action.val === actionVal;
-                });
-                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
-                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
-                }
+                onLoaded: { item.btn = "power"; item.pressType = "longPress"; }
             }
 
             Image {
@@ -388,27 +360,13 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "estop"; item.pressType = "shortPress";
-                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
-                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
-                    return action.val === actionVal;
-                });
-                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
-                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
-                }
+                onLoaded: { item.btn = "estop"; item.pressType = "shortPress"; }
             }
 
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: {item.btn =  "estop"; item.pressType = "longPress";
-                var actionVal = X1Plus.GpioKeys.getActionValue(item.btn, item.pressType);
-                var actionIndex = X1Plus.GpioKeys.buttonActions.findIndex(function(action) {
-                    return action.val === actionVal;
-                });
-                item.currentIndex = actionIndex >= 0 ? actionIndex : 0;
-                item.placeHolder = X1Plus.GpioKeys.getActionText(item.btn, item.pressType) || "Select Action";
-                }
+                onLoaded: { item.btn = "estop"; item.pressType = "longPress"; }
             }
             
         }
