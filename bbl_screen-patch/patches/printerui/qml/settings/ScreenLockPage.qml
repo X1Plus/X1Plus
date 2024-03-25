@@ -106,7 +106,7 @@ Item {
         id: focus
         visible:false
     }
-    property var sleepMapping: [ "2 minutes", "5 minutes", "10 minutes", "15 minutes" ]
+    property var sleepMapping: [ qsTr("2 minutes"), qsTr("5 minutes"), qsTr("10 minutes"), qsTr("15 minutes") ]
     
     MarginPanel {
         id: infosPanel
