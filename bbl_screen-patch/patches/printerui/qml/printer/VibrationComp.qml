@@ -63,27 +63,25 @@ Item {
         onDialogShouldBeOpenChanged: {
             if (dialogShouldBeOpen && !dialogIsOpen) {
                 dialogStack.popupDialog("WorkProgress", {
-                    name: "Vibration Compensation",
+                    name: qsTr("Vibration Compensation"),
                     message: Qt.binding(function() {
                         if (_cal.status() == _cal.STATUS.STARTING) {
-                            return "Beginning vibration compensation calibration.";
+                            return  qsTr("Beginning vibration compensation calibration.");
                         } else if (_cal.status() == _cal.STATUS.SWEEPING) {
                             var progress = (_cal.lastFrequency() - _cal.currentRangeLow()) / (_cal.currentRangeHigh() - _cal.currentRangeLow() + 1) * 0.5;
                             if (_cal.currentAxis() == "x")
                                 progress += 0.5;
                             var ax = _cal.currentAxis();
-                            var axisStr = ax == "x" ? "X axis" : "Y axis";
+                            var axisStr = ax == "x" ? qsTr("X axis") : qsTr("Y axis");
                             progress = Math.round(progress * 100);
                             var f = _cal.lastFrequency();
                             var a = _cal.shaperData().axes[ax].points[f].a;
-                            return `Sweeping ${axisStr}\n${f} Hz: ${a.toFixed(1)} dB\nProgress: ${progress}%`;
-                            //vibMsg =`${axisStr} frequency sweep:\nFreq: ${fsresult[0]} Hz\na: ${fsresult[1]} dB\nph: ${fsresult[2]}\nProgress:${t}%`;    
-                            //vibMsg =`${axisStr} frequency sweep:\nNatural frequency: ${cfresult[0]} Hz\nDamping coeff: ${cfresult[1]}\npk: ${cfresult[2]} Hz\nProgress: ${t}%`;
+                            return qsTr("Sweeping %1\n%2 Hz: %3 dB\nProgress: %4%").arg(axisStr).arg(f).arg(a.toFixed(1)).arg(progress);
                         } else if (_cal.status() == _cal.STATUS.TIMED_OUT) {
-                            return "An error has occurred and data collection timed out."
+                            return qsTr("An error has occurred and data collection timed out.");
                         }
                         console.log(`[x1p] VibrationComp: vibcompProgress contents are odd, ${_cal.status()}`);
-                        return `Vibration compensation calibration: internal state error, status = ${_cal.status()}`;
+                        return qsTr("Vibration compensation calibration: internal state error, status = %1").arg(_cal.status());
                     }),
                     finished: Qt.binding(function() {
                         return !dialogShouldBeOpen;
@@ -102,9 +100,10 @@ Item {
         leftMargin: 26
         topMargin: 26
         id: descrPanel
-        property string instructionsText: "The printer's built in vibration compensation calibration is used to mitigate ringing artifacts.  This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.<br><br>"+
-                "All printers have a different frequency response curve.  Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors.  Analyzing these frequency response data can guide you in diagnosting printer problems, and in identifying when the printer needs maintenance.<br><br>"+
-                "Run a sweep from this page to begin."
+        property string instructionsText: qsTr("The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.<br><br>" +
+                "All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.<br><br>" +
+                "Run a sweep from this page to begin.")
+
         Text {
             id: guidelabel1
             anchors.top: parent.top
@@ -191,7 +190,7 @@ Item {
             anchors.leftMargin:12
             font: Fonts.head_24
             color: Colors.gray_100
-            text: "Range:"
+            text: qsTr("Range:")
         }
         
         Choise {
@@ -222,7 +221,7 @@ Item {
             anchors.leftMargin:10
             font: Fonts.body_24
             color: Colors.gray_100
-            text: "to"
+            text: qsTr("to")
         }
         Choise {
             id: rangeInput2
@@ -249,7 +248,7 @@ Item {
             anchors.leftMargin:5
             font: Fonts.body_24
             color: Colors.gray_100
-            text: "Hz"
+            text: qsTr("Hz")
         }
         
     }
@@ -292,7 +291,7 @@ Item {
             onClicked: {
                 dialogStack.popupDialog(
                         "TextConfirm", {
-                            name: "Clear calibration logs",
+                            name: qsTr("Clear calibration logs"),
                             type: TextConfirm.YES_NO,
                             defaultButton: 0,
                             text: qsTr("This will remove all of your saved vibration compensation data.  Are you sure you want to proceed?"),
@@ -369,10 +368,13 @@ Item {
                                 font: Fonts.body_24
                                 color: Colors.gray_100
                                 wrapMode: Text.WordWrap
-                                text: "<br>Run date: "+runDate + tab + runParams + " <font size=\"3\" color=\"#AEAEAE\">"+
-                                      "<br>X-axis: ω_n=" + cfParams_wnX + " Hz" + tab + "ksi=" + cfParams_ksiX + tab + "pk=" + cfParams_pkX + " Hz" +
-                                      "<br>Y-axis: ω_n=" + cfParams_wnY + " Hz" + tab + "ksi=" + cfParams_ksiY + tab + "pk=" + cfParams_pkY + " Hz" + "</font>"
-                            }
+                                text: qsTr("<br>Run date: %1 %2 %3 <font size=\"3\" color=\"#AEAEAE\">" +
+                                    "<br>X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz" +
+                                    "<br>Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz</font>")
+                                    .arg(runDate).arg(tab).arg(runParams)
+                                    .arg(cfParams_wnX).arg(tab).arg(cfParams_ksiX).arg(tab).arg(cfParams_pkX)
+                                    .arg(cfParams_wnY).arg(tab).arg(cfParams_ksiY).arg(tab).arg(cfParams_pkY)
+                                }
                         }
                         TapHandler {
                             onTapped: {     

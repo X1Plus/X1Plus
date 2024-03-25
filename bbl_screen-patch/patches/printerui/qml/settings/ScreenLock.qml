@@ -109,8 +109,12 @@ Rectangle {
             font: Fonts.head_44
             color: Colors.brand
             horizontalAlignment: Text.AlignHCenter
-            text: isEnteringPasscode ? (numberPad.number == "" ? "Enter passcode." : `Enter passcode: ${numberPad.number}`) : "This printer is locked."
-            onXChanged: {
+            text: isEnteringPasscode 
+                ? (numberPad.number == "" 
+                    ? qsTr("Enter passcode.") 
+                    : qsTr("Enter passcode: %1").arg(numberPad.number)) 
+                : qsTr("This printer is locked.")
+                onXChanged: {
                 /* this is *astonishingly* chaotic */
                 if (isEnteringPasscode) {
                     ersatzDialogStack.currentItem.focusPosition = ersatzDialogStack.currentItem.mapFromItem(lockText, 0, 0);

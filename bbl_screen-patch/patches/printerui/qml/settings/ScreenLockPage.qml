@@ -127,7 +127,7 @@ Item {
             id: lblSleepTime
             font: Fonts.body_30
             color: Colors.gray_100
-            text: "Time before display sleeps"
+            text: qsTr("Time before display sleeps")
         }
         
         Choise {
@@ -163,7 +163,7 @@ Item {
             id: lblMode
             font: Fonts.body_30
             color: Colors.gray_100
-            text: "Lock screen mode"
+            text: qsTr("Lock screen mode")
         }
         
         Choise {
@@ -176,7 +176,7 @@ Item {
             listTextFont: Fonts.body_28
             backgroundColor: Colors.gray_500
             width: 300
-            model: ["Screen saver only", "Swipe to unlock", "Passcode"]
+            model: [qsTr("Screen saver only"), qsTr("Swipe to unlock"), qsTr("Passcode")]
             currentIndex: DeviceManager.getSetting("cfw_locktype", 0)
             onCurrentIndexChanged: {
                 DeviceManager.putSetting("cfw_locktype", currentIndex);
@@ -215,8 +215,12 @@ Item {
             id: lblSetPasscode
             font: Fonts.body_30
             color: passcode == "" && choiceMode.currentIndex == 2 && numberPad.target != top ? "#FF8080" : Colors.gray_100
-            text: numberPad.target == top ? `Passcode: "${passcode}"` :
-                  passcode == "" ? "Passcode is unset" : `Passcode set to "${passcode}"`
+            text: numberPad.target == top 
+                ? qsTr('Passcode: "%1"').arg(passcode)
+                : (passcode == "" 
+                    ? qsTr("Passcode is unset") 
+                    : qsTr('Passcode set to "%1"').arg(passcode))
+
 
         }
         
@@ -227,7 +231,7 @@ Item {
             anchors.top: line1.top
             anchors.topMargin: 15
             textSize: 26
-            text: "Change passcode"
+            text:qsTr("Change passcode")
             type: ZButtonAppearance.Tertiary
             onClicked: {
                 numberPad.target = top;
@@ -255,7 +259,7 @@ Item {
             anchors.leftMargin: 25
             anchors.right: parent.right
             anchors.rightMargin: 25
-            text: "You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:<br><br><b>Text</b>: /x1plus/lockscreen.txt<br><b>Image</b>: /x1plus/lockscreen.png"
+            text: qsTr("You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:<br><br><b>Text</b>: /x1plus/lockscreen.txt<br><b>Image</b>: /x1plus/lockscreen.png")
             wrapMode:Text.WordWrap
         }
         

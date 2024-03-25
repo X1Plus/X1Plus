@@ -49,7 +49,7 @@ Item {
                             name: "clear calibration logs",
                             type: TextConfirm.YES_NO,
                             defaultButton: 0,
-                            text: `Are you sure you want to remove the data entry from ${plotTitle}?`,
+                            text: qsTr("Are you sure you want to remove the data entry from ") + plotTitle,
                             onYes: function() {
                                 X1Plus.ShaperCalibration.deleteEntry(calibrationData.time);
                                 vibcompplotter.parent.pop();
@@ -240,13 +240,13 @@ Item {
 						ctx.font = '20px sans-serif';
 						ctx.fillText(axname, to_xc(f) + 10, to_yc(ax[f].a));
 					}
-					put_ax(AX0COLOR, vibe.axes.x.points, 'X axis');
-					put_ax(AX1COLOR, vibe.axes.y.points, 'Y axis');
+					put_ax(AX0COLOR, vibe.axes.x.points, qsTr("X axis"));
+					put_ax(AX1COLOR, vibe.axes.y.points, qsTr("Y axis"));
 					ctx.restore();
 				}
 
                 if(calibrationData!=null){
-                    plotTitleLabel.text = "Frequency Response Plot: " + plotTitle;
+                    plotTitleLabel.text = qsTr("Frequency Response Plot: ") + plotTitle;
                     render(ctx, calibrationData);
                 }
             }
