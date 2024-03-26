@@ -5,19 +5,20 @@ import QtQml 2.12
 import UIBase 1.0
 import Printer 1.0
 import X1PlusNative 1.0
-
+import "../X1Plus.js" as X1Plus
 import "qrc:/uibase/qml/widgets"
 import ".."
 
 Rectangle {
-    property var locked: false
+    property var screenlock: X1Plus.ScreenLock
+    property var locked: screenlock.screenLocked()
     property var isEnteringPasscode: false
     property var passcode: DeviceManager.getSetting("cfw_passcode", "")
     property var locktype: DeviceManager.getSetting("cfw_locktype", 0)
     /* 0 = screensaver only, 1 = swipe to unlock, 2 = passcode */
     property var lockImage: X1PlusNative.getenv("EMULATION_WORKAROUNDS") + DeviceManager.getSetting("cfw_lockscreen_image", '/mnt/sdcard/x1plus/lockscreen.png')
     color: Colors.gray_800
-    visible: locked && locktype != 0
+    visible: locked && screenlock.lockType() != 0
     
     property var customText: null
     
@@ -27,15 +28,11 @@ Rectangle {
             anchors.fill: top
             cornerRadius: parent.radius
             originSource: "file://" + lockImage
-            visible: imgExists(lockImage)
+            visible: X1Plus.fileExists(lockImage)
     }
-    function imgExists(img){
-        if (X1PlusNative.popen(`test -f ${img} && echo 1 || echo 0`) == 0){
-            return false;
-        } else {
-            return true;
-        }
-    }
+    
+
+    //this can be moved to a JS file too
     function readText() {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/lockscreen.txt";
         let xhr = new XMLHttpRequest();
@@ -48,27 +45,21 @@ Rectangle {
 
     
     Component.onCompleted: {
-        if ((DeviceManager.getSetting("cfw_locktype", 0) == 2) && (DeviceManager.getSetting("cfw_passcode", "") != "")) {
-            /* lock on boot with a passcode */
-            didSleep();
-            locked = true;
-        }
+        refreshSettings();
     }
     
     TapHandler {
         onTapped: { }
     }
     
-    function didSleep() {
-        if (DeviceManager.getSetting("cfw_locktype", 0) != 0) {
-            locked = true;
-            readText();
-        }
-    }
     
     function refreshSettings() {
-        passcode = DeviceManager.getSetting("cfw_passcode", "");
-        locktype = DeviceManager.getSetting("cfw_locktype", 0);
+        //temporary until we get these migrated
+        screenlock._setPassCode(DeviceManager.getSetting("cfw_passcode", ""));
+        screenlock._setLockType(DeviceManager.getSetting("cfw_locktype", 0));
+        if (locked){
+            readText();
+        }
     }
     
     NumberPad {
@@ -85,9 +76,7 @@ Rectangle {
         onFinished: {
             isEnteringPasscode = false;
             if (!cancel) {
-                if (number == passcode) {
-                    locked = false;
-                }
+                screenlock.checkCode(number);
             }
             ersatzDialogStack.pop();
         }
@@ -109,7 +98,7 @@ Rectangle {
             font: Fonts.head_44
             color: Colors.brand
             horizontalAlignment: Text.AlignHCenter
-            text: isEnteringPasscode ? (numberPad.number == "" ? "Enter passcode." : `Enter passcode: ${numberPad.number}`) : "This printer is locked."
+            text: isEnteringPasscode ? (numberPad.number === "" ? qsTr("Enter passcode.") : qsTr("Enter passcode: ") + numberPad.number) : qsTr("This printer is locked.")
             onXChanged: {
                 /* this is *astonishingly* chaotic */
                 if (isEnteringPasscode) {
@@ -140,7 +129,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 color: Colors.gray_400
-                text: "Pull to unlock."
+                text: qsTr("Pull to unlock.")
                 font: Fonts.body_24
                 anchors.fill: parent
             }
@@ -174,11 +163,13 @@ Rectangle {
                     onActiveChanged: {
                         if (!active) {
                             if (parent.x == xAxis.maximum) {
-                                if (locktype == 1 || passcode == "") {
-                                    locked = false;
+                                if (screenlock.shouldSwipe()){
+                                    screenlock._setScreenLocked(false);
                                 } else {
-                                    popNumberPad();
+                                    screenlock._setScreenLocked(true);
+                                    popNumberPad(); 
                                 }
+                    
                             }
                             parent.x = 0;
                         }

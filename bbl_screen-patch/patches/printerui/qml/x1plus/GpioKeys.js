@@ -6,7 +6,8 @@ var X1Plus = null;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
 const CONFIG_FILE = "buttons.json";
-
+// var lastEventTime = 0;  //delete if debouncing not needed
+// const DEBOUNCE_INTERVAL = 500;  
 const ACTION_TOGGLE_SCREENSAVER = "ACTION_TOGGLE_SCREENSAVER";
 const ACTION_REBOOT = "ACTION_REBOOT";
 const ACTION_PAUSE_PRINT = "ACTION_PAUSE";
@@ -116,11 +117,14 @@ function _saveSettings() {
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  */
 function _handleButton(button, event) {
-    var btn = '';
-    var param = '';
     var _gpio = keyBindings();
     var config = getBinding(button, event);
-    
+    // 
+    // var currentTime = new Date().getTime();
+    // if (currentTime - lastEventTime < DEBOUNCE_INTERVAL) {
+    //     console.log(lastEventTime,currentTime);
+    //     return;
+    // }
     if (!config) {
         console.log(`[x1p] gpiokeys - invalid action ${button} / ${event}`);
         return;
@@ -132,8 +136,7 @@ function _handleButton(button, event) {
             _X1PlusNative.system(`reboot`);
             break;
         case ACTION_SCREENLOCK:
-            X1Plus.DeviceManager.power.switchSleep();
-            //need to double check this activates screenlock. might be good to check the value of power.hasSleep 
+            X1Plus.ScreenLock.toggleSleep();
             break;
         case ACTION_PAUSE_PRINT:
             if (!X1Plus.isIdle()) { X1Plus.PrintManager.currentTask.pause() };
@@ -153,19 +156,21 @@ function _handleButton(button, event) {
             break;
         case 5: 
             console.log("[x1p] Macro executed from /opt/gpiokeys.py"); 
-            // I was going to run python with a good old X1PlusNative.system() here
             break;
         default:
-            console.log("[x1p] Error in parsing gpiokeys dds message");
+            console.log("[x1p] Error parsing gpiokeys dds message");
     }
+
+    lastEventTime = currentTime;
 }
 
 function awaken(){
     _loadSettings();
     X1Plus.DDS.registerHandler("device/x1plus", function(datum) {
         console.log("device/x1plus", datum);
-        if (datum.gpio) {
-            _handleButton(datum.gpio.button, datum.gpio.event);
-        }
+            if (datum.gpio) {
+                _handleButton(datum.gpio.button, datum.gpio.event);
+                return;
+            }
     });
 }

@@ -17,10 +17,12 @@
      id: screen
      width: 1280
      height: 720
-@@ -18,10 +19,20 @@
+@@ -17,11 +18,22 @@
+ 
      property var navigator: navigator
      property var pageStack: pageStack
- 
++    property var screenlock: X1Plus.ScreenLock
++    
 +    function updateBacklight() {
 +        var bright = DeviceManager.getSetting("cfw_brightness", 100);
 +        X1PlusNative.updateBacklight(bright);
@@ -30,7 +32,7 @@
 +        var on = DeviceManager.getSetting("cfw_toolhead_led", false);
 +        X1Plus.sendGcode(`M960 S5 P${on ? 1 : 0}`);
 +    }
-+
+ 
      MouseArea {
          id: hitLostChecker
          anchors.fill: parent
@@ -39,7 +41,7 @@
          Timer {
              id: hitElapseTimer
              interval: 2000
-@@ -70,6 +81,8 @@
+@@ -70,6 +82,8 @@
          }
          Component.onCompleted: {
              activePage = "Home"
@@ -48,15 +50,16 @@
          }
  
          Timer {
-@@ -129,6 +142,7 @@
+@@ -129,6 +143,8 @@
  
      Component.onCompleted: {
          Printer.jumpTo.connect(jumpTo)
-+        X1Plus.awaken(DeviceManager, PrintManager, PrintTask)
++        X1Plus.awaken(DeviceManager, PrintManager,PrintTask)
++        screenlock._setBrightness(DeviceManager.getSetting("cfw_brightness", 100));
      }
  
      Loader {
-@@ -170,6 +184,11 @@
+@@ -170,6 +186,11 @@
                  console.log("dialogStack onCurrentItemChanged content " + currentItem.content)
          }
      }
@@ -68,7 +71,7 @@
  
      // https://www.cnblogs.com/linuxAndMcu/p/13667894.html
      EmbededInputPanel {
-@@ -179,7 +198,18 @@
+@@ -179,7 +200,13 @@
          id: printListener
      }
  
@@ -76,12 +79,7 @@
 +    SettingListener {
 +        id: screenSaver
 +        onSleepChanged: {
-+            if (!sleep) {
-+                updateBacklight();
-+            }
-+            if (sleep) {
-+                screenLock.didSleep();
-+            }
++            screenlock._setScreenLocked(sleep);
 +        }
 +    }
 +    
