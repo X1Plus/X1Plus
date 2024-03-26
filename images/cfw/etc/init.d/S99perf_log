@@ -1,9 +1,9 @@
 #!/bin/sh
 
-. /etc/init.d/.x1plus_config
+DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
 
 start() {
-	if [ PERF_LOG = on ] ; then
+	if [ -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/perf_log ] ; then
 		printf "Starting perf_log"
 		start-stop-daemon -S -m -b -p /var/run/perf_log.pid --exec /opt/perf_log.sh
 	else
