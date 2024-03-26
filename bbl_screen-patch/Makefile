@@ -36,6 +36,14 @@ printer_ui-orig: bbl_screen
 	./extract_qrc.py $< $@
 	cd $@/printerui; for qm in *.qm; do lconvert $$qm -o `basename $$qm .qm`.ts; done; rm *.qm
 
+ifneq ("$(wildcard printer_ui-orig/printerui/*.qm)","")
+.PHONY: need_unpack_qm
+
+need_unpack_qm:
+
+printer_ui-orig: need_unpack_qm
+endif
+
 ifeq ("$(NO_AUTO_PATCH)","")
 printer_ui: printer_ui-orig $$(shell find patches)
 	rsync -a --delete $@-orig/ $@/
