@@ -1,0 +1,40 @@
+#!/bin/sh
+
+DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
+
+start() {
+	if [ -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/perf_log ] ; then
+		printf "Starting perf_log"
+		start-stop-daemon -S -m -b -p /var/run/perf_log.pid --exec /opt/perf_log.sh
+	else
+		printf "perf_log disabled. Skipping start."
+	fi
+}
+stop() {
+	printf "Stopping perf_log"
+	start-stop-daemon -K -q -p /var/run/perf_log.pid
+        rm -f /var/run/perf_log.pid
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+	stop
+        sleep 5
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
