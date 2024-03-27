@@ -11,7 +11,6 @@ const ACTION_TOGGLE_SCREENSAVER = "ACTION_TOGGLE_SCREENSAVER";
 const ACTION_REBOOT = "ACTION_REBOOT";
 const ACTION_PAUSE_PRINT = "ACTION_PAUSE";
 const ACTION_ABORT_PRINT = "ACTION_ABORT";
-const ACTION_SCREENLOCK = "ACTION_SCREENLOCK";
 const ACTION_RUN_MACRO = "ACTION_MACRO";
 
 const DEFAULTS = {
@@ -22,7 +21,6 @@ const DEFAULTS = {
 const BUTTON_ACTIONS = [
     { name: QT_TR_NOOP("Sleep/wake"), val: ACTION_TOGGLE_SCREENSAVER },
     { name: QT_TR_NOOP("Reboot"), val: ACTION_REBOOT },
-    { name: QT_TR_NOOP("Lock screen"), val: ACTION_SCREENLOCK },
     { name: QT_TR_NOOP("Pause print"), val: ACTION_PAUSE_PRINT},
     { name: QT_TR_NOOP("Abort print"), val: ACTION_ABORT_PRINT },
     /* { name: QT_TR_NOOP("Run macro"), val: ACTION_RUN_MACRO }, */
@@ -110,38 +108,31 @@ function _saveSettings() {
     console.log("[x1p] Saved key bindings:", JSON.stringify(keyBindings()));
 }
 
+var lastEventTime = null;
 /**
  * handle button action given dds message
  * @param {string} button - The name of the button ("power" or "estop").
  * @param {string} pressType - The type of press ("shortPress" or "longPress").
  */
 function _handleButton(button, event) {
-    var btn = '';
-    var param = '';
     var _gpio = keyBindings();
     var config = getBinding(button, event);
-    
+    var currentTime = new Date().getTime();
+
     if (!config) {
         console.log(`[x1p] gpiokeys - invalid action ${button} / ${event}`);
         return;
     }
-    console.log("[x1p] gpio button", config.action, button, event); 
+    console.log("[x1p] gpio button", config.action, button, event,currentTime,lastEventTime); 
     switch (config.action) {
         case ACTION_REBOOT:
-            console.log("[x1p] Gpiokeys - Reboot");
             _X1PlusNative.system(`reboot`);
-            break;
-        case ACTION_SCREENLOCK:
-            X1Plus.DeviceManager.power.switchSleep();
-            //need to double check this activates screenlock. might be good to check the value of power.hasSleep 
             break;
         case ACTION_PAUSE_PRINT:
             if (!X1Plus.isIdle()) { X1Plus.PrintManager.currentTask.pause() };
-            console.log("[x1p] Gpiokeys - Pause print");
             break;
         case ACTION_ABORT_PRINT:
             if (!X1Plus.isIdle()) { X1Plus.PrintManager.currentTask.abort() };
-            console.log("[x1p] Gpiokeys - Abort print");
             break;
         case ACTION_TOGGLE_SCREENSAVER:
             if (!X1Plus.hasSleep()) {
@@ -149,23 +140,20 @@ function _handleButton(button, event) {
             } else {
                 X1Plus.DeviceManager.power.externalWakeup();
             }
-            console.log("[x1p] Gpiokeys - toggle LCD");
-            break;
-        case 5: 
-            console.log("[x1p] Macro executed from /opt/gpiokeys.py"); 
-            // I was going to run python with a good old X1PlusNative.system() here
             break;
         default:
-            console.log("[x1p] Error in parsing gpiokeys dds message");
+            console.log("[x1p] Error parsing gpiokeys dds message", currentTime,lastEventTime);
     }
+
+    lastEventTime = currentTime;
 }
 
 function awaken(){
     _loadSettings();
     X1Plus.DDS.registerHandler("device/x1plus", function(datum) {
         console.log("device/x1plus", datum);
-        if (datum.gpio) {
-            _handleButton(datum.gpio.button, datum.gpio.event);
-        }
+            if (datum.gpio) {
+                _handleButton(datum.gpio.button, datum.gpio.event);
+            }
     });
 }

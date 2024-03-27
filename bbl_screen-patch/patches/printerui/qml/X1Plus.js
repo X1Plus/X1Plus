@@ -65,6 +65,7 @@ var printerConfigDir = null;
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
 X1Plus.emulating = emulating;
 
+
 function isIdle() {
 	return PrintManager.currentTask.stage < PrintTask.WORKING;
 }
@@ -134,6 +135,11 @@ function formatTime(time) {
 	});
 }
 X1Plus.formatTime = formatTime;
+
+function fileExists(fPath) {
+    return _X1PlusNative.popen(`test -f ${fPath} && echo 1 || echo 0`) == "1";
+}
+X1Plus.fileExists = fileExists;
 
 /* Some things can only happen after we have a DeviceManager and
  * PrintManager passed down, and the real QML environment is truly alive. 
