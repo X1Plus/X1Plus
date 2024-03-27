@@ -20,7 +20,7 @@ Rectangle {
         dialogStack.popupDialog("TextConfirm", {
             name: "installer yesno",
             text: prompt,
-            titles: [confirm, "Cancel"],
+            titles: [confirm, qsTr("Cancel")],
             onYes: function() { what(); },
             onNo: function() { dialogStack.pop(); }
         });
