@@ -306,7 +306,7 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -338,35 +333,51 @@
+@@ -338,35 +333,50 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -369,11 +369,10 @@
                                                                  name: "rtsp server on",
 -                                                                text: qsTr("Do you need to open LAN Mode Liveview?"),
 +                                                                text: qsTr("Do you want to turn on the LAN live view server?"),
-+                                                                //type: TextConfirm.YES_NO_CANCEL,
                                                                  defaultButton: 0,
                                                                  onYes: function() {
                                                                      rtspServerBtn.checked = true
-@@ -374,27 +385,68 @@
+@@ -374,27 +384,62 @@
                                                                  }
                                                              })
                                              }
@@ -390,8 +389,7 @@
 +                                        name: "Enter shield mode",
 +                                        text: qsTr("X1Plus Shield Mode is an enhancement to LAN mode that uses iptables to block outbound connections from the printer.  You will still be able to connect to the printer via FTP and MQTT, but the printer will not be able to download toolhead firmware.  Enabling shield mode requires restarting your printer.  Enable now?"),
 +                                        defaultButton: 0,
-+                                        type: TextConfirm.YES_NO_CANCEL,
-+                                        titles :[ qsTr("Enable shield and restart"), qsTr("Enable LAN mode only"), qsTr("Cancel")],
++                                        titles :[ qsTr("Enable shield and restart"), qsTr("Enable LAN mode only") ],
 +                                        onYes: function() {
 +                                            setShield(true);
 +                                            NetworkManager.isLanOnly = true;
@@ -400,12 +398,7 @@
 +                                        onNo: function() {
 +                                            currentIndex = 1;
 +                                            choiseTapped();
-+                                        },
-+                                        onCancel: function() {
-+                                            currentIndex = 0;
-+                                            choiseTapped();
 +                                        }
-+
 +                                    })
                      }
                  }
@@ -451,7 +444,7 @@
                  anchors.left: lanOnlyText.left
                  color: Colors.brand
                  font: Fonts.body_24
-@@ -407,8 +459,7 @@
+@@ -407,8 +452,7 @@
                  height: width
                  radius: width / 2
                  anchors.top: accessCodeText.top
@@ -461,7 +454,7 @@
                  type: ZButtonAppearance.Secondary
                  iconPosition: ZButtonAppearance.Center
                  paddingX: 0
-@@ -434,9 +485,9 @@
+@@ -434,9 +478,9 @@
          }
  
          MarginPanel {
@@ -473,7 +466,7 @@
              anchors.top: lanOnly.bottom
              anchors.topMargin: 16
              anchors.left: lanOnly.left
-@@ -445,28 +496,84 @@
+@@ -445,28 +489,84 @@
              marginColor: "transparent"
  
              Text {
@@ -513,8 +506,8 @@
 +                    } else {
 +                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd stop`);
 +                    }
-+                }
-+            }
+                 }
+             }
 +            
 +            ZText {
 +                property var rootpw: DeviceManager.getSetting("cfw_rootpw", "")
@@ -523,7 +516,7 @@
 +                    DeviceManager.putSetting("cfw_rootpw", newpw);
 +                    rootpw = newpw;
 +                    X1PlusNative.system(`/etc/init.d/S70x1plus_sshd new_password`);
-                 }
++                }
 +            
 +                id: rootpwText
 +                maxWidth: 320
@@ -533,7 +526,7 @@
 +                color: Colors.brand
 +                font: Fonts.body_24
 +                text: qsTr("Root password: ") + "<br><font size=\"4\" color=\"#00AE42\">" + (rootpw == "" ? "[not yet set]" : rootpw) + "</font>"
-             }
++            }
 +
 +            ZButton {
 +                id: refreshRootPwBtn
@@ -568,7 +561,7 @@
          }
      }
  
-@@ -476,7 +583,9 @@
+@@ -476,7 +576,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom

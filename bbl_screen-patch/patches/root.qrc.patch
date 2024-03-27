@@ -81,7 +81,7 @@
  <file>printerui/qml/settings/InputPage.qml</file>
  <file>printerui/qml/settings/MaintenancePage.qml</file>
  <file>printerui/qml/settings/NetParaSetPage.qml</file>
-@@ -215,9 +255,13 @@
+@@ -215,9 +255,14 @@
  <file>printerui/qml/settings/RegionItem.qml</file>
  <file>printerui/qml/settings/ReleaseNotePage.qml</file>
  <file>printerui/qml/settings/SensorPage.qml</file>
@@ -89,14 +89,14 @@
 +<file>printerui/qml/settings/ScreenLockPage.qml</file>
  <file>printerui/qml/settings/SettingListener.qml</file>
  <file>printerui/qml/settings/UpdatingPage.qml</file>
--<file>printerui/qml/settings/VersionPage.qml</file>
 +<file>printerui/qml/settings/UpgradeDialog.qml</file>
 +<file>printerui/qml/settings/VersionDialog.qml</file>
-+<file>printerui/qml/settings/VersionPage.qml</file> 
+ <file>printerui/qml/settings/VersionPage.qml</file>
++<file>printerui/qml/settings/ViewImage.qml</file>
  <file>printerui/qml/settings/WifiListPage.qml</file>
  <file>printerui/qml/settings/WifiSetupPage.qml</file>
  <file>printerui/qml/wizard/Calibrate1Page.qml</file>
-@@ -233,6 +277,18 @@
+@@ -233,6 +278,17 @@
  <file>printerui/qml/wizard/TermsPage.qml</file>
  <file>printerui/qml/wizard/WelcomePage.qml</file>
  <file>printerui/qml/wizard/WizardPage.qml</file>
@@ -109,7 +109,6 @@
 +<file>printerui/qml/x1plus/GcodeGenerator.js</file>
 +<file>printerui/qml/x1plus/GpioKeys.js</file>
 +<file>printerui/qml/x1plus/MeshCalcs.js</file>
-+<file>printerui/qml/x1plus/ScreenLock.js</file>
 +<file>printerui/qml/x1plus/ShaperCalibration.js</file>
 +<file>printerui/qml/x1plus/Stats.js</file>
  <file>printerui/text/error_texts.de.json</file>
