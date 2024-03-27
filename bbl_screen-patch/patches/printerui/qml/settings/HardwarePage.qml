@@ -28,9 +28,9 @@ Rectangle {
         { name: "Set temp", val: 1 },
         { name: "Pause print", val: 2 },
         { name: "Abort print", val: 3 },
-        { name: "Sleep/wake", val: 4 },
+        { name: "Sleep/wake", val: 4 }
         // { name: "Nozzle cam", val: 5 },
-        { name: "Run macro", val: 6 }
+        // { name: "Run macro", val: 6 }
     ]
     property var pidofBtn: 0
 
