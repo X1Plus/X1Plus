@@ -9,9 +9,9 @@ RUN wget -O /tmp/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz 'https://
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash
 RUN apt-get install -y nodejs
-
+ENV DEBIAN_FRONTEND="noninteractive" TZ="Etc/UTC"
 RUN apt-get update && apt-get -y install sudo build-essential python3 autoconf libtool cpio jq \
-    squashfs-tools-ng unzip gcc-multilib python3-pip qtbase5-dev-tools qtdeclarative5-dev qtbase5-dev && \
+    squashfs-tools-ng unzip gcc-multilib python3-pip qtbase5-dev-tools qtdeclarative5-dev qtbase5-dev qttools5-dev-tools && \
     apt-get clean
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 0
@@ -31,5 +31,5 @@ RUN mkdir -p /work
 
 USER docker
 WORKDIR /work
-ENV X1PLUS_DOCKER_ENV_VERSION=2
+ENV X1PLUS_DOCKER_ENV_VERSION=3
 CMD /bin/bash

@@ -554,6 +554,59 @@ SWIZZLE(ssize_t, write, int fd, const void *p, size_t n)
     return next(fd, p, n);
 }
 
+/*** Adding languages (this is freaking hilarious) ***/
+
+static int lang_init = 0;
+
+static void *last_qobject;
+SWIZZLE(void *, _ZN7QObjectC1EPS_, void *p1, void *p2)
+    last_qobject = p1;
+    return next(p1, p2);
+}
+
+SWIZZLE(void *, _ZN7QObjectC2EPS_, void *p1, void *p2)
+    last_qobject = p1;
+    return next(p1, p2);
+}
+
+static void **DeviceManager;
+static QMap<QByteArray, QString> *langmap;
+
+extern "C" void * _ZN12QMapDataBase11shared_nullE;
+
+#include <QtCore/QTranslator>
+
+SWIZZLE(bool, _ZN11QTranslator4loadERK7QStringS2_S2_S2_, QTranslator *t, QString const& a, QString const& b, QString const& c, QString const& d)
+    printf("qTranslator::load called on\n");
+    qDebug() << a << b << c << d;
+    return next(t, a, b, c, d);
+}
+
+SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
+    if (lang_init == 0 && s && strcmp(s, "en") == 0) {
+        printf("saw the first pass of en, the last QObject must have been deviceManager\n");
+        DeviceManager = (void **)last_qobject;
+        lang_init++;
+    }
+    if (lang_init == 1 && s && strcmp(s, "sv") == 0) {
+        langmap = (QMap<QByteArray, QString> *) (DeviceManager + 5);
+        printf("DeviceManager's maps are probably ready, let's do it. langmap = %p, *(uint32_t*)*langmap = %p, _ZN12QMapDataBase11shared_nullE = %p\n",
+            langmap,
+            *(void **)langmap,
+            &_ZN12QMapDataBase11shared_nullE);
+        (*langmap)["lo"] = "lolol";
+        qDebug() << *langmap;
+        lang_init++;
+    }
+    if (lang_init == 2 && s && strcmp(s, "ja") == 0) {
+        printf("adding the last one, here we go\n");
+        qDebug() << *langmap;
+        lang_init++;
+    }
+
+    return next(qba, s, n);
+}
+
 /*** Qt init and resource replacement ***/
 
 extern const unsigned char qt_resource_name[];
