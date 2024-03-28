@@ -5,37 +5,40 @@ import QtQml 2.12
 import UIBase 1.0
 import Printer 1.0
 import X1PlusNative 1.0
-
+import "../X1Plus.js" as X1Plus
 import "qrc:/uibase/qml/widgets"
 import ".."
 
 Rectangle {
+    id: top
+    width:1180
+    height:720
     property var locked: false
     property var isEnteringPasscode: false
     property var passcode: DeviceManager.getSetting("cfw_passcode", "")
     property var locktype: DeviceManager.getSetting("cfw_locktype", 0)
     /* 0 = screensaver only, 1 = swipe to unlock, 2 = passcode */
-    property var lockImage: X1PlusNative.getenv("EMULATION_WORKAROUNDS") + DeviceManager.getSetting("cfw_lockscreen_image", '/mnt/sdcard/x1plus/lockscreen.png')
+    property var lockImagePath: X1PlusNative.getenv("EMULATION_WORKAROUNDS") + DeviceManager.getSetting("cfw_lockscreen_image", '/mnt/sdcard/x1plus/lockscreen.png')
+    property var lockImage: X1Plus.fileExists(lockImagePath) ? lockImagePath : "qrc:/printerui/image/lockscreen.png"
     color: Colors.gray_800
     visible: locked && locktype != 0
     
     property var customText: null
-    
-    id: top
+
+    Binding on passcode { //possibly a redundant property
+        value: numberPad.number
+        when: numberPad.target == lockText
+    }
+
     ZRoundedImage {
-            id: lockimg
-            anchors.fill: top
-            cornerRadius: parent.radius
-            originSource: "file://" + lockImage
-            visible: imgExists(lockImage)
+        id: lockimg
+        width:1180
+        height:720
+        anchors.fill: parent 
+        originSource: "file://" + lockImage
+        visible: X1Plus.fileExists(lockImage)
     }
-    function imgExists(img){
-        if (X1PlusNative.popen(`test -f ${img} && echo 1 || echo 0`) == 0){
-            return false;
-        } else {
-            return true;
-        }
-    }
+
     function readText() {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/lockscreen.txt";
         let xhr = new XMLHttpRequest();
@@ -58,7 +61,7 @@ Rectangle {
     TapHandler {
         onTapped: { }
     }
-    
+
     function didSleep() {
         if (DeviceManager.getSetting("cfw_locktype", 0) != 0) {
             locked = true;
@@ -93,7 +96,7 @@ Rectangle {
         }
     }
 
-    function popNumberPad() {
+     function popNumberPad() {
         isEnteringPasscode = true;
         numberPad.target = top;
         /* this is admittedly extremely silly, since the dialogStack is beneath us */
@@ -101,14 +104,17 @@ Rectangle {
     }
 
     ColumnLayout {
+        id: columnLayout
         anchors.fill: parent
             
         Text {
             id: lockText
-            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: 150 // Adjust as needed
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+            Layout.topMargin: 100
             font: Fonts.head_44
             color: Colors.brand
-            horizontalAlignment: Text.AlignHCenter
+            // horizontalAlignment: Text.AlignHCenter
             text: isEnteringPasscode ? (numberPad.number == "" ? "Enter passcode." : `Enter passcode: ${numberPad.number}`) : "This printer is locked."
             onXChanged: {
                 /* this is *astonishingly* chaotic */
@@ -131,20 +137,22 @@ Rectangle {
         
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
+            id: slideToUnlock
             height: 150
             width: 900
-            radius: height / 2
+            radius: parent.height / 2
             color: Colors.gray_700
-                
+        
             Text {
+                id: slideText
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                anchors.fill: parent
                 color: Colors.gray_400
                 text: "Pull to unlock."
                 font: Fonts.body_24
-                anchors.fill: parent
             }
-                
+
             Rectangle {
                 x: 0
                 y: 0
@@ -158,9 +166,9 @@ Rectangle {
                 id: thumb
                 x: 0
                 y: 0
-                height: parent.height
                 width: parent.height
-                radius: height / 2
+                height: parent.height
+                radius: width / 2
                 color: Colors.brand
                 border.color: Colors.gray_400
                 border.width: 3
@@ -168,20 +176,21 @@ Rectangle {
                 DragHandler {
                     xAxis.enabled: true
                     xAxis.minimum: 0
-                    xAxis.maximum: parent.parent.width - parent.width
+                    xAxis.maximum: slideToUnlock.width - thumb.width
                     yAxis.enabled: false
-                        
+
                     onActiveChanged: {
                         if (!active) {
-                            if (parent.x == xAxis.maximum) {
+                            if (thumb.x == xAxis.maximum) {
                                 if (locktype == 1 || passcode == "") {
                                     locked = false;
                                 } else {
                                     popNumberPad();
                                 }
                             }
-                            parent.x = 0;
+                            thumb.x = 0;
                         }
+                        
                     }
                 }
             }
