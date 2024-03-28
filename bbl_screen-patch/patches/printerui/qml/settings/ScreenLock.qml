@@ -114,7 +114,7 @@ Rectangle {
                     ? qsTr("Enter passcode.") 
                     : qsTr("Enter passcode: %1").arg(numberPad.number)) 
                 : qsTr("This printer is locked.")
-                onXChanged: {
+            onXChanged: {
                 /* this is *astonishingly* chaotic */
                 if (isEnteringPasscode) {
                     ersatzDialogStack.currentItem.focusPosition = ersatzDialogStack.currentItem.mapFromItem(lockText, 0, 0);

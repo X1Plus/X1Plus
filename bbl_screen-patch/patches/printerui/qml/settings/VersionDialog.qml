@@ -15,7 +15,7 @@ Item {
 
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "do_install"; title: (qsTr("Install ") + cfwVersion.version)
+            name: "do_install"; title: qsTr("Install %1").qsTr(cfwVersion.version)
             isDefault: defaultButton == 0
             keepDialog: true
             onClicked: {
