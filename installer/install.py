@@ -206,27 +206,22 @@ def dump_rootfs(f, ofs, dir):
     traverse_ino("", vol.root)
     return packs
 
-def is_vfat(device):
-    try:
-        blkid_output = subprocess.check_output(['blkid', device], stderr=subprocess.DEVNULL)
-    except subprocess.CalledProcessError:
-        report_failure("is_vfat blkid {device} failed.")
+def validate_sd():
+    found_sdcard = False
+    with open("/proc/mounts", "r") as f:
+        mounts = f.read().strip().split('\n')
+    for m in mounts:
+        dev, pt, fs = m.split(' ')[:3]
+        if pt == "/mnt/sdcard":
+            if dev != "/dev/mmcblk2p1":
+                report_failure(f"The SD card has more than one partition and is improperly formatted.<br><br>Please format the SD card correctly and restart the installer.")
+            if fs != "vfat":
+                report_failure(f"The SD card is not formatted as vfat.<br><br>Please format the SD card correctly and restart the installer.")
+            found_sdcard = True
+    if not found_sdcard:
+        report_failure(f"No SD card found. Please insert a vfat formatted SD card of at least 16gb and restart the installer.")
 
-    partition_type = blkid_output.decode('ascii').strip()
-    print( partition_type )
-    return re.search(r"vfat|FAT32|FAT16", partition_type) is not None
-
-#def format_sdcard():
-
-if os.path.exists("/dev/mmcblk2p2"):
-#    if not ask_permission(f"The SD card has more than one partition and is improperly formatted.<br><br>Format the SD card?"):
-        report_failure(f"The SD card has more than one partition and is improperly formatted. Please format the SD card correctly.")
-#    format_sdcard()
-
-if not is_vfat("/dev/mmcblk2p1"):
-#    if not ask_permission(f"The SD card is not formatted as FAT.<br><br>Format the SD card?"):
-        report_failure(f"The SD card is not formatted as FAT. Please format the SD card correctly.")
-#    format_sdcard()
+validate_sd()
 
 df = shutil.disk_usage("/mnt/sdcard")
 if df.free < demand_free_space:
