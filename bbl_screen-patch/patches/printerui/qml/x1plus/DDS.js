@@ -12,7 +12,27 @@ function publish(topic, json) {
     _DdsListener.publishJson(topic, JSON.stringify(json));
 }
 
+var _handlers = [];
+function registerHandler(topic, callback) {
+    _handlers.push({ topic: topic, fn: callback });
+}
+
+_DdsListener.gotDdsEvent.connect(function(topic, message) {
+    var data = null;
+    for (const i in _handlers) {
+        const handler = _handlers[i];
+        if (handler.topic == topic) {
+            if (data == null) {
+                data = JSON.parse(message);
+            }
+            handler.fn(data);
+        }
+    }
+});
+
+
 var [versions, versionsChanged, _setVersions] = Binding.makeBinding([]);
+
 function requestVersions() {
     publish("device/request/info", {"command": "get_version", "sequence_id": "0" });
     if (X1Plus.emulating) {
@@ -29,19 +49,19 @@ function requestVersions() {
     }
 }
 
+registerHandler("device/report/info", function(datum) {
+    if (datum.command == "get_version") {
+        _setVersions(datum.module);
+    }
+});
+
+
 var [gcodeAction, gcodeActionChanged, _setGcodeAction] = Binding.makeBinding(-1);
 
-_DdsListener.gotDdsEvent.connect(function(topic, dstr) {
-    const datum = JSON.parse(dstr);
-    if (topic == "device/report/info") {
-        if (datum["command"] != "get_version")
-            return;
-        _setVersions(datum['module']);
-    } else if (topic == "device/report/print") {
-        if (datum["command"] == "push_status") {
-            if (gcodeAction() != datum["print_gcode_action"]) {
-                _setGcodeAction(datum["print_gcode_action"]);
-            }
+registerHandler("device/report/print", function(datum) {
+    if (datum.command == "push_status" && datum.print_gcode_action) {
+        if (gcodeAction() != datum.print_gcode_action) {
+            _setGcodeAction(datum.print_gcode_action);
         }
     }
 });

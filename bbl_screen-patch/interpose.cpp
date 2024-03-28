@@ -27,6 +27,9 @@
 #include <QtQml/qqml.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -224,6 +227,34 @@ eject:
         close(fd);
     }
 
+    Q_INVOKABLE void atomicSaveFile(QString filename, const QByteArray &buf) {
+        QFileInfo fileInfo(filename);
+        QString tempFilename = fileInfo.absoluteDir().absoluteFilePath("temp_" + fileInfo.fileName());
+
+        std::string tempFile = tempFilename.toStdString();
+        std::string targetFilenameStr = filename.toStdString();
+
+        int fd = open(tempFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd < 0) {
+            printf("atomic rewrite: %s open() error\n", tempFile.c_str());
+            return;
+        }
+
+        if (write(fd, buf.constData(), buf.size()) != buf.size()) {
+            printf("atomic rewrite: Error writing to %s\n", tempFile.c_str());
+            close(fd);
+
+            unlink(tempFile.c_str());
+            return;
+        }
+
+        close(fd);
+
+        if (rename(tempFile.c_str(), targetFilenameStr.c_str()) != 0) {
+            printf("atomic rewrite: Error moving %s to %s\n", tempFile.c_str(), targetFilenameStr.c_str());
+            unlink(tempFile.c_str());
+        }
+    }
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
 private:
     static const int minBacklightValue = 50;
@@ -386,7 +417,7 @@ SUB_TOPIC_EXPANDO
 
 int DdsNode_new_get_sub_topic_count(void *p) {
     printf("swizzled call for get_sub_topic_count -> %d\n", DdsNode_orig_get_sub_topic_count(p) + 1);
-    return DdsNode_orig_get_sub_topic_count(p) + 1;
+    return DdsNode_orig_get_sub_topic_count(p) + 2;
 }
 
 rxfcn_t DdsNode_new_get_sub_topic_callback(void *p, int i) {
@@ -415,6 +446,9 @@ rxfcn_t DdsNode_new_get_sub_topic_callback(void *p, int i) {
 const char *DdsNode_new_get_sub_topic_name(void *p, int i) {
     if (i == DdsNode_orig_get_sub_topic_count(p)) {
         return "device/report/mc_print";
+    }
+    if (i == (DdsNode_orig_get_sub_topic_count(p) + 1)) {
+        return "device/x1plus";
     }
     return DdsNode_orig_get_sub_topic_name(p, i);
 }

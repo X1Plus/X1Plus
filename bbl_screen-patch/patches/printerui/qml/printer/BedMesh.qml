@@ -44,12 +44,12 @@ Item {
 
                     var latest = _cal.getEntry(_cal.lastCalibrationTime());
                     var metrics = latest.bedMetrics;
-            
-                    diagRes2.text = "<font size=\"3\" color=\"#AEAEAE\">" + X1Plus.MeshCalcs.describeMetrics(metrics) + "<br><br>" +
-                                    "Detected bed tilt is " + metrics.tiltX.toFixed(2).toString() + " mm across the X axis, " +
-                                    "and " + metrics.tiltY.toFixed(2).toString() + " mm across the Y axis; " + 
-                                    "post-tramming peak-to-peak deviation would be " + metrics.nonplanarity.toFixed(2).toString() + " mm." +
-                                    "</p></font>";
+                    diagRes2.text = qsTr("<font size=\"3\" color=\"#AEAEAE\">%1<br><br>Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.</font>")
+                        .arg(X1Plus.MeshCalcs.describeMetrics(metrics))
+                        .arg(metrics.tiltX.toFixed(2))
+                        .arg(metrics.tiltY.toFixed(2))
+                        .arg(metrics.nonplanarity.toFixed(2));
+                    
                     pageStack.push("BedLevelDiag.qml");
                     pageStack.currentPage.calibrationData = latest;
                     _cal.idle();
@@ -279,9 +279,12 @@ Item {
                             font: Fonts.body_24
                             color: Colors.gray_100
                             wrapMode: Text.WordWrap
-                            text: "<br>Run date: "+runDate + "&nbsp;&nbsp;&nbsp;&nbsp;" +
-                                  "Bed Temperature: " + bedTemperature +
-                                  " <font size=\"3\" color=\"#AEAEAE\"><br>X-tilt: " + xTilt + "<br>Y-tilt: " + yTilt + "<br>Peak to peak deviation: " + peak + "</font>"
+                            text: qsTr("<br>Run date: %1&nbsp;&nbsp;&nbsp;&nbsp;Bed Temperature: %2 <font size='3' color='#AEAEAE'><br>X-tilt: %3<br>Y-tilt: %4<br>Peak to peak deviation: %5</font>")
+                                .arg(runDate)
+                                .arg(bedTemperature)
+                                .arg(xTilt)
+                                .arg(yTilt)
+                                .arg(peak)
                         }
                         TapHandler {
                             onTapped: {                   
