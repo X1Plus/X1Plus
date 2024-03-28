@@ -1,6 +1,14 @@
 --- printer_ui-orig/root.qrc
 +++ printer_ui/root.qrc
-@@ -108,6 +108,38 @@
+@@ -11,6 +11,7 @@
+ <file>printerui/icon/amssetting.svg</file>
+ <file>printerui/icon/auxPartCoolFan_0.svg</file>
+ <file>printerui/icon/auxPartCoolFan_1.svg</file>
++<file>printerui/icon/lockScreen.png</file>
+ <file>printerui/icon/bambo.svg</file>
+ <file>printerui/icon/bambo_text.svg</file>
+ <file>printerui/icon/brand.svg</file>
+@@ -108,6 +109,38 @@
  <file>printerui/icon/wiredNetworkIcon.svg</file>
  <file>printerui/icon/working.svg</file>
  <file>printerui/icon/wried_icon.svg</file>
@@ -39,14 +47,6 @@
  <file>printerui/image/TouchPanelTest.png</file>
  <file>printerui/image/ams_calibration.png</file>
  <file>printerui/image/ams_use_boot_1.png</file>
-@@ -131,6 +163,7 @@
- <file>printerui/image/gcode1.png</file>
- <file>printerui/image/humidity.svg</file>
- <file>printerui/image/humidity_help.png</file>
-+<file>printerui/image/lockscreen.png</file>
- <file>printerui/image/return.png</file>
- <file>printerui/image/virtualTray.svg</file>
- <file>printerui/image/virtualTray_f1.svg</file>
 @@ -176,6 +209,9 @@
  <file>printerui/qml/models/ModelInfoBar.qml</file>
  <file>printerui/qml/models/ModelListPage.qml</file>
