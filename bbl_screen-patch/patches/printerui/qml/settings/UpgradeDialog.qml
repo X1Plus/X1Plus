@@ -222,7 +222,7 @@ Item {
                 font: Fonts.body_36
                 color: Colors.gray_100
                 wrapMode: Text.Wrap
-                text: ("%1 update %2").arg(friendly).arg(version)
+                text: qsTr("%1 update %2").arg(friendly).arg(version)
             }
 
 

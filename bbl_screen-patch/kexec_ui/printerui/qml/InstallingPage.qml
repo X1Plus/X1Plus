@@ -105,7 +105,7 @@ Rectangle {
     Component.onCompleted: {
         if (x1pName) {
             statusModel.push(["", qsTr("Unpacking installer")]);
-            secondaryStatusText = qsTr("Extracting") + x1pName + qsTr("to internal storage.");
+            secondaryStatusText = qsTr("Extracting %1 to internal storage.").arg(x1pName);
             statusModel = statusModel;
             /* Allow a paint before we start. */
             unpackTimer.start()

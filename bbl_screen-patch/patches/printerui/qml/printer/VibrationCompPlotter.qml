@@ -49,7 +49,7 @@ Item {
                             name: "clear calibration logs",
                             type: TextConfirm.YES_NO,
                             defaultButton: 0,
-                            text: qsTr("Are you sure you want to remove the data entry from ") + plotTitle,
+                            text: qsTr("Are you sure you want to remove the data entry from %1?").arg(plotTitle),
                             onYes: function() {
                                 X1Plus.ShaperCalibration.deleteEntry(calibrationData.time);
                                 vibcompplotter.parent.pop();
