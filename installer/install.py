@@ -214,9 +214,9 @@ def validate_sd():
         dev, pt, fs = m.split(' ')[:3]
         if pt == "/mnt/sdcard":
             if dev != "/dev/mmcblk2p1":
-                report_failure(f"The SD card has more than one partition and is improperly formatted.<br><br>Please format the SD card correctly and restart the installer.")
+                report_failure(f"The SD card has more than one partition and is improperly formatted. Please format the SD card correctly and restart the installer.")
             if fs != "vfat":
-                report_failure(f"The SD card is not formatted as vfat.<br><br>Please format the SD card correctly and restart the installer.")
+                report_failure(f"The SD card is not formatted as vfat. Please format the SD card correctly and restart the installer.")
             found_sdcard = True
     if not found_sdcard:
         report_failure(f"No SD card found. Please insert a vfat formatted SD card of at least 16gb and restart the installer.")
