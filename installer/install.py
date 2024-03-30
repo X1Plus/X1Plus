@@ -208,14 +208,15 @@ def dump_rootfs(f, ofs, dir):
 
 def validate_sd():
     found_sdcard = False
+    for dev in glob.glob("/dev/mmcblk2p*"):
+        if dev != "/dev/mmcblk2p1":
+            report_failure(f"The SD card's partition scheme is unsupported. Format the SD card from the on-printer menu, then restart the installer.")
     with open("/proc/mounts", "r") as f:
         mounts = f.read().strip().split('\n')
     for m in mounts:
         dev, pt, fs = m.split(' ')[:3]
         if pt == "/mnt/sdcard":
-            if dev != "/dev/mmcblk2p1":
-                report_failure(f"The SD card's partition scheme is unsupported. Format the SD card from the on-printer menu, then restart the installer.")
-            if fs != "vfat":
+            if dev != "/dev/mmcblk2p1" or fs != "vfat":
                 report_failure(f"The SD card's filesystem is unsupported. Format the SD card from the on-printer menu, then restart the installer.")
             found_sdcard = True
     if not found_sdcard:
