@@ -25,6 +25,7 @@ import zipfile
 import os
 import struct
 import zlib
+import xml.etree.ElementTree
 
 TOOLCHAIN = os.environ.get("TOOLCHAIN", "arm-linux-gnueabihf-")
 
@@ -163,8 +164,15 @@ for b in bundles:
             os.makedirs(os.path.dirname(ofn))
         except FileExistsError:
             pass
-        with open(ofn, 'wb') as f:
-            f.write(files[fn])
+        if fn[-3:] == ".qm":
+            # convert a QM to a canonicalized TS
+            tsxml = subprocess.run(f"lconvert -of ts -if qm -i -", shell=True, check=True, input=files[fn], capture_output = True).stdout.decode()
+            with open(ofn[:-3] + '.ts', 'w') as f:
+                f.write(xml.etree.ElementTree.canonicalize(tsxml))
+        else:
+            with open(ofn, 'wb') as f:
+                f.write(files[fn])
+            
     with open(f"{outdir}/root.qrc", "w") as f:
         f.write("<!DOCTYPE RCC><RCC version=\"1.0\"><qresource>\n")
         nl = list(files.keys())

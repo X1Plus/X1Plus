@@ -34,7 +34,6 @@ printer_ui.so.xdelta: bbl_screen printer_ui.so
 printer_ui-orig: bbl_screen
 	@rm -rfv $@
 	./extract_qrc.py $< $@
-	cd $@/printerui; for qm in *.qm; do lconvert $$qm -o `basename $$qm .qm`.ts; done; rm *.qm
 
 ifneq ("$(wildcard printer_ui-orig/printerui/*.qm)","")
 .PHONY: need_unpack_qm
