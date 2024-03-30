@@ -31,6 +31,7 @@ import time
 import filecmp
 import glob
 import subprocess
+import re
 
 # XXX: have config for filesystem size
 installer_path = os.path.dirname(__file__) # will get cleaned out on boot
@@ -205,7 +206,22 @@ def dump_rootfs(f, ofs, dir):
     traverse_ino("", vol.root)
     return packs
 
+def validate_sd():
+    found_sdcard = False
+    with open("/proc/mounts", "r") as f:
+        mounts = f.read().strip().split('\n')
+    for m in mounts:
+        dev, pt, fs = m.split(' ')[:3]
+        if pt == "/mnt/sdcard":
+            if dev != "/dev/mmcblk2p1":
+                report_failure(f"The SD card's partition scheme is unsupported. Format the SD card from the on-printer menu, then restart the installer.")
+            if fs != "vfat":
+                report_failure(f"The SD card's filesystem is unsupported. Format the SD card from the on-printer menu, then restart the installer.")
+            found_sdcard = True
+    if not found_sdcard:
+        report_failure(f"SD card was not mounted in the expected location. If the SD card is inserted, please file a bug.")
 
+validate_sd()
 
 df = shutil.disk_usage("/mnt/sdcard")
 if df.free < demand_free_space:
