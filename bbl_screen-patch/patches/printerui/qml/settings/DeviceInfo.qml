@@ -60,7 +60,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 color: Colors.gray_200
                 font: Fonts.body_36
-                text: devName.replace(/[\r\n]+/g, '') + qsTr(": Device Info")
+                text: qsTr("%1: Device Info").arg(devName.replace(/[\r\n]+/g, ''))
             }
 
             ZButton {
@@ -206,11 +206,11 @@ Item {
             
             let totalPrintTime = (parseFloat(forward_info.print_time) / 3600).toFixed(2);
             statsListModel.append({"leftText": qsTr("Printer serial number: "), "rightText": serialNo.toString()});
-            statsListModel.append({"leftText": qsTr("Total print time: "), "rightText": totalPrintTime + qsTr(" hours")});
+            statsListModel.append({"leftText": qsTr("Total print time: "), "rightText": qsTr("%1 hours").arg(totalPrintTime)});
             //maintenance timestamps
             if (maintain_info && maintain_info.lead_screws) {
                 function mkResetLink(tipo) {
-                    return "&nbsp;(<font size=\"3\" color=\"#05ae4b\"><a href='" + tipo +"'>reset</a></font>)";
+                    return "&nbsp;(<font size=\"3\" color=\"#05ae4b\"><a href='" + tipo +"'>" + qsTr("reset") + "</a></font>)";
                 }
                 statsListModel.append({"leftText": qsTr("Lead screws last lubricated: "), "rightText": formatDate(maintain_info.lead_screws.last_record_timestamp) + mkResetLink('screws')});
                 let absTime = maintain_info.carbon_rods.abs_last_print_time;
@@ -235,16 +235,15 @@ Item {
             
             //filament_info
             if (filament_info && filament_info.ams_array && filament_info.ams_array.length > 0) {
-                statsListModel.append({"leftText": qsTr("AMS total length: "), "rightText": (filament_info.ams_array[0].ams_total_length).toFixed(2) + qsTr(" meters")});
-                statsListModel.append({"leftText": qsTr("AMS total print time: "), "rightText": qsTr((parseFloat(filament_info.ams_array[0].ams_total_print_time) / 3600).toFixed(2)  + " hours")});
+                statsListModel.append({"leftText": qsTr("AMS total length: "), "rightText": qsTr("%1 meters").arg((filament_info.ams_array[0].ams_total_length).toFixed(2))});
+                statsListModel.append({"leftText": qsTr("AMS total print time: "), "rightText": qsTr("%1 hours").arg((parseFloat(filament_info.ams_array[0].ams_total_print_time) / 3600).toFixed(2)) });
                 statsListModel.append({"leftText": qsTr("AMS total filament switches: "), "rightText": qsTr((filament_info.ams_array[0].ams_total_switch_filament_cnt).toFixed(0))});
                 statsListModel.append({"leftText": qsTr("AMS total failed filament switches: "), "rightText": qsTr((filament_info.ams_array[0].ams_total_switch_filament_fail_cnt).toFixed(0))});
                 for (var i = 0; i < 4; i++) {
-                    let lt = "Tray " + (i+1).toString();
-                    statsListModel.append({"leftText": qsTr(lt + " print time: "), "rightText": qsTr((parseFloat(filament_info.ams_array[0].tray[i].print_time) / 3600).toFixed(2)  + " hours")});
-                    statsListModel.append({"leftText": qsTr(lt  + " filament switches: "), "rightText": qsTr((filament_info.ams_array[0].tray[i].switch_filament_cnt).toFixed(0))});
-                    statsListModel.append({"leftText": qsTr(lt  + " failed filament switches: "), "rightText": qsTr((filament_info.ams_array[0].tray[i].switch_filament_fail_cnt).toFixed(0))});
-                    statsListModel.append({"leftText": qsTr(lt  + " print length: "), "rightText": qsTr((filament_info.ams_array[0].tray[i].tray_total_length).toFixed(2)  + " meters")});
+                    statsListModel.append({"leftText": qsTr("Tray %1 print time: ").arg(i+1), "rightText": qsTr("%1 hours").arg((parseFloat(filament_info.ams_array[0].tray[i].print_time) / 3600).toFixed(2))});
+                    statsListModel.append({"leftText": qsTr("Tray %1 filament switches: ").arg(i+1), "rightText": qsTr((filament_info.ams_array[0].tray[i].switch_filament_cnt).toFixed(0))});
+                    statsListModel.append({"leftText": qsTr("Tray %1 failed filament switches: ").arg(i+1), "rightText": qsTr((filament_info.ams_array[0].tray[i].switch_filament_fail_cnt).toFixed(0))});
+                    statsListModel.append({"leftText": qsTr("Tray %1 print length: ").arg(i+1), "rightText": qsTr("%1 meters").arg(qsTr((filament_info.ams_array[0].tray[i].tray_total_length).toFixed(2))});
                 }
 
                 filament_info.virtual_tray.filament_info.forEach(ftype => {
@@ -252,8 +251,8 @@ Item {
                     var filLength = parseFloat(ftype[filType]).toFixed(2);
                     var printTime = (parseFloat(ftype.print_time)/3600).toFixed(2);
                     if (filType !== "print_time"){
-                        statsListModel.append({"leftText": qsTr(filType + " - print time: "), "rightText": qsTr(printTime + " hours")});
-                        statsListModel.append({"leftText": qsTr(filType + " - print length: "), "rightText": qsTr(filLength + " meters")});
+                        statsListModel.append({"leftText": qsTr("%1 - print time: ").arg(filType), "rightText": qsTr("%1 hours").arg(printTime)});
+                        statsListModel.append({"leftText": qsTr("%1 - print length: ").arg(filType), "rightText": qsTr("%1 meters").arg(filLength)});
                     }
                 });
             }
