@@ -25,7 +25,7 @@ import zipfile
 import os
 import struct
 import zlib
-import xml.etree.ElementTree
+import xml.etree.ElementTree as ET
 
 TOOLCHAIN = os.environ.get("TOOLCHAIN", "arm-linux-gnueabihf-")
 
@@ -168,7 +168,7 @@ for b in bundles:
             # convert a QM to a canonicalized TS
             tsxml = subprocess.run(f"lconvert -of ts -if qm -i -", shell=True, check=True, input=files[fn], capture_output = True).stdout.decode()
             with open(ofn[:-3] + '.ts', 'w') as f:
-                f.write(xml.etree.ElementTree.canonicalize(tsxml))
+                f.write(ET.canonicalize(tsxml))
         else:
             with open(ofn, 'wb') as f:
                 f.write(files[fn])
