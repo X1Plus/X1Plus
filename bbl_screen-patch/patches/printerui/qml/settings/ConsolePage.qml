@@ -142,27 +142,35 @@ Item {
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
                 color: Colors.gray_100
                 text: outputText
-                placeholderText: gcodeCmd ? "This interface allows you to send G-code commands to the printer. You can enter commands<br>"+
-                                            "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the<br>"+
-                                            "screen.  The printer's G-code parser is somewhat picky; here are some tips for how to placate<br>"+
-                                            "it:<br><br>"+
-                                            "Commands are case sensitive; the first character of a command is always a capital letter,<br>"+
-                                            "followed by a number.  For example, to set the aux fan to full speed, use <b>M106 P2 S55</b>:<br>"+
-                                            space + "<b>M106</b>: G-code command for fan control<br>"+
-                                            space + "<b>P2</b>: parameter to select which fan (aux = 2)<br>"+
-                                            space + "<b>S255</b>: parameter to set fan speed (0 to 255)<br><br>"+
-                                            "For multi-line commands, each G-code command must be separated by the newline escape<br>"+
-                                            "sequence, <b>\\n</b>.  For example:<br>"+
-                                            space + "<b>M106 P2 S255\\nG4 S5\\nM106 P2 S0</b></br><br>"+
-                                            space + "Aux fan to 255 -> Wait 5 sec -> Aux fan to 0" : 
-                                            "This interface allows you to run commands on your printer as root.  You can enter commands<br>"+
-                                            "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of<br>"+
-                                            "the screen.  Commands are executed synchronously, so long-running commands or commands<br>"+
-                                            "that require user input may hang the UI; use caution!  This is intended as a quick diagnostic<br>"+
-                                            "tool, but for more intensive tasks, consider SSHing to the printer instead.<br><br>"+
-                                            "<b>WARNING:</b> It is possible to do <b>permanent, irreversible damage</b> to your printer from a root<br>"+
-                                            "console.  Do not enter commands unless you understand what you are typing."
-                placeholderTextColor:Colors.gray_300
+                placeholderText: gcodeCmd 
+                    ? qsTr("This interface allows you to send G-code commands to the printer. You can enter commands " +
+                        "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
+                        "the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate " +
+                        "it: ") +
+                    "<br><br>" +
+                    qsTr("Commands are case sensitive; the first character of a command is always a capital letter, " +
+                        "followed by a number. For example, to set the aux fan to full speed, use M106 P2 S255:") +
+                    "<br>" +
+                    space + qsTr("M106: G-code command for fan control") + "<br>" +
+                    space + qsTr("P2: parameter to select which fan (aux = 2)") + "<br>" +
+                    space + qsTr("S255: parameter to set fan speed (0 to 255)") +
+                    "<br><br>" +
+                    qsTr("For multi-line commands, each G-code command must be separated by the newline escape " +
+                        "sequence, \\n. For example:") +
+                    "<br>" +
+                    space + qsTr("M106 P2 S255\\nG4 S5\\nM106 P2 S0") +
+                    "<br><br>" +
+                    space + qsTr("Aux fan to 255 -> Wait 5 sec -> Aux fan to 0")
+                    : qsTr("This interface allows you to run commands on your printer as root. You can enter commands " +
+                        "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
+                        "the screen. Commands are executed synchronously, so long-running commands or commands " +
+                        "that require user input may hang the UI; use caution! This is intended as a quick diagnostic " +
+                        "tool, but for more intensive tasks, consider SSHing to the printer instead.") +
+                    "<br><br>" +
+                    qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
+                        "console. Do not enter commands unless you understand what you are typing.")
+
+                placeholderTextColor: Colors.gray_300
             }
             function scroll(contentOffset){
                 // NB: future versions of Qt Quick will have to use flickableItem here, not contentItem
@@ -365,8 +373,8 @@ Item {
                                 | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhLatinOnly
                                 : Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhPreferNumbers
                                 | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhLatinOnly
-            placeholderText: gcodeCmd ? "enter a G-code command"
-                                      : "enter a shell command to run as root"
+            placeholderText: gcodeCmd ? qsTr("enter a G-code command")
+                                      : qsTr("enter a shell command to run as root")
             placeholderTextColor: Colors.gray_400
             background: Rectangle {
                 color: Colors.gray_800
@@ -416,14 +424,14 @@ Item {
                     
                     try {
                         if (printing) {
-                            out = "Printer is running! Cannot execute gcode now";
+                            out = qsTr("Printer is running! Cannot execute gcode now");
                         } else {
                             X1Plus.sendGcode(inputCmd);
                         }
                     } catch (e){
                         
                     }
-                    out = ">Gcode command published to device\n  " + inputCmd.replace(/\\n/g, '\n  ');
+                    out = qsTr(">Gcode command published to device\n  ") + inputCmd.replace(/\\n/g, '\n  ');
                 }  else {
                     
                     out = sendCommand(inputCmd);
@@ -460,7 +468,7 @@ Item {
     
                 dialogStack.popupDialog(
                         "TextConfirm", {
-                            name: gcodeCmd ? "Export console log":"Export Gcode macro",
+                            name: gcodeCmd ? qsTr("Export console log"):qsTr("Export Gcode macro"),
                             type: TextConfirm.YES_NO,
                             defaultButton: 0,
                             text: qsTr("Export console output to a log file?"),
@@ -479,7 +487,7 @@ Item {
 
     function pathDialog(inputtxt){
             dialogStack.push("InputPage.qml", {
-                                input_head_text : "Save console output to:",
+                                input_head_text : qsTr("Save console output to:"),
                                 input_text : inputtxt,
                                 max_input_num : 50,
                                 isUsePassWord : false,

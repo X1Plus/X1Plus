@@ -20,7 +20,7 @@ Rectangle {
         dialogStack.popupDialog("TextConfirm", {
             name: "installer yesno",
             text: prompt,
-            titles: [confirm, "Cancel"],
+            titles: [confirm, qsTr("Cancel")],
             onYes: function() { what(); },
             onNo: function() { dialogStack.pop(); }
         });
@@ -35,8 +35,8 @@ Rectangle {
     }
     
     function promptWipeWritable() {
-        confirmThenDo("Resetting X1Plus settings can help to recover from modified X1Plus installations.  " +
-                      "It will also reset the lock screen passcode, root password, and ssh keys.  (This process takes a few minutes.)", 
+        confirmThenDo(qsTr("Resetting X1Plus settings can help to recover from modified X1Plus installations.  ") +
+                      qsTr("It will also reset the lock screen passcode, root password, and ssh keys.  (This process takes a few minutes.)"), 
                       function () {
                           /* load printer.json, and wipe any cfw keys */
                           let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/screen/printer.json";
@@ -62,28 +62,20 @@ Rectangle {
                           X1PlusNative.system(`sync`);
                           
                           dialogStack.pop();
-                      }, "Wipe writable partition");
+                      }, qsTr("Wipe writable partition"));
     }
 
     function promptEmergencyConsole() {
-        confirmThenDo(
-            "The emergency recovery console will connect the printer to its default WiFi network and start a temporary SSH server as root.  " +
-            "It will also spawn a root console on the AP board's UART port and USB port." +
-            "<br><br>It is possible to unrecoverably and permanently damage your printer with a root console.  Never type something into a root console unless you understand what you're typing.",
+        confirmThenDo(qsTr("The emergency recovery console will connect the printer to its default WiFi network and start a temporary SSH server as root. It will also spawn a root console on the AP board's UART port and USB port.") + "<br><br>" + qsTr("It is possible to unrecoverably and permanently damage your printer with a root console. Never type something into a root console unless you understand what you're typing."),
             function() {
                 dialogStack.pop();
                 dialogStack.replace("EmergencyConsole.qml");
-            }, "I'll be careful, I promise");
+            }, qsTr("I'll be careful, I promise"));
     }
 
     
     function promptBootDisable() {
-        confirmThenDo(
-            "Starting from the built-in firmware can be useful to diagnose issues " +
-            "with X1Plus or with your printer.  This option " +
-            "attempts to enter LAN mode before starting, and disables the printer's internal upgrade " +
-            "service; you can use this option to help avoid inadvertent erasure of your X1Plus installation." +
-            "<br><br><font color=\"#EEAAAA\">Use this mode with caution.",
+        confirmThenDo(qsTr("Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option attempts to enter LAN mode before starting, and disables the printer's internal upgrade service; you can use this option to help avoid inadvertent erasure of your X1Plus installation.") + "<br><br>" + qsTr("<font color=\"#EEAAAA\">Use this mode with caution.</font>"),
             function() {
                 let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/device/conn_mode";
                 let xhr = new XMLHttpRequest();
@@ -96,17 +88,11 @@ Rectangle {
     
     function promptBootUnmodified() {
         confirmThenDo(
-            "<font color=\"#EEAAAA\">Starting from the built-in firmware can be useful to diagnose issues " +
-            "with X1Plus or with your printer.  This option starts the printer with no modifications to the " +
-            "built-in firmware.  If your printer performs a firmware upgrade in this mode, X1Plus will likely " +
-            "be uninstalled; if you want to run X1Plus afterwards, you will need to rerun the " +
-            "X1Plus installation process.  If prompted to install upgrades, you should answer \"no\" if you want " +
-            "to keep your X1Plus installation." +
-            "<br><br>Use this mode with extreme caution.",
+            qsTr("<font color=\"#EEAAAA\">Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option starts the printer with no modifications to the built-in firmware. If your printer performs a firmware upgrade in this mode, X1Plus will likely be uninstalled; if you want to run X1Plus afterwards, you will need to rerun the X1Plus installation process. If prompted to install upgrades, you should answer \"no\" if you want to keep your X1Plus installation.</font><br><br>Use this mode with extreme caution."),
             function() {
                 X1PlusNative.system("killall bbl_screen"); /* We need this else we hang for ages */
                 Qt.quit();
-            }, "Fingers are crossed");
+            }, qsTr("Fingers are crossed"));
     }
     
     /* Replicated in KexecDialog.qml; keep this in sync if you change this (or, really, refactor it then). */
@@ -118,12 +104,12 @@ Rectangle {
         return xhr.status == 200;
     }())
     property var startupOptions: ([
-        ["Start X1Plus from SD card", hasSdCard, startFromSd],
-        ["<b>Start X1Plus installer</b>", true, startInstaller],
-        ["Reset X1Plus settings", true, promptWipeWritable],
-        ["Emergency recovery console", true, promptEmergencyConsole],
-        ["<font color=\"#EEAAAA\">Start built-in firmware with updater disabled</font>", true, promptBootDisable],
-        ["<font color=\"#FF7777\">Start built-in firmware unmodified</font>", true, promptBootUnmodified]
+        [qsTr("Start X1Plus from SD card"), hasSdCard, startFromSd],
+        [qsTr("<b>Start X1Plus installer</b>"), true, startInstaller],
+        [qsTr("Reset X1Plus settings"), true, promptWipeWritable],
+        [qsTr("Emergency recovery console"), true, promptEmergencyConsole],
+        [qsTr("<font color=\"#EEAAAA\">Start built-in firmware with updater disabled</font>"), true, promptBootDisable],
+        [qsTr("<font color=\"#FF7777\">Start built-in firmware unmodified</font>"), true, promptBootUnmodified]
     ])
     
     Text {
@@ -135,7 +121,7 @@ Rectangle {
         anchors.right: parent.right
         font: Fonts.head_48
         color: Colors.brand
-        text: "X1Plus startup options"
+        text: qsTr("X1Plus startup options")
     }
     
     ZLineSplitter {
@@ -176,7 +162,7 @@ Rectangle {
                 width: parent.width
                 color: Colors.gray_100
                 font: Fonts.body_28
-                text: "Use these tools to upgrade or repair the X1Plus firmware on your printer.<br><br><font color=\"#EEAAAA\"><b>Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.</b></font>"
+                text: qsTr("Use these tools to upgrade or repair the X1Plus firmware on your printer.<br><br><font color=\"#EEAAAA\"><b>Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.</b></font>")
             }
 
             Image {

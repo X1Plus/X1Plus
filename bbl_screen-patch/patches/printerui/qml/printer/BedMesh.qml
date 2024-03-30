@@ -63,15 +63,20 @@ Item {
                     name: "Bed Mesh",
                     message: Qt.binding(function() {
                         if (_cal.status() == _cal.STATUS.STARTING) {
-                            return "Bed mesh calibration: Toolhead is homing";
+                            return qsTr("Bed mesh calibration: Toolhead is homing");
                         } else if (_cal.status() == _cal.STATUS.PROBING) {
                             var t = Math.round(_cal.pointCount() / _cal.N_MESH_POINTS * 100);
-                            return `Probed point ${_cal.pointCount()}<br>X=${_cal.lastX()}, Y=${_cal.lastY()}&nbsp;&nbsp;Z=${_cal.lastZ()} mm\nProgress: ${t}%`
+                            return qsTr("Probed point %1<br>X=%2, Y=%3&nbsp;&nbsp;Z=%4 mm\nProgress: %5%")
+                                .arg(_cal.pointCount())
+                                .arg(_cal.lastX())
+                                .arg(_cal.lastY())
+                                .arg(_cal.lastZ())
+                                .arg(t);
                         } else if (_cal.status() == _cal.STATUS.TIMED_OUT) {
-                            return "An error has occurred and data collection timed out."
+                            return qsTr("An error has occurred and data collection timed out.");
                         }
                         console.log(`[x1p] BedMesh: bedProgDialog contents are odd, ${_cal.status()}`);
-                        return `Bed mesh calibration: internal state error, status = ${_cal.status()}`;
+                        return qsTr("Bed mesh calibration: internal state error, status = %1").arg(_cal.status());
                     }),
                     finished: Qt.binding(function() {
                         return !dialogShouldBeOpen;

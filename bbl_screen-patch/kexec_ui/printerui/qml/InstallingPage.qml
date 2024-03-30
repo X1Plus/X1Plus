@@ -41,7 +41,7 @@ Rectangle {
                     /* XXX: pop up a box */
                 }
                 if (datum.progress_complete) {
-                    statusModel.push(["success", "Installation complete!"]);
+                    statusModel.push(["success", qsTr("Installation complete!")]);
                     dialogStack.popupDialog("Success", { });
                 }
                 var lastContentY = statusList.contentY;
@@ -54,7 +54,7 @@ Rectangle {
                     dialogStack.popupDialog("TextConfirm", {
                         name: "installer yesno",
                         text: datum.prompt_yesno,
-                        titles: ["Yes", "No"],
+                        titles: [qsTr("Yes"), qsTr("No")],
                         onYes: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: true })); dialogStack.pop(); },
                         onNo: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: false })); dialogStack.pop(); }
                     });
@@ -104,8 +104,8 @@ Rectangle {
     
     Component.onCompleted: {
         if (x1pName) {
-            statusModel.push(["", "Unpacking installer"]);
-            secondaryStatusText = `Extracting ${x1pName} to internal storage.`;
+            statusModel.push(["", qsTr("Unpacking installer")]);
+            secondaryStatusText = qsTr("Extracting %1 to internal storage.").arg(x1pName);
             statusModel = statusModel;
             /* Allow a paint before we start. */
             unpackTimer.start()
@@ -126,7 +126,7 @@ Rectangle {
         anchors.right: parent.right
         font: Fonts.head_48
         color: Colors.brand
-        text: "X1Plus custom firmware installation"
+        text: qsTr("X1Plus custom firmware installation")
     }
     
     ZLineSplitter {
@@ -167,7 +167,7 @@ Rectangle {
                 width: parent.width
                 color: Colors.gray_100
                 font: Fonts.body_28
-                text: "<b>Welcome to X1Plus!</b><br><br>The X1Plus custom firmware is being installed on your SD card.  This process could take up to 10 minutes.  Try to avoid powering your printer off."
+                text: qsTr("<b>Welcome to X1Plus!</b><br><br>The X1Plus custom firmware is being installed on your SD card.  This process could take up to 10 minutes.  Try to avoid powering your printer off.")
             }
 
             Image {

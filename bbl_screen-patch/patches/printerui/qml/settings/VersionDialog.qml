@@ -15,7 +15,7 @@ Item {
 
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "do_install"; title: ("Install " + cfwVersion.version)
+            name: "do_install"; title: qsTr("Install %1").qsTr(cfwVersion.version)
             isDefault: defaultButton == 0
             keepDialog: true
             onClicked: {
@@ -31,7 +31,7 @@ Item {
             visible: needsUpdate && !cfwVersion.noUpgrade
         }
         DialogButtonItem {
-            name: "no"; title: "Return"
+            name: "no"; title: qsTr("Return")
             isDefault: defaultButton == 1
             onClicked: { ; }
         }
@@ -81,7 +81,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: isHw
-                text: `<b>Serial number</b>: ${mappedData.sn}`
+                text: qsTr("<b>Serial number</b>: %1").arg(mappedData.sn)
             }
 
             Text {
@@ -90,7 +90,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: isHw
-                text: `<b>Hardware revision</b>: ${mappedData.hw_ver}`
+                text: qsTr("<b>Hardware revision</b>: %1").arg(mappedData.hw_ver)
             }
             
             
@@ -100,7 +100,8 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 Layout.columnSpan: 2
-                text: `<b>Firmware version</b>: ${mappedData.sw_ver.split("/")[0]}` + (needsUpdate ? ` (<font color='#ff6f00'><i>recommended: ${cfwVersion.version.split("/")[0]}</i></font>)` : "")
+                text: qsTr("<b>Firmware version</b>: %1").arg(mappedData.sw_ver.split("/")[0]) +
+                    (needsUpdate ? qsTr(" (<font color='#ff6f00'><i>recommended: %1</i></font>)").arg(cfwVersion.version.split("/")[0]) : "")
             }
             
             Text {
@@ -110,9 +111,11 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 Layout.columnSpan: 2
-                text: !needsUpdate && !cfwVersion.alwaysNoUpgrade ? "This component has the recommended firmware version installed." :
-                      cfwVersion.noUpgrade ? cfwVersion.noUpgrade :
-                      "This component's firmware version does not match the running system firmware version.  Printing may not be reliable.  Install new firmware now?"
+                text: !needsUpdate && !cfwVersion.alwaysNoUpgrade 
+                    ? qsTr("This component has the recommended firmware version installed.") 
+                    : (cfwVersion.noUpgrade 
+                        ? cfwVersion.noUpgrade 
+                        : qsTr("This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?"))
             }
         }
     }

@@ -100,13 +100,14 @@ Rectangle {
                 width: parent.width
                 color: Colors.gray_100
                 font: Fonts.body_28
-                text: !recoveryStat ? "Starting emergency recovery console..."
-                                    : ("Emergency recovery console is running.  You can access it in the following ways:"+
-                                       (recoveryStat.ip ? `<br><br><b>SSH to x1plus@${recoveryStat.ip}.</b>  The password is ${recoveryStat.sshPassword}; your printer is connected to the Wi-Fi network \"${recoveryStat.wifiNetwork}\".` : "")+
-                                       "<br><br><b>Connect a micro-USB cable to the AP board</b> and use ADB to connect."+
-                                       "<br><br><b>Connect a UART to the AP board.</b>"+
-                                       "<br><br><b>It is possible to do permanent, irreversible damage to your printer from a root console.  Do not enter commands unless you understand what you are typing.</b>"+
-                                       "<br><br>To exit the emergency console, restart your printer.")
+                text: !recoveryStat ? qsTr("Starting emergency recovery console...")
+                                    : (qsTr("Emergency recovery console is running. You can access it in the following ways:") +
+                                    (recoveryStat.ip ? "<br><br><b>" + qsTr("SSH to %1.").arg("x1plus@"+recoveryStat.ip) + "</b> " + 
+                                        qsTr("The password is %1; your printer is connected to the Wi-Fi network \"%2\".").arg(recoveryStat.sshPassword).arg(recoveryStat.wifiNetwork) : "") +
+                                    "<br><br>" + qsTr("<b>Connect a micro-USB cable to the AP board</b> and use ADB to connect.") +
+                                    "<br><br><b>" + qsTr("Connect a UART to the AP board.") + "</b>" +
+                                    "<br><br><b>" + qsTr("It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.") + "</b>" +
+                                    "<br><br>" + qsTr("To exit the emergency console, restart your printer."))
             }
         }
     }
