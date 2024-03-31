@@ -7,7 +7,7 @@ TARGET_CC ?= $(TOOLCHAIN)gcc
 LDFLAGS = -shared -ldl #-nolibc # Guh.  Otherwise we end up linking against libc and getting a versioned symbol of dlsym...
 CXXFLAGS = -fPIC -std=c++11
 CFLAGS = -fPIC
-MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so
+MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
@@ -57,6 +57,10 @@ printer_ui: printer_ui-orig $$(shell find patches)
 	@echo "bbl_screen-patch/Makefile: I *would* overwrite printer_ui right now for dependency reasons, but you asked me not to by setting NO_AUTO_PATCH in your localconfig.mk, so I will not.  If you want to run the patcher and blow away the printer_ui directory, do a 'make patch_printer_ui'."
 endif
 
+base.ts: printer_ui.so kexec_ui.so
+	@rm -f base.ts
+	lupdate -locations absolute printer_ui-orig/printerui/app_en.ts printer_ui kexec_ui -ts base.ts
+
 uncurl.so: uncurl.c
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
@@ -76,6 +80,7 @@ evdev_fix.so: evdev_fix.c
 	lconvert $< -o $@
 
 %.ui.cpp: %/root.qrc $$(addprefix $$(*F)/,$$(shell grep file $$(*F)/root.qrc | sed -e 's/.*>\(.*\)<.*/\1/'))
+	cd $(dir $<); qmllint $$(grep file $(notdir $<) | sed -e 's/.*>\(.*\)<.*/\1/' | grep 'qml$$\|js$$')
 	cd $(dir $<); rcc $(notdir $<) --format-version=2 | sed 's/static const unsigned char qt_resource_name/extern const unsigned char qt_resource_name/' > $(CURDIR)/$@
 	rm -f $(dir $<)/printerui/*.qm
 
