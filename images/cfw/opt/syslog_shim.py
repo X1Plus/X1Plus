@@ -1,23 +1,15 @@
-import os, time, re, dds, sys
-import json, logging
-from logging.handlers import RotatingFileHandler
+import os
+import re
+import sys
+import dds
+import time
+import json
 from collections import namedtuple
+from logger.custom_logger import CustomLogger
 from logger.tail import TailLog
 
 
-def make_logger(name, filename):
-    formatter = logging.Formatter("%(asctime)s - %(message)s")
-    handler = RotatingFileHandler(filename, maxBytes=1048576, backupCount=5)
-    handler.setFormatter(formatter)
-
-    logger = logging.getLogger(name)
-    if not logger.hasHandlers():
-        logger.setLevel(logging.INFO)
-        logger.addHandler(handler)
-    return logger
-
-
-calibration_log = make_logger(name="calibration", filename="/tmp/calibration.log")
+calibration_log = CustomLogger("calibration", "/tmp/calibration.log",500000,1)
 
 # Define a basic mechanism for "do something when you see some particular
 # type of line in the syslog".
