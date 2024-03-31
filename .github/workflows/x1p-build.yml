@@ -47,7 +47,7 @@ jobs:
         download_sources: false
         download_translations: false
         source: bbl_screen-patch/base.ts
-        translation: dummy_does_not_exist
+        translation: 'dummy_does_not_exist/%locale%'
         project_id: 659058
         token: ${{ secrets.CROWDIN_UPLOAD_SOURCE_TOKEN }}
     - name: remote upload x1p artifact
