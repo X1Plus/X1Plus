@@ -18,6 +18,11 @@ Item {
         "WRONG_BASE_VERSION": QT_TR_NOOP("This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card."),
     })
 
+    property var dialogName_messages: ({
+        "X1Plus firmware": QT_TR_NOOP("X1Plus Firmware"),
+        "Bambu Lab base firmware": QT_TR_NOOP("Bambu Lab base firmware"),
+    })
+
     property var buttons: SimpleItemModel {
         DialogButtonItem {
             name: "do_install"; title: qsTr("Install %1").arg(cfwVersion.version)
@@ -77,7 +82,7 @@ Item {
                 font: Fonts.body_36
                 color: Colors.gray_100
                 wrapMode: Text.Wrap
-                text: cfwVersion.dialogName ? cfwVersion.dialogName : modelData.friendly
+                text: cfwVersion.dialogName ? qsTr(dialogName_messages[cfwVersion.dialogName]) : modelData.friendly
             }
 
             Text {
