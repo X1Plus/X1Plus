@@ -15,6 +15,7 @@ LANG_MAP = {
     "fr": ("fr", "fr"),
     "ja": ("ja", "ja"),
     "nl": ("nl", "nl"),
+    "ru": ("ru", "ru"),
     "sv-SE": ("sv", "sv"),
     "zh-CN": ("cn", "zh-cn"),
     "zh-TW": ("tw", "zh-tw"),
