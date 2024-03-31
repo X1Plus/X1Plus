@@ -12,6 +12,7 @@ const ACTION_REBOOT = "ACTION_REBOOT";
 const ACTION_PAUSE_PRINT = "ACTION_PAUSE";
 const ACTION_ABORT_PRINT = "ACTION_ABORT";
 const ACTION_RUN_MACRO = "ACTION_MACRO";
+const ACTION_NONE = "ACTION_NONE";
 
 const DEFAULTS = {
     "power": { "shortPress": { action: ACTION_TOGGLE_SCREENSAVER }, "longPress": { action: ACTION_REBOOT } },
@@ -23,6 +24,7 @@ const BUTTON_ACTIONS = [
     { name: QT_TR_NOOP("Reboot"), val: ACTION_REBOOT },
     { name: QT_TR_NOOP("Pause print"), val: ACTION_PAUSE_PRINT},
     { name: QT_TR_NOOP("Abort print"), val: ACTION_ABORT_PRINT },
+    { name: QT_TR_NOOP("Ignore"), val: ACTION_NONE },
     /* { name: QT_TR_NOOP("Run macro"), val: ACTION_RUN_MACRO }, */
 ];
 
@@ -34,6 +36,7 @@ const BUTTON_MAPPING_OLD = {
     "4": ACTION_TOGGLE_SCREENSAVER,
     /* "5": nozzle cam no longer exists */
     /* "6": run macro no longer exists */
+    "7": ACTION_NONE,
 };
 
 var [keyBindings, keyBindingsChanged, _setKeyBindings] = Binding.makeBinding({});
@@ -140,6 +143,8 @@ function _handleButton(button, event) {
             } else {
                 X1Plus.DeviceManager.power.externalWakeup();
             }
+            break;
+        case ACTION_NONE:
             break;
         default:
             console.log("[x1p] Error parsing gpiokeys dds message", currentTime,lastEventTime);
