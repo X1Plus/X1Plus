@@ -36,7 +36,6 @@ const BUTTON_MAPPING_OLD = {
     "4": ACTION_TOGGLE_SCREENSAVER,
     /* "5": nozzle cam no longer exists */
     /* "6": run macro no longer exists */
-    "7": ACTION_NONE,
 };
 
 var [keyBindings, keyBindingsChanged, _setKeyBindings] = Binding.makeBinding({});
