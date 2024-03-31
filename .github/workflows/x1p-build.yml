@@ -35,7 +35,7 @@ jobs:
         -v ${{ github.workspace }}:/work \
         -u `id -u` \
         --env-file <(env | grep "GITHUB\|UPDATE_KEY_MATERIAL") \
-        jwise0/cfwbuild /bin/bash -c "git config --global --add safe.directory /work; make"
+        jwise0/cfwbuild:v3 /bin/bash -c "git config --global --add safe.directory /work; make"
       env:
         UPDATE_KEY_MATERIAL: ${{ secrets.UPDATE_KEY_MATERIAL }}
     - name: remote upload x1p artifact

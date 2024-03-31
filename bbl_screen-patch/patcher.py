@@ -33,7 +33,7 @@ def generate():
             origPath = "printer_ui-orig" / Path(os.path.join(root, filename)).relative_to("printer_ui")
             patchPath = "patches" / Path(os.path.join(root, filename+".patch")).relative_to("printer_ui")
             binPath = "patches" / Path(os.path.join(root, filename)).relative_to("printer_ui")
-            if path.is_file() and not str(path).endswith("~") and not str(path).endswith(".orig") and not str(path).endswith(".rej"):
+            if path.is_file() and not str(path).endswith("~") and not str(path).endswith(".orig") and not str(path).endswith(".rej") and not str(path).endswith(".qm"):
                 diff = subprocess.run(["diff", "-u", "--label", origPath.as_posix(), origPath.as_posix(), "--label", path.as_posix(), path.as_posix()], check=False, capture_output=True)
                 with open(path, 'rb') as f:
                     editedFileLength = len(f.read())
