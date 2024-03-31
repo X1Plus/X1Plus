@@ -322,7 +322,7 @@ Rectangle {
                     textFont: Fonts.body_24
                     listTextFont: Fonts.body_24
                     width: 115
-                    model: X1Plus.GpioKeys.BUTTON_ACTIONS.map(a => qsTr(a.name))
+                    model: X1Plus.GpioKeys.BUTTON_ACTIONS.map(a => qsTranslate("GpioKeys", a.name))
                     Binding on currentIndex {
                         value: X1Plus.GpioKeys.BUTTON_ACTIONS.findIndex(a => a.val === curSelection)
                     }

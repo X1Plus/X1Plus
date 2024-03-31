@@ -554,6 +554,68 @@ SWIZZLE(ssize_t, write, int fd, const void *p, size_t n)
     return next(fd, p, n);
 }
 
+/*** Adding languages (this is freaking hilarious) ***/
+
+static int lang_init = 0;
+
+static void *last_qobject;
+SWIZZLE(void *, _ZN7QObjectC1EPS_, void *p1, void *p2)
+    last_qobject = p1;
+    return next(p1, p2);
+}
+
+SWIZZLE(void *, _ZN7QObjectC2EPS_, void *p1, void *p2)
+    last_qobject = p1;
+    return next(p1, p2);
+}
+
+static QMap<QByteArray, QString> *langmap;
+
+SWIZZLE(void *, _Z12bbl_get_propNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_bb, void *a, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s1, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s2, bool b1, bool b2)
+    if (lang_init == 3 && *s1 == "device/model_int") {
+        printf("LANG INTERPOSE: found init for DeviceManager\n");
+        void **DeviceManager = (void **)last_qobject;
+        langmap = (QMap<QByteArray, QString> *) (DeviceManager + 9);
+        lang_init++;
+    }
+    return next(a, s1, s2, b1, b2);
+}
+
+SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
+    if (s && strcmp(s, "en") == 0) {
+        if (lang_init == 0) {
+            printf("LANG INTERPOSE: saw the first pass of en, the last QObject must have been the weird not-a-deviceManager\n");
+            void **DeviceManager = (void **)last_qobject;
+            langmap = (QMap<QByteArray, QString> *) (DeviceManager + 5);
+            lang_init++;
+        } else if (lang_init == 1) {
+            printf("LANG INTERPOSE: here is the actual langmap init en for round 1\n");
+            lang_init++;
+        } else if (lang_init == 3) {
+            printf("LANG INTERPOSE: saw en for round 1 language default initializer\n");
+            lang_init++;
+        } else if (lang_init == 4) {
+            printf("LANG INTERPOSE: saw en for round 2 map initializer\n");
+            lang_init++;
+        } else {
+            printf("LANG INTERPOSE: saw en fly by again... but after lang init?\n");
+        }
+    }
+    if (s && strcmp(s, "sv") == 0) {
+        if (lang_init == 2 || lang_init == 5) {
+            printf("LANG INTERPOSE: DeviceManager's maps are probably ready, let's do it. langmap = %p, contents are now ", langmap);
+            // Add new languages here:
+            (*langmap)["ru"] = "Русский";
+            qDebug() << *langmap;
+            lang_init++;
+        } else {
+            printf("LANG INTERPOSE: saw sv fly by again... but after lang init?\n");
+        }
+    }
+
+    return next(qba, s, n);
+}
+
 /*** Qt init and resource replacement ***/
 
 extern const unsigned char qt_resource_name[];

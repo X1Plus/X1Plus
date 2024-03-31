@@ -241,9 +241,9 @@ Item {
                 statsListModel.append({"leftText": qsTr("AMS total failed filament switches: "), "rightText": qsTr((filament_info.ams_array[0].ams_total_switch_filament_fail_cnt).toFixed(0))});
                 for (var i = 0; i < 4; i++) {
                     statsListModel.append({"leftText": qsTr("Tray %1 print time: ").arg(i+1), "rightText": qsTr("%1 hours").arg((parseFloat(filament_info.ams_array[0].tray[i].print_time) / 3600).toFixed(2))});
-                    statsListModel.append({"leftText": qsTr("Tray %1 filament switches: ").arg(i+1), "rightText": qsTr((filament_info.ams_array[0].tray[i].switch_filament_cnt).toFixed(0))});
-                    statsListModel.append({"leftText": qsTr("Tray %1 failed filament switches: ").arg(i+1), "rightText": qsTr((filament_info.ams_array[0].tray[i].switch_filament_fail_cnt).toFixed(0))});
-                    statsListModel.append({"leftText": qsTr("Tray %1 print length: ").arg(i+1), "rightText": qsTr("%1 meters").arg(qsTr((filament_info.ams_array[0].tray[i].tray_total_length).toFixed(2))});
+                    statsListModel.append({"leftText": qsTr("Tray %1 filament switches: ").arg(i+1), "rightText": (filament_info.ams_array[0].tray[i].switch_filament_cnt).toFixed(0)});
+                    statsListModel.append({"leftText": qsTr("Tray %1 failed filament switches: ").arg(i+1), "rightText": (filament_info.ams_array[0].tray[i].switch_filament_fail_cnt).toFixed(0)});
+                    statsListModel.append({"leftText": qsTr("Tray %1 print length: ").arg(i+1), "rightText": qsTr("%1 meters").arg((filament_info.ams_array[0].tray[i].tray_total_length).toFixed(2))});
                 }
 
                 filament_info.virtual_tray.filament_info.forEach(ftype => {
