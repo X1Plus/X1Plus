@@ -14,10 +14,8 @@ import sys
 import os
 import xml.sax.saxutils
 
-
-def convert(arg):
+def convert(arg, f):
     j = json.load(open(arg, "r"))
-    out = os.path.splitext(arg)[0] + ".ts"
 
     # lol, whatever
     lang = list(set(j.keys()) - {"ver"})[0]
@@ -31,21 +29,21 @@ def convert(arg):
 
     print(f"converting {contextname} in {lang} from {arg} to {out}")
 
-    with open(out, "w") as f:
-        f.write('<?xml version="1.0" encoding="utf-8"?>\n')
-        f.write("<!DOCTYPE TS>\n")
-        f.write(f'<TS version="2.1" language="{lang}" sourcelanguage="en">\n')
-        f.write("  <context>\n")
-        f.write(f"    <name>{contextname}</name>\n")
-        for ent in j[lang]:
-            f.write(f"    <message id=\"{ent['ecode']}\">\n")
-            outstr = xml.sax.saxutils.escape(ent["intro"])
-            if lang == "en":
-                f.write(f"      <source>{outstr}</source>\n")
-            f.write(f"      <translation>{outstr}</translation>\n")
-            f.write("    </message>\n")
-        f.write("  </context>\n</TS>\n")
+    f.write('<?xml version="1.0" encoding="utf-8"?>\n')
+    f.write("<!DOCTYPE TS>\n")
+    f.write(f'<TS version="2.1" language="{lang}" sourcelanguage="en">\n')
+    f.write("  <context>\n")
+    f.write(f"    <name>{contextname}</name>\n")
+    for ent in j[lang]:
+        f.write(f"    <message id=\"{ent['ecode']}\">\n")
+        outstr = xml.sax.saxutils.escape(ent["intro"])
+        if lang == "en":
+            f.write(f"      <source>{outstr}</source>\n")
+        f.write(f"      <translation>{outstr}</translation>\n")
+        f.write("    </message>\n")
+    f.write("  </context>\n</TS>\n")
 
-
-for arg in sys.argv[1:]:
-    convert(arg)
+if __name__ == "__main__":
+    for arg in sys.argv[1:]:
+        with open(os.path.splitext(arg)[0] + ".ts", "w") as f:
+            convert(arg, f)
