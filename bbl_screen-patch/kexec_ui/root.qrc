@@ -1,4 +1,14 @@
 <!DOCTYPE RCC><RCC version="1.0"><qresource>
+<file>printerui/app_cn.qm</file>
+<file>printerui/app_de.qm</file>
+<file>printerui/app_en.qm</file>
+<file>printerui/app_es.qm</file>
+<file>printerui/app_fr.qm</file>
+<file>printerui/app_ja.qm</file>
+<file>printerui/app_nl.qm</file>
+<file>printerui/app_ru.qm</file>
+<file>printerui/app_sv.qm</file>
+<file>printerui/app_tw.qm</file>
 <file>printerui/qml/DynamicString.qml</file>
 <file>printerui/qml/dialog/KexecDialog.qml</file>
 <file>printerui/qml/dialog/Success.qml</file>

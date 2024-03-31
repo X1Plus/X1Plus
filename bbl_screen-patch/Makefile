@@ -84,3 +84,5 @@ evdev_fix.so: evdev_fix.c
 	cd $(dir $<); rcc $(notdir $<) --format-version=2 | sed 's/static const unsigned char qt_resource_name/extern const unsigned char qt_resource_name/' > $(CURDIR)/$@
 	rm -f $(dir $<)/printerui/*.qm
 
+# sigh
+kexec_ui/root.qrc: printer_ui
