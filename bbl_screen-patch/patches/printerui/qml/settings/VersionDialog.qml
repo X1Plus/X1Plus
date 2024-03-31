@@ -12,10 +12,15 @@ Item {
     property var mappedData: ({}) /* hw_ver, sn, sw_ver */
     property var isHw: (mappedData.sn && mappedData.sn != "" && mappedData.hw_ver && mappedData.hw_ver != "")
     property var needsUpdate: (!cfwVersion.invalid && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+    
+    property var noUpgrade_messages: ({
+        "COPY_NEW_X1P": QT_TR_NOOP("To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time."),
+        "WRONG_BASE_VERSION": QT_TR_NOOP("This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card."),
+    })
 
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "do_install"; title: qsTr("Install %1").qsTr(cfwVersion.version)
+            name: "do_install"; title: qsTr("Install %1").arg(cfwVersion.version)
             isDefault: defaultButton == 0
             keepDialog: true
             onClicked: {
@@ -113,8 +118,8 @@ Item {
                 Layout.columnSpan: 2
                 text: !needsUpdate && !cfwVersion.alwaysNoUpgrade 
                     ? qsTr("This component has the recommended firmware version installed.") 
-                    : (cfwVersion.noUpgrade 
-                        ? cfwVersion.noUpgrade 
+                    : (cfwVersion.noUpgrade
+                        ? qsTr(noUpgrade_messages[cfwVersion.noUpgrade])
                         : qsTr("This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?"))
             }
         }
