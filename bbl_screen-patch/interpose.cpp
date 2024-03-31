@@ -605,7 +605,7 @@ SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
         if (lang_init == 2 || lang_init == 5) {
             printf("LANG INTERPOSE: DeviceManager's maps are probably ready, let's do it. langmap = %p, contents are now ", langmap);
             // Add new languages here:
-            // (*langmap)["lo"] = "lolol";
+            (*langmap)["ru"] = "Русский";
             qDebug() << *langmap;
             lang_init++;
         } else {
