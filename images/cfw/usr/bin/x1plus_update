@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Basic X1Plus OTA engine
+
+X1PLUS_OTA_JSON_URL="https://ota.x1plus.net/stable/ota.json"
+
+current_version() {
+    kern=$(grep "KERNEL=" /mnt/sdcard/x1plus/boot.conf)
+    ver=${kern:7} # strip KERNEL=
+    if (echo $ver | grep -q "+g"); then
+        ver=${ver%-*} # strip hash and commit count if non-stable build, OTA only does stable atm
+    fi
+    echo $ver
+}
+
+get_info() {
+    # Default json vars
+    if ! ota_check=$(curl -s -L --connect-timeout 3 "${X1PLUS_OTA_JSON_URL}"); then
+        CHECK_FAIL="true"
+    else
+        # If we didn't fail, set our payload
+        UPDATE_DATA=${ota_check}
+
+        # And check if we have an update
+        if awk "BEGIN {exit !($(echo "$ota_check" | jq -r '.cfwVersion') > $(current_version))}"; then
+            IS_UPDATE="true"
+        fi
+    fi
+
+    # Return results
+    echo -e "{\"connectivity_error\": ${CHECK_FAIL:-false},\n \"is_update\": ${IS_UPDATE:-false},\n \"update_data\": ${UPDATE_DATA-null}\n }" | jq .
+}
+
+update() {
+    echo "Checking for X1Plus Updates..."
+    if ! ota_check=$(curl -s -L --connect-timeout 3 "${X1PLUS_OTA_JSON_URL}"); then
+        echo "Error checking for updates, are you online?"
+        exit 1
+    fi
+    # Validate we got json back with our data
+    echo "$ota_check" | jq -r '.cfwVersion' > /dev/null 2>&1 || (echo "Error parsing response from OTA URL!" && exit 1)
+    ota_ver=$(echo "$ota_check" | jq -r '.cfwVersion')
+    # Compare OTA versions, which are floats, so awk it is
+    if awk "BEGIN {exit !($ota_ver > $(current_version))}"; then
+        echo "An update to X1Plus Version $ota_ver is available!"
+    else
+        echo "No updates available."
+        exit 0
+    fi
+    ota_url=$(echo "$ota_check" | jq -r '.url')
+    ota_filename=${ota_url##*/}
+    # Do we have this file already?
+    [ -f "/mnt/sdcard/$ota_filename" ] && echo "Warning: file $ota_filename already exists on your SDCard, it will be replaced!"
+    # If we are here, let's download the OTA to the sdcard
+    echo "Downloading $ota_filename to your SDcard..."
+    if ! curl -s -L --connect-timeout 3 -o "/mnt/sdcard/$ota_filename" "$ota_url"; then
+        echo "Error downloading X1Plus OTA, something went wrong!"
+        rm "/mnt/sdcard/$ota_filename" 2>/dev/null # Attempt to clean up if needed
+        exit 1
+    fi
+    echo "Download complete, please reboot and enter the installer to update your X1Plus version!"
+}
+
+# if bbl_screen calls us with get-info, just return a json payload with info.
+if [ "$1" == "get_info" ]; then
+    get_info
+else
+    update
+fi
