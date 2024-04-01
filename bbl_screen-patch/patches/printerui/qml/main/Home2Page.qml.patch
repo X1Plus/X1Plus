@@ -13,8 +13,8 @@
      property var carouselImages: WebContents.carouselImages2
      property bool printPrepare: task.state < PrintTask.RUNNING && task.state > PrintTask.IDLE
 +    property var serialNo: DeviceManager.build.seriaNO
-+    property var f1: "file://" + DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/${serialNo}/images/home.png`)
-+    property var img1: imgExists(f1) ? f1: "qrc:/printerui/image/exhibition.png"
++    property var f1: "file://" + DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
++    property var img1: imgExists(f1) ? f1: "qrc:/printerui/image/exhibition1.png"
      property var stateIcons: {
          var icons = []
          if (RecordManager.isTimelapseOn) {
