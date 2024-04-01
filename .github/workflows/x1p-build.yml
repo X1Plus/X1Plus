@@ -43,6 +43,7 @@ jobs:
       uses: crowdin/github-action@v1
       with:
         upload_sources: true
+        upload_sources_args: '--dest=Firmware/base.ts'
         upload_translations: false
         download_sources: false
         download_translations: false
