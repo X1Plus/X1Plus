@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/main/HomePage.qml
 +++ printer_ui/printerui/qml/main/HomePage.qml
-@@ -2,6 +2,7 @@
+@@ -2,17 +2,25 @@
  import QtQuick.Controls 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -8,37 +8,33 @@
  
  import ".."
  import "../printer"
-@@ -11,8 +12,22 @@
++import "../X1Plus.js" as X1Plus
+ import "qrc:/uibase/qml/widgets"
+ 
+ Item {
  
      property var carouselImages: hmsPanel.visible
                                   ? WebContents.carouselImages2 : WebContents.carouselImages1
+-
 +    property var serialNo: DeviceManager.build.seriaNO
-+    property var f2: "file://" + DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
-+    property var f1: "file://"+ DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
-+    property var img1: imgExists(f1) ? f1: "qrc:/printerui/image/exhibition1.png"
-+    property var img2: imgExists(f2) ? f2: "qrc:/printerui/image/exhibition.png"
- 
++    property var home_png: DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
++    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
++    property var img_print: X1Plus.fileExists(print_png) ? "file://"+print_png: "qrc:/printerui/image/exhibition1.png"
++    property var img_home: X1Plus.fileExists(home_png) ? "file://"+home_png: "qrc:/printerui/image/exhibition.png" 
      EventTrack.pageName: "Home"
 +    
-+    function imgExists(img){
-+        var strPath = img.replace("file://","");
-+        if (X1PlusNative.popen(`test -f ${strPath} && echo 1 || echo 0`) == 0){
-+            return false;
-+        } else {
-+            return true;
-+        }
-+    }
++    
  
      MarginPanel {
          id: showPanel
-@@ -30,8 +45,8 @@
+@@ -30,8 +38,8 @@
              interval: 10000
              orientation: hmsPanel.visible ? Qt.Vertical : Qt.Horizontal
              model: carouselImages.length === 0
 -                   ? [ hmsPanel.visible ? "qrc:/printerui/image/exhibition1.png"
 -                                        : "qrc:/printerui/image/exhibition.png" ]
-+                   ? [ hmsPanel.visible ? img1
-+                                        : img2 ]
++                   ? [ hmsPanel.visible ? img_print
++                                        : img_home ]
                     : carouselImages.map(function(i) { return i.imageUrl })
          }
      }
