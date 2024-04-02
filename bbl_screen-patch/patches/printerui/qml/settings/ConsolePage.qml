@@ -83,8 +83,8 @@ Item {
                 gencode.M973({action:gencode.OV2740.CAPTURE, num:1, expose:1}),
                 gencode.M960({type:gencode.LEDS.LED_NOZZLE,val:1}),
                 gencode.M960({type:gencode.LEDS.LED_TOOLHEAD,val:1}),
-                gencode.G0({z:-10,accel:1200}), 
-                gencode.G0({z:10,accel:1200}), 
+                gencode.G91() + '\\n' + gencode.G0({z:10,accel:1200}), 
+                gencode.G91() + '\\n' + gencode.G0({z:-10,accel:1200}), 
                 gencode.G0({x:228,y:253,z:8,accel:1200}),
                 gencode.M9822(),
                 gencode.M400(50),
@@ -419,6 +419,7 @@ Item {
             onClicked: {
                 var inputCmd = inputTextBox.text.trim();
                 if (inputCmd.length <1) return;
+                inputCmd = inputCmd.replace(/\\n/g, '\n  ');
                 
                 if (gcodeCmd){
                     
@@ -431,7 +432,7 @@ Item {
                     } catch (e){
                         
                     }
-                    out = qsTr(">Gcode command published to device\n  ") + inputCmd.replace(/\\n/g, '\n  ');
+                    out = qsTr(">Gcode command published to device\n  ");
                 }  else {
                     
                     out = sendCommand(inputCmd);
