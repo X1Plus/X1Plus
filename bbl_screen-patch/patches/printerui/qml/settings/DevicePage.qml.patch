@@ -306,7 +306,7 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -338,35 +333,50 @@
+@@ -338,30 +333,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -366,12 +366,6 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-                                                                 name: "rtsp server on",
--                                                                text: qsTr("Do you need to open LAN Mode Liveview?"),
-+                                                                text: qsTr("Do you want to turn on the LAN live view server?"),
-                                                                 defaultButton: 0,
-                                                                 onYes: function() {
-                                                                     rtspServerBtn.checked = true
 @@ -374,27 +384,62 @@
                                                                  }
                                                              })
@@ -525,7 +519,7 @@
 +                anchors.left: enableSshTx.left
 +                color: Colors.brand
 +                font: Fonts.body_24
-+                text: qsTr("Root password: ") + "<br><font size=\"4\" color=\"#00AE42\">" + (rootpw == "" ? "[not yet set]" : rootpw) + "</font>"
++                text: qsTr("Root password: ") + "<br><font size=\"4\" color=\"#00AE42\">" + (rootpw == "" ? qsTr("[not yet set]") : rootpw) + "</font>"
 +            }
 +
 +            ZButton {

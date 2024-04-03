@@ -17,15 +17,6 @@
      MarginPanel {
          id: howToPanel
          height: 538
-@@ -416,7 +417,7 @@
-             color: Colors.gray_100
-             wrapMode: Text.WordWrap
-             visible: !loadBar.visible
--            text: hasAms ? qsTr("Choose an AMS slot then press Load or Unload to automatically load or unload filament.")
-+            text: hasAms ? qsTr("Choose an AMS slot then press Load or Unload to automatically load or unload filament. ")
-                          : qsTr("Before loading, please make sure your filament is pushed into the toolhead.")
-         }
- 
 @@ -656,32 +657,41 @@
                                                : qsTr("Empty")
                      }

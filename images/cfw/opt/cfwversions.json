@@ -1,7 +1,7 @@
 {
-    "cfw": { "dialogName": "X1Plus firmware", "version": "[version error]", "alwaysNoUpgrade": true, "noUpgrade": "To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time." },
-    "ota": { "dialogName": "Bambu Lab base firmware", "version": "01.07.02.00", "alwaysNoUpgrade": true, "noUpgrade": "To install a new version of the custom firmware, copy the new x1p file to root of the the SD card, power cycle the printer, and select the installer at startup time" },
-    "rv1126": { "version": "00.00.28.55", "noUpgrade": "This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card."  },
+    "cfw": { "dialogName": "X1Plus firmware", "version": "[version error]", "alwaysNoUpgrade": true, "noUpgrade": "COPY_NEW_X1P" },
+    "ota": { "dialogName": "Bambu Lab base firmware", "version": "01.07.02.00", "alwaysNoUpgrade": true, "noUpgrade": "COPY_NEW_X1P" },
+    "rv1126": { "version": "00.00.28.55", "noUpgrade": "WRONG_BASE_VERSION" },
     "th": { "version": "00.00.07.12", "paths": {
         "th07": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/th_rev7-firmware-v00.00.07.12-20231031102713_product.bin.sig", "md5": "20eacbc29a81fa42daf93a8693cbc113" },
         "th09": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/th_rev9-firmware-v00.00.07.12-20231031102810_product.bin.sig", "md5": "7549a5096c530a1ba43e92f4ad0e3261" }

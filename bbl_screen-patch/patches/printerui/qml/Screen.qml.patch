@@ -52,7 +52,7 @@
  
      Component.onCompleted: {
          Printer.jumpTo.connect(jumpTo)
-+        X1Plus.awaken(DeviceManager, PrintManager)
++        X1Plus.awaken(DeviceManager, PrintManager, PrintTask)
      }
  
      Loader {

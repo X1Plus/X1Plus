@@ -73,13 +73,17 @@ Item {
                 anchors.right: parent.right
                 
                 text: calibrationData ?
-                        `<font size="3" color="#AEAEAE">This calibration run was captured on ${hilite(plotTitle)}, at a bed temperature of ${hilite(calibrationData.temperature.toFixed(0).toString() + "°C")}.<br><br>`+
-                        `Detected bed tilt was ${hilite(calibrationData.bedMetrics.tiltX.toFixed(2).toString() + " mm")} across the X axis, ` +
-                        `and ${hilite(calibrationData.bedMetrics.tiltY.toFixed(2).toString() + " mm")}.  ` +
-                        `The bed had a peak-to-peak deviation of ${hilite(calibrationData.bedMetrics.peakToPeak.toFixed(2).toString() + " mm")}, and ` +
-                        `remaining nonplanarity after perfectly tramming the bed would be ${hilite(calibrationData.bedMetrics.nonplanarity.toFixed(2).toString() + " mm")}.<br><br>` +
-                        X1Plus.MeshCalcs.describeMetrics(calibrationData.bedMetrics)
-                      : ""
+                    qsTr("<font size='3' color='#AEAEAE'>This calibration run was captured on %1, at a bed temperature of %2.<br><br>" +
+                        "Detected bed tilt was %3 across the X axis, and %4 across the Y axis. " +
+                        "The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.<br><br>")
+                    .arg(hilite(plotTitle))
+                    .arg(hilite(calibrationData.temperature.toFixed(0).toString() + "°C"))
+                    .arg(hilite(calibrationData.bedMetrics.tiltX.toFixed(2).toString() + " mm"))
+                    .arg(hilite(calibrationData.bedMetrics.tiltY.toFixed(2).toString() + " mm"))
+                    .arg(hilite(calibrationData.bedMetrics.peakToPeak.toFixed(2).toString() + " mm"))
+                    .arg(hilite(calibrationData.bedMetrics.nonplanarity.toFixed(2).toString() + " mm")) +
+                    X1Plus.MeshCalcs.describeMetrics(calibrationData.bedMetrics)
+                    : ""
             }
         }
 
@@ -112,7 +116,7 @@ Item {
                             name: "clear calibration logs",
                             type: TextConfirm.YES_NO,
                             defaultButton: 0,
-                            text: `Are you sure you want to remove the data entry from ${plotTitle}?`,
+                            text: qsTr("Are you sure you want to remove the data entry from $1?").arg(plotTitle),
                             onYes: function() {
                                 X1Plus.BedMeshCalibration.deleteEntry(calibrationData.time);
                                 bedleveldiag.parent.pop();

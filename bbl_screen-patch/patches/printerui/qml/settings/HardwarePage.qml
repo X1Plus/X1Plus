@@ -21,18 +21,6 @@ Rectangle {
     property var maintain: DeviceManager.maintain
     property var brightness: DeviceManager.getSetting("cfw_brightness", 100.0)
     property var toolheadLED: DeviceManager.getSetting("cfw_toolhead_led", false)
-    property var dialog_jsonKey
-    property var macroFile: ""  
-    property var buttonActions: [
-        { name: "Reboot", val: 0 },
-        { name: "Set temp", val: 1 },
-        { name: "Pause print", val: 2 },
-        { name: "Abort print", val: 3 },
-        { name: "Sleep/wake", val: 4 },
-        // { name: "Nozzle cam", val: 5 },
-        { name: "Run macro", val: 6 }
-    ]
-    property var pidofBtn: 0
 
     Timer {
         id: dispBrightnessChangeTimer
@@ -48,73 +36,6 @@ Rectangle {
             DeviceManager.maintain.getAccessories()
         }
     }
-    
-    function pathDialog(inputtxt,inputtitle){
-            dialogStack.push("InputPage.qml", {
-                                input_head_text : inputtitle,
-                                input_text : inputtxt,
-                                max_input_num : 50,
-                                isUsePassWord : false,
-                                isInputShow : true,
-                                isInputting_obj : rect_isInputting_obj,
-                                output_obj : inputText});    
-        }
-        
-    function fileExist(path){
-        var exist = X1PlusNative.popen(`test -f ${path} && echo 1`);
-        return (exist == 1);
-    }
-    function fileDate(path){
-        return X1PlusNative.popen(`stat -c %Y ${path}`);
-    }
-    QtObject {
-        id: rect_isInputting_obj
-        property bool isInputting: false
-        property string setType:""
-        onIsInputtingChanged: {
-            if(!isInputting){
-                if (setType == "temp"){
-                    let splitKey = inputText.text.trim().split(' ');
-                    if (splitKey.length < 2){
-                        return;
-                    } else {
-                        let setT = splitKey[1]; 
-                        if (splitKey[0] == "bed") {
-                            if (setT > 110){
-                                setT=35;
-                                console.log("[x1p] invalid set temperature input");
-                            }
-                        } else if (splitKey[0] == "nozzle"){
-                            if (setT > 300){
-                                setT=100;
-                                console.log("[x1p] invalid set temperature input");
-                            }
-                        } else {
-                            return;
-                        }
-                        DeviceManager.putSetting(dialog_jsonKey, `1 ${splitKey[0]} ${setT}`);
-                    }
-                } else {
-                    macroFile = inputText.text;         
-                    console.log("[x1p]",macroFile);
-                    if (macroFile.endsWith(".py")){
-                        DeviceManager.putSetting(dialog_jsonKey, `6 ${macroFile}`);
-                    } else if (macroFile.endsWith(".gcode")){
-                        DeviceManager.putSetting(dialog_jsonKey, `6 ${macroFile}`);
-                    } else {
-                        DeviceManager.putSetting(dialog_jsonKey, "0"); //incorrect filetype entered.. lazy way to error handle
-                    }
-                }
-                setType = "";
-            }
-        }
-    }
-    Text {
-        id: inputText
-        visible: false
-        text: macroFile
-    }
-
 
     
     MarginPanel {
@@ -300,7 +221,7 @@ Rectangle {
                 buttonHelpPad.popup()
             }
         }
-
+      
         ZButton {
             id: reloadgpio
             anchors.top: parent.top
@@ -312,7 +233,7 @@ Rectangle {
             icon: isChanged ? "../../icon/components/refresh_color.svg" : "../../icon/refresh.svg"
             height: width
             width: 69
-            visible:false
+            visible:true
             cornerRadius: width / 2
             iconSize: -1
             onClicked:{
@@ -324,11 +245,7 @@ Rectangle {
                                     type: TextConfirm.YES_NO,
                                     defaultButton: 1,
                                     onYes: function() {
-                                        DeviceManager.putSetting("cfw_power_short","4");
-                                        DeviceManager.putSetting("cfw_power_long","0");
-                                        DeviceManager.putSetting("cfw_estop_short","2");
-                                        DeviceManager.putSetting("cfw_estop_long","3");
-                                        X1PlusNative.system(`/etc/init.d/S82gpiokeys restart`);
+                                        X1Plus.GpioKeys.resetToDefaultActions();
                                         console.log("[x1p] Resetting button mappings to defaults (power button: short = toggle lcd, long = reboot; estop button: short = pause print, long = abort print)");
                                     },
                                 })
@@ -366,7 +283,6 @@ Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
             columns: 3
-            
             property var imageHeight: 25
 
             Text {
@@ -400,44 +316,37 @@ Rectangle {
             Component {
                 id: choiceMenu
                 Choise {
-                    property var jsonKey: ""
-                    property var defaultSelection: "0"
-                    property var jsonval: DeviceManager.getSetting(jsonKey, defaultSelection)
+                    property var pressType: ""
+                    property var btn: ""
+                    property var curSelection: X1Plus.GpioKeys.getBinding(btn, pressType).action
                     textFont: Fonts.body_24
                     listTextFont: Fonts.body_24
                     width: 115
-                    model: buttonActions.map(a => a.name)
-                    placeHolder: buttonActions[currentIndex].name
-                    currentIndex: buttonActions.findIndex(pair => pair.val == String(jsonval).charAt(0))
-                    onCurrentTextChanged: { 
-                        if(!down) return;
-                        dialog_jsonKey = jsonKey;
-                        var idx = buttonActions[currentIndex].val;
-                        if (idx == 6) {
-                            rect_isInputting_obj.setType = "macro";
-                            pathDialog("/mnt/sdcard/x1plus/macros/", "Enter macro filepath<br>(.gcode or .py)");
-                        } else if (idx == 1){
-                            rect_isInputting_obj.setType = "temp";
-                            pathDialog("nozzle 100", "ex: 'nozzle 100' or 'bed 45'<br>Replace value with temp (°C)");
-  
-                        } else {
-                            DeviceManager.putSetting(jsonKey, idx);
+                    model: X1Plus.GpioKeys.BUTTON_ACTIONS.map(a => qsTranslate("GpioKeys", a.name))
+                    Binding on currentIndex {
+                        value: X1Plus.GpioKeys.BUTTON_ACTIONS.findIndex(a => a.val === curSelection)
+                    }
+                    onCurrentIndexChanged: { 
+                        if (!down) return;
+                        let actionStr = X1Plus.GpioKeys.BUTTON_ACTIONS[currentIndex].val;
+                        if (actionStr !== undefined) {
+                            console.log(`[x1p] ${item.btn} ${item.pressType} - ${actionStr}`);
+                            X1Plus.GpioKeys.setBinding(item.btn, item.pressType, actionStr);
                         }
-                        X1PlusNative.system(`/etc/init.d/S82gpiokeys restart`);
                     }
                 }
             }
-            
+
             Loader {
                 Layout.fillWidth: true
-                sourceComponent: choiceMenu
-                onLoaded: { item.jsonKey = "cfw_power_short"; item.defaultSelection = "4" /* screen lock */; }
+                sourceComponent: choiceMenu 
+                onLoaded: { item.btn = "power"; item.pressType = "shortPress"; }
             }
 
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: { item.jsonKey = "cfw_power_long"; item.defaultSelection = "0" /* reboot */; }
+                onLoaded: { item.btn = "power"; item.pressType = "longPress"; }
             }
 
             Image {
@@ -451,14 +360,15 @@ Rectangle {
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: { item.jsonKey = "cfw_estop_short"; item.defaultSelection = "2" /* pause print */; }
+                onLoaded: { item.btn = "estop"; item.pressType = "shortPress"; }
             }
 
             Loader {
                 Layout.fillWidth: true
                 sourceComponent: choiceMenu
-                onLoaded: { item.jsonKey = "cfw_estop_long"; item.defaultSelection = "3" /* abort print */; }
+                onLoaded: { item.btn = "estop"; item.pressType = "longPress"; }
             }
+            
         }
 
         ZLineSplitter {
@@ -546,12 +456,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        DeviceManager.maintain.getAccessories()
-        X1PlusNative.system(`mkdir -p /mnt/sdcard/x1plus/macros/`); 
-        /*if (!fileExist('/mnt/sdcard/x1plus/macros/preheat.py') && fileExist('/usr/etc/macros/preheat.py')){
-            X1Plus.system(`cp  /usr/etc/macros/preheat.py /mnt/sdcard/x1plus/macros/`);
-        } //think i had a stroke writing this*/
-
+        DeviceManager.maintain.getAccessories();
     }
 
     PopupPad {

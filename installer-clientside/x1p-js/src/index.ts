@@ -19,9 +19,9 @@ async function doit() {
     }
     console.log(`found printer serial number ${serial} ip ${host}`);
 
-    const printer = new Printer(opts.ip);
+    const printer = new Printer(opts.ip, opts.access_code);
     console.log("authenticating to printer...");
-    await printer.authenticate(opts.access_code);
+    await printer.authenticate();
 }
 
 await doit();

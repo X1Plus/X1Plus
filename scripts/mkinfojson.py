@@ -40,7 +40,7 @@ else:
             "cfwVersion": cfwVersion,
             "date": cfwdate,
             "notes": tagnotes,
-            "url": f"https://github.com/Bambu-Research-Group/x1-cfw-tools/releases/download/x1plus%2F{cfwVersion}/{cfwVersion}.x1p"
+            "url": f"https://github.com/X1Plus/X1Plus/releases/download/x1plus%2F{cfwVersion}/{cfwVersion}.x1p"
         },
         open(f"{ROOTPATH}/ota.json", "w"),
         indent = 4,

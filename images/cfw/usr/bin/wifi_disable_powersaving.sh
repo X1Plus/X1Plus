@@ -1,9 +1,9 @@
 #!/bin/sh
 
 while true ; do
-  POWER="`iwconfig 2>&1 | grep 'Power Management:off'`"
+  POWER="`iw wlan0 get power_save 2>&1 | grep 'Power save: off'`"
   if [ "$POWER" = "" ] ; then
-    iwconfig wlan0 power off > /dev/null 2>&1
+    iw wlan0 set power_save off > /dev/null 2>&1
     logger -t wifi_disable_powersaving "[ turning powersaving off ]"
   fi
   sleep 4

@@ -33,27 +33,27 @@ Item {
     
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "download"; title: `Download ${version}`
+            name: "download"; title:  qsTr("Download %1").arg(version)
             isDefault: defaultButton == 0
             keepDialog: true
             onClicked: { downloadToCache(); }
             visible: !isDownloaded && !downloadInProgress && !isInstalling
         }
         DialogButtonItem {
-            name: "install"; title: `Install ${version}`
+            name: "install"; title: qsTr("Install %1").arg(version)
             isDefault: defaultButton == 0
             keepDialog: true
             onClicked: { install(); }
             visible: isDownloaded && !isInstalling && (!didInstall || updater.status == Updater.UPGRADE_FAIL)
         }
         DialogButtonItem {
-            name: "no"; title: "Cancel"
+            name: "no"; title: qsTr("Cancel")
             isDefault: defaultButton == 1
             visible: !isInstalling && !didInstall
             onClicked: { X1Plus.DDS.requestVersions(); }
         }
         DialogButtonItem {
-            name: "postno"; title: "Return"
+            name: "postno"; title:qsTr("Return")
             isDefault: defaultButton == 1
             visible: didInstall
             onClicked: { X1Plus.DDS.requestVersions(); }
@@ -222,7 +222,7 @@ Item {
                 font: Fonts.body_36
                 color: Colors.gray_100
                 wrapMode: Text.Wrap
-                text: `${friendly} update: ${version}`
+                text: qsTr("%1 update %2").arg(friendly).arg(version)
             }
 
 
@@ -234,7 +234,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: !isDownloaded && !downloadInProgress && !md5Failed
-                text: `Version ${version} does not exist on the SD card.  Download it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.`
+                text: qsTr("Version %1 does not exist on the SD card. Download it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.").arg(version)
             }
 
             Text {
@@ -244,7 +244,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: !isDownloaded && !downloadInProgress && md5Failed
-                text: `Version ${version} exists on the SD card, but appears to be corrupt.  Redownload it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.`
+                text: qsTr("Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.").arg(version)
             }
 
             /* Phase: download. */
@@ -255,7 +255,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: !isDownloaded && downloadInProgress
-                text: `Downloading version ${version} from Bambu Lab: ${downloadStatus}`
+                text: qsTr("Downloading version %1 from Bambu Lab: %2").arg(version).arg(downloadStatus)
             }
             
             /* Phase: pre-install. */
@@ -266,7 +266,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: isDownloaded && !isInstalling && !didInstall
-                text: `Version ${version} is available on the SD card and ready to install.  Install it now?`
+                text: qsTr("Version %1 is available on the SD card and ready to install. Install it now?").arg(version)
             }
             
             /* Phase: installing. */
@@ -277,7 +277,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: isInstalling
-                text: `Installing version ${version}.  Do not power off your printer.`
+                text: qsTr("Installing version %1.  Do not power off your printer.").arg(version)
             }
             
             ZProgressBar {
@@ -313,7 +313,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: didInstall && updater.status != Updater.UPGRADE_FAIL
-                text: `Successfully installed version ${version}.`
+                text: qsTr("Successfully installed version %1.").arg(version)
             }
 
             Text {
@@ -323,7 +323,8 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: didInstall && updater.status == Updater.UPGRADE_FAIL
-                text: `Version ${version} failed to install.  Consider trying again, or power cycling your printer.  ${updater.message != '' ? '(Updater message "' : ''}${updater.message}${updater.message != '' ? '".)' : ''}`
+                text: qsTr("Version %1 failed to install. Consider trying again, or power cycling your printer.").arg(version) +
+                    (updater.message != '' ? qsTr(" (Updater message \"%1\".)").arg(updater.message) : '')
             }
         }
     }

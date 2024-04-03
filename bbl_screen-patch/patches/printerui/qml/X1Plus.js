@@ -5,6 +5,7 @@
 .import "./x1plus/Stats.js" as X1PlusStats
 .import "./x1plus/MeshCalcs.js" as X1PlusMeshCalcs
 .import "./x1plus/Binding.js" as X1PlusBinding
+.import "./x1plus/GpioKeys.js" as X1PlusGpioKeys
 .import "./x1plus/GcodeGenerator.js" as X1PlusGcodeGenerator
 .import "./x1plus/BedMeshCalibration.js" as X1PlusBedMeshCalibration
 .import "./x1plus/ShaperCalibration.js" as X1PlusShaperCalibration
@@ -45,20 +46,35 @@ X1Plus.BedMeshCalibration = X1PlusBedMeshCalibration;
 var BedMeshCalibration = X1PlusBedMeshCalibration;
 X1Plus.ShaperCalibration = X1PlusShaperCalibration;
 var ShaperCalibration = X1PlusShaperCalibration;
+X1Plus.GpioKeys = X1PlusGpioKeys;
+var GpioKeys  = X1PlusGpioKeys;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
 BedMeshCalibration.X1Plus = X1Plus;
 ShaperCalibration.X1Plus = X1Plus;
+GpioKeys.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
-
 var DeviceManager = null;
 var PrintManager = null;
+var PrintTask = null;
+var printerConfigDir = null;
 
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
 X1Plus.emulating = emulating;
+
+
+function isIdle() {
+	return PrintManager.currentTask.stage < PrintTask.WORKING;
+}
+X1Plus.isIdle = isIdle;
+
+function hasSleep() {
+	return DeviceManager.power.hasSleep;
+}
+X1Plus.hasSleep = hasSleep;
 
 function loadJson(path) {
 	let xhr = new XMLHttpRequest();
@@ -75,6 +91,11 @@ function saveJson(path, json) {
 	_X1PlusNative.saveFile(emulating + path, JSON.stringify(json));
 }
 X1Plus.saveJson = saveJson;
+
+function atomicSaveJson(path, json) {
+	_X1PlusNative.atomicSaveFile(emulating + path, JSON.stringify(json));
+}
+X1Plus.atomicSaveJson = atomicSaveJson;
 
 function sendGcode(gcode_line){
 	var payload = {
@@ -115,14 +136,25 @@ function formatTime(time) {
 }
 X1Plus.formatTime = formatTime;
 
+function fileExists(fPath) {
+    return _X1PlusNative.popen(`test -f ${fPath} && echo 1 || echo 0`) == "1";
+}
+X1Plus.fileExists = fileExists;
+
 /* Some things can only happen after we have a DeviceManager and
  * PrintManager passed down, and the real QML environment is truly alive. 
+ * Submodules also don't get access to the global X1Plus object until after
+ * they are loaded, and they might need to do work touching other modules. 
  * These things happen from 'awaken'.
  */
-function awaken(_DeviceManager, _PrintManager) {
+function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	console.log("X1Plus.js awakening");
-	X1Plus.DeviceManager = _DeviceManager;
-	X1Plus.PrintManager = _PrintManager;
+	X1Plus.DeviceManager = DeviceManager = _DeviceManager;
+	X1Plus.PrintManager = PrintManager = _PrintManager;
+	X1Plus.PrintTask = PrintTask = _PrintTask;
+	X1Plus.printerConfigDir = printerConfigDir = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
+	_X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + printerConfigDir);
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
+	GpioKeys.awaken();
 }

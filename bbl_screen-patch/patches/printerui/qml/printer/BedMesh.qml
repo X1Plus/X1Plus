@@ -44,12 +44,12 @@ Item {
 
                     var latest = _cal.getEntry(_cal.lastCalibrationTime());
                     var metrics = latest.bedMetrics;
-            
-                    diagRes2.text = "<font size=\"3\" color=\"#AEAEAE\">" + X1Plus.MeshCalcs.describeMetrics(metrics) + "<br><br>" +
-                                    "Detected bed tilt is " + metrics.tiltX.toFixed(2).toString() + " mm across the X axis, " +
-                                    "and " + metrics.tiltY.toFixed(2).toString() + " mm across the Y axis; " + 
-                                    "post-tramming peak-to-peak deviation would be " + metrics.nonplanarity.toFixed(2).toString() + " mm." +
-                                    "</p></font>";
+                    diagRes2.text = qsTr("<font size=\"3\" color=\"#AEAEAE\">%1<br><br>Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.</font>")
+                        .arg(X1Plus.MeshCalcs.describeMetrics(metrics))
+                        .arg(metrics.tiltX.toFixed(2))
+                        .arg(metrics.tiltY.toFixed(2))
+                        .arg(metrics.nonplanarity.toFixed(2));
+                    
                     pageStack.push("BedLevelDiag.qml");
                     pageStack.currentPage.calibrationData = latest;
                     _cal.idle();
@@ -63,15 +63,20 @@ Item {
                     name: "Bed Mesh",
                     message: Qt.binding(function() {
                         if (_cal.status() == _cal.STATUS.STARTING) {
-                            return "Bed mesh calibration: Toolhead is homing";
+                            return qsTr("Bed mesh calibration: Toolhead is homing");
                         } else if (_cal.status() == _cal.STATUS.PROBING) {
                             var t = Math.round(_cal.pointCount() / _cal.N_MESH_POINTS * 100);
-                            return `Probed point ${_cal.pointCount()}<br>X=${_cal.lastX()}, Y=${_cal.lastY()}&nbsp;&nbsp;Z=${_cal.lastZ()} mm\nProgress: ${t}%`
+                            return qsTr("Probed point %1<br>X=%2, Y=%3&nbsp;&nbsp;Z=%4 mm\nProgress: %5%")
+                                .arg(_cal.pointCount())
+                                .arg(_cal.lastX())
+                                .arg(_cal.lastY())
+                                .arg(_cal.lastZ())
+                                .arg(t);
                         } else if (_cal.status() == _cal.STATUS.TIMED_OUT) {
-                            return "An error has occurred and data collection timed out."
+                            return qsTr("An error has occurred and data collection timed out.");
                         }
                         console.log(`[x1p] BedMesh: bedProgDialog contents are odd, ${_cal.status()}`);
-                        return `Bed mesh calibration: internal state error, status = ${_cal.status()}`;
+                        return qsTr("Bed mesh calibration: internal state error, status = %1").arg(_cal.status());
                     }),
                     finished: Qt.binding(function() {
                         return !dialogShouldBeOpen;
@@ -279,9 +284,12 @@ Item {
                             font: Fonts.body_24
                             color: Colors.gray_100
                             wrapMode: Text.WordWrap
-                            text: "<br>Run date: "+runDate + "&nbsp;&nbsp;&nbsp;&nbsp;" +
-                                  "Bed Temperature: " + bedTemperature +
-                                  " <font size=\"3\" color=\"#AEAEAE\"><br>X-tilt: " + xTilt + "<br>Y-tilt: " + yTilt + "<br>Peak to peak deviation: " + peak + "</font>"
+                            text: qsTr("<br>Run date: %1&nbsp;&nbsp;&nbsp;&nbsp;Bed Temperature: %2 <font size='3' color='#AEAEAE'><br>X-tilt: %3<br>Y-tilt: %4<br>Peak to peak deviation: %5</font>")
+                                .arg(runDate)
+                                .arg(bedTemperature)
+                                .arg(xTilt)
+                                .arg(yTilt)
+                                .arg(peak)
                         }
                         TapHandler {
                             onTapped: {                   

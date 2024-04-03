@@ -7,9 +7,7 @@ import X1PlusNative 1.0
 
 import "qrc:/uibase/qml/widgets"
 
-import "printer"
 import "settings"
-import "factory"
 import "."
 
 Rectangle {
@@ -49,7 +47,7 @@ Rectangle {
         anchors.right: parent.right
         font: Fonts.head_48
         color: Colors.brand
-        text: "X1Plus custom firmware installation"
+        text: qsTr("X1Plus custom firmware installation")
     }
 
     ZButton {
@@ -99,7 +97,7 @@ Rectangle {
             width: implicitWidth
             color: Colors.gray_100
             font: Fonts.body_28
-            text: "Select a firmware bundle to install:"
+            text: qsTr("Select a firmware bundle to install:")
         }
         
         Choise {
@@ -117,7 +115,7 @@ Rectangle {
                 x1pJson = x1pJsons[currentIndex];
                 console.log(currentIndex);
             }
-            placeHolder: "No .x1p files found on SD card."
+            placeHolder: qsTr("No .x1p files found on SD card.")
         }
         
         Rectangle {
@@ -158,11 +156,14 @@ Rectangle {
                     font: Fonts.body_28
                     wrapMode: Text.WordWrap
                     text: x1pJson != null
-                            ? `<b>Custom firmware version:</b> ${x1pJson.cfwVersion}<br>`+
-                              `<b>Bambu Lab base firmware version:</b> ${x1pJson.base.version}<br>`+
-                              `<b>Build date:</b> ${x1pJson.date}<br><br>`+
-                              `<b>Release notes:</b> ${x1pJson.notes.replace(/\n/g,'<br>')}`
-                            : "No custom firmware installation bundles found on SD card.  Copy a <b>.x1p</b> file to the SD card and try again."
+                        ? qsTr("<b>Custom firmware version:</b> %1<br>" +
+                                "<b>Bambu Lab base firmware version:</b> %2<br>" +
+                                "<b>Build date:</b> %3<br><br>" +
+                                "<b>Release notes:</b> %4").arg(x1pJson.cfwVersion)
+                                                            .arg(x1pJson.base.version)
+                                                            .arg(x1pJson.date)
+                                                            .arg(x1pJson.notes.replace(/\n/g,'<br>'))
+                        : qsTr("No custom firmware installation bundles found on SD card. Copy a <b>.x1p</b> file to the SD card and try again.")
                 }
             }
         }
@@ -184,9 +185,9 @@ Rectangle {
                 onClicked: {
                     dialogStack.popupDialog("TextConfirm", {
                         name: "install confirm",
-                        text: "Are you sure you're ready to install the X1Plus custom firmware?<br><br>"+
-                              "While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer.  X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.<br><br>Once the installation process begins, don't touch your printer until it completes.  It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.",
-                        titles: ["Yes! Install X1Plus!", "Er, never mind"],
+                        text: qsTr("Are you sure you're ready to install the X1Plus custom firmware?<br><br>" +
+                                "While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.<br><br>Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install."),
+                        titles: [qsTr("Yes! Install X1Plus!"), qsTr("Er, never mind")],
                         onYes: function() { dialogStack.pop(); dialogStack.replace("InstallingPage.qml", { x1pName: x1pName }); },
                         onNo: function() { dialogStack.pop(); },
                     });

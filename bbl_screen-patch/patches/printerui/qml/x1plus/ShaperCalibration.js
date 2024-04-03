@@ -30,7 +30,7 @@ var [lastCalibrationTime, lastCalibrationTimeChanged, _setLastCalibrationTime] =
 var isActive = function() { return status() == STATUS.STARTING || status() == STATUS.SWEEPING; };
 
 function awaken() {
-    _logPath = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}/logs`;
+    _logPath = `${X1Plus.printerConfigDir}/logs`;
     _X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + _logPath);
     console.log(`[x1p] ShaperCalibration: logPath is ${_logPath}`);
     try {

@@ -10,16 +10,16 @@ import "../X1Plus.js" as X1Plus
 Item {
     property var modules: X1Plus.DDS.versions()
     property var mapping: ([
-        { "friendly": "X1Plus version", "cfw": "cfw", "icon": "../../icon/components/cfw.png" },
-        { "friendly": "Base firmware version", "cfw": "ota", "icon": "../../icon/components/mainfw.png" },
-        { "friendly": "AP board", "bambu": "rv1126", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
-        { "friendly": "MC board", "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
-        { "friendly": "Toolhead", "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
-        { "friendly": "AMS hub", "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
-        { "friendly": "AMS #1", "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
-        { "friendly": "AMS #2", "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
-        { "friendly": "AMS #3", "bambu": "ams/2", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
-        { "friendly": "AMS #4", "bambu": "ams/3", "cfw": "ams", "icon": "../../icon/components/ams.svg" }
+        { "friendly": QT_TR_NOOP("X1Plus version"), "cfw": "cfw", "icon": "../../icon/components/cfw.png" },
+        { "friendly": QT_TR_NOOP("Base firmware version"), "cfw": "ota", "icon": "../../icon/components/mainfw.png" },
+        { "friendly": QT_TR_NOOP("AP board"), "bambu": "rv1126", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
+        { "friendly": QT_TR_NOOP("MC board"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
+        { "friendly": QT_TR_NOOP("Toolhead"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
+        { "friendly": QT_TR_NOOP("AMS hub"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
+        { "friendly": QT_TR_NOOP("AMS #1"), "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
+        { "friendly": QT_TR_NOOP("AMS #2"), "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
+        { "friendly": QT_TR_NOOP("AMS #3"), "bambu": "ams/2", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
+        { "friendly": QT_TR_NOOP("AMS #4"), "bambu": "ams/3", "cfw": "ams", "icon": "../../icon/components/ams.svg" }
     ])
     property var cfwVersions: screenSaver.cfwVersions
 
@@ -59,7 +59,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 color: Colors.gray_200
                 font: Fonts.body_36
-                text: "Firmware version"
+                text: qsTr("Firmware version")
             }
 
             ZButton {
@@ -155,7 +155,7 @@ Item {
                     anchors.leftMargin: 10
                     color: Colors.gray_200
                     font: Fonts.body_30
-                    text: modelData.friendly
+                    text: qsTr(modelData.friendly)
                 }
                 
                 Text {

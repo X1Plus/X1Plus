@@ -35,9 +35,22 @@ jobs:
         -v ${{ github.workspace }}:/work \
         -u `id -u` \
         --env-file <(env | grep "GITHUB\|UPDATE_KEY_MATERIAL") \
-        jwise0/cfwbuild /bin/bash -c "git config --global --add safe.directory /work; make"
+        jwise0/cfwbuild:v3 /bin/bash -c "git config --global --add safe.directory /work; make"
       env:
         UPDATE_KEY_MATERIAL: ${{ secrets.UPDATE_KEY_MATERIAL }}
+    - name: Upload sources to CrowdIn
+      if: startsWith(github.ref, 'refs/heads/main')
+      uses: crowdin/github-action@v1
+      with:
+        upload_sources: true
+        upload_sources_args: '--dest=Firmware/base.ts'
+        upload_translations: false
+        download_sources: false
+        download_translations: false
+        source: bbl_screen-patch/base.ts
+        translation: 'dummy_does_not_exist/%locale%'
+        project_id: 659058
+        token: ${{ secrets.CROWDIN_UPLOAD_SOURCE_TOKEN }}
     - name: remote upload x1p artifact
       if: startsWith(github.ref, 'refs/tags/x1plus/') || startsWith(github.ref, 'refs/heads/main')
       run: |

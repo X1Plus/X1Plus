@@ -27,6 +27,9 @@
 #include <QtQml/qqml.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -37,6 +40,8 @@
 #include <cstdio>
 #include <sys/mman.h>
 #include <dlfcn.h>
+#include <QtCore/QtEndian>
+#include <linux/wireless.h>
 
 namespace X1Plus {
 #include "minizip/ioapi.c"
@@ -222,6 +227,34 @@ eject:
         close(fd);
     }
 
+    Q_INVOKABLE void atomicSaveFile(QString filename, const QByteArray &buf) {
+        QFileInfo fileInfo(filename);
+        QString tempFilename = fileInfo.absoluteDir().absoluteFilePath("temp_" + fileInfo.fileName());
+
+        std::string tempFile = tempFilename.toStdString();
+        std::string targetFilenameStr = filename.toStdString();
+
+        int fd = open(tempFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd < 0) {
+            printf("atomic rewrite: %s open() error\n", tempFile.c_str());
+            return;
+        }
+
+        if (write(fd, buf.constData(), buf.size()) != buf.size()) {
+            printf("atomic rewrite: Error writing to %s\n", tempFile.c_str());
+            close(fd);
+
+            unlink(tempFile.c_str());
+            return;
+        }
+
+        close(fd);
+
+        if (rename(tempFile.c_str(), targetFilenameStr.c_str()) != 0) {
+            printf("atomic rewrite: Error moving %s to %s\n", tempFile.c_str(), targetFilenameStr.c_str());
+            unlink(tempFile.c_str());
+        }
+    }
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
 private:
     static const int minBacklightValue = 50;
@@ -384,7 +417,7 @@ SUB_TOPIC_EXPANDO
 
 int DdsNode_new_get_sub_topic_count(void *p) {
     printf("swizzled call for get_sub_topic_count -> %d\n", DdsNode_orig_get_sub_topic_count(p) + 1);
-    return DdsNode_orig_get_sub_topic_count(p) + 1;
+    return DdsNode_orig_get_sub_topic_count(p) + 2;
 }
 
 rxfcn_t DdsNode_new_get_sub_topic_callback(void *p, int i) {
@@ -413,6 +446,9 @@ rxfcn_t DdsNode_new_get_sub_topic_callback(void *p, int i) {
 const char *DdsNode_new_get_sub_topic_name(void *p, int i) {
     if (i == DdsNode_orig_get_sub_topic_count(p)) {
         return "device/report/mc_print";
+    }
+    if (i == (DdsNode_orig_get_sub_topic_count(p) + 1)) {
+        return "device/x1plus";
     }
     return DdsNode_orig_get_sub_topic_name(p, i);
 }
@@ -518,25 +554,125 @@ SWIZZLE(ssize_t, write, int fd, const void *p, size_t n)
     return next(fd, p, n);
 }
 
-/*** Qt init and resource replacement ***/
+/*** Adding languages (this is freaking hilarious) ***/
 
-SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int a, unsigned char const* b, unsigned char const* c, unsigned char const* d)
-    static int regcount = 0;
-    printf("qRegisterResourceData version %d, %p %p %p\n", a, b, c, d);
-    if ((uintptr_t)b < 0x1000000) {
-        /* we want to skip the second resource blob loaded *from the main binary's memory space* */
-        regcount++;
-        if (regcount == 2) {
-            printf("...skipped...\n");
+static int lang_init = 0;
+
+static void *last_qobject;
+SWIZZLE(void *, _ZN7QObjectC1EPS_, void *p1, void *p2)
+    last_qobject = p1;
+    return next(p1, p2);
+}
+
+SWIZZLE(void *, _ZN7QObjectC2EPS_, void *p1, void *p2)
+    last_qobject = p1;
+    return next(p1, p2);
+}
+
+static QMap<QByteArray, QString> *langmap;
+
+SWIZZLE(void *, _Z12bbl_get_propNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_bb, void *a, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s1, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s2, bool b1, bool b2)
+    if (lang_init == 3 && *s1 == "device/model_int") {
+        printf("LANG INTERPOSE: found init for DeviceManager\n");
+        void **DeviceManager = (void **)last_qobject;
+        langmap = (QMap<QByteArray, QString> *) (DeviceManager + 9);
+        lang_init++;
+    }
+    return next(a, s1, s2, b1, b2);
+}
+
+SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
+    if (s && strcmp(s, "en") == 0) {
+        if (lang_init == 0) {
+            printf("LANG INTERPOSE: saw the first pass of en, the last QObject must have been the weird not-a-deviceManager\n");
+            void **DeviceManager = (void **)last_qobject;
+            langmap = (QMap<QByteArray, QString> *) (DeviceManager + 5);
+            lang_init++;
+        } else if (lang_init == 1) {
+            printf("LANG INTERPOSE: here is the actual langmap init en for round 1\n");
+            lang_init++;
+        } else if (lang_init == 3) {
+            printf("LANG INTERPOSE: saw en for round 1 language default initializer\n");
+            lang_init++;
+        } else if (lang_init == 4) {
+            printf("LANG INTERPOSE: saw en for round 2 map initializer\n");
+            lang_init++;
+        } else {
+            printf("LANG INTERPOSE: saw en fly by again... but after lang init?\n");
         }
     }
-    next(a, b, c, d);
+    if (s && strcmp(s, "sv") == 0) {
+        if (lang_init == 2 || lang_init == 5) {
+            printf("LANG INTERPOSE: DeviceManager's maps are probably ready, let's do it. langmap = %p, contents are now ", langmap);
+            // Add new languages here:
+            (*langmap)["ru"] = "Русский";
+            qDebug() << *langmap;
+            lang_init++;
+        } else {
+            printf("LANG INTERPOSE: saw sv fly by again... but after lang init?\n");
+        }
+    }
+
+    return next(qba, s, n);
+}
+
+/*** Qt init and resource replacement ***/
+
+extern const unsigned char qt_resource_name[];
+
+SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int version, unsigned char const* tree, unsigned char const* name, unsigned char const* data)
+    QString qname;
+    qname.resize(qFromBigEndian<qint16>(name));
+    qFromBigEndian<ushort>(name + 6, qname.size(), qname.data());
+    const char *sname = qname.toLatin1().data();
+    
+    printf("qRegisterResourceData version %d, %p %p %p (%s)\n", version, tree, name, data, sname);
+
+    if (strcmp("printerui", sname) == 0 && name != qt_resource_name)
+    {
+        printf("...skipped...\n");
+        return;
+    }
+
+    next(version, tree, name, data);
 } 
 
 SWIZZLE(int, getifaddrs, void *p)
     if (needs_emulation_workarounds)
         return -1;
     return next(p);
+}
+
+SWIZZLE(int, ioctl, int fd, unsigned long req, void *p)
+    if (req == SIOCGIWMODE) {
+        struct iwreq *wrq = (struct iwreq *)p;
+        wrq->u.mode = IW_MODE_INFRA;
+        return 0;
+    } else if (req == SIOCGIWSTATS) {
+        struct iwreq *wrq = (struct iwreq *)p;
+        struct iw_statistics *stats = (struct iw_statistics *) wrq->u.data.pointer;
+        
+        /* this is astonishingly cheesy, but life is too long to write
+         * netlink code, and anyway, it's not like they didn't do it first,
+         * so */
+        FILE *iwfp = ::popen("wpa_cli -i wlan0 signal_poll | grep RSSI | cut -d= -f2", "r");
+        if (!iwfp)
+            return -1;
+        char buf[128];
+        if (fgets(buf, sizeof(buf), iwfp) == NULL) {
+            pclose(iwfp);
+            return -1;
+        }
+        pclose(iwfp);
+        int rssi = atoi(buf);
+        if (rssi == 0)
+            rssi = -199;
+        stats->qual.level = 0x100 + rssi;
+        stats->qual.updated = 10;
+        printf("ioctl SIOCGIWSTATS: return rssi %d\n", rssi);
+        return 0;
+    }
+    return next(fd, req, p);
 }
 
 #include "interpose.moc.h"
