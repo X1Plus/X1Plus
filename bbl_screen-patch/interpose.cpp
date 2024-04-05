@@ -591,17 +591,24 @@ SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
         } else if (lang_init == 1) {
             printf("LANG INTERPOSE: here is the actual langmap init en for round 1\n");
             lang_init++;
+            if (*(void **)langmap != &QMapDataBase::shared_null) {
+                printf("LANG INTERPOSE: this bbl_screen does NOT look like the memory mapping we expect... not injecting languages into this version of bbl_screen\n");
+                lang_init = -1;
+            }
         } else if (lang_init == 3) {
             printf("LANG INTERPOSE: saw en for round 1 language default initializer\n");
             lang_init++;
         } else if (lang_init == 4) {
             printf("LANG INTERPOSE: saw en for round 2 map initializer\n");
             lang_init++;
+            if (*(void **)langmap != &QMapDataBase::shared_null) {
+                printf("LANG INTERPOSE: this bbl_screen does NOT look like the memory mapping we expect... not injecting languages into this version of bbl_screen\n");
+                lang_init = -1;
+            }
         } else {
             printf("LANG INTERPOSE: saw en fly by again... but after lang init?\n");
         }
-    }
-    if (s && strcmp(s, "sv") == 0) {
+    } else if (s && strcmp(s, "sv") == 0) {
         if (lang_init == 2 || lang_init == 5) {
             printf("LANG INTERPOSE: DeviceManager's maps are probably ready, let's do it. langmap = %p, contents are now ", langmap);
             // Add new languages here:
