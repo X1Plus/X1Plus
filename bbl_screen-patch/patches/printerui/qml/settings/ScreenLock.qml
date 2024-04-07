@@ -63,6 +63,8 @@ Rectangle {
         if (DeviceManager.getSetting("cfw_locktype", 0) != 0) {
             locked = true;
             readText();
+            isEnteringPasscode = false;
+            numberPad.target = null;
         }
     }
     
