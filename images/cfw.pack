@@ -21,6 +21,7 @@ file /system/lib/modules/brcmfmac.ko 755 0 0
 file /system/lib/modules/brcmutil.ko 755 0 0
 file /system/lib/modules/cfg80211.ko 755 0 0
 file /system/lib/modules/compat.ko 755 0 0
+file /system/lib/modules/wireguard.ko 755 0 0
 nod /system/lib/modules/bcmdhd.ko 0 0 0 c 0 0
 
 file /system/etc/firmware/fw_bcm43438a1.bin 755 0 0
