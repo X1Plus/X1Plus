@@ -89,15 +89,12 @@ Rectangle {
                     locked = false;
                 }
             }
-            ersatzDialogStack.pop();
         }
     }
 
     function popNumberPad() {
         isEnteringPasscode = true;
         numberPad.target = top;
-        /* this is admittedly extremely silly, since the dialogStack is beneath us */
-        ersatzDialogStack.push(dialogStack.currentItem);
     }
 
     ColumnLayout {
@@ -117,7 +114,7 @@ Rectangle {
             onXChanged: {
                 /* this is *astonishingly* chaotic */
                 if (isEnteringPasscode) {
-                    ersatzDialogStack.currentItem.focusPosition = ersatzDialogStack.currentItem.mapFromItem(lockText, 0, 0);
+                    dialogStack.currentItem.focusPosition = dialogStack.currentItem.mapFromItem(lockText, 0, 0);
                 }
             }
         }
@@ -200,8 +197,10 @@ Rectangle {
         }
     }
     
+    /* Shadow the global dialogStack here -- that dialogStack is hidden, but
+     * the NumberPad uses it to push and pop things.  Ours isn't hidden. */
     StackView {
-        id: ersatzDialogStack
+        id: dialogStack
         anchors.fill: parent
         initialItem: Item { objectName: "initialItem" }
         pushEnter: null
