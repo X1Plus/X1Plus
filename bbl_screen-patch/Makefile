@@ -5,8 +5,8 @@ QT5_INCL_PATH ?= /usr/include/x86_64-linux-gnu/qt5/
 TOOLCHAIN ?= arm-linux-gnueabihf-
 TARGET_CC ?= $(TOOLCHAIN)gcc
 LDFLAGS = -shared -ldl #-nolibc # Guh.  Otherwise we end up linking against libc and getting a versioned symbol of dlsym...
-CXXFLAGS = -fPIC -std=c++11
-CFLAGS = -fPIC
+CXXFLAGS = -fPIC -std=c++11 -Ivendor -O -mcpu=cortex-a7
+CFLAGS = -fPIC  -O -mcpu=cortex-a7
 MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so
 
 .DELETE_ON_ERROR:
@@ -65,10 +65,10 @@ base.ts: printer_ui.so kexec_ui.so
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
-	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
+	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) vendor/libvncserver.so.0.9.14
 
 printer_ui.so: printer_ui.ui.o interpose.cpp interpose.moc.h
-	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS
+	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS vendor/libvncserver.so.0.9.14
 
 %.moc.h: %.cpp
 	moc -I $(QT5_INCL_PATH) $< -o $@

@@ -828,6 +828,236 @@ SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
     return next(qba, s, n);
 }
 
+/*** VNC server shenanigans! ***/
+
+#include <xf86drm.h>
+#include <QtGui/QRegion>
+#include <QtWidgets/QWidget>
+#include <QtGui/QWindow>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <rfb/rfb.h>
+
+struct fb_map {
+    drm_handle_t handle;
+    size_t pitch;
+    size_t size;
+    uint32_t w;
+    uint32_t h;
+    uint32_t buf_id;
+    void *p;
+};
+
+#define FB_MAPS_MAX 4
+static struct fb_map fb_maps[FB_MAPS_MAX] = {};
+
+static QRegion lastRegion;
+static rfbScreenInfoPtr rfbScreen = NULL;
+
+static void fb_transpose(uint32_t __restrict *fbout, uint32_t __restrict *fbin) {
+    struct timeval tv_start;
+    gettimeofday(&tv_start, 0);
+    const int W = 1280;
+    const int H = 720;
+    uint8_t dirtyx[W] = {};
+    uint8_t dirtyy[H] = {};
+    for (int y0 = 0; y0 < H; y0 += 8) {
+        for (int x0 = 0; x0 < W; x0 += 8) {
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
+                    uint32_t pxl = fbin[(x0 + x) * H + y0 + y];
+                    pxl = ((pxl & 0xFF0000) >> 16) | (pxl & 0x00FF00) | ((pxl & 0xFF) << 16);
+#if 0
+                    if (fbout[(y0+y)*W + W - (x0 + x + 1)] != pxl) {
+                        dirtyx[W - (x0 + x + 1)] = 1;
+                        dirtyy[y0 + y] = 1;
+                    }
+#endif
+                    fbout[(y0+y)*W + W - (x0 + x + 1)] = pxl;
+                }
+            }
+        }
+    }
+#if 0
+    int sx = -1, sy = -1, dx = 0, dy = 0;
+    for (int y = 0; y < H; y++) {
+        if (dirtyy[y]) {
+            if (sy == -1)
+                sy = y;
+            dy = y - sy + 1;
+        }
+    }
+    for (int x = 0; x < W; x++) {
+        if (dirtyx[x]) {
+            if (sx == -1)
+                sx = x;
+            dx = x - sx + 1;
+        }
+    }
+#else
+    QRect bbox = lastRegion.boundingRect();
+    int sx = bbox.x(), sy = bbox.y(), dx = bbox.width(), dy = bbox.height();
+#endif
+    struct timeval tv_end;
+    gettimeofday(&tv_end, 0);
+    long usec = (tv_end.tv_sec - tv_start.tv_sec) * 1000000 + tv_end.tv_usec - tv_start.tv_usec;
+    printf("(%d,%d) + (%d,%d) in %ld us\n", sx, sy, dx, dy, usec);
+    rfbMarkRectAsModified(rfbScreen, sx, sy, sx+dx, sy+dy);
+}
+
+#define _SYS_IOCTL_H 1 // I need to swizzle this later, leave me alone
+#include <linux/input.h>
+
+static void vnc_ptr_event(int button_mask, int x, int y, struct _rfbClientRec *cl) {
+    static int last_button_mask = 0;
+    
+    if (button_mask || last_button_mask) {
+        int fd = open("/dev/input/event1", O_RDWR);
+        struct input_event ev;
+        struct timeval tv;
+        
+        gettimeofday(&tv, 0);
+        ev.input_event_sec = tv.tv_sec;
+        ev.input_event_usec = tv.tv_usec;
+        
+        ev.type = EV_ABS;
+        ev.code = ABS_MT_TRACKING_ID;
+        ev.value = button_mask ? 31337 : -1;
+        write(fd, &ev, sizeof(ev));
+        
+        ev.code = ABS_MT_POSITION_X;
+        ev.value = y;
+        write(fd, &ev, sizeof(ev));
+        
+        ev.code = ABS_MT_POSITION_Y;
+        ev.value = 1279 - x;
+        write(fd, &ev, sizeof(ev));
+        
+        ev.type = EV_SYN;
+        ev.code = 0;
+        ev.value = 0;
+        write(fd, &ev, sizeof(ev));
+        
+        close(fd);
+#if 0
+        QGraphicsSceneMouseEvent event(button_mask ? QEvent::GraphicsSceneMousePress : QEvent::GraphicsSceneMouseRelease);
+        event.setScenePos(QPointF(x, y));
+        event.setButton(Qt::LeftButton);
+        event.setButtons(Qt::LeftButton);
+        printf("CLiCKY: %d %d\n", x, y);
+        printf("TOPLEVELAT: %p\n", QApplication::widgetAt(QPoint(x, y)));
+        //qDebug() << QApplication::topLevelWindows()[0];
+        QApplication::sendEvent(QApplication::topLevelWindows()[0], &event);
+#endif
+    }
+    last_button_mask = button_mask;
+}
+
+static void vnc_do_flip(void *fb) {
+    if (!rfbScreen) {
+        rfbScreen = rfbGetScreen(0, NULL, 1280, 720, 8, 3, 4);
+        rfbScreen->frameBuffer = (char *)malloc(1280 * 720 * 4);
+        rfbScreen->desktopName = "X1Plus";
+        rfbScreen->alwaysShared = TRUE;
+        rfbScreen->ptrAddEvent = vnc_ptr_event;
+        rfbInitServer(rfbScreen); 
+        rfbRunEventLoop(rfbScreen, 1000000, TRUE);
+    }
+    printf("flipping: rfbScreen clientHead %p\n", rfbScreen->clientHead);
+    fb_transpose((uint32_t *)rfbScreen->frameBuffer, (uint32_t *)fb);
+}
+
+SWIZZLE(int, drmIoctl, int fd, unsigned long request, void *arg)
+    if (request == DRM_IOCTL_MODE_CREATE_DUMB) {
+        int rv = next(fd, request, arg);
+        if (rv < 0)
+            return rv;
+
+        drm_mode_create_dumb *creq = (drm_mode_create_dumb *)arg;
+        for (int i = 0; i < FB_MAPS_MAX; i++) {
+            if (fb_maps[i].handle)
+                continue;
+            fb_maps[i].handle = creq->handle;
+            fb_maps[i].pitch = creq->pitch;
+            fb_maps[i].size = creq->size;
+            fb_maps[i].w = creq->width;
+            fb_maps[i].h = creq->height;
+            printf("drmIoctl mapped handle %p has pitch %d, size %d, w %d, h %d\n", fb_maps[i].handle, (int)creq->pitch, (int)creq->size, (int)creq->width, (int)creq->height);
+            break;
+        }
+        
+        return rv;
+    } else if (request == DRM_IOCTL_MODE_MAP_DUMB) {
+        int rv = next(fd, request, arg);
+        if (rv < 0)
+            return rv;
+        
+        drm_mode_map_dumb *mreq = (drm_mode_map_dumb *)arg;
+        for (int i = 0; i < FB_MAPS_MAX; i++) {
+            if (fb_maps[i].handle != mreq->handle)
+                continue;
+            fb_maps[i].p = mmap(0, fb_maps[i].size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mreq->offset);
+            printf("drmIoctl mapped handle %p / buf_id %p -> %p\n", fb_maps[i].handle, fb_maps[i].buf_id, fb_maps[i].p);
+        }
+        return rv;
+    } else if (request == DRM_IOCTL_MODE_DESTROY_DUMB) {
+        drm_mode_destroy_dumb *dreq = (drm_mode_destroy_dumb *)arg;
+        for (int i =0; i < FB_MAPS_MAX; i++) {
+            if (fb_maps[i].handle != dreq->handle)
+                continue;
+            if (fb_maps[i].p) {
+                munmap(fb_maps[i].p, fb_maps[i].size);
+            }
+            fb_maps[i] = {};
+        }
+        return next(fd, request, arg);
+    } else {
+        return next(fd, request, arg);
+    }
+}
+
+SWIZZLE(int, drmModeAddFB2, int fd, uint32_t width, uint32_t height, uint32_t pixel_format, const uint32_t bo_handles[4], const uint32_t pitches[4], const uint32_t offsets[4], uint32_t *buf_id, uint32_t flags)
+    int rv = next(fd, width, height, pixel_format, bo_handles, pitches, offsets, buf_id, flags);
+    if (rv < 0)
+        return rv;
+
+    for (int i = 0; i < FB_MAPS_MAX; i++) {
+        if (fb_maps[i].handle != bo_handles[0])
+            continue;
+        fb_maps[i].buf_id = *buf_id;
+        printf("drmModeAddFB2 mapped handle %p to buf %p\n", bo_handles[0], *buf_id);
+        break;
+    }
+
+    return rv;
+}
+
+SWIZZLE(int, drmModePageFlip, int fd, uint32_t crtc_id, uint32_t fb_id, uint32_t flags, void *user_data)
+    for (int i = 0; i < FB_MAPS_MAX; i++) {
+        if (fb_maps[i].buf_id == fb_id) {
+            printf("drmModePageFlip flipped page to buf %p\n", fb_maps[i].p);
+            vnc_do_flip(fb_maps[i].p);
+        }
+    }
+    return next(fd, crtc_id, fb_id, flags, user_data);
+}
+
+// At some point, this might be interesting for trying to do minimal diffs
+// of VNC data to feed to libvncserver but for now here we are.
+
+SWIZZLE(QRegion::const_iterator, _ZNK7QRegion5beginEv, void *_this)
+    QRegion::const_iterator r = next(_this);
+    void *lr = __builtin_return_address(0);
+    Dl_info info = {};
+    int rv = dladdr(lr, &info);
+    if (info.dli_fname && strstr(info.dli_fname, "qlinuxfb")) {
+        printf("QRegion::begin(%p), lr = %p (%s, %s)\n", _this, lr, info.dli_fname, info.dli_sname);
+        qDebug() << *(QRegion *)_this;
+        lastRegion = *(QRegion *)_this;
+    }
+    return r;
+}
+
 /*** Qt init and resource replacement ***/
 
 extern const unsigned char qt_resource_name[];
@@ -849,7 +1079,13 @@ SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int version, unsigned char co
     next(version, tree, name, data);
 } 
 
-SWIZZLE(int, ioctl, int fd, unsigned long req, void *p)
+SWIZZLE(int, getifaddrs, void *p)
+    if (needs_emulation_workarounds)
+        return -1;
+    return next(p);
+}
+
+SWIZZLE(int, ioctl, int fd, unsigned long int req, void *p)
     if (req == SIOCGIWMODE) {
         struct iwreq *wrq = (struct iwreq *)p;
         wrq->u.mode = IW_MODE_INFRA;
