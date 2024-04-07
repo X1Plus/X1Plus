@@ -1,0 +1,41 @@
+#!/bin/sh
+
+start() {
+	printf "Starting ipcam service: "
+	printf "optimize stream pipeline params"
+	echo 6 > /proc/mpp_service/rkvdec/session_buffers
+	echo 6 > /proc/mpp_service/rkvenc/session_buffers
+	echo 3 > /proc/mpp_service/vepu/session_buffers
+	echo 3 > /proc/mpp_service/vdpu/session_buffers
+
+	start-stop-daemon -S -m -b -p /var/run/ipcam.pid \
+		--exec /opt/ipcam_patch \
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+stop() {
+	printf "Stopping ipcam: "
+	start-stop-daemon -K -q -p /var/run/ipcam.pid
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+	stop
+    sleep 5
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
