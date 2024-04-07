@@ -112,7 +112,7 @@ Item {
             property var mappedData: (modelData.bambu === undefined ?
                                         {"sw_ver": cfwVersion.version, "sn": "", "hw_ver": "" } :
                                         modules.find(el => modelData.bambu == el.name))
-            property var needsUpdate: (!cfwVersion.invalid && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+            property var needsUpdate: (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
             width: ListView.view.width
             height: 81
             color: modelData.onClicked === undefined ? "transparent" : backColor.color
