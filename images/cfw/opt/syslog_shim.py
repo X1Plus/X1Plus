@@ -107,7 +107,7 @@ syslog_data = [
     ),
     # detected build plate id
     RegexParser(
-        r".*detected\s*build\s*plate\s*id:\s*(\d)",
+        r".*detected\s*build\s*plate\s*id:\s*(-?\d)",
         lambda match: {
             "command": "build_plate_id",
             "param": {
@@ -117,7 +117,7 @@ syslog_data = [
     ),
     # bed strain sensitivity
     RegexParser(
-        r".*strain\s*(\d)*\s*sensitivity\s*=\s*(-?\d+\.\d*),p=(-?\d+\.\d*),Vs=(-?\d+\.\d*)",
+        r".*strain\s*(\d)*\s*sensitivity\s*=\s*(-?\d+\.?\d*),p=(-?\d+\.\d*),Vs=(-?\d+\.\d*)",
         lambda match: {
             "command": "bed_strain",
             "param": {
@@ -129,7 +129,7 @@ syslog_data = [
     ),
     # xcam clarity
     RegexParser(
-        r".*Camera\s*clarity\s*is:\s*(-?\d+\.\d*),\s*clarity\s*status:\s*(\d)",
+        r".*Camera\s*clarity\s*is:\s*(-?\d+\.?\d*),\s*clarity\s*status:\s*(\d)",
         lambda match: {
             "command": "xcam_clarity",
             "param": {
