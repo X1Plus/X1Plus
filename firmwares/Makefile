@@ -43,3 +43,6 @@ endef
 
 00.00.28.55.squashfs:
 	$(call fetchimage,01.07.02.00,62201b7e2c/,update-v00.00.28.55-20240112183717_product.img.zip.sig,$@)
+
+00.00.28.59.squashfs:
+	$(call fetchimage,01.07.03.00,1916138d2c/,update-v00.00.28.59-20240330174859_product.img.zip.sig,$@)

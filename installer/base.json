@@ -1,10 +1,10 @@
 {
-    "version": "01.07.02.00",
-    "ap": "00.00.28.55",
-    "updateUrl": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/update-v00.00.28.55-20240112183717_product.img.zip.sig",
-    "updateName": "update-v00.00.28.55-20240112183717_product.img.zip.sig",
-    "updateMd5": "e87a07856548a6f8dfadfba3ee306030",
-    "squashfsName": "00.00.28.55.squashfs",
+    "version": "01.07.03.00",
+    "ap": "00.00.28.59",
+    "updateUrl": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.03.00/product/1916138d2c/update-v00.00.28.59-20240330174859_product.img.zip.sig",
+    "updateName": "update-v00.00.28.59-20240330174859_product.img.zip.sig",
+    "updateMd5": "8ab2870265db88690710cb781ce3ac8f",
+    "squashfsName": "00.00.28.59.squashfs",
     "squashfsMd5": "6c9ab3ce84d71d057cb0c98f12eeb075",
     "mtime": 1705079749
 }
