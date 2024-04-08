@@ -35,6 +35,7 @@ file /opt/uncurl.so 755 0 0
 file /opt/evdev_fix.so 755 0 0
 file /opt/dds.py 644 0 0
 file /opt/libdds_intf.so 755 0 0
+file /opt/workaround_ifaddrs.so 755 0 0
 
 file /sbin/iwconfig 755 0 0
 
