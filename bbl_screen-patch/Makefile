@@ -4,9 +4,9 @@ FIRMWARE ?= $(shell jq -r .base.ap ../installer/info.json)
 QT5_INCL_PATH ?= /usr/include/x86_64-linux-gnu/qt5/
 TOOLCHAIN ?= arm-linux-gnueabihf-
 TARGET_CC ?= $(TOOLCHAIN)gcc
-LDFLAGS = -shared -ldl #-nolibc # Guh.  Otherwise we end up linking against libc and getting a versioned symbol of dlsym...
-CXXFLAGS = -fPIC -std=c++11 -Ivendor -O -mcpu=cortex-a7
-CFLAGS = -fPIC  -O -mcpu=cortex-a7
+LDFLAGS = -shared -ldl
+CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
+CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
 MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so
 
 .DELETE_ON_ERROR:
