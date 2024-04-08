@@ -1,0 +1,36 @@
+#!/bin/sh
+
+start() {
+	printf "Starting device gate: "
+	export LD_PRELOAD=/opt/workaround_ifaddrs.so
+	start-stop-daemon -S -m -b -p /var/run/device_gate.pid \
+		--exec /usr/bin/device_gate \
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+stop() {
+	printf "Stopping device gate: "
+	start-stop-daemon -K -q -p /var/run/device_gate.pid
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+	stop
+    sleep 5
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
