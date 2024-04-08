@@ -65,10 +65,10 @@ base.ts: printer_ui.so kexec_ui.so
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
-	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) vendor/libvncserver.so.0.9.14
+	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) ../prebuilt/libvncserver.so.1
 
 printer_ui.so: printer_ui.ui.o interpose.cpp interpose.moc.h
-	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS vendor/libvncserver.so.0.9.14
+	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS ../prebuilt/libvncserver.so.1
 
 %.moc.h: %.cpp
 	moc -I $(QT5_INCL_PATH) $< -o $@

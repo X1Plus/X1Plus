@@ -1191,12 +1191,6 @@ SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int version, unsigned char co
     next(version, tree, name, data);
 } 
 
-SWIZZLE(int, getifaddrs, void *p)
-    if (needs_emulation_workarounds)
-        return -1;
-    return next(p);
-}
-
 SWIZZLE(int, ioctl, int fd, unsigned long int req, void *p)
     if (req == SIOCGIWMODE) {
         struct iwreq *wrq = (struct iwreq *)p;
