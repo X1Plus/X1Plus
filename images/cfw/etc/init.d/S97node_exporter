@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# node exporter for diagnostics
+
+start() {
+    # Get SN from cmdline
+    DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
+
+    # Only start of we are enabled
+    if [ -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/node_exporter ]; then
+        printf "Starting node_exporter: "
+        start-stop-daemon -S -m -b -p /var/run/node_exporter.pid \
+            --exec /usr/bin/node_exporter -- --collector.processes \
+            --collector.buddyinfo --collector.wifi --collector.interrupts
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+    fi
+}
+
+stop() {
+    printf "Stopping node_exporter: "
+    start-stop-daemon -K -q -p /var/run/node_exporter.pid
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
