@@ -1,6 +1,6 @@
 {
     "cfw": { "dialogName": "X1Plus firmware", "version": "[version error]", "alwaysNoUpgrade": true, "noUpgrade": "COPY_NEW_X1P" },
-    "ota": { "dialogName": "Bambu Lab base firmware", "version": "01.07.02.00", "alwaysNoUpgrade": true, "noUpgrade": "COPY_NEW_X1P" },
+    "ota": { "dialogName": "Bambu Lab base firmware", "version": "01.07.03.00", "alwaysNoUpgrade": true, "noUpgrade": "COPY_NEW_X1P" },
     "rv1126": { "version": "00.00.28.59", "noUpgrade": "WRONG_BASE_VERSION" },
     "th": { "version": "00.00.07.12", "paths": {
         "th07": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/01.07.02.00/product/62201b7e2c/th_rev7-firmware-v00.00.07.12-20231031102713_product.bin.sig", "md5": "20eacbc29a81fa42daf93a8693cbc113" },
