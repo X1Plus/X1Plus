@@ -18,7 +18,7 @@
 +    property var modules: X1Plus.DDS.versions()
 +    property var fwVersion: cfwVersions['ota'] && cfwVersions['ota']['version']
 +    property var fwIsBusted: modules.some(m => {
-+        if (m.name != 'ota' && m.name in cfwVersions) {
++        if (m.name != 'ota' && m.name in cfwVersions && m.sn != "N/A") {
 +            if (m.sw_ver.split("/")[0] != cfwVersions[m.name].version) {
 +                console.log(`component ${m.name} has unexpected version ${m.sw_ver} (wanted ${cfwVersions[m.name].version})`);
 +                return true;
