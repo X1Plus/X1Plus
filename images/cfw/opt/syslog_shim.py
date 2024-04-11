@@ -7,7 +7,7 @@ from collections import namedtuple
 from logger.tail import TailLog
 import dds
 
-shim_log = CustomLogger("Syslog parser", "/tmp/x1plus_data.log",500000,1)
+syslog_log = CustomLogger("Syslog parser", "/tmp/x1plus_data.log", 500000, 1)
 
 # Define a basic mechanism for "do something when you see some particular
 # type of line in the syslog".
@@ -23,7 +23,7 @@ def RegexParser(regex, format):
     def fn(match):
         obj = format(match)
         print(f"Publishing matched object: {obj}", file=sys.stderr)
-        shim_log.info(f"[x1p] - {json.dumps(obj)}")
+        syslog_log.info(f"[x1p] - {json.dumps(obj)}")
         dds_publish_mc_print(json.dumps(obj))
 
     return RegexHandler(re.compile(regex), fn)
@@ -87,7 +87,7 @@ syslog_data = [
     ),
     # AMS Humidity
     RegexParser(
-        r".*humidity:(\d+)%",
+        r".*humidity:\s*(\d+)%",
         lambda match: {
             "command": "ams_humidity",
             "param": {
@@ -124,17 +124,6 @@ syslog_data = [
                 "sensitivity": float(match.group(1)),
                 "p": float(match.group(2)),
                 "Vs": float(match.group(3)),
-            },
-        },
-    ),
-    # xcam clarity
-    RegexParser(
-        r".*Camera\s*clarity\s*is:\s*(-?\d+\.?\d*),\s*clarity\s*status:\s*(\d)",
-        lambda match: {
-            "command": "xcam_clarity",
-            "param": {
-                "clarity": float(match.group(1)),
-                "status": int(match.group(2)),
             },
         },
     ),
