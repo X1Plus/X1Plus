@@ -37,19 +37,12 @@ import subprocess
 
 def x1p_settings():
     """
-    Our settings daemon service, used to set/get X1Plus settings.
+    Our settings daemon service, used to set X1Plus settings.
     
     Input DDS: device/x1plus/request
     Output DDS: device/x1plus/report
 
     payload key: settings
-
-    Get Examples:
-    Request: {"settings": {"get_all": true}} # get all settings
-    Response: {"settings": {"get_all": {...}}}
-    
-    Request: {"settings": {"get": KEY}} # get single setting
-    Response: {"settings": {"get": {"KEY": "VALUE"}}}
 
     Set Examples:
     Request: {"settings": {"set": {"KEY": "VALUE"}} # sets a setting
@@ -70,14 +63,16 @@ def x1p_settings():
         "sdcard_syslog": False
     }
 
-    # Before we startup, do we have our settings file?
-    if not os.path.exists(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json"):
-        ## TODO: Do we want to import flag files as settings here, or elsewhere?
+    # Before we startup, do we have our settings file? Try to read, create if it doesn't exist.
+    try:
+        with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'r') as fh:
+            settings = json.load(fh)
+    except FileNotFoundError as exc:
+        print("Settings file does not exist, creating with defaults...")
+        # TODO: Add logic here (call helper function) to check for flag files, 
+        # and adjust our defaults to match
         with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'w') as f:
             json.dump(DEFAULT_X1PLUS_SETTINGS, f)
-
-    # Read in our settings from the file, since we need em no matter what
-    settings = json.load(open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'r'))
 
     # Setup DDS
     dds_rx_queue = dds.subscribe("device/x1plus/request")
@@ -89,48 +84,45 @@ def x1p_settings():
         dds_rx_queue.get()
 
     print ("X1Plus Settings Started!")
+    try:
+        # Start our 'wait loop', aka daemon
+        while True:
+            try:
+                resp = dds_rx_queue.get() # We wait til we get a message
+                resp = json.loads(resp) # Try to load into json
 
-    # Start our 'wait loop', aka daemon
-    while True:
-        try:
-            resp = dds_rx_queue.get() # We wait til we get a message
-            resp = json.loads(resp) # Try to load into json
-
-            # Not for us? ignore and carry on
-            if 'settings' not in resp:
+                # Not for us? ignore and carry on
+                if 'settings' not in resp:
+                    pass
+            except:
+                # Keep going if we have an issue
                 pass
-        except:
-            # Keep going if we have an issue
-            pass
 
-        # If we are here, we have a valid settings request
-        print(f"x1p_settings(): Request of {resp['settings']}")
+            # If we are here, we have a valid settings request
+            print(f"x1p_settings(): Request of {resp['settings']}")
 
-        # Parse what we were asked to do
-        if "get_all" in resp['settings']:
-            resp = {"get_all": settings}
-        elif "get" in resp['settings']:
-            # Does the setting exist?
-            if resp['settings']['get'] not in settings:
-                resp = { "get": {resp['settings']['get']: None}}
+            # Parse what we were asked to do
+            if "set" in resp['settings']:
+                setting_set = resp['settings']['set']
+                # We can only handle a dict
+                if not isinstance(setting_set, dict):
+                    resp = {"rejected_changes": setting_set}
+                else:
+                    # Update settings and save
+                    settings = copy.deepcopy(settings) | setting_set
+                    with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'w') as f:
+                        json.dump(settings, f)
+                    resp = setting_set
             else:
-                resp = { "get": {resp['settings']['get']: settings[resp['settings']['get']]}}
-        elif "set" in resp['settings']:
-            set = resp['settings']['set']
-            # We can only handle a dict
-            if not isinstance(set, dict):
-                resp = {"rejected_changes": set}
-            else:
-                # Update settings and save
-                settings = copy.deepcopy(settings) | set
-                with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'w') as f:
-                    json.dump(settings, f)
-                resp = set
+                # Unknown request, reply with error
+                resp = {"rejected_changes": setting_set}
 
-        # Submit our response
-        print(f"x1p_settings(): Replying with {resp}")
-        dds_tx_pub(json.dumps({'settings': resp}))
-
+            # Submit our response
+            print(f"x1p_settings(): Replying with {resp}")
+            dds_tx_pub(json.dumps({'settings': resp}))
+    except Exception as e:
+        print(f"x1p_settings(): FATAL, exception of main loop hit! Error of: {e}")
+        raise
 
 @lru_cache(None)
 def _get_sn():

@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# The X1Plus Service, our Python do-it-all daemon
+# X1Plus Daemon, our Python do-it-all script that interfaces with DDS.
 
 start() {
-	printf "Starting X1Plus service: "
-	start-stop-daemon -S -m -b -p /var/run/x1plus_service.pid --exec /opt/python/bin/python3 -- /opt/x1plus_service.py
+	printf "Starting x1plusd: "
+	start-stop-daemon -S -m -b -p /var/run/x1plusd.pid --exec /opt/python/bin/python3 -- /opt/x1plusd.py
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 stop() {
-	printf "Stopping X1Plus service: "
-	start-stop-daemon -K -q -p /var/run/x1plus_service.pid
+	printf "Stopping x1plusd: "
+	start-stop-daemon -K -q -p /var/run/x1plusd.pid
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 restart() {
