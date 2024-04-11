@@ -105,7 +105,7 @@ Item {
     property var cmds: [" $ ","  ( )  "," ` ", "  { }  ","  |  ","  -  ","  &  ","  /  ", "reboot","awk ","cat ", "chmod ","chown ", "chroot", "cp ","date -s ", "dd ", "df ", "echo ","grep", "head ","ifconfig", "iptables ", "kill ","killall ","ln -s","ls -l ","mount ","mv ","pgrep ","pidof","ping -c 1","poweroff","print ","ps aux ", "ps -ef ", "pwd", "remount", "rm ", "sed","sort","tar","test","touch ", "uname -a"]
     property var outputText:""
     property string savePath
-    property string space: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+    property string space: '       '
     
     MarginPanel {
         id: outputPanel
@@ -140,37 +140,35 @@ Item {
                 textFormat: Qt.PlainText //RichText is way too slow on the printer
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
-                color: Colors.gray_100
-                text: outputText
-                placeholderText: gcodeCmd 
-                    ? qsTr("This interface allows you to send G-code commands to the printer. You can enter commands " +
+                color: outputText.length == 0 ? Colors.gray_300 : Colors.gray_100
+                text: outputText.length != 0 ? outputText :
+                      gcodeCmd ? qsTr("This interface allows you to send G-code commands to the printer. You can enter commands " +
                         "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
                         "the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate " +
                         "it: ") +
-                    "<br><br>" +
+                    "\n\n" +
                     qsTr("Commands are case sensitive; the first character of a command is always a capital letter, " +
                         "followed by a number. For example, to set the aux fan to full speed, use M106 P2 S255:") +
-                    "<br>" +
-                    space + qsTr("M106: G-code command for fan control") + "<br>" +
-                    space + qsTr("P2: parameter to select which fan (aux = 2)") + "<br>" +
+                    "\n" +
+                    space + qsTr("M106: G-code command for fan control") + "\n" +
+                    space + qsTr("P2: parameter to select which fan (aux = 2)") + "\n" +
                     space + qsTr("S255: parameter to set fan speed (0 to 255)") +
-                    "<br><br>" +
+                    "\n\n" +
                     qsTr("For multi-line commands, each G-code command must be separated by the newline escape " +
                         "sequence, \\n. For example:") +
-                    "<br>" +
+                    "\n" +
                     space + qsTr("M106 P2 S255\\nG4 S5\\nM106 P2 S0") +
-                    "<br><br>" +
+                    "\n" +
                     space + qsTr("Aux fan to 255 -> Wait 5 sec -> Aux fan to 0")
                     : qsTr("This interface allows you to run commands on your printer as root. You can enter commands " +
                         "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
                         "the screen. Commands are executed synchronously, so long-running commands or commands " +
                         "that require user input may hang the UI; use caution! This is intended as a quick diagnostic " +
                         "tool, but for more intensive tasks, consider SSHing to the printer instead.") +
-                    "<br><br>" +
+                    "\n\n" +
                     qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
                         "console. Do not enter commands unless you understand what you are typing.")
-
-                placeholderTextColor: Colors.gray_300
+                wrapMode: TextEdit.Wrap
             }
             function scroll(contentOffset){
                 // NB: future versions of Qt Quick will have to use flickableItem here, not contentItem
