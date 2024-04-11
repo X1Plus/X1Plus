@@ -85,16 +85,6 @@ syslog_data = [
             },
         },
     ),
-    # AMS Humidity
-    RegexParser(
-        r".*humidity:\s*(\d+)%",
-        lambda match: {
-            "command": "ams_humidity",
-            "param": {
-                "humidity": int(match.group(1)),
-            },
-        },
-    ),
    # z offset
     RegexParser(
         r".*z_trim:(-?\d+\.\d*)",
