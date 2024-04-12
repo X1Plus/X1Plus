@@ -4,5 +4,5 @@
 #     /logger/
 #         __init__.py
 #         tail.py
-#         dds_emulation.py
+#         custom_logger.py
 #         ...
