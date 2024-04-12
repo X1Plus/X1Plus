@@ -15,7 +15,6 @@ Item {
         { "friendly": QT_TR_NOOP("AP board"), "bambu": "rv1126", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
         { "friendly": QT_TR_NOOP("MC board"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
         { "friendly": QT_TR_NOOP("Toolhead"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
-        { "friendly": QT_TR_NOOP("Computer vision model"), "bambu": "xm", "cfw": "xm", "icon": "../../icon/components/cvmodel.svg" },
         { "friendly": QT_TR_NOOP("AMS hub"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
         { "friendly": QT_TR_NOOP("AMS #1"), "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
         { "friendly": QT_TR_NOOP("AMS #2"), "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
@@ -112,7 +111,7 @@ Item {
             property var mappedData: (modelData.bambu === undefined ?
                                         {"sw_ver": cfwVersion.version, "sn": "", "hw_ver": "" } :
                                         modules.find(el => modelData.bambu == el.name))
-            property var needsUpdate: (!cfwVersion.invalid && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+            property var needsUpdate: (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
             width: ListView.view.width
             height: 81
             color: modelData.onClicked === undefined ? "transparent" : backColor.color
