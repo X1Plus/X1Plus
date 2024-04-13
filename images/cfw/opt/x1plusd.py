@@ -5,6 +5,40 @@ from functools import lru_cache
 from threading import Thread
 import json
 import subprocess
+import traceback
+import time
+
+# probably this should be encapsulated in a DDS class, but...
+
+dds_request_queue = None
+dds_report_publisher = None
+
+def dds_report(data):
+    if dds_report_publisher:
+        dds_report_publisher(json.dumps(data))
+
+dds_handlers = {}
+
+def dds_start():
+    global dds_request_queue, dds_report_publisher
+    
+    dds_request_queue = dds.subscribe("device/x1plus/request")
+    dds_report_publisher = dds.publisher("device/x1plus/report")
+    print("x1plusd: waiting for DDS startup")
+    time.sleep(2) # evade, don't solve, race conditions
+
+def dds_loop():
+    while True:
+        req_raw = dds_request_queue.get() # blocks until a message arrives
+        try:
+            req = json.loads(req_raw)
+            for k in dds_handlers:
+                if k in req:
+                    dds_handlers[k](req)
+        except Exception as e:
+            # TODO: log this
+            print(f"x1plusd: exception while handling request {req_raw}")
+            traceback.print_exc()
 
 
 # TODO: actually write this later
@@ -35,7 +69,7 @@ import subprocess
 #             pass
 
 
-def x1p_settings():
+class SettingsService:
     """
     Our settings daemon service, used to set X1Plus settings.
     
@@ -63,67 +97,60 @@ def x1p_settings():
         "sdcard_syslog": False
     }
 
-    # Before we startup, do we have our settings file? Try to read, create if it doesn't exist.
-    try:
-        with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'r') as fh:
-            settings = json.load(fh)
-    except FileNotFoundError as exc:
-        print("Settings file does not exist, creating with defaults...")
-        # TODO: Add logic here (call helper function) to check for flag files, 
-        # and adjust our defaults to match
-        with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'w') as f:
-            json.dump(DEFAULT_X1PLUS_SETTINGS, f)
+    def __init__(self):
+        settings_dir = f"/mnt/sdcard/x1plus/printers/{_get_sn()}"
+        self.filename = f"{settings_dir}/settings.json"
+        os.makedirs(settings_dir, exist_ok = True)
+    
+        # Before we startup, do we have our settings file? Try to read, create if it doesn't exist.
+        try:
+            with open(self.filename, 'r') as fh:
+                self.settings = json.load(fh)
+        except FileNotFoundError as exc:
+            # TODO: log to syslog
+            print("Settings file does not exist, creating with defaults...")
+            # TODO: Add logic here (call helper function) to check for flag files, 
+            # and adjust our defaults to match
+            self.settings = copy.deepcopy(SettingsService.DEFAULT_X1PLUS_SETTINGS)
+            self._save()
+            dds_report({'settings': {'changes': self.settings}})
 
-    # Setup DDS
-    dds_rx_queue = dds.subscribe("device/x1plus/request")
-    dds_tx_pub = dds.publisher("device/x1plus/report")
+        # register it...
+        dds_handlers['settings'] = self._handle
+        
+    def _save(self):
+        # XXX: atomically rename this
+        
+        with open(self.filename, 'w') as f:
+            json.dump(self.settings, f, indent = 4)
 
-    # flush the input queue on launch, to play it safe.
-    # TODO: is this really needed?
-    while not dds_rx_queue.empty():
-        dds_rx_queue.get()
+    def _handle(self, req):
+        # Parse what we were asked to do
+        if "set" in req['settings']:
+            settings_set = req['settings']['set']
 
-    print ("X1Plus Settings Started!")
-    try:
-        # Start our 'wait loop', aka daemon
-        while True:
-            try:
-                resp = dds_rx_queue.get() # We wait til we get a message
-                resp = json.loads(resp) # Try to load into json
+            if not isinstance(settings_set, dict):
+                # TODO: log this to the syslog
+                print(f"x1p_settings: set request {req} is not a dictionary")
+                return
 
-                # Not for us? ignore and carry on
-                if 'settings' not in resp:
-                    pass
-            except:
-                # Keep going if we have an issue
-                pass
+            self.settings.update(settings_set)
+            self._save()
+            
+            # TODO: log this to the syslog
+            print(f"x1p_settings: updated {settings_set}")
+            
+            # Inform everyone else on the system, only *after* we have saved
+            # and made it visible.  That way, anybody who wants to know
+            # about this setting either will have read it from disk
+            # initially, or will have heard about the update from us after
+            # they read it.
+            dds_report({'settings': {'changes': settings_set}})
+        else:
+            # TODO: log this to the syslog
+            print(f"x1p_settings: settings request {req} was not a known opcode")
 
-            # If we are here, we have a valid settings request
-            print(f"x1p_settings(): Request of {resp['settings']}")
-
-            # Parse what we were asked to do
-            if "set" in resp['settings']:
-                setting_set = resp['settings']['set']
-                # We can only handle a dict
-                if not isinstance(setting_set, dict):
-                    resp = {"rejected_changes": setting_set}
-                else:
-                    # Update settings and save
-                    settings = copy.deepcopy(settings) | setting_set
-                    with open(f"/mnt/sdcard/x1plus/printers/{_get_sn()}/settings.json", 'w') as f:
-                        json.dump(settings, f)
-                    resp = setting_set
-            else:
-                # Unknown request, reply with error
-                resp = {"rejected_changes": setting_set}
-
-            # Submit our response
-            print(f"x1p_settings(): Replying with {resp}")
-            dds_tx_pub(json.dumps({'settings': resp}))
-    except Exception as e:
-        print(f"x1p_settings(): FATAL, exception of main loop hit! Error of: {e}")
-        raise
-
+# TODO: hoist this into an x1plus package
 @lru_cache(None)
 def _get_sn():
     """
@@ -135,20 +162,13 @@ def _get_sn():
         print("_get_sn() failed to run bbl_3dpsn, and we are now dazed and confused. Exiting...")
         raise
 
-
-def startup():
-    #TODO: check if we are already running
-
-    # Define our threads
-    settings = Thread(target=x1p_settings)
-
-    # Start our threads
-    settings.start()
-
-
 if __name__ == "__main__":
+    #TODO: check if we are already running
     try:
-        startup()
+        dds_start()
+        
+        settings = SettingsService()
+        dds_loop()
     except:
         dds.shutdown()
         raise
