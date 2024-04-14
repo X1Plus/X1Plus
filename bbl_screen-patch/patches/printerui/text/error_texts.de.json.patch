@@ -1,0 +1,37 @@
+--- printer_ui-orig/printerui/text/error_texts.de.json
++++ printer_ui/printerui/text/error_texts.de.json
+@@ -1019,7 +1019,31 @@
+         {
+             "ecode": "05004008",
+             "intro": "Drucken starten fehlgeschlagen. Bitte den Drucken neu starten und den Druckauftrag neu senden."
++        },
++        {
++            "ecode": "12018016",
++            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
++        },
++        {
++            "ecode": "12008016",
++            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
++        },
++        {
++            "ecode": "12028016",
++            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
++        },
++        {
++            "ecode": "05004012",
++            "intro": "Die Tür scheint offen zu sein, daher wurde der Druck pausiert."
++        },
++        {
++            "ecode": "0300400F",
++            "intro": "Es wurde keine Bauplatte eingelegt."
++        },
++        {
++            "ecode": "12038016",
++            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
+         }
+     ],
+-    "ver": 202311071450
+-}
++    "ver": 202404110606
++}
+\ No newline at end of file

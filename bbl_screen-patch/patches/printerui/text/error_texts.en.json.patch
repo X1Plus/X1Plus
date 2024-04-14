@@ -1,0 +1,20 @@
+--- printer_ui-orig/printerui/text/error_texts.en.json
++++ printer_ui/printerui/text/error_texts.en.json
+@@ -50,7 +50,7 @@
+         },
+         {
+             "ecode": "05004037",
+-            "intro": "Your sliced file is not compatible with current printer model. This file can't be printed on this printer."
++            "intro": "The sliced file is not compatible with this model of printer, and this file can't be printed on this printer."
+         },
+         {
+             "ecode": "05004038",
+@@ -1053,5 +1053,5 @@
+             "intro": "Starting printing failed. please power cycle the printer and resend the print job."
+         }
+     ],
+-    "ver": 202311241930
+-}
++    "ver": 202404110606
++}
+\ No newline at end of file

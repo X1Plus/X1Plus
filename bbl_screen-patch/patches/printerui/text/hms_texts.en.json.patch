@@ -1,0 +1,20 @@
+--- printer_ui-orig/printerui/text/hms_texts.en.json
++++ printer_ui/printerui/text/hms_texts.en.json
+@@ -42,7 +42,7 @@
+         },
+         {
+             "ecode": "0C0003000002000F",
+-            "intro": "Parts skipped before first layer inspection, the inspection will not be supported for the current print."
++            "intro": "Parts were skipped before the first layer inspection. The inspection will not be supported for the current print."
+         },
+         {
+             "ecode": "0500050000030002",
+@@ -3021,5 +3021,5 @@
+             "intro": "The SD Card controller is malfunctioning."
+         }
+     ],
+-    "ver": 202311242010
+-}
++    "ver": 202404110606
++}
+\ No newline at end of file

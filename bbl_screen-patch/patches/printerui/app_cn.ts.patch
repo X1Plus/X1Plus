@@ -1,0 +1,232 @@
+--- printer_ui-orig/printerui/app_cn.ts
++++ printer_ui/printerui/app_cn.ts
+@@ -2965,4 +2965,228 @@
+         <translation>请确认是否取消本次打印？</translation>
+     </message>
+ </context>
++<context>
++  <name>BootOptionsPage</name>
++  <message>
++    <source>Start X1Plus from SD card</source>
++    <translation>从 SD 卡启动 X1Plus</translation>
++  </message>
++  <message>
++    <source>Reset X1Plus settings</source>
++    <translation>重置 X1Plus 设置</translation>
++  </message>
++  <message>
++    <source>Emergency recovery console</source>
++    <translation>紧急恢复控制台</translation>
++  </message>
++  <message>
++    <source>&lt;font color="#EEAAAA"&gt;Start built-in firmware with updater disabled&lt;/font&gt;</source>
++    <translation>&lt;font color="#EEAAAA"&gt;启动内置固件，并禁用更新&lt;/font&gt;</translation>
++  </message>
++  <message>
++    <source>&lt;font color="#FF7777"&gt;Start built-in firmware unmodified&lt;/font&gt;</source>
++    <translation>&lt;font color="#FF7777"&gt;启动未经修改的内置固件&lt;/font&gt;</translation>
++  </message>
++  <message>
++    <source>X1Plus startup options</source>
++    <translation>X1Plus 启动选项</translation>
++  </message>
++  <message>
++    <source>Use these tools to upgrade or repair the X1Plus firmware on your printer.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.&lt;/b&gt;&lt;/font&gt;</source>
++    <translation>使用这些工具升级或修复打印机上的X1Plus固件。&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;使用设备上的固件启动可能会导致打印机无法访问自定义固件。只能在万不得已的情况下才这样做。&lt;/b&gt;&lt;/font&gt;</translation>
++  </message>
++</context>
++<context>
++  <name>HardwarePage</name>
++  <message>
++    <source>Hardened steel</source>
++    <translation>硬化钢喷嘴</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>未安装</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>已安装</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>配件</translation>
++  </message>
++  <message>
++    <source>Nozzle</source>
++    <translation>喷嘴</translation>
++  </message>
++  <message>
++    <source>Auxiliary Part Cooling Fan</source>
++    <translation>辅助冷却风扇</translation>
++  </message>
++  <message>
++    <source>Interface</source>
++    <translation>控制设置</translation>
++  </message>
++  <message>
++    <source>Reset button mapping to default settings?</source>
++    <translation>重置按键映射到默认设置？</translation>
++  </message>
++  <message>
++    <source>Buttons</source>
++    <translation>按键</translation>
++  </message>
++  <message>
++    <source>Short Press</source>
++    <translation>短按</translation>
++  </message>
++  <message>
++    <source>Long Press</source>
++    <translation>长按</translation>
++  </message>
++  <message>
++    <source>Lights</source>
++    <translation>灯光</translation>
++  </message>
++  <message>
++    <source>Backlight</source>
++    <translation>箱内LED灯光</translation>
++  </message>
++  <message>
++    <source>Toolhead LED</source>
++    <translation>打印头LED</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>
++163/10000
++实时翻译
++划译
++如果您更换了配件，请更新以下设置，使其与配件的实际情况保持一致，以确保打印质量</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>第 1 步:</translation>
++  </message>
++  <message>
++    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
++    <translation>将床螺丝设置为基线紧张设置 描述于 "准备Bed Leveling" 部分的 Bambu 实验室wiki (在文本底部提供二维码链接。)</translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>第 2 步:</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>第 3 步:</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>第 4 步:</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>第 5 步:</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>准备</translation>
++  </message>
++  <message>
++    <source>Rear
++   2</source>
++    <translation>后</translation>
++  </message>
++</context>
++<context>
++  <name>BedMesh</name>
++  <message>
++    <source>Rerun diagnostics</source>
++    <translation>重新检测</translation>
++  </message>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>热床检测</translation>
++  </message>
++  <message>
++    <source>Run diagnostics</source>
++    <translation>运行检测</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>校准记录</translation>
++  </message>
++  <message>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>这将清除所有保存的热床网格数据。您确定要继续吗？</translation>
++  </message>
++</context>
++<context>
++  <name>BedLevelDiag</name>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>热床检测</translation>
++  </message>
++</context>
++<context>
++  <name>ConsolePage</name>
++  <message>
++    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
++    <translation>此接口允许您向打印机发送G代码命令。您可以使用虚拟键盘输入命令，也可以从屏幕底部的快捷键栏将命令组合在一起。打印机's的G代码解析器有些挑剔；以下是一些如何安抚它的提示： </translation>
++  </message>
++  <message>
++    <source>M106: G-code command for fan control</source>
++    <translation>M106：风扇控制的G-代码命令</translation>
++  </message>
++  <message>
++    <source>enter a G-code command</source>
++    <translation>输入一个 G-code 命令</translation>
++  </message>
++  <message>
++    <source>enter a shell command to run as root</source>
++    <translation>输入 shell 命令以 root 身份运行</translation>
++  </message>
++  <message>
++    <source>Printer is running! Cannot execute gcode now</source>
++    <translation>打印机正在运行！现在无法执行 gcode</translation>
++  </message>
++  <message>
++    <source>&gt;Gcode command published to device
++  </source>
++    <translation>&gt;Gcode 命令已发送到设备
++  </translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>Printer serial number: </source>
++    <translation>打印机序列号： </translation>
++  </message>
++  <message>
++    <source>Total print time: </source>
++    <translation>打印时长： </translation>
++  </message>
++  <message>
++    <source>Bed mesh calibrated: </source>
++    <translation>热床平面校准： </translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibrated: </source>
++    <translation>振动补偿校准： </translation>
++  </message>
++  <message>
++    <source>AMS total length: </source>
++    <translation>AMS 总长度： </translation>
++  </message>
++  <message>
++    <source>AMS total print time: </source>
++    <translation>AMS 总打印时间： </translation>
++  </message>
++</context>
+ </TS>
+\ No newline at end of file
