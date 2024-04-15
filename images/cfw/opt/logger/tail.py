@@ -20,7 +20,7 @@ class TailLog:
                 self.buf += self.fd.read() + "\n"
                 self.fd.close()
             print(f"TailLog: reopened {self.filepath} and finished up {len(self.buf)} bytes", file = sys.stderr)
-            self.fd = open(self.filepath, "r")
+            self.fd = open(self.filepath, "r", encoding="utf-8", errors="replace")
             self.ino = os.fstat(self.fd.fileno()).st_ino
 
         # Grab some data from the buffer; if it's the first go-around, throw

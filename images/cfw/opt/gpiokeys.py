@@ -6,7 +6,8 @@ import dds
 import json
 import time 
 from evdev import InputDevice, categorize, ecodes
-
+from logger.custom_logger import CustomLogger
+ 
 LONG_PRESS_THRESHOLD = 0.850 # seconds
 KEY_POWER = 116
 KEY_STOP = 128
@@ -14,6 +15,7 @@ KEY_STOP = 128
 
 
 gpio_dds_publisher = dds.publisher('device/x1plus')
+gpio_log = CustomLogger("gpiokeys", "/tmp/gpiokeys.log",500000,1)  
 
 def send_dds(name, press_type):
     dds_payload = json.dumps({
@@ -60,6 +62,7 @@ try:
                     button.press()
                 else:
                     button.release()
+                    gpio_log.info(data)
 except:
 	dds.shutdown()
 	raise

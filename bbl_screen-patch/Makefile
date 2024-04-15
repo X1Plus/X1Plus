@@ -7,7 +7,7 @@ TARGET_CC ?= $(TOOLCHAIN)gcc
 LDFLAGS = -shared -ldl #-nolibc # Guh.  Otherwise we end up linking against libc and getting a versioned symbol of dlsym...
 CXXFLAGS = -fPIC -std=c++11
 CFLAGS = -fPIC
-MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts
+MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
@@ -61,14 +61,11 @@ base.ts: printer_ui.so kexec_ui.so
 	@rm -f base.ts
 	lupdate -locations absolute printer_ui-orig/printerui/app_en.ts printer_ui kexec_ui -ts base.ts
 
-uncurl.so: uncurl.c
-	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
-
-evdev_fix.so: evdev_fix.c
+%.so: %.c
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 %.so: %.ui.o interpose.cpp interpose.moc.h
-	$(TARGET_CC) -o $@ $< interpose.cpp $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
+	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
 
 %.moc.h: %.cpp
 	moc -I $(QT5_INCL_PATH) $< -o $@
