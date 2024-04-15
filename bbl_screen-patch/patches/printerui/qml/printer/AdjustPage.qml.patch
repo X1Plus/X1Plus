@@ -1,32 +1,97 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -205,9 +205,6 @@
+@@ -11,7 +11,9 @@
+ 
+     property var heaters: PrintManager.heaters
+     property var axisController: PrintManager.axisController
+-
++    property var isHomed: (PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) >= PrintManager.AXIS_HOMED_ALL
++    property bool ignoreDialog: false
++    
+     property var speedAdjust: QtObject {
+         property string name: "speed"
+         property int currentTemp: PrintManager.currentTask.printSpeed
+@@ -148,18 +150,32 @@
+                 model: xyAsixModel
+                 delegate: axisComp
+             }
+-
+-            ZButton {
++            Rectangle {
+                 id: axisHome
+                 width: 103
+                 height: 103
+                 anchors.centerIn: parent
+-                type: ZButtonAppearance.Tertiary
+-                radius: 44
+-                iconSize: 0
+-                icon: "../../icon/vector.svg"
+-                onClicked: {
+-                    axisController.moveCenter(PrintManager.currentTask.stage === PrintTask.PAUSED)
++                radius: width/2
++                color:  "#626260"
++                    ZImage {
++                        id: axisHomeImage
++                        width: 70 
++                        height: 70
++                        anchors.centerIn: parent
++                        fillMode: Image.PreserveAspectFit 
++                        originSource: (isHomed) ? "../../icon/components/home.svg" : "../../icon/vector.svg"
++                        tintColor: (isHomed) ?  Colors.brand : "#eb6600"
++                        Behavior on tintColor {
++                            ColorAnimation { duration: 500 } 
++                        }
++                    }
++                MouseArea {
++                    anchors.fill:parent
++                    onClicked: {
++                        axisController.moveCenter(PrintManager.currentTask.stage === PrintTask.PAUSED)
++                    }
++                    onEntered: axisHome.opacity = 0.8
++                    onExited: axisHome.opacity = 1.0
+                 }
+             }
+         }
+@@ -205,7 +221,7 @@
                      }
  
                      onClicked: {
 -                        if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) !== PrintManager.AXIS_HOMED_ALL) {
--                            limitFrame()
--                        }
++                        if (!isHomed && !ignoreDialog) {
+                             limitFrame()
+                         }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-                     }
- 
-@@ -800,9 +797,6 @@
+@@ -800,7 +816,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
 -                    if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) != PrintManager.AXIS_HOMED_ALL) {
--                        limitFrame()
--                    }
++                    if (!isHomed && !ignoreDialog) {
+                         limitFrame()
+                     }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-                 }
-             }
-@@ -818,9 +812,6 @@
+@@ -818,7 +834,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
 -                    if ((PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) != PrintManager.AXIS_HOMED_ALL) {
--                        limitFrame()
--                    }
++                    if (!isHomed && !ignoreDialog) {
+                         limitFrame()
+                     }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-                 }
-             }
+@@ -873,11 +889,13 @@
+         dialogStack.popupDialog(
+                     "TextConfirm", {
+                         name: "Limit Frame",
+-                        titles: [qsTr("Home"), qsTr("Close")],
++                        type: TextConfirm.YES_NO_CANCEL,
++                        titles: [qsTr("Home"), qsTr("Ignore"), qsTr("Close")],
+                         text: qsTr("Before any movement, please home all axes to find the boundary of build volume."),
+                         onYes: function() {
+                             axisController.moveCenter(PrintManager.currentTask.stage === PrintTask.PAUSED)
+-                        }
++                        },
++                        onNo: function() {ignoreDialog = true},
+                     })
+ 
+     }
