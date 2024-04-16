@@ -5,7 +5,8 @@ LOGFILE=/mnt/sdcard/x1plus/printers/$DEVICE_SN/logs/perf_log.txt
 
 date > $LOGFILE
 while true ; do
+	df >> $LOGFILE
 	free >> $LOGFILE
 	ps -auwxf >> $LOGFILE
-	sleep 30
+	sleep 10
 done
