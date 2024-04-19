@@ -508,6 +508,22 @@ SWIZZLE(void, _ZN9QSettingsC1ERK7QStringNS_6FormatEP7QObject, QSettings *q, QStr
     next(q, fn, f, o);
 }
 
+SWIZZLE(void, _ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
+    if (getenv("EMULATION_WORKAROUNDS")) {
+        BusType = 0; /* session bus, not system bus */
+    }
+    printf("_ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
+    next(self, s, BusType);
+}
+
+SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
+    if (getenv("EMULATION_WORKAROUNDS")) {
+        BusType = 0; /* session bus, not system bus */
+    }
+    printf("_ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
+    next(self, s, BusType);
+}
+
 /*** Tricks to override the backlight.  See X1PlusNative.updateBacklight above. ***/
 
 FILE *backlight_fp = NULL;
