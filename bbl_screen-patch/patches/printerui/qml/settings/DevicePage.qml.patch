@@ -195,8 +195,8 @@
          }
 -    }
 +    }*/
- 
 +
+ 
 +    
      MarginPanel {
          id: ctrlPanel
@@ -619,3 +619,160 @@
          radius: 15
          color: Colors.gray_600
  
+@@ -581,6 +755,114 @@
+ 
+     }
+ 
++    Component {
++        id: videoComp
++        Item {
++            Item {
++                id: voideItem
++                anchors.top: parent.top
++                anchors.topMargin: 35
++                anchors.left: parent.left
++                anchors.leftMargin: 30
++                anchors.right: parent.right
++                anchors.rightMargin: 57
++                Text {
++                    id: videoTx
++                    anchors.top: parent.top
++                    anchors.topMargin: 6
++                    anchors.left: parent.left
++                    font: Fonts.body_24
++                    color: Colors.gray_100
++                    text: text1[0]
++                }
++
++                ZButton {
++                    anchors.left: videoTx.right
++                    anchors.top: videoTx.top
++                    backgroundColor: StateColors.get("transparent")
++                    borderColor: StateColors.get("transparent")
++                    icon: "../../icon/helpIcon.svg"
++                    iconSize: 24
++                    visible: false //index === 2
++                    onClicked: {
++                        rtspServerHelpPad.popup()
++                    }
++                }
++
++                ZSwitchButton {
++                    id: videoButton
++                    anchors.top: parent.top
++                    anchors.right: parent.right
++                    dynamicChecked: check
++                    enabled: enabledState
++                    onToggled: {
++                        fun2(checked)
++                    }
++                }
++            }
++
++            ZLineSplitter {
++                id: line1
++                alignment: Qt.AlignTop
++                padding: 30
++                offset: 101
++                color: Colors.gray_400
++            }
++
++            Item {
++                id: resolutionItem
++                anchors.top: line1.bottom
++                anchors.left: voideItem.left
++                anchors.right: parent.right
++                anchors.bottom: parent.bottom
++                Text {
++                    id: resolutionTx
++                    anchors.verticalCenter: parent.verticalCenter
++                    anchors.left: parent.left
++                    width: 140
++                    font: Fonts.body_24
++                    color: Colors.gray_100
++                    text: text1[1]
++                }
++
++                ZRadioButton {
++                    id: resolution720
++                    width:129
++                    height: 85
++                    anchors.bottom: parent.bottom
++                    anchors.left: parent.left
++                    anchors.leftMargin: 140
++                    dynamicChecked: check2
++                    text: text1[2]
++                    textColor: StateColors.get("white_900")
++                    font: Fonts.body_24
++                    outerSize: 20
++                    insideSize: 0
++                    onToggled: {
++                        fun(true)
++                    }
++                }
++
++                ZRadioButton {
++                    id: resolution1080
++                    width:129
++                    height: 85
++                    anchors.bottom: parent.bottom
++                    anchors.left: resolution720.right
++                    dynamicChecked: !check2
++                    text: text1[3]
++                    textColor: StateColors.get("white_900")
++                    font: Fonts.body_24
++                    outerSize: 20
++                    insideSize: 0
++                    onToggled: {
++                        fun(false)
++                    }
++                }
++            }
++        }
++    }
++
+     function setResolution(res)
+     {
+         if(res === RecordManager.resolution)
+@@ -607,4 +889,41 @@
+             }
+         }
+     }
++
++    PopupPad {
++        id: rtspServerHelpPad
++        width: 700
++        height: 600
++        anchors.right: parent.right
++        anchors.rightMargin: 290
++        anchors.top: parent.top
++        anchors.topMargin: -16
++        name: "rtspServerHelpPad"
++        closeBtn: true
++
++        contentComponent: Rectangle {
++            radius: 15
++            color: Colors.gray_600
++            QRCodeImage {
++                id: qrcId
++                anchors.horizontalCenter: parent.horizontalCenter
++                anchors.top: parent.top
++                anchors.topMargin: 50
++                size: 304
++                data: "https://" + DeviceManager.cloud.subDomain("e") + "/t/?c=AKZdax7ETH7Hn864"
++            }
++
++            Text {
++                width: parent.width - 40
++                x: 20
++                anchors.top: qrcId.bottom
++                anchors.topMargin: 20
++                anchors.horizontalCenter: parent.horizontalCenter
++                wrapMode: Text.WordWrap
++                font: Fonts.body_36
++                color: Colors.gray_200
++                text: qsTr("Please use the Bambu Handy APP to scan the code to view RTSP setvice details.")
++            }
++        }
++    }
+ }
