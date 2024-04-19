@@ -15,7 +15,7 @@
  
      property var carouselImages: hmsPanel.visible
                                   ? WebContents.carouselImages2 : WebContents.carouselImages1
--
+-    property var defaultImage: DeviceManager.getSystemSetting("device/images_path")
 +    property var serialNo: DeviceManager.build.seriaNO
 +    property var home_png: DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
 +    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
@@ -31,10 +31,10 @@
              interval: 10000
              orientation: hmsPanel.visible ? Qt.Vertical : Qt.Horizontal
              model: carouselImages.length === 0
--                   ? [ hmsPanel.visible ? "qrc:/printerui/image/exhibition1.png"
--                                        : "qrc:/printerui/image/exhibition.png" ]
+-                   ? [ hmsPanel.visible ? "file:" + defaultImage + "exhibition1.png"
+-                                        : "file:" + defaultImage + "exhibition.png" ]
 +                   ? [ hmsPanel.visible ? img_print
 +                                        : img_home ]
                     : carouselImages.map(function(i) { return i.imageUrl })
-         }
-     }
+             onModelChanged: {
+                 console.log("HomePage ZCarouselView image model: ", model)

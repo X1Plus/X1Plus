@@ -1,6 +1,8 @@
 --- printer_ui-orig/printerui/qml/main/Home2Page.qml
 +++ printer_ui/printerui/qml/main/Home2Page.qml
-@@ -2,10 +2,12 @@
+@@ -1,11 +1,14 @@
++
+ import QtQuick 2.12
  import QtQuick.Controls 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -13,9 +15,9 @@
  import "qrc:/uibase/qml/widgets"
  
  Item {
-@@ -16,6 +18,9 @@
-     property bool printing: task.stage >= PrintTask.WORKING
+@@ -17,6 +20,9 @@
      property var carouselImages: WebContents.carouselImages2
+     property var defaultImage: DeviceManager.getSystemSetting("device/images_path")
      property bool printPrepare: task.state < PrintTask.RUNNING && task.state > PrintTask.IDLE
 +    property var serialNo: DeviceManager.build.seriaNO
 +    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
@@ -23,7 +25,7 @@
      property var stateIcons: {
          var icons = []
          if (RecordManager.isTimelapseOn) {
-@@ -296,7 +301,8 @@
+@@ -297,7 +303,8 @@
          topMargin: statusPanel.topMargin
          bottomMargin: statusPanel.bottomMargin
          color: hmsItem.visible ? Colors.gray_700: Colors.gray_600
@@ -33,12 +35,12 @@
          ZCarouselView {
              anchors.fill: parent
              anchors.margins: 10
-@@ -304,7 +310,7 @@
+@@ -305,7 +312,7 @@
              orientation: Qt.Vertical
              visible: !hmsItem.visible && !printStep.visible
              model: carouselImages.length === 0
--                   ? [ "qrc:/printerui/image/exhibition1.png" ]
+-                   ? [ "file:" + defaultImage + "exhibition1.png" ]
 +                   ? [ img_print ]
                     : carouselImages.map(function(i) { return i.imageUrl })
-         }
- 
+             onModelChanged: {
+                 console.log("Home2Page ZCarouselView image model: ", model)

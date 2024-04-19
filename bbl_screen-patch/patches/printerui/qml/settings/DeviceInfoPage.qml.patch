@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/DeviceInfoPage.qml
 +++ printer_ui/printerui/qml/settings/DeviceInfoPage.qml
-@@ -177,7 +177,7 @@
+@@ -178,7 +178,7 @@
  
          checked: DeviceManager.getSetting("help_improve")
          onCheckedChanged: {

@@ -20,6 +20,9 @@ Item {
         { "friendly": QT_TR_NOOP("AMS #2"), "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
         { "friendly": QT_TR_NOOP("AMS #3"), "bambu": "ams/2", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
         { "friendly": QT_TR_NOOP("AMS #4"), "bambu": "ams/3", "cfw": "ams", "icon": "../../icon/components/ams.svg" }
+        // EXT board is coming soon
+        // chamber heater is coming soon
+        // investigate: DeviceManager.allModules; allModules[DeviceManager.build.product]
     ])
     property var cfwVersions: screenSaver.cfwVersions
 
