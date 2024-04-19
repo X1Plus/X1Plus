@@ -45,6 +45,9 @@ slink /root/.ssh 0777 0 0 /config/sshd
 slink /etc/localtime 0777 0 0 /usr/share/zoneinfo/Etc/UTC
 slink /var/run/utmp 0777 0 0 /dev/null 
 slink /usr/sbin/mount.smb3 0777 0 0 /usr/sbin/mount.cifs
+slink /usr/bin/python 0777 0 0 /opt/python/bin/python3.10
+slink /usr/bin/python3 0777 0 0 /opt/python/bin/python3.10
+slink /usr/bin/python3-config 0777 0 0 /opt/python/bin/python3.10-config
 
 # whiteouts
 nod /etc/init.d/S50fcgiwrap 0 0 0 c 0 0
