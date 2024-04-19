@@ -453,8 +453,7 @@ const char *DdsNode_new_get_sub_topic_name(void *p, int i) {
     return DdsNode_orig_get_sub_topic_name(p, i);
 }
 
-
-SWIZZLE(void, _ZN7DdsNode8set_nameERNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, void *self, void *p)
+static void _setup_from_ddsnode(void *self) {
     printf("interposing DdsNode::set_name\n");
     listener.ddsnode = self;
     void **vptr = (void **)self;
@@ -465,6 +464,15 @@ SWIZZLE(void, _ZN7DdsNode8set_nameERNSt7__cxx1112basic_stringIcSt11char_traitsIc
     ddsnode_new_vtable[DdsNode_get_sub_topic_count] = (void *)DdsNode_new_get_sub_topic_count;
     ddsnode_new_vtable[DdsNode_get_sub_topic_name] = (void *)DdsNode_new_get_sub_topic_name;
     *vptr = ddsnode_new_vtable + VTABLE_PRE;
+}
+
+SWIZZLE(void, _ZN7DdsNode8set_nameERNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, void *self, void *p)
+    _setup_from_ddsnode(self);
+    next(self, p);
+}
+
+SWIZZLE(void, _ZN7DdsNode8set_nameERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, void *self, void *p)
+    _setup_from_ddsnode(self);
     next(self, p);
 }
 
