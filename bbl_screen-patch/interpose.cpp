@@ -274,6 +274,18 @@ public:
         }
     }
 };
+public:
+    int chamberledSetting = 255;
+    Q_INVOKABLE void updateChamberLED(int val) {
+        chamberledSetting = (val == 1) ? 255 : 0;
+        std::string valueText = std::to_string(chamberledSetting);
+        int fd;
+        if ((fd = open("/sys/devices/platform/gpio-leds/leds/sys_led/brightness", O_RDWR)) >= 0) {
+            write(fd, valueText.c_str(), valueText.length());
+            close(fd);
+        }
+    }
+};
 static X1PlusNativeClass native;
 
 /*** DDS interposing into QML ***
@@ -528,6 +540,8 @@ SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESa
 
 FILE *backlight_fp = NULL;
 int backlight_fd = -1;
+FILE *chamber_led_fp = NULL;
+int chamber_led_fd = -1;
 SWIZZLE(FILE *, fopen64, const char *p, const char *m)
     char *replacement = NULL;
     if (!strncmp(p, "/config", 7) && getenv("EMULATION_WORKAROUNDS")) {
@@ -541,6 +555,9 @@ SWIZZLE(FILE *, fopen64, const char *p, const char *m)
     if (!strcmp(p, "/sys/devices/platform/backlight/backlight/backlight/brightness")) {
         printf("interposed open() to backlight -> fd %p\n", fp);
         backlight_fp = fp;
+    } else if (!strcmp(p, "/sys/devices/platform/gpio-leds/leds/sys_led/brightness")) {
+        printf("interposed open() to chamber led -> fd %p\n", fp);
+        chamber_led_fp = fp;
     }
     return fp;
 }
@@ -550,6 +567,10 @@ SWIZZLE(int, fclose, FILE *stream)
         printf("interposed fclose() on backlight\n");
         backlight_fp = NULL;
         backlight_fd = -1;
+    } else if (stream == chamber_led_fp){
+        printf("interposed fclose() on chamber led\n");
+        chamber_led_fp = NULL;
+        chamber_led_fd = -1;       
     }
     return next(stream);
 }
@@ -559,6 +580,9 @@ SWIZZLE(int, fileno, FILE *stream)
     if (stream == backlight_fp) {
         printf("interposed fileno() on backlight -> fd %d\n", fd);
         backlight_fd = fd;
+    } else if (stream == chamber_led_fp) {
+        printf("interposed fileno() on chamber led -> fd %d\n", fd);
+        chamber_led_fd = fd;
     }
     return next(stream);
 }
@@ -569,6 +593,16 @@ SWIZZLE(ssize_t, write, int fd, const void *p, size_t n)
         if (*(char*)p != '0') {
             printf("writing %d instead\n", native.backlightSetting);
             std::string valueText = std::to_string(native.backlightSetting);
+            next(fd, valueText.c_str(), valueText.length());
+            return n;
+        } else {
+            printf("backlight off\n");
+        }
+    } else if (fd == chamber_led_fd) {
+        printf("interposed write() on backlight, ");
+        if (*(char*)p != '0') {
+            printf("writing %d instead\n", native.chamberledSetting);
+            std::string valueText = std::to_string(native.chamberledSetting);
             next(fd, valueText.c_str(), valueText.length());
             return n;
         } else {
