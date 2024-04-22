@@ -96,6 +96,9 @@ public:
     X1PlusNativeClass(QObject *parent = 0) : QObject(parent) { }
     ~X1PlusNativeClass() {}
     
+    QObject *m_dbusHandler;
+    Q_PROPERTY(QObject *dbusHandler MEMBER m_dbusHandler);
+    
     Q_INVOKABLE QList<QString> listX1ps(QString path) {
         QList<QString> l;
         
@@ -508,12 +511,58 @@ SWIZZLE(void, _ZN9QSettingsC1ERK7QStringNS_6FormatEP7QObject, QSettings *q, QStr
     next(q, fn, f, o);
 }
 
+/*** Interpose DBus on new firmwares. ***/
+
+#ifdef HAS_DBUS
+
+namespace BDbus {
+    class Object;
+    
+    typedef void *DispatcherForCalling;
+    
+    struct MethodTable {
+        const char *name;
+        std::string (*fn)(void *ctx, std::string&);
+    };
+    
+    class Node {
+    public:
+        void registerObject(std::shared_ptr<BDbus::Object>, BDbus::DispatcherForCalling);
+        void destroyObject(std::string const&);
+        int createMethods(std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* someParam, BDbus::DispatcherForCalling dispatcher);
+    };
+}
+
 SWIZZLE(void, _ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
     if (getenv("EMULATION_WORKAROUNDS")) {
         BusType = 0; /* session bus, not system bus */
     }
     printf("_ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
     next(self, s, BusType);
+}
+
+static std::string _dbus_handle_lol(void *ctx, std::string &input) {
+    std::string s = input;
+    printf("*** LOL CALLED! ctx = %p, %s ***\n", ctx, input.c_str());
+    if (native.m_dbusHandler) {
+        QVariant returnedValue;
+        printf("calling into dbus request\n");
+        QMetaObject::invokeMethod(native.m_dbusHandler, "dbusRequest", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, QString::fromStdString(input)));
+        s += returnedValue.toString().toStdString();
+    }
+    return s + "... lol!";
+}
+
+static BDbus::MethodTable mtab[] = {
+    { "lol", _dbus_handle_lol },
+};
+
+SWIZZLE(int, _ZN5BDbus4Node13createMethodsERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_PKNS_11MethodTableEjPvNS_20DispatcherForCallingE, BDbus::Node *self, std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* ctx, BDbus::DispatcherForCalling dispatcher)
+    printf("createMethods(%s, %s, ctx = %p, dispatcher = %p)\n", objectName.c_str(), methodPrefix.c_str(), ctx, dispatcher);
+    int rv = next(self, objectName, methodPrefix, methodTable, methodCount, ctx, dispatcher);
+    int rv2 = next(self, "/bbl/service/screen", "bbl.screen.x1plus", mtab, sizeof(mtab) / sizeof(mtab[0]), NULL, dispatcher);
+    printf("rv1 %d, rv2 %d\n", rv, rv2);
+    return rv;
 }
 
 SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
@@ -523,6 +572,8 @@ SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESa
     printf("_ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
     next(self, s, BusType);
 }
+
+#endif
 
 /*** Tricks to override the backlight.  See X1PlusNative.updateBacklight above. ***/
 

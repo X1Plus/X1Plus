@@ -64,8 +64,11 @@ base.ts: printer_ui.so kexec_ui.so
 %.so: %.c
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
-%.so: %.ui.o interpose.cpp interpose.moc.h
+kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
 	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
+
+printer_ui.so: printer_ui.ui.o interpose.cpp interpose.moc.h
+	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS
 
 %.moc.h: %.cpp
 	moc -I $(QT5_INCL_PATH) $< -o $@
