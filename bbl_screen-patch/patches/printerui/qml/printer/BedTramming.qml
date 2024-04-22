@@ -14,7 +14,9 @@ Item {
     property bool emulating: X1Plus.emulating != ""
     property var buttonSelected: -1
     property bool isIdle: task.stage < PrintTask.WORKING && X1Plus.DDS.gcodeAction() != 254
-
+    property var gcodeLibrary: X1Plus.GcodeGenerator;
+    property var seq_id: 0
+    
     property var stepList: [
         [qsTr("Step 1:"), qsTr("Set the bed screws to their baseline tension setting, as described in the \"Prepare for Bed Leveling\" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)")],
         [qsTr("Step 2:"), qsTr("Tap the \"Prepare\" button below to home the bed.")],
@@ -125,7 +127,9 @@ Item {
             onClicked: {
                 isTramming = true;
                 buttonSelected = -1;
-                X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_tramming(X1Plus.GcodeGenerator.TRAMMING_STEP.PREPARE));
+                const trammingGcode = gcodeLibrary.Tramming.prepare()
+                X1Plus.sendGcode(trammingGcode,seq_id);
+                console.log(trammingGcode);
             }
         }
     }
@@ -192,7 +196,9 @@ Item {
             enabled: isIdle && isTramming && buttonSelected != 1
             onClicked: {
                 buttonSelected = 1;
-                X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_tramming(X1Plus.GcodeGenerator.TRAMMING_STEP.REAR_CENTER));
+                const trammingGcode = gcodeLibrary.Tramming.rear_center()
+                X1Plus.sendGcode(trammingGcode,seq_id);
+                console.log(trammingGcode);
             }
         }
 
@@ -209,7 +215,9 @@ Item {
             enabled: isIdle && isTramming && buttonSelected != 2
             onClicked: {
                 buttonSelected = 2;
-                X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_tramming(X1Plus.GcodeGenerator.TRAMMING_STEP.FRONT_LEFT));
+                const trammingGcode = gcodeLibrary.Tramming.front_left()
+                X1Plus.sendGcode(trammingGcode,seq_id);
+                console.log(trammingGcode);
             }
         }
         ZButton {
@@ -225,7 +233,9 @@ Item {
             enabled: isIdle && isTramming && buttonSelected != 3
             onClicked: {
                 buttonSelected = 3;
-                X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_tramming(X1Plus.GcodeGenerator.TRAMMING_STEP.FRONT_RIGHT));
+                const trammingGcode = gcodeLibrary.Tramming.front_right()
+                X1Plus.sendGcode(trammingGcode,seq_id);
+                console.log(trammingGcode);
             }
         }
     }
@@ -233,7 +243,9 @@ Item {
         X1PBackButton {
             onClicked: { 
                 if (emulating == false && isTramming == true) {
-                    X1Plus.sendGcode(X1Plus.GcodeGenerator.macros_tramming(X1Plus.GcodeGenerator.TRAMMING_STEP.EXIT));
+                    const trammingGcode = gcodeLibrary.Tramming.exit()
+                    X1Plus.sendGcode(trammingGcode,seq_id);
+                    console.log(trammingGcode);
                 }
                 isTramming = false;
                 pageStack.pop();   

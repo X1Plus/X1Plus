@@ -66,13 +66,13 @@ function start(low, high) {
     _timeoutTimer.restart();
     _isFinishing = false;
 
-    var gcode = X1Plus.GcodeGenerator.macros_vibrationCompensation(low, high, 0 /* nozzle temp */, 0 /* bed temp */);
+    var gcode = X1Plus.GcodeGenerator.Vibration(low, high, 0 /* nozzle temp */, 0 /* bed temp */);
     if (X1Plus.emulating) {
         console.log("Would send gcode:");
         console.log(gcode);
         _startSynthetic();
     } else {
-        X1Plus.sendGcode(gcode);
+        X1Plus.sendGcode(gcode,0);
     }
 }
 
