@@ -1,3 +1,9 @@
+.pragma library
+.import X1PlusNative 1.0 as JSX1PlusNative
+
+var X1Plus = null;
+var _X1PlusNative = JSX1PlusNative.X1PlusNative;
+
 function createGcode(command, params = {}) {
     let gcode = `${command}`;
     for (const [key, value] of Object.entries(params)) {
