@@ -275,9 +275,8 @@ public:
     }
 
 public:
-    int chamberledSetting = 255;
+    int chamberledSetting = 1;
     Q_INVOKABLE void updateChamberLED(int val) {
-        chamberledSetting = (val == 1) ? 255 : 0;
         std::string valueText = std::to_string(chamberledSetting);
         int fd;
         if ((fd = open("/sys/devices/platform/gpio-leds/leds/sys_led/brightness", O_RDWR)) >= 0) {
