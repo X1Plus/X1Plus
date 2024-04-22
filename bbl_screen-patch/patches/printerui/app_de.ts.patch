@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_de.ts
 +++ printer_ui/printerui/app_de.ts
-@@ -2969,4 +2969,229 @@
+@@ -3435,4 +3435,229 @@
          <translation>Sind Sie sich sicher, dass sie diesen Druck abbrechen wollen?</translation>
      </message>
  </context>

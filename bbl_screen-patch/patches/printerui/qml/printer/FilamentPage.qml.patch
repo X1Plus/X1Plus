@@ -8,7 +8,7 @@
      property bool loading: feeder.loading
      property var currentTray: feeder.currentTray
      property int loadStep: feeder.loadStep
-@@ -390,7 +391,7 @@
+@@ -388,7 +389,7 @@
              }
          }
      }
@@ -17,7 +17,7 @@
      MarginPanel {
          id: howToPanel
          height: 538
-@@ -656,32 +657,41 @@
+@@ -651,36 +652,49 @@
                                                : qsTr("Empty")
                      }
  
@@ -30,9 +30,13 @@
                          anchors.horizontalCenter: parent.horizontalCenter
 -                        fillMode: Image.Pad
 -                        tintColor: {
--                            var color = colorHeight.y >= (y + height / 2) ? "transparent" : (colorHeight.color.a !== 0 ? colorHeight.color : Colors.white_900)
+-                            var color = colorHeight.y >= (y + height / 2) ? "transparent" : (colorHeight.alpha !== 0 ? colorHeight.color : Colors.white_900)
 -                            var color2 = Colors.blend([color, parent.color, Colors.gray_800])
--                            return Colors.different(color2)
+-
+-                            if (modelData.color.a > 0 && modelData.color.a < 1)
+-                                return Colors.white_900
+-                            else
+-                                return Colors.different(color2)
 -                        }
 -                        originSource: modelData.thirdparty
 -                                ? "../../icon/edit2.svg" : "../../icon/show_eye.svg"
@@ -56,7 +60,15 @@
 +                            anchors.verticalCenter: parent.verticalCenter
 +                            anchors.horizontalCenter: parent.horizontalCenter
 +                            fillMode: Image.Pad
-+                            tintColor: Colors.gray_100
++                            tintColor: {
++                                var color = colorHeight.y >= (y + height / 2) ? "transparent" : (colorHeight.alpha !== 0 ? colorHeight.color : Colors.white_900)
++                                var color2 = Colors.blend([color, parent.color, Colors.gray_800])
++
++                                if (modelData.color.a > 0 && modelData.color.a < 1)
++                                    return Colors.white_900
++                                else
++                                    return Colors.different(color2)
++                            }
 +                            originSource: modelData.thirdparty
 +                                    ? "../../icon/edit2.svg" : "../../icon/show_eye.svg"
 +                        }

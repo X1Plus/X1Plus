@@ -10,7 +10,7 @@
  
      property var network: NetworkManager.network
      property bool wifiIsOn: network.isOn && network.powerState
-@@ -28,10 +29,16 @@
+@@ -29,10 +30,16 @@
  
      MarginPanel {
          id: wifiPanel
@@ -30,7 +30,7 @@
  
          Item {
              id: wlanTitle
-@@ -280,13 +287,16 @@
+@@ -281,13 +288,16 @@
  
      MarginPanel {
          id: rightPanel

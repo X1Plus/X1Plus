@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_ja.ts
 +++ printer_ui/printerui/app_ja.ts
-@@ -2967,4 +2967,930 @@
+@@ -3433,4 +3433,930 @@
          <translation>今の造形を取り消しますか？</translation>
      </message>
  </context>

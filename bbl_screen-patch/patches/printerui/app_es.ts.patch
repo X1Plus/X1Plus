@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_es.ts
 +++ printer_ui/printerui/app_es.ts
-@@ -2971,4 +2971,908 @@
+@@ -3437,4 +3437,908 @@
          <translation>¿Estás seguro de que quieres cancelar este trabajo?</translation>
      </message>
  </context>
