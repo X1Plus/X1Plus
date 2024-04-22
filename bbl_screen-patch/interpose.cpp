@@ -273,7 +273,7 @@ public:
             close(fd);
         }
     }
-};
+
 public:
     int chamberledSetting = 255;
     Q_INVOKABLE void updateChamberLED(int val) {
