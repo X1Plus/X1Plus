@@ -96,8 +96,6 @@ public:
     X1PlusNativeClass(QObject *parent = 0) : QObject(parent) { }
     ~X1PlusNativeClass() {}
     
-    QObject *m_dbusHandler;
-    Q_PROPERTY(QObject *dbusHandler MEMBER m_dbusHandler);
     
     Q_INVOKABLE QList<QString> listX1ps(QString path) {
         QList<QString> l;
@@ -513,12 +511,29 @@ SWIZZLE(void, _ZN9QSettingsC1ERK7QStringNS_6FormatEP7QObject, QSettings *q, QStr
 
 /*** Interpose DBus on new firmwares. ***/
 
+#ifndef HAS_DBUS
+// make moc happy
+class DBusListener : public QObject {
+    Q_OBJECT
+
+public:
+    QObject *handler;
+    Q_PROPERTY(QObject *handler MEMBER handler);
+
+    DBusListener(QObject *parent = 0) : QObject(parent) { }
+    ~DBusListener() {}
+
+    Q_INVOKABLE void registerMethod(QString methodName) {
+    }
+};
+#endif
+
 #ifdef HAS_DBUS
 
 namespace BDbus {
     class Object;
     
-    typedef void *DispatcherForCalling;
+    enum DispatcherForCalling {};
     
     struct MethodTable {
         const char *name;
@@ -531,37 +546,68 @@ namespace BDbus {
         void destroyObject(std::string const&);
         int createMethods(std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* someParam, BDbus::DispatcherForCalling dispatcher);
     };
-}
+};
 
-SWIZZLE(void, _ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
+static std::string _handle_dbus_method_call(void *, std::string &);
+
+class DBusListener : public QObject {
+    Q_OBJECT
+
+public:
+    BDbus::Node *nobe;
+    BDbus::DispatcherForCalling dispatcher;
+
+    QObject *handler;
+    Q_PROPERTY(QObject *handler MEMBER handler);
+
+    DBusListener(QObject *parent = 0) : QObject(parent) { }
+    ~DBusListener() {}
+
+    Q_INVOKABLE void registerMethod(QString methodName) {
+        if (!nobe) {
+            printf("*** DBUS NODE IS NOT READY YET, THIS SHOULD NOT BE\n");
+            abort();
+        }
+        
+        BDbus::MethodTable *method = new BDbus::MethodTable;
+        method->name = strdup(methodName.toUtf8().constData());
+        method->fn = _handle_dbus_method_call;
+        nobe->createMethods("/bbl/service/screen", "bbl.screen.x1plus", method, 1, (void *)method->name, dispatcher);
+    }
+};
+static DBusListener dbusListener;
+
+SWIZZLE(void, _ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, BDbus::Node *self, std::string &s, int BusType)
     if (getenv("EMULATION_WORKAROUNDS")) {
         BusType = 0; /* session bus, not system bus */
     }
     printf("_ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
     next(self, s, BusType);
+    
+    dbusListener.nobe = self;
 }
 
-static std::string _dbus_handle_lol(void *ctx, std::string &input) {
-    std::string s = input;
-    printf("*** LOL CALLED! ctx = %p, %s ***\n", ctx, input.c_str());
-    if (native.m_dbusHandler) {
+static std::string _handle_dbus_method_call(void *ctx, std::string &input) {
+    std::string s = "";
+    const char *name = (const char *)ctx;
+    if (dbusListener.handler) {
         QVariant returnedValue;
-        printf("calling into dbus request\n");
-        QMetaObject::invokeMethod(native.m_dbusHandler, "dbusRequest", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, QString::fromStdString(input)));
-        s += returnedValue.toString().toStdString();
+        printf("calling into dbus request for method %s\n", name);
+        QMetaObject::invokeMethod(dbusListener.handler, "dbusMethodCall",
+                                  Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(QVariant, returnedValue),
+                                  Q_ARG(QVariant, QString(name)),
+                                  Q_ARG(QVariant, QString::fromStdString(input))
+                                 );
+        s = returnedValue.toString().toStdString();
     }
-    return s + "... lol!";
+    return s;
 }
-
-static BDbus::MethodTable mtab[] = {
-    { "lol", _dbus_handle_lol },
-};
 
 SWIZZLE(int, _ZN5BDbus4Node13createMethodsERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_PKNS_11MethodTableEjPvNS_20DispatcherForCallingE, BDbus::Node *self, std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* ctx, BDbus::DispatcherForCalling dispatcher)
     printf("createMethods(%s, %s, ctx = %p, dispatcher = %p)\n", objectName.c_str(), methodPrefix.c_str(), ctx, dispatcher);
     int rv = next(self, objectName, methodPrefix, methodTable, methodCount, ctx, dispatcher);
-    int rv2 = next(self, "/bbl/service/screen", "bbl.screen.x1plus", mtab, sizeof(mtab) / sizeof(mtab[0]), NULL, dispatcher);
-    printf("rv1 %d, rv2 %d\n", rv, rv2);
+    dbusListener.dispatcher = dispatcher;
     return rv;
 }
 
@@ -770,9 +816,16 @@ extern "C" void __attribute__ ((constructor)) init() {
         Q_UNUSED(engine)
 
         QJSValue obj = scriptEngine->newQObject(&listener);
-        
         scriptEngine->globalObject().setProperty("_DdsListener", obj);
-        
         return obj;
     });
+#ifdef HAS_DBUS
+    qmlRegisterSingletonType("DBusListener", 1, 0, "DBusListener", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QJSValue {
+        Q_UNUSED(engine)
+
+        QJSValue obj = scriptEngine->newQObject(&dbusListener);
+        scriptEngine->globalObject().setProperty("_DBusListener", obj);
+        return obj;
+    });
+#endif
 }
