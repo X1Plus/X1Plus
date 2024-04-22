@@ -523,8 +523,8 @@ public:
     DBusListener(QObject *parent = 0) : QObject(parent) { }
     ~DBusListener() {}
 
-    Q_INVOKABLE void registerMethod(QString methodName) {
-    }
+    Q_INVOKABLE void registerMethod(QString methodName) { }
+    Q_INVOKABLE void registerSignal(QString pathName, QString signalName) { }
 };
 #endif
 
@@ -539,16 +539,24 @@ namespace BDbus {
         const char *name;
         std::string (*fn)(void *ctx, std::string&);
     };
+
+    struct SignalProxyTable {
+        const char *path;
+        const char *name;
+        void (*fn)(void *ctx, std::string&);
+    };
     
     class Node {
     public:
         void registerObject(std::shared_ptr<BDbus::Object>, BDbus::DispatcherForCalling);
         void destroyObject(std::string const&);
         int createMethods(std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* someParam, BDbus::DispatcherForCalling dispatcher);
+        int createSignalProxies(BDbus::SignalProxyTable*, unsigned int, void*);
     };
 };
 
 static std::string _handle_dbus_method_call(void *, std::string &);
+static void _handle_dbus_signal(void *, std::string &);
 
 class DBusListener : public QObject {
     Q_OBJECT
@@ -573,6 +581,19 @@ public:
         method->name = strdup(methodName.toUtf8().constData());
         method->fn = _handle_dbus_method_call;
         nobe->createMethods("/bbl/service/screen", "bbl.screen.x1plus", method, 1, (void *)method->name, dispatcher);
+    }
+    
+    Q_INVOKABLE void registerSignal(QString pathName, QString signalName) {
+        if (!nobe) {
+            printf("*** DBUS NODE IS NOT READY YET, THIS SHOULD NOT BE\n");
+            abort();
+        }
+        
+        BDbus::SignalProxyTable *signal = new BDbus::SignalProxyTable;
+        signal->path = strdup(pathName.toUtf8().constData());
+        signal->name = strdup(signalName.toUtf8().constData());
+        signal->fn = _handle_dbus_signal;
+        nobe->createSignalProxies(signal, 1, signal);
     }
 };
 static DBusListener dbusListener;
@@ -603,6 +624,20 @@ static std::string _handle_dbus_method_call(void *ctx, std::string &input) {
     }
     return s;
 }
+
+static void _handle_dbus_signal(void *ctx, std::string &input) {
+    BDbus::SignalProxyTable *signal = (BDbus::SignalProxyTable *)ctx;
+    if (dbusListener.handler) {
+        printf("calling into dbus request for signal %s.%s\n", signal->path, signal->name);
+        QMetaObject::invokeMethod(dbusListener.handler, "dbusSignal",
+                                  Qt::BlockingQueuedConnection,
+                                  Q_ARG(QVariant, QString(signal->path)),
+                                  Q_ARG(QVariant, QString(signal->name)),
+                                  Q_ARG(QVariant, QString::fromStdString(input))
+                                 );
+    }
+}
+
 
 SWIZZLE(int, _ZN5BDbus4Node13createMethodsERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_PKNS_11MethodTableEjPvNS_20DispatcherForCallingE, BDbus::Node *self, std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* ctx, BDbus::DispatcherForCalling dispatcher)
     printf("createMethods(%s, %s, ctx = %p, dispatcher = %p)\n", objectName.c_str(), methodPrefix.c_str(), ctx, dispatcher);

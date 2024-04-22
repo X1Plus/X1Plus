@@ -27,17 +27,26 @@ var _componentFactory = Qt.createComponent("DBusObject.qml");
 var _DBusObject = _componentFactory.createObject();
 
 var _methods = {};
+var _signals = {};
 
-function _handleDbus(method, param) {
+_DBusObject.methodCallHandler = (method, param) => {
     var fn = _methods[method];
     if (!fn) {
-        console.log(`*** handleDbus got invalid method ${method} -- this should not be!`);
+        console.log(`*** handleDbusMethodCall got invalid method ${method} -- this should not be!`);
         return;
     }
     return JSON.stringify(fn(JSON.parse(param)));
-}
-_DBusObject.handler = _handleDbus; // ugh
-_DBusListener.handler = _DBusObject;
+};
+_DBusObject.signalHandler = (path, name, param) => {
+    var p = `${path}.${name}`;
+    param = JSON.parse(param);
+    if (_signals[p]) {
+        for (const fn of _signals[p]) {
+            fn(param);
+        } 
+    }
+};
+_DBusListener.handler = _DBusObject; // ugh
 
 function registerMethod(name, fn) {
     if (_methods[name]) {
@@ -46,4 +55,13 @@ function registerMethod(name, fn) {
         _DBusListener.registerMethod(name);
     }
     _methods[name] = fn;
+}
+
+function onSignal(path, name, fn) {
+    var p = `${path}.${name}`;
+    if (!_signals[p]) {
+        _signals[p] = [];
+        _DBusListener.registerSignal(path, name);
+    }
+    _signals[p].push(fn);
 }

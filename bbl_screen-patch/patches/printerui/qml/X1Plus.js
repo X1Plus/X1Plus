@@ -167,3 +167,4 @@ X1Plus.DBus.registerMethod("ping", (param) => {
     param["pong"] = "from QML";
     return param;
 });
+X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
