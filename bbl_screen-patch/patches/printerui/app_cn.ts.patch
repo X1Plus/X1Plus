@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_cn.ts
 +++ printer_ui/printerui/app_cn.ts
-@@ -2965,4 +2965,228 @@
+@@ -3431,4 +3431,228 @@
          <translation>请确认是否取消本次打印？</translation>
      </message>
  </context>

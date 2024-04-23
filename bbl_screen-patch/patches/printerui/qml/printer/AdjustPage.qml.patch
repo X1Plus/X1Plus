@@ -1,9 +1,9 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -11,7 +11,9 @@
- 
-     property var heaters: PrintManager.heaters
-     property var axisController: PrintManager.axisController
+@@ -16,7 +16,9 @@
+     property var extruders: hasExtruderList ? extruderList.extruders : []
+     property var currentExtruder: hasExtruderList ? extruderList.currentExtruder : null
+     property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
 -
 +    property var isHomed: (PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) >= PrintManager.AXIS_HOMED_ALL
 +    property bool ignoreDialog: false
@@ -11,7 +11,7 @@
      property var speedAdjust: QtObject {
          property string name: "speed"
          property int currentTemp: PrintManager.currentTask.printSpeed
-@@ -148,18 +150,32 @@
+@@ -153,18 +155,32 @@
                  model: xyAsixModel
                  delegate: axisComp
              }
@@ -52,7 +52,7 @@
                  }
              }
          }
-@@ -205,7 +221,7 @@
+@@ -210,7 +226,7 @@
                      }
  
                      onClicked: {
@@ -61,7 +61,7 @@
                              limitFrame()
                          }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-@@ -800,7 +816,7 @@
+@@ -828,7 +844,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -70,7 +70,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -818,7 +834,7 @@
+@@ -846,7 +862,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -79,7 +79,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -873,11 +889,13 @@
+@@ -901,11 +917,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",

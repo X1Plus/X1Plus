@@ -119,7 +119,7 @@
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
 -                                if (updater.consistency) {
--                                    DeviceManager.startUpdate()
+-                                    DeviceManager.startUpdate(true)
 -                                } else {
 -                                    screen.jumpTo("Settings/Device")
 -                                    pageStack.push("VersionPage.qml")

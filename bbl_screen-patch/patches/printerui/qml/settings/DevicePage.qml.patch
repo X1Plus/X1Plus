@@ -103,7 +103,7 @@
 -                            name: "Version notify version is abnormal",
 -                            type: TextConfirm.YES_NO,
 -                            text: qsTr("The firmware version is abnormal. Repair and update are required, otherwise the printing cannot be started. Do you want to update now?"),
--                            onYes: function(index) { DeviceManager.startUpdate() },
+-                            onYes: function(index) { DeviceManager.startUpdate(true) },
 -                            onNo: function(index) { pageStack.push("VersionPage.qml") }
 -                        })
 -            return
@@ -121,13 +121,13 @@
 -                                 name: "Format storage",
 -                                 message: qsTr("Formatting..."),
 -                                 // must let "finished" go through 0->1 that can close this dialog...
--                                 /* below, for "return !DeviceManager.storage.internal" situation: 
+-                                 /* below, for "return !DeviceManager.storage.internal" situation:
 -                                        "DeviceManager_linux.cpp" "storage_.internal_" is exists of "/mnt/sdcard/"(sd card mount here), and "storage_.hasExternal_" is exists of "/dev/mmcblk2"(sd card it self)
 -                                        in "devicemanager.cpp" there is a timer periodic execution "DeviceManager::updateDeviceInfos"
 -                                        to update info, in "DeviceManager::formatStorage2()" of "DeviceManager_linux.cpp" let "syncInfos_ |= DI_Storage"
 -                                        that next time "DeviceManager::updateDeviceInfos" will update sd card info,
 -                                        when sd formatting "storage_.internal_" will go through 0->1 if things goes normal
--                                    below, for "return !DeviceManager.formattingSDCard" situation: 
+-                                    below, for "return !DeviceManager.formattingSDCard" situation:
 -                                        use "activeInfos_.setFlag(DI_FORMAT_SDCARD);" and "activeInfos_.setFlag(DI_FORMAT_SDCARD, false);"
 -                                        in "DeviceManager::formatStorage2()" to close this dialog
 -                                 */
@@ -184,7 +184,7 @@
 +                
 +            }
 +        }
-+    }/*
++    }/*/
 +    /*function exportLog() {
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
@@ -260,7 +260,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,35 +248,11 @@
+@@ -229,25 +248,73 @@
          }
  
          MarginPanel {
@@ -270,34 +270,87 @@
 -            anchors.left: parent.left
 -            anchors.leftMargin: 241+20
 -            anchors.top: sdIdStorage.top
--            marginColor: "transparent"
++            id: video
++            width: 426
++            height: 186
++            anchors.top: sdIdStorage.bottom
++            anchors.topMargin: 26
++            anchors.left: sdIdStorage.left
++            color: Colors.gray_600
++            radius: 15
+             marginColor: "transparent"
 -            leftRadiusOff: true
 -            color: formatBtn.color
--
++            visible: false
+ 
 -            ZButton {
 -                id: formatBtn
--                anchors.fill: parent
++            Loader {
+                 anchors.fill: parent
 -                type: ZButtonAppearance.Tertiary
 -                backgroundColor: StateColors.get("gray_600_pressed")
 -                textColor: StateColors.get("gray_300")
 -                text: qsTr("Format")
 -                onClicked: {
 -                    formatStorage()
--                }
--            }
--        }
--
--        MarginPanel {
-             id: video
-             width: 426
-             height: 186
-             anchors.top: sdIdStorage.bottom
--            anchors.topMargin: 20
-+            anchors.topMargin: 26
-             anchors.left: sdIdStorage.left
-             color: Colors.gray_600
-             radius: 15
-@@ -327,7 +322,7 @@
++                property var text1: [qsTr("Video"), qsTr("Resolution"), "720p", "1080p"]
++                property var check: RecordManager.isVideoOn
++                property var check2: RecordManager.resolution == "720p"
++                property bool enabledState: !RecordManager.syncingVideo
++                sourceComponent: videoComp
++                function fun(b) {
++                    setResolution(b ? "720p" : "1080p");
++                }
++                function fun2(b) {
++                    if(storage.internal) {
++                        dialogStack.popupDialog("TextConfirm", {
++                                                    name: "video switch",
++                                                    type: TextConfirm.CONFIRM_ONLY,
++                                                    text: qsTr("Unable to open without SD card."),
++                                                })
++                    } else {
++                        RecordManager.isVideoOn = b;
++                    }
++                }
++            }
++        }
++
++        MarginPanel {
++            id: timelapse
++            width: 426
++            height: 186
++            anchors.top: video.bottom
++            anchors.topMargin: 21
++            anchors.left: sdIdStorage.left
++            color: Colors.gray_600
++            radius: 15
++            marginColor: "transparent"
++            visible: false
++
++            Loader {
++                anchors.fill: parent
++                property var text1: [qsTr("Timelapse"), qsTr("Resolution"), "720p", "1080p"]
++                property var check: RecordManager.isTimelapseOn
++                property var check2: RecordManager.resolution == "720p"
++                property bool enabledState: !RecordManager.syncingTimelapse
++                sourceComponent: videoComp
++                function fun(b) {
++                    setResolution(b ? "720p" : "1080p");
++                }
++                function fun2(b) {
++                    if(storage.internal) {
++                        dialogStack.popupDialog("TextConfirm", {
++                                                    name: "timelapse switch",
++                                                    type: TextConfirm.CONFIRM_ONLY,
++                                                    text: qsTr("Unable to open without SD card."),
++                                                })
++                    } else {
++                        RecordManager.isTimelapseOn = b;
++                    }
+                 }
+             }
+         }
+@@ -255,7 +322,7 @@
          MarginPanel {
              id: lanOnly
              width: 426
@@ -306,7 +359,7 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -338,30 +333,45 @@
+@@ -266,30 +333,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -366,7 +419,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -374,27 +384,62 @@
+@@ -302,27 +384,62 @@
                                                                  }
                                                              })
                                              }
@@ -438,7 +491,7 @@
                  anchors.left: lanOnlyText.left
                  color: Colors.brand
                  font: Fonts.body_24
-@@ -407,8 +452,7 @@
+@@ -335,8 +452,7 @@
                  height: width
                  radius: width / 2
                  anchors.top: accessCodeText.top
@@ -448,7 +501,7 @@
                  type: ZButtonAppearance.Secondary
                  iconPosition: ZButtonAppearance.Center
                  paddingX: 0
-@@ -434,9 +478,9 @@
+@@ -362,9 +478,9 @@
          }
  
          MarginPanel {
@@ -460,7 +513,7 @@
              anchors.top: lanOnly.bottom
              anchors.topMargin: 16
              anchors.left: lanOnly.left
-@@ -445,28 +489,84 @@
+@@ -373,28 +489,84 @@
              marginColor: "transparent"
  
              Text {
@@ -500,8 +553,8 @@
 +                    } else {
 +                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd stop`);
 +                    }
-                 }
-             }
++                }
++            }
 +            
 +            ZText {
 +                property var rootpw: DeviceManager.getSetting("cfw_rootpw", "")
@@ -549,13 +602,13 @@
 +                    duration: 1000
 +                    from: 0
 +                    to: 360
-+                }
-+            }
+                 }
+             }
 +
          }
      }
  
-@@ -476,7 +576,9 @@
+@@ -404,7 +576,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -566,3 +619,160 @@
          radius: 15
          color: Colors.gray_600
  
+@@ -581,6 +755,114 @@
+ 
+     }
+ 
++    Component {
++        id: videoComp
++        Item {
++            Item {
++                id: voideItem
++                anchors.top: parent.top
++                anchors.topMargin: 35
++                anchors.left: parent.left
++                anchors.leftMargin: 30
++                anchors.right: parent.right
++                anchors.rightMargin: 57
++                Text {
++                    id: videoTx
++                    anchors.top: parent.top
++                    anchors.topMargin: 6
++                    anchors.left: parent.left
++                    font: Fonts.body_24
++                    color: Colors.gray_100
++                    text: text1[0]
++                }
++
++                ZButton {
++                    anchors.left: videoTx.right
++                    anchors.top: videoTx.top
++                    backgroundColor: StateColors.get("transparent")
++                    borderColor: StateColors.get("transparent")
++                    icon: "../../icon/helpIcon.svg"
++                    iconSize: 24
++                    visible: false //index === 2
++                    onClicked: {
++                        rtspServerHelpPad.popup()
++                    }
++                }
++
++                ZSwitchButton {
++                    id: videoButton
++                    anchors.top: parent.top
++                    anchors.right: parent.right
++                    dynamicChecked: check
++                    enabled: enabledState
++                    onToggled: {
++                        fun2(checked)
++                    }
++                }
++            }
++
++            ZLineSplitter {
++                id: line1
++                alignment: Qt.AlignTop
++                padding: 30
++                offset: 101
++                color: Colors.gray_400
++            }
++
++            Item {
++                id: resolutionItem
++                anchors.top: line1.bottom
++                anchors.left: voideItem.left
++                anchors.right: parent.right
++                anchors.bottom: parent.bottom
++                Text {
++                    id: resolutionTx
++                    anchors.verticalCenter: parent.verticalCenter
++                    anchors.left: parent.left
++                    width: 140
++                    font: Fonts.body_24
++                    color: Colors.gray_100
++                    text: text1[1]
++                }
++
++                ZRadioButton {
++                    id: resolution720
++                    width:129
++                    height: 85
++                    anchors.bottom: parent.bottom
++                    anchors.left: parent.left
++                    anchors.leftMargin: 140
++                    dynamicChecked: check2
++                    text: text1[2]
++                    textColor: StateColors.get("white_900")
++                    font: Fonts.body_24
++                    outerSize: 20
++                    insideSize: 0
++                    onToggled: {
++                        fun(true)
++                    }
++                }
++
++                ZRadioButton {
++                    id: resolution1080
++                    width:129
++                    height: 85
++                    anchors.bottom: parent.bottom
++                    anchors.left: resolution720.right
++                    dynamicChecked: !check2
++                    text: text1[3]
++                    textColor: StateColors.get("white_900")
++                    font: Fonts.body_24
++                    outerSize: 20
++                    insideSize: 0
++                    onToggled: {
++                        fun(false)
++                    }
++                }
++            }
++        }
++    }
++
+     function setResolution(res)
+     {
+         if(res === RecordManager.resolution)
+@@ -607,4 +889,41 @@
+             }
+         }
+     }
++
++    PopupPad {
++        id: rtspServerHelpPad
++        width: 700
++        height: 600
++        anchors.right: parent.right
++        anchors.rightMargin: 290
++        anchors.top: parent.top
++        anchors.topMargin: -16
++        name: "rtspServerHelpPad"
++        closeBtn: true
++
++        contentComponent: Rectangle {
++            radius: 15
++            color: Colors.gray_600
++            QRCodeImage {
++                id: qrcId
++                anchors.horizontalCenter: parent.horizontalCenter
++                anchors.top: parent.top
++                anchors.topMargin: 50
++                size: 304
++                data: "https://" + DeviceManager.cloud.subDomain("e") + "/t/?c=AKZdax7ETH7Hn864"
++            }
++
++            Text {
++                width: parent.width - 40
++                x: 20
++                anchors.top: qrcId.bottom
++                anchors.topMargin: 20
++                anchors.horizontalCenter: parent.horizontalCenter
++                wrapMode: Text.WordWrap
++                font: Fonts.body_36
++                color: Colors.gray_200
++                text: qsTr("Please use the Bambu Handy APP to scan the code to view RTSP setvice details.")
++            }
++        }
++    }
+ }

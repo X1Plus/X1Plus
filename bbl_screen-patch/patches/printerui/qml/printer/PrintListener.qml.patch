@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/printer/PrintListener.qml
 +++ printer_ui/printerui/qml/printer/PrintListener.qml
-@@ -48,6 +48,10 @@
+@@ -39,6 +39,10 @@
                  }
              }
  

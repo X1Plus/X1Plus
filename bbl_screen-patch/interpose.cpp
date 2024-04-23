@@ -453,8 +453,7 @@ const char *DdsNode_new_get_sub_topic_name(void *p, int i) {
     return DdsNode_orig_get_sub_topic_name(p, i);
 }
 
-
-SWIZZLE(void, _ZN7DdsNode8set_nameERNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, void *self, void *p)
+static void _setup_from_ddsnode(void *self) {
     printf("interposing DdsNode::set_name\n");
     listener.ddsnode = self;
     void **vptr = (void **)self;
@@ -465,6 +464,15 @@ SWIZZLE(void, _ZN7DdsNode8set_nameERNSt7__cxx1112basic_stringIcSt11char_traitsIc
     ddsnode_new_vtable[DdsNode_get_sub_topic_count] = (void *)DdsNode_new_get_sub_topic_count;
     ddsnode_new_vtable[DdsNode_get_sub_topic_name] = (void *)DdsNode_new_get_sub_topic_name;
     *vptr = ddsnode_new_vtable + VTABLE_PRE;
+}
+
+SWIZZLE(void, _ZN7DdsNode8set_nameERNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, void *self, void *p)
+    _setup_from_ddsnode(self);
+    next(self, p);
+}
+
+SWIZZLE(void, _ZN7DdsNode8set_nameERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, void *self, void *p)
+    _setup_from_ddsnode(self);
     next(self, p);
 }
 
@@ -498,6 +506,22 @@ SWIZZLE(void, _ZN9QSettingsC1ERK7QStringNS_6FormatEP7QObject, QSettings *q, QStr
         fn.prepend(rootpath);
     }
     next(q, fn, f, o);
+}
+
+SWIZZLE(void, _ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
+    if (getenv("EMULATION_WORKAROUNDS")) {
+        BusType = 0; /* session bus, not system bus */
+    }
+    printf("_ZN5BDbus4NodeC1ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
+    next(self, s, BusType);
+}
+
+SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE, void *self, std::string &s, int BusType)
+    if (getenv("EMULATION_WORKAROUNDS")) {
+        BusType = 0; /* session bus, not system bus */
+    }
+    printf("_ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEN4DBus7BusTypeE %s %d\n", s.c_str(), BusType);
+    next(self, s, BusType);
 }
 
 /*** Tricks to override the backlight.  See X1PlusNative.updateBacklight above. ***/
