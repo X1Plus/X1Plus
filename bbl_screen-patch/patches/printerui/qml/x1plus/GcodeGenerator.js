@@ -148,52 +148,6 @@ function M900(k, l, m) {
     return createGcode('M900', {K: k, L: l, M: m});
 }
 
-
-/** 
- * Interpolation of Bambu print speed parameters. Details about this process at here:
- * https://github.com/jphannifan/x1plus-testing/blob/main/BL-speed-adjust.md
- * We can modify this readme and turn it into Wiki content.
- * */
-var speed_interp = {
-    speed_fraction: (speedPercentage) => { return Math.floor(10000/speedPercentage)/100},
-    acceleration_magnitude: (speedFraction) => {return Math.exp((speedFraction - 1.0191) / -0.814)},
-    feed_rate: (speedPercentage) => {return (0.00006426)*speedPercentage ** 2 + (-0.002484)*speedPercentage + 0.654},
-    level: (accelerationMagnitude) => {return (1.549 * accelerationMagnitude ** 2 - 0.7032 * accelerationMagnitude + 4.0834)}
-}
-
-/**
- * Generates G-code based on the print speed level.
- * 
- * @param {number} speedPercentage The desired print speed as a percentage of the normal speed (100%).
- *                                 Accepts even integers between 30 and 180
- * @returns {string} The G-code string to set print speed
- */
-function speed(speedPercentage) {
-    if (speedPercentage < 30 || speedPercentage > 180){
-        speedPercentage = 100;
-    }
-
-    // Convert percentage to a fraction, use Math.floor() to keep our target % the same as Bambu's reported %
-    var speedFraction = speed_interp.speed_fraction(speedPercentage);
-    
-    // Calculate acceleration magnitude from speed fraction based on log trendline
-    var accelerationMagnitude = speed_interp.acceleration_magnitude(speedFraction);
-    
-    // Interpolate feed rate from R
-    var feedRate = speed_interp.feed_rate(speedPercentage);
-    // level from acceleration magnitude (not necessary)
-    var level = speed_interp.level(accelerationMagnitude);
-    if (level > 7) {
-        level = 7;
-    }
-    return [
-        `M204.2 K${accelerationMagnitude.toFixed(2)}`,
-        `M220 K${feedRate.toFixed(2)}`,
-        `M73.2 R${speedFraction}`,
-        M1002.set_gcode_claim_speed_level(Math.round(level))
-    ].join(" \n") + "\n";
-}
-
 /* motion control - no extrusion */
 function G0({ x = '', y = '', z = '', accel = '' }) {
     return createGcode('G0', { X: x, Y: y, Z: z, F: accel });
@@ -207,14 +161,12 @@ function G2({ z=0.6, i = 0.5, j = 0,p = 1, accel = 300 }) {
     return createGcode('G2', {Z:z, I: i, J: j,P: p, F: accel });
 }
 
-
-
+/* claim_action function */
 var M1002 = { 
     gcode_claim_action: (code) => `M1002 gcode_claim_action ${code}\n `,
     judge_flag: (code) => `M1002 judge_flag ${code}\n `,
     set_gcode_claim_speed_level: (code) => `M1002 set_gcode_claim_speed_level ${code}\n `,
 }
-
 
 /* fast sweep */
 function M9703(axis = 0, a = 7, b = 30, c = 80, h = 0, k = 0) 
@@ -388,7 +340,7 @@ function G921() {
     return `G92.1\n`;
 }
 
-
+/* Vibration compensation calibration */
 function Vibration(freq1, freq2, nozzleTemp, bedTemp) {
     let mid = Math.floor((freq2 - freq1) * 0.5);
     let gcode = [];
@@ -435,6 +387,7 @@ function Vibration(freq1, freq2, nozzleTemp, bedTemp) {
 }
 
 
+/* Semi-automate cold pulls */
 const ColdPull = {
     prepare: () => [
         G28.xy(), // xy home
@@ -472,6 +425,7 @@ const ColdPull = {
     ].join('')
 };
 
+/* "Convective preheat" using heatbed and fans to warm the chamber */
 const Preheat = {
     home: () => [
         G28.z_low_precision(),
@@ -493,7 +447,7 @@ const Preheat = {
     ].join('')
 };
 
-
+/* Tramming Gcode */
 const Tramming = {
     exit: () => [
         M1002.gcode_claim_action(254),
@@ -534,3 +488,65 @@ const Tramming = {
         M1002.gcode_claim_action(1),
     ].join('')
 };
+
+
+/* Bambu print speed parameters */
+var speed_presets = {
+    "Silent": { speed: 50, accelerationMagnitude: 2, feedRate: 0.3, level: 0.7 },
+    "Normal": { speed: 100, accelerationMagnitude: 1, feedRate: 1, level: 1 },
+    "Sport": { speed: 125, accelerationMagnitude: 0.8, feedRate: 1.4, level: 1.4 },
+    "Ludicrous": { speed: 166, accelerationMagnitude: 0.6, feedRate: 1.6, level: 2 }
+};
+
+/** 
+ * Interpolation of Bambu print speed parameters. Details about this process at here:
+ * https://github.com/jphannifan/x1plus-testing/blob/main/BL-speed-adjust.md
+ * We can modify this readme and turn it into Wiki content.
+ * */
+var speed_interp = {
+    speed_fraction: (speedPercentage) => { return Math.floor(10000/speedPercentage)/100},
+    acceleration_magnitude: (speedFraction) => {return Math.exp((speedFraction - 1.0191) / -0.814)},
+    feed_rate: (speedPercentage) => {return (0.00006426)*speedPercentage ** 2 + (-0.002484)*speedPercentage + 0.654},
+    level: (accelerationMagnitude) => {return (1.549 * accelerationMagnitude ** 2 - 0.7032 * accelerationMagnitude + 4.0834)}
+}
+
+/**
+ * Print speed Gcode - M204.2 (acceleration magnitude), M220 (feed rate), and 
+ * M73.2 (time remaining parameter)
+ * 
+ * Usage: Input a string ["Silent", "Normal", "Sport", "Ludicrous"] to generate
+ * Gcode for OEM speed profiles. Input an integer between 30 and 180 to generate
+ * Gcode with interpolated parameters.
+ */
+function speed(inputSpeed) {
+    let config;
+    if (typeof inputSpeed === 'string') {
+        config = speed_presets[inputSpeed];
+        if (!config) {
+            return "";
+        }
+    } else if (typeof inputSpeed === 'number') {
+        if (inputSpeed < 30 || inputSpeed > 180) {
+            inputSpeed = 100;
+        }
+        var speedFraction = speed_interp.speed_fraction(inputSpeed);
+        var accelerationMagnitude = speed_interp.acceleration_magnitude(speedFraction);
+        var feedRate = speed_interp.feed_rate(inputSpeed);
+        var level = speed_interp.level(accelerationMagnitude);
+        config = {
+            speed: inputSpeed,
+            accelerationMagnitude: accelerationMagnitude,
+            feedRate: feedRate,
+            level: level > 7 ? 7 : level
+        };
+    } else {
+        return "";
+    }
+    return [
+        `// Mode: ${typeof inputSpeed === 'string' ? inputSpeed : 'Custom'}`,
+        `M204.2 K${config.accelerationMagnitude.toFixed(2)}`, // Set acceleration magnitude
+        `M220 K${config.feedRate.toFixed(2)}`, // Set feed rate
+        `M73.2 R${config.speed / 100}`, // Update speed fraction
+        M1002.set_gcode_claim_speed_level(Math.round(config.level)) // Set speed level
+    ].join("\n") + "\n";
+}
