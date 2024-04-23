@@ -144,19 +144,19 @@ Item {
         },
         {
             name: "Print<br>speed<br>50%",
-            action: gcodeLibrary.speed("Silent")
+            action: gcodeLibrary.printSpeed("Silent")
         },
         {
             name: "Print<br>speed<br>100%",
-            action: gcodeLibrary.speed("Normal")
+            action: gcodeLibrary.printSpeed("Normal")
         },
         {
             name: "Print<br>speed<br>124%",
-            action: gcodeLibrary.speed("Sport")
+            action: gcodeLibrary.printSpeed("Sport")
         },
         {
             name: "Print<br>speed<br>166%",
-            action: gcodeLibrary.speed("Ludicrous")
+            action: gcodeLibrary.printSpeed("Ludicrous")
         },
         {
             name: "Timeline<br>Update",

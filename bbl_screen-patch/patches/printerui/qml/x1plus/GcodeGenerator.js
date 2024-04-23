@@ -492,10 +492,10 @@ const Tramming = {
 
 /* Bambu print speed parameters */
 var speed_presets = {
-    "Silent": { speed: 50, accelerationMagnitude: 2, feedRate: 0.3, level: 0.7 },
-    "Normal": { speed: 100, accelerationMagnitude: 1, feedRate: 1, level: 1 },
-    "Sport": { speed: 125, accelerationMagnitude: 0.8, feedRate: 1.4, level: 1.4 },
-    "Ludicrous": { speed: 166, accelerationMagnitude: 0.6, feedRate: 1.6, level: 2 }
+    "Silent": { speed: 50, speed_fraction: 2, accelerationMagnitude: 0.3, feedRate: 0.7 , level: 4},
+    "Normal": { speed: 100, speed_fraction: 1, accelerationMagnitude: 1, feedRate: 1, level: 5 },
+    "Sport": { speed: 125, speed_fraction: 0.8, accelerationMagnitude: 1.4, feedRate: 1.4, level: 6 },
+    "Ludicrous": { speed: 166, speed_fraction: 0.6, accelerationMagnitude: 1.6, feedRate: 2, level: 7 }
 };
 
 /** 
@@ -503,7 +503,7 @@ var speed_presets = {
  * https://github.com/jphannifan/x1plus-testing/blob/main/BL-speed-adjust.md
  * We can modify this readme and turn it into Wiki content.
  * */
-var speed_interp = {
+var speed_interpolation = {
     speed_fraction: (speedPercentage) => { return Math.floor(10000/speedPercentage)/100},
     acceleration_magnitude: (speedFraction) => {return Math.exp((speedFraction - 1.0191) / -0.814)},
     feed_rate: (speedPercentage) => {return (0.00006426)*speedPercentage ** 2 + (-0.002484)*speedPercentage + 0.654},
@@ -518,7 +518,7 @@ var speed_interp = {
  * Gcode for OEM speed profiles. Input an integer between 30 and 180 to generate
  * Gcode with interpolated parameters.
  */
-function speed(inputSpeed) {
+function printSpeed(inputSpeed) {
     let config;
     if (typeof inputSpeed === 'string') {
         config = speed_presets[inputSpeed];
@@ -529,12 +529,12 @@ function speed(inputSpeed) {
         if (inputSpeed < 30 || inputSpeed > 180) {
             inputSpeed = 100;
         }
-        var speedFraction = speed_interp.speed_fraction(inputSpeed);
-        var accelerationMagnitude = speed_interp.acceleration_magnitude(speedFraction);
-        var feedRate = speed_interp.feed_rate(inputSpeed);
-        var level = speed_interp.level(accelerationMagnitude);
+        var speedFraction = speed_interpolation.speed_fraction(inputSpeed);
+        var accelerationMagnitude = speed_interpolation.acceleration_magnitude(speedFraction);
+        var feedRate = speed_interpolation.feed_rate(inputSpeed);
+        var level = speed_interpolation.level(accelerationMagnitude);
         config = {
-            speed: inputSpeed,
+            speed_fraction: speedFraction,
             accelerationMagnitude: accelerationMagnitude,
             feedRate: feedRate,
             level: level > 7 ? 7 : level
@@ -543,10 +543,9 @@ function speed(inputSpeed) {
         return "";
     }
     return [
-        `// Mode: ${typeof inputSpeed === 'string' ? inputSpeed : 'Custom'}`,
         `M204.2 K${config.accelerationMagnitude.toFixed(2)}`, // Set acceleration magnitude
         `M220 K${config.feedRate.toFixed(2)}`, // Set feed rate
-        `M73.2 R${config.speed / 100}`, // Update speed fraction
+        `M73.2 R${config.speed_fraction}`, //time remaining parameter
         M1002.set_gcode_claim_speed_level(Math.round(config.level)) // Set speed level
     ].join("\n") + "\n";
 }
