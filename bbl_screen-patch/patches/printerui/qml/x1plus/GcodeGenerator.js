@@ -34,7 +34,7 @@ const placeholders = {
     y_after_toolchange: () => "[y_after_toolchange]",
     z_after_toolchange: () => "[z_after_toolchange]",
     old_filament_e_feedrate: () => "{old_filament_e_feedrate}",
-    new_filemnt_e_feedrate: () => "{new_filemnt_e_feedrate}",
+    new_filament_e_feedrate: () => "{new_filament_e_feedrate}",
     bed_temperature: (target) => `{bed_temperature[${target}]}`,
     bed_temperature_initial_layer_single: () => "{bed_temperature_initial_layer_single}",
     bed_temperature_initial_layer: (target) => `{bed_temperature_initial_layer[${target}]}`,
@@ -54,7 +54,7 @@ const placeholders = {
 var M1005 = { 
     xy: (x,y) => `M1005 X${x} Y${y}\n`,
     i: (i) => `M1005 I${i}\n`,
-    save: () => M500,
+    save: () => M500()
 }
 
 
@@ -149,7 +149,7 @@ function M900(k, l, m) {
 }
 
 
-/**
+/** 
  * Interpolation of Bambu print speed parameters. Details about this process at here:
  * https://github.com/jphannifan/x1plus-testing/blob/main/BL-speed-adjust.md
  * We can modify this readme and turn it into Wiki content.
@@ -165,13 +165,14 @@ var speed_interp = {
  * Generates G-code based on the print speed level.
  * 
  * @param {number} speedPercentage The desired print speed as a percentage of the normal speed (100%).
- *                                 Accepts: 50 (Silent), 100 (Normal), 125 (Sport), 166 (Luda)
+ *                                 Accepts even integers between 30 and 180
  * @returns {string} The G-code string to set print speed
  */
 function speed(speedPercentage) {
-    if (speedPercentage <30 || speedPercentage > 180){
+    if (speedPercentage < 30 || speedPercentage > 180){
         speedPercentage = 100;
     }
+
     // Convert percentage to a fraction, use Math.floor() to keep our target % the same as Bambu's reported %
     var speedFraction = speed_interp.speed_fraction(speedPercentage);
     
@@ -234,8 +235,8 @@ function M974(axis = 0) {
 /* pause */
 var M400 = {
     pause: (t) => `M400 S${t}\n`, //delay _ seconds
-    M400:()=> "M400\n", //wait for last gcode command to finish
-    pause_user_input:()=>"M400 U1\n", //pause until user presses "Resume"
+    M400: () => "M400\n", //wait for last gcode command to finish
+    pause_user_input: () => "M400 U1\n", //pause until user presses "Resume"
 }
 
 /* pause */
@@ -380,11 +381,18 @@ function M2012() {
     return `M201.2 K1.0\n`;
 }
 
+/** unknown Bambu shaper gcode from 
+/* auto_cali_for_usr_param.gcode 
+*/
+function G921() {
+    return `G92.1\n`;
+}
+
 
 function Vibration(freq1, freq2, nozzleTemp, bedTemp) {
     let mid = Math.floor((freq2 - freq1) * 0.5);
     let gcode = [];
-
+    gcode.push(M1002.gcode_claim_action(13))
     if (nozzleTemp > 0) {
         gcode.push(M109(nozzleTemp));
     }
@@ -393,13 +401,13 @@ function Vibration(freq1, freq2, nozzleTemp, bedTemp) {
     }
 
     gcode.push(
-        M1002.gcode_claim_action(13),
         M73(0, 3),
         M201(100),
         G90(),
         M400.pause(1),
         M17(1.2, 1.2, 0.75),
         G28.xyz(),
+        G921(),
         G0({x: 128, y: 128, z: 5, accel: 2400}),
         M201(1000),
         M400.pause(1),
@@ -526,27 +534,3 @@ const Tramming = {
         M1002.gcode_claim_action(1),
     ].join('')
 };
-
-/**  Speed ramping logic
- * Input = current layer and speed ramp parameters, output = speed
-  */
-function getRampSpeed (currentLayer, startingLayer, targetLayer, startingSpeed, targetSpeed, delta) {
-    
-    if (startingSpeed > targetSpeed) {
-        delta = -Math.abs(delta);
-    }
-    if (currentLayer < startingLayer) {
-        return startingSpeed; 
-    } else if (currentLayer > targetLayer) {
-        return targetSpeed; 
-    } else {
-        const rampProgress = currentLayer - startingLayer;
-        let speedChange = rampProgress * delta;  
-        let newSpeed = startingSpeed + speedChange;
-        if (startingSpeed < targetSpeed) {
-            return Math.min(newSpeed, targetSpeed);
-        } else {
-            return Math.max(newSpeed, targetSpeed);
-        }
-    }    
-}

@@ -15,10 +15,10 @@ Item {
     property var cmdHistory:[]
     property int historyIndex: 0
 
-    property bool gcodeConsole: DeviceManager.getSetting("cfw_default_console",false);
-    property alias inputText: inputTextBox.text;
+    property bool gcodeConsole: DeviceManager.getSetting("cfw_default_console",false)
+    property alias inputText: inputTextBox.text
     property bool printing: PrintManager.currentTask.stage >= PrintTask.WORKING
-    property bool ignoreDialog: false;
+    property bool ignoreDialog: false
     property var gcodeLibrary: X1Plus.GcodeGenerator
     property var gcodeCommands: [
         {
@@ -208,7 +208,7 @@ Item {
     MarginPanel {
         id: outputPanel
         width: 1130
-        height: parent.height - 80 - 150
+        height: parent.height-80 - 150
         anchors.left: parent.left
         anchors.top:  inputPanel.bottom
         anchors.right: parent.right
@@ -234,7 +234,7 @@ Item {
             clip: true
             TextArea {
                 id: outputTextArea
-                width: 1130 - 56
+                width: parent.width - 56
                 textFormat: Qt.PlainText //RichText is way too slow on the printer
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
@@ -325,13 +325,10 @@ Item {
                     borderColor: "transparent"
                     //cornerRadius: width / 2
                     onClicked: {
-                        if (index == 0 ){
-                            navigateHistory(true);
-                        } else {
-                            let commandToAdd = gcodeConsole ? modelData.action : shellCommands[index].trim().replace("<br>", "");
-                            if (inputText.trim().length > 0 && gcodeConsole) inputText += "\\n";
-                            inputText += commandToAdd;
-                        }
+                        let commandToAdd = gcodeConsole ? modelData.action : shellCommands[index].trim().replace("<br>", "");
+                        if (inputText.trim().length > 0 && gcodeConsole) inputText += "\\n";
+                        inputText += commandToAdd;
+                        
                     }
                 }
 
@@ -356,18 +353,6 @@ Item {
         }
     }
     
-
-    function navigateHistory(up) {
-        if (cmdHistory.length === 0) return;
-
-        if (up) {
-            historyIndex = (historyIndex + 1) % cmdHistory.length;
-        } else {
-            historyIndex = (historyIndex - 1 + cmdHistory.length) % cmdHistory.length;
-        }
-
-        inputText = cmdHistory[historyIndex];
-    }
     function timestamp(offset){
         const now = new Date();
         now.setDate(now.getDate()-offset);
