@@ -208,7 +208,7 @@ Item {
     MarginPanel {
         id: outputPanel
         width: 1130
-        height: parent.height-80 - 150
+        height: parent.height - 80 - 150
         anchors.left: parent.left
         anchors.top:  inputPanel.bottom
         anchors.right: parent.right
@@ -234,7 +234,7 @@ Item {
             clip: true
             TextArea {
                 id: outputTextArea
-                width: parent.width - 56
+                width: 1130 - 56
                 textFormat: Qt.PlainText //RichText is way too slow on the printer
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
@@ -385,16 +385,16 @@ Item {
                 console.log("[x1p] publishing gcode ", str);
                 X1Plus.sendGcode(str);
                 cmdHistory.push(str);
-                return true;
+                return str;
             } else {
                 let rs = X1PlusNative.popen(`${str}`);
                 console.log("[x1p] executed command ", rs);
                 cmdHistory.push(str);
-                return true;
+                return rs;
             }
         } catch (e) {
             console.log("[x1p] error executing command", e);
-            return false;
+            return "";
         }
     }
 
@@ -514,13 +514,18 @@ Item {
                             text: qsTr("Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message."),
                             onNo: function() {ignoreDialog = true},
                             OnCancel: function () {return},
-                    });
+                    }); 
                 }
                 var inputCmd = inputText.trim();
                 if (inputCmd.length <1) return;
                 inputCmd = inputCmd.replace(/\\n/g, '\n  ');
-                if (sendCommand(inputCmd)) {
-                    if (gcodeConsole) out = qsTr(">Gcode command published to device\n  ");
+                let response = sendCommand(inputCmd);
+                if (response !== "") {
+                    if (gcodeConsole) {
+                        out = qsTr(">Gcode command published to device\n  ");
+                    } else {
+                        out = response;
+                    }
                     if (outputText != "") outputText += "\n\n";
                     var origHeight = outputText == "" ? 0 : outputTextArea.contentHeight;
                     var ts = timestamp(0) + "[root]:";
