@@ -97,7 +97,8 @@ function atomicSaveJson(path, json) {
 }
 X1Plus.atomicSaveJson = atomicSaveJson;
 
-function sendGcode(gcode_line,seq_id){
+function sendGcode(gcode_line,seq_id = 0){
+	
 	var payload = {
 		command: "gcode_line",
 		param: gcode_line,
