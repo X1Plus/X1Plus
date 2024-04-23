@@ -136,11 +136,11 @@ Item {
         },
         {
             name: "Pause<br>(G4)",
-            action: gcodeLibrary.M960.toolhead(1)
+            action: gcodeLibrary.G4(1)
         },
         {
             name: "Pause<br>(M400)",
-            action: gcodeLibrary.M960.toolhead(1)
+            action: gcodeLibrary.M400.M400(1)
         },
         {
             name: "Print<br>speed<br>50%",
@@ -160,23 +160,23 @@ Item {
         },
         {
             name: "Timeline<br>Update",
-            action: gcodeLibrary.M960.toolhead(1)
+            action: gcodeLibrary.M73(100,0)
         },
         {
             name: "Reset<br>Feed Rate",
-            action: gcodeLibrary.M960.toolhead(1)
+            action: gcodeLibrary.M220(100)
         },
         {
             name: "Reset<br>Flow Rate",
-            action: gcodeLibrary.M960.toolhead(1)
+            action: gcodeLibrary.M221(100)
         },
         {
-            name: "M500",
-            action: gcodeLibrary.M960.toolhead(1)
+            name: "Save<br>settings",
+            action: gcodeLibrary.M500()
         },  
         {
-            name: "Timeline<br>Update",
-            action: gcodeLibrary.M960.toolhead(1)
+            name: "Disable<br>steppers",
+            action: gcodeLibrary.M84()
         },  
         {
             name: "Stepper<br>Current",
