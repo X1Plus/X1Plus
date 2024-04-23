@@ -53,6 +53,7 @@ Rectangle {
             didSleep();
             locked = true;
         }
+        dialogStack.push(dummyStackItem);
     }
     
     TapHandler {
@@ -65,6 +66,7 @@ Rectangle {
             readText();
             isEnteringPasscode = false;
             numberPad.target = null;
+            dialogStack.clear(); // in case anything got left over somehow...
         }
     }
     
@@ -86,6 +88,7 @@ Rectangle {
         focusItem: lockText
         onFinished: {
             isEnteringPasscode = false;
+            target = null;
             if (!cancel) {
                 if (number == passcode) {
                     locked = false;
@@ -95,8 +98,10 @@ Rectangle {
     }
 
     function popNumberPad() {
-        isEnteringPasscode = true;
-        numberPad.target = top;
+        if (!isEnteringPasscode) {
+            isEnteringPasscode = true;
+            numberPad.target = top;
+        }
     }
 
     ColumnLayout {
@@ -169,7 +174,7 @@ Rectangle {
                 border.width: 3
                 
                 DragHandler {
-                    xAxis.enabled: true
+                    xAxis.enabled: !isEnteringPasscode
                     xAxis.minimum: 0
                     xAxis.maximum: parent.parent.width - parent.width
                     yAxis.enabled: false
@@ -209,5 +214,14 @@ Rectangle {
         pushExit: null
         popEnter: null
         popExit: null
+    }
+    
+    // "StackView.pop()" apparently is a no-op not just when depth is 0, BUT
+    // WHEN IT IS 1 ALSO.  So you cannot pop() down to the initialItem, you
+    // can only clear() down to it.  Fucking QML!
+    Component {
+        id: dummyStackItem
+        Item {
+        }
     }
 }
