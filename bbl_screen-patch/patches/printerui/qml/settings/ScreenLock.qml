@@ -56,6 +56,7 @@ Rectangle {
     }
     
     TapHandler {
+        gesturePolicy: TapHandler.ReleaseWithinBounds | TapHandler.WithinBounds
         onTapped: { }
     }
     
