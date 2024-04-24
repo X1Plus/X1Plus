@@ -1,0 +1,46 @@
+#!/bin/sh
+
+DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
+
+CRONTABS_DIR="/mnt/sdcard/x1plus/printers/$(DEVICE_SN)/crontab"
+
+start() {
+    if [ -f "$CRONTABS_DIR" ]; then
+        mkdir -p /var/spool/cron/crontabs
+        ln -sf "$CRONTABS_DIR" /var/spool/cron/crontabs/root
+        echo "Starting crond..."
+        start-stop-daemon -S -m -b -p /var/run/crond.pid --exec crond
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+    else
+        echo "No crontab found, not starting crond."
+    fi
+}
+
+stop() {
+    printf "Stopping crond service: "
+    start-stop-daemon -K -q -p /var/run/crond.pid
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+    stop
+    sleep 5
+    start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    restart
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
