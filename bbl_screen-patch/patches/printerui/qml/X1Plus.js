@@ -97,32 +97,17 @@ function atomicSaveJson(path, json) {
 }
 X1Plus.atomicSaveJson = atomicSaveJson;
 
-function sendGcode(gcode_line){
+function sendGcode(gcode_line,seq_id = 0){
+	
 	var payload = {
 		command: "gcode_line",
 		param: gcode_line,
-		sequence_id: "420"
+		sequence_id: seq_id
 	};
 	DDS.publish("device/request/print", payload);
 	console.log("[x1p] Gcode published:", JSON.stringify(payload));
 }
 X1Plus.sendGcode = sendGcode;
-
-function GcodeMacros(macro, ...arr){
-	switch (macro) { 
-        case GcodeGenerator.MACROS.VIBRATION_COMP: 
-            return GcodeGenerator.macros_vibrationCompensation(...arr);
-        case GcodeGenerator.MACROS.BED_LEVEL:
-            return GcodeGenerator.macros_ABL();
-        case GcodeGenerator.MACROS.NOZZLE_CAM_PREVIEW:
-            return GcodeGenerator.macros_nozzlecam();
-        case GcodeGenerator.MACROS.TRAMMING:
-            return GcodeGenerator.macros_tramming(...arr);
-        default:
-            throw new Error("Invalid macro type");
-    }
-}
-X1Plus.GcodeMacros = GcodeMacros;
 
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
