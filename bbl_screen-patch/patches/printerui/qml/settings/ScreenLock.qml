@@ -53,7 +53,6 @@ Rectangle {
             didSleep();
             locked = true;
         }
-        dialogStack.push(dummyStackItem);
     }
     
     TapHandler {
@@ -67,6 +66,7 @@ Rectangle {
             isEnteringPasscode = false;
             numberPad.target = null;
             dialogStack.clear(); // in case anything got left over somehow...
+            dialogStack.push(dummyStackItem);
         }
     }
     
