@@ -1,0 +1,26 @@
+name: Build Tailscale
+
+on:
+    workflow_dispatch:
+
+jobs:
+    build-tailscale:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+              with:
+                  repository: tailscale/tailscale
+            - name: build binary
+              run: GOOS=linux GOARCH=arm ./tool/go build -o tailscale.combined -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion -ldflags "-w -s" ./cmd/tailscaled
+            - name: Compress binaries
+              uses: crazy-max/ghaction-upx@v3
+              with:
+                  version: latest
+                  files: tailscale.combined
+                  args: --lzma --best
+            - name: Add to artifacts
+              uses: actions/upload-artifact@v2
+              with:
+                  name: tailscale
+                  path: tailscale.combined
