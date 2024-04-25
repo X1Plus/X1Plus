@@ -2,8 +2,8 @@
 
 This expects you to have the docker file made already, and to use it for compiling.
 ```
-docker build -t x1plus scripts/docker/
-docker run -it -v `pwd`:/work:Z x1plus
+docker build -t x1plusbuild scripts/docker/
+docker run -it -v `pwd`:/work:Z x1plusbuild
 ```
 
 ## Compile of pv (autoconf)
