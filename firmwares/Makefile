@@ -16,7 +16,7 @@ clean-all: clean
 	@rm -fv *.img.zip.sig
 
 define fetchimage =
-	wget -N -c "https://public-cdn.bambulab.com/upgrade/device/BL-P001/$(1)/product/$(2)$(3)"
+	wget -q -N -c "https://public-cdn.bambulab.com/upgrade/device/BL-P001/$(1)/product/$(2)$(3)"
 	../scripts/repack_update.py $(3) $(4)
 endef
 
