@@ -1,17 +1,22 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -16,7 +16,9 @@
+@@ -16,7 +16,15 @@
      property var extruders: hasExtruderList ? extruderList.extruders : []
      property var currentExtruder: hasExtruderList ? extruderList.currentExtruder : null
      property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
--
 +    property var isHomed: (PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) >= PrintManager.AXIS_HOMED_ALL
++    
 +    property bool ignoreDialog: false
++    property var speedValues: [50,100,125,175]
++    property var speedStr: ["Silent","Normal","Sport","Ludicrous"]
++    property var speedStrs: []
++    property bool customSpeed: DeviceManager.getSetting("cfw_custom_speed",false)
+ 
 +    
      property var speedAdjust: QtObject {
          property string name: "speed"
          property int currentTemp: PrintManager.currentTask.printSpeed
-@@ -153,18 +155,32 @@
+@@ -153,18 +161,32 @@
                  model: xyAsixModel
                  delegate: axisComp
              }
@@ -52,7 +57,7 @@
                  }
              }
          }
-@@ -210,7 +226,7 @@
+@@ -210,7 +232,7 @@
                      }
  
                      onClicked: {
@@ -61,7 +66,135 @@
                              limitFrame()
                          }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-@@ -828,7 +844,7 @@
+@@ -388,11 +410,15 @@
+             if(speedPad.target) {
+                 speedPad.target = null
+                 // here only when close "speedPad" then upload once the event track msg of "speedMode"
+-                EventTrack.itemName = "speedAdjust"
+-                EventTrack.extraInfo = {
+-                    "control": "Choise",
+-                    "currentIndex": speedPad.speedMode,
+-                    "currentItemText": PrintManager.currentTask.printSpeedModeStrings[speedPad.speedMode]
++                if (!customSpeed) {
++                    EventTrack.itemName = "speedAdjust"
++                    EventTrack.extraInfo = {
++                        "control": "Choise",
++                        "currentIndex": speedPad.speedMode,
++                        "currentItemText": PrintManager.currentTask.printSpeedModeStrings[speedPad.speedMode]
++                    }
++                } else {
++                    speedDial.targetSpeed = PrintManager.currentTask.printSpeed
+                 }
+                 speedPad_close();
+             }
+@@ -400,36 +426,65 @@
+             tempList.currentIndex = -1
+         }
+     }
+-
+     Rectangle {
+         id: speedPad
+-        anchors.fill: axisPanel
++        width: 540
++        height: 591
+         color: "#B20D0F0D"
++        anchors.fill: axisPanel
+         visible: target != null
+-
+         property var target: null
+-        //property var speeds: [180, 140, 100, 60]
+-        //property int speed: speeds[speedMode]
+-        property string step: stepBar.steps[speedMode]
++        property string step: speedStrs[speedMode]
+         property alias speedMode: stepBar.step
+-
+-        onTargetChanged: {
+-            if (target != null)
+-                speedMode = PrintManager.currentTask.printSpeedMode
++        
++        Component.onCompleted:{
++            speedStrs = ["Ludicrous", "Sport", "Normal", "Silent", "Custom"]
+         }
+-
+-        onSpeedModeChanged: {
+-            if (target != null) {
+-                PrintManager.currentTask.printSpeedMode = speedMode
++        
++        onTargetChanged:{
++            if (target != null){
++                if (!customSpeed) {
++                    speedMode = PrintManager.currentTask.printSpeedMode
++                } else {
++                    speedDial.speed = speedDial.targetSpeed;
++                }
++            } 
++        }
++        
++        onSpeedModeChanged:{
++            if (!customSpeed && target != null) {
++                if (stepBar.step == 4) {
++                    customSpeed = true;
++                } else {
++                    PrintManager.currentTask.printSpeedMode = speedMode
++                }
+             }
+         }
+ 
++        SpeedAdjust {
++            id: speedDial
++            width: parent.width
++            height: parent.height
++            anchors.fill: parent
++            visible: customSpeed && parent.visible
++            color: "#B20D0F0D"
++            
++            onSpeedChanged:{
++                if (speedPad.target != null){
++                    targetSpeed = speed;
++                }
++            }
++        }
++        
++        
+         Rectangle {
++            id: defaultSpeed
+             width: 540
+             height: 591
+             anchors.centerIn: parent
+             radius: 15
+             color: Colors.gray_600
++            visible: !customSpeed && parent.visible
+ 
+             MouseArea {
+                 anchors.fill: parent
+@@ -449,7 +504,7 @@
+                 width: parent.width - 260
+                 x: 160
+                 y: 120
+-                stepOffset: 127
++                stepOffset: 90
+                 titleOffset: 60
+                 barColor: Colors.gray_800
+                 thumbIcon: "../../icon/thumb.svg"
+@@ -459,7 +514,7 @@
+                     StateColorItem { color: "gray_200"; states: StateColor.Normal }
+                 }
+                 titleFont: Fonts.body_36
+-                steps: PrintManager.currentTask.printSpeedModeStrings
++                steps: speedStrs
+             }
+         }
+     }
+@@ -517,7 +572,7 @@
+             EventTrack.itemName: "tempAndSpeed_" + modelData.name
+ 
+             Binding on text {
+-               value: speedPad.step
++               value: customSpeed ? speedDial.targetSpeed + "%" : speedPad.step
+                when: speedPad.target == modelData
+             }
+ 
+@@ -828,7 +883,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -70,7 +203,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +862,7 @@
+@@ -846,7 +901,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -79,7 +212,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +917,13 @@
+@@ -901,11 +956,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",

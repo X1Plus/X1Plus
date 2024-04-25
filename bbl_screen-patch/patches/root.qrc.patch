@@ -73,11 +73,12 @@
  <file>printerui/qml/printer/AMSUseBootPage.qml</file>
  <file>printerui/qml/printer/AdjustPage.qml</file>
  <file>printerui/qml/printer/AutoRefillPage.qml</file>
-@@ -197,18 +237,22 @@
+@@ -197,18 +237,23 @@
  <file>printerui/qml/printer/PrintSkipPage.qml</file>
  <file>printerui/qml/printer/Sector.qml</file>
  <file>printerui/qml/printer/SelfTestPage.qml</file>
 -<file>printerui/qml/printer/UtilitiesPage.qml</file>
++<file>printerui/qml/printer/SpeedAdjust.qml</file>
 +<file>printerui/qml/printer/VibrationComp.qml</file>
 +<file>printerui/qml/printer/VibrationCompPlotter.qml</file>
  <file>printerui/qml/settings/AccountPage.qml</file>
@@ -97,7 +98,7 @@
  <file>printerui/qml/settings/InputPage.qml</file>
  <file>printerui/qml/settings/MaintenancePage.qml</file>
  <file>printerui/qml/settings/NetParaSetPage.qml</file>
-@@ -217,9 +261,13 @@
+@@ -217,9 +262,13 @@
  <file>printerui/qml/settings/RegionItem.qml</file>
  <file>printerui/qml/settings/ReleaseNotePage.qml</file>
  <file>printerui/qml/settings/SensorPage.qml</file>
@@ -112,7 +113,7 @@
  <file>printerui/qml/settings/WifiListPage.qml</file>
  <file>printerui/qml/settings/WifiSetupPage.qml</file>
  <file>printerui/qml/wizard/Calibrate1Page.qml</file>
-@@ -235,12 +283,24 @@
+@@ -235,12 +284,24 @@
  <file>printerui/qml/wizard/TermsPage.qml</file>
  <file>printerui/qml/wizard/WelcomePage.qml</file>
  <file>printerui/qml/wizard/WizardPage.qml</file>
@@ -137,7 +138,7 @@
  <file>printerui/text/error_texts.sv.json</file>
  <file>printerui/text/error_texts.zh-cn.json</file>
  <file>printerui/text/error_texts.zh-tw.json</file>
-@@ -259,6 +319,7 @@
+@@ -259,6 +320,7 @@
  <file>printerui/text/hms_texts.fr.json</file>
  <file>printerui/text/hms_texts.ja.json</file>
  <file>printerui/text/hms_texts.nl.json</file>
@@ -145,7 +146,7 @@
  <file>printerui/text/hms_texts.sv.json</file>
  <file>printerui/text/hms_texts.zh-cn.json</file>
  <file>printerui/text/hms_texts.zh-tw.json</file>
-@@ -295,3 +356,4 @@
+@@ -295,3 +357,4 @@
  <file>printerui/text/terms.zh-cn.txt</file>
  <file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
  </qresource></RCC>
