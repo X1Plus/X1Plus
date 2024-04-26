@@ -164,7 +164,13 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 }
 
 X1Plus.DBus.registerMethod("ping", (param) => {
-    param["pong"] = "from QML";
-    return param;
+	param["pong"] = "from QML";
+	return param;
 });
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
+X1Plus.DBus.registerMethod("TryRpc", (param) => {
+	console.log("trying an RPC to x1plus hello daemon");
+	var f = X1Plus.DBus.proxyFunction("x1plus.hello", "/x1plus/hello", "x1plus.hello", "PingPong");
+	param["resp"] = f("hello");
+	return param;
+});

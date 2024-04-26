@@ -513,6 +513,16 @@ SWIZZLE(void, _ZN9QSettingsC1ERK7QStringNS_6FormatEP7QObject, QSettings *q, QStr
 
 #ifndef HAS_DBUS
 // make moc happy
+
+class DBusProxy : public QObject {
+    Q_OBJECT
+public:
+    DBusProxy(QObject *parent = 0) : QObject(parent) { }
+    ~DBusProxy() { }
+    
+    Q_INVOKABLE QString callMethod(QString interface, QString method, QString arg);
+};
+
 class DBusListener : public QObject {
     Q_OBJECT
 
@@ -525,6 +535,7 @@ public:
 
     Q_INVOKABLE void registerMethod(QString methodName) { }
     Q_INVOKABLE void registerSignal(QString pathName, QString signalName) { }
+    Q_INVOKABLE QObject *createProxy(QString busname, QString object) { return NULL; }
 };
 #endif
 
@@ -546,17 +557,43 @@ namespace BDbus {
         void (*fn)(void *ctx, std::string&);
     };
     
+    class Error {
+    public:
+        Error();
+        ~Error();
+    };
+    
+    class Proxy {
+    public:
+        std::string callMethod(std::string const& /* interface? */, std::string const& /* method? */, std::string const& /* arg? */, BDbus::Error&);
+    };
+    
     class Node {
     public:
         void registerObject(std::shared_ptr<BDbus::Object>, BDbus::DispatcherForCalling);
         void destroyObject(std::string const&);
         int createMethods(std::string const& objectName, std::string const& methodPrefix, BDbus::MethodTable const* methodTable, unsigned int methodCount, void* someParam, BDbus::DispatcherForCalling dispatcher);
         int createSignalProxies(BDbus::SignalProxyTable*, unsigned int, void*);
+        std::shared_ptr<Proxy> createProxy(std::string const& /* bbl.service.storage */, std::string const& /* /bbl/service/storage */);
     };
 };
 
 static std::string _handle_dbus_method_call(void *, std::string &);
 static void _handle_dbus_signal(void *, std::string &);
+
+class DBusProxy : public QObject {
+    Q_OBJECT
+public:
+    std::shared_ptr<BDbus::Proxy> proxy;
+    DBusProxy(QObject *parent = 0) : QObject(parent) { }
+    ~DBusProxy() { }
+    
+    Q_INVOKABLE QString callMethod(QString interface, QString method, QString arg) {
+        BDbus::Error e; /* ??? */
+        std::string rv = proxy->callMethod(interface.toStdString(), method.toStdString(), arg.toStdString(), e);
+        return QString::fromStdString(rv);
+    }
+};
 
 class DBusListener : public QObject {
     Q_OBJECT
@@ -595,6 +632,18 @@ public:
         signal->fn = _handle_dbus_signal;
         nobe->createSignalProxies(signal, 1, signal);
     }
+    
+    Q_INVOKABLE QObject *createProxy(QString busname, QString object) {
+        if (!nobe) {
+            printf("*** DBUS NODE IS NOT READY YET, THIS SHOULD NOT BE\n");
+            abort();
+        }
+        
+        DBusProxy *proxy = new DBusProxy(this);
+        proxy->proxy = nobe->createProxy(busname.toStdString(), object.toStdString());
+        return proxy;
+    }
+
 };
 static DBusListener dbusListener;
 

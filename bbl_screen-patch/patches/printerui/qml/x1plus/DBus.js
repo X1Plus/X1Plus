@@ -65,3 +65,18 @@ function onSignal(path, name, fn) {
     }
     _signals[p].push(fn);
 }
+
+var _proxies = {};
+
+function proxyFunction(busName, objName, interface, method) {
+    if (!_proxies[busName]) {
+        _proxies[busName] = {};
+    }
+    if (!_proxies[busName][objName]) {
+        _proxies[busName][objName] = _DBusListener.createProxy(busName, objName);
+    }
+    return (j) => {
+        var s = _proxies[busName][objName].callMethod(interface, method, JSON.stringify(j));
+        return JSON.parse(s);
+    };
+}
