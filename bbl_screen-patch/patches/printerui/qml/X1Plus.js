@@ -9,6 +9,7 @@
 .import "./x1plus/GcodeGenerator.js" as X1PlusGcodeGenerator
 .import "./x1plus/BedMeshCalibration.js" as X1PlusBedMeshCalibration
 .import "./x1plus/ShaperCalibration.js" as X1PlusShaperCalibration
+.import "./x1plus/DBus.js" as X1PlusDBus
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -48,12 +49,15 @@ X1Plus.ShaperCalibration = X1PlusShaperCalibration;
 var ShaperCalibration = X1PlusShaperCalibration;
 X1Plus.GpioKeys = X1PlusGpioKeys;
 var GpioKeys  = X1PlusGpioKeys;
+X1Plus.DBus = X1PlusDBus;
+var DBus = X1PlusDBus;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
 BedMeshCalibration.X1Plus = X1Plus;
 ShaperCalibration.X1Plus = X1Plus;
 GpioKeys.X1Plus = X1Plus;
+DBus.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -143,3 +147,15 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();
 }
+
+X1Plus.DBus.registerMethod("ping", (param) => {
+	param["pong"] = "from QML";
+	return param;
+});
+X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
+X1Plus.DBus.registerMethod("TryRpc", (param) => {
+	console.log("trying an RPC to x1plus hello daemon");
+	var f = X1Plus.DBus.proxyFunction("x1plus.hello", "/x1plus/hello", "x1plus.hello", "PingPong");
+	param["resp"] = f("hello");
+	return param;
+});
