@@ -79,7 +79,7 @@ for f in ["gensquashfs", "rdsquashfs", "xdelta3", "libdds_intf.so", "loop.ko"]:
 add(f"{ROOTPATH}/internal-fs/etc/init.d/S75kexec", "S75kexec")
 for f in ["boot", "check_kexec", "start_recovery.sh", "disable_upgrade.sh"]:
     add(f"{ROOTPATH}/internal-fs/opt/kexec/{f}", f"kexec/{f}")
-for f in ["dtc", "kexec", "kexec_mod_arm.ko", "kexec_mod.ko", "evtest"]:
+for f in ["dtc", "kexec", "kexec_mod_arm.ko", "kexec_mod.ko", "evtest", "jq"]:
     add(f"{ROOTPATH}/prebuilt/{f}", f"kexec/{f}")
 add(f"{ROOTPATH}/bbl_screen-patch/kexec_ui.so", "kexec/kexec_ui.so")
 
