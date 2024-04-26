@@ -4,9 +4,11 @@ glob /etc 775 0 0 -type d etc/
 glob /etc   * 0 0 -type f -path "etc/*" -nonrecursive etc/
 glob /etc 754 0 0 -type f -path "etc/init.d/*" etc/
 
-
 glob /usr 755 0 0 -type d usr/
 glob /usr 755 0 0 -type f -path "usr/*bin/*" usr/
+
+file /usr/bin/jq 755 0 0
+
 glob /usr 755 0 0 -type f -path "usr/etc/conf/*" usr/
 glob /usr 755 0 0 -type f -path "usr/share/udhcpc/*" usr/
 glob /usr/etc/macros 755 0 0 -type d usr/etc/macros/
