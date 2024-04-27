@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>X1Plus WebHMI</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <style>
+        body {
+            background-color: #a8a2a29c; /* Light grey background */
+        }
+        .centered-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .dark-mode {
+            background-color: #333; /* Dark background */
+            color: white; /* Light text */
+        }
+    </style>
+    <script>
+        function refreshImage() {
+            var img = document.getElementById('liveImage');
+            img.src = '/current_image?' + new Date().getTime();
+        }
+        setInterval(refreshImage, 5000); // Refresh every 5000 milliseconds (5 seconds)
+
+        function refreshModelImage() {
+            var img = document.getElementById('modelImage');
+            img.src = '/current_model_image?' + new Date().getTime();
+        }
+        setInterval(refreshModelImage, 180000); // Refresh every 180000 milliseconds (3 minutes)
+
+        function toggleDarkMode() {
+            var body = document.body;
+            body.classList.toggle('dark-mode');
+        }
+
+      //  window.onload = function() {
+            // Initialize noVNC without authentication
+        //    const rfb = new RFB(document.getElementById('vnc-display'), 'ws://192.168.9.78:5900');
+        //    rfb.scaleViewport = true; // Optional: Scale the viewport to fit the size of the container
+        //};
+    </script>
+</head>
+<body>
+    <div class="centered-content">
+        <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+            <img src="/static/images/logo.png" alt="Logo" style="width: 200px; height: auto; margin-right: 25px;">
+            <h2>{{ details.current_job }}</h2>
+        </div>
+        <div style="display: flex; justify-content: center; width: 100%;">
+            <img id="liveImage" src="/current_image" alt="Current Image">
+        </div>
+        <div style="display: flex; justify-content: center; width: 100%;">
+            <img id="modelImage" src="/current_model_image" alt="Model Image" style="width: 200px; height: 200px;">
+            <img id="depthmapImage" src="/current_depthmap_image" alt="Depthmap Image" style="width: 200px; height: 200px;">
+            <img id="errmapdepthImage" src="/current_errmapdepth_image" alt="Errmapdepth Image" style="width: 200px; height: 200px;">
+        </div>
+        <!---<p>Progress: {{ details.progress }}%</p>
+        <h2>Temperatures</h2>
+        <p>Nozzle: {{ details.temperature.nozzle }}°C</p>
+        <p>Bed: {{ details.temperature.bed }}°C</p>-->
+
+        <!---<div id="vnc-display" style="width: 800px; height: 600px;"></div>-->
+        <div>
+            <p>{{ details.latest_message }}</p>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <form action="/home_xyz_func" method="post">
+                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Home Printer</button>
+            </form>
+            <form action="/preheat_100c" method="post">
+                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Preheat On</button>
+            </form>
+            <form action="/preheat_0c" method="post">
+                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Preheat Off</button>
+            </form>
+            <form action="/start_bbl_screen_vnc" method="post">
+                <button type="submit" style="font-size: 20px; padding: 10px 20px;">Start VNC</button>
+            </form>
+            <button onclick="toggleDarkMode()" style="font-size: 14px; padding: 5px 10px; position: absolute; bottom: 10px; right: 10px;">Dark Mode</button>
+        </div>
+        
+    </div>
+</body>
+</html>
