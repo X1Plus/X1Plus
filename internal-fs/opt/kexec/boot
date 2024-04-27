@@ -81,6 +81,11 @@ if grep kexec /proc/cmdline >/dev/null; then
 	exit 1
 fi
 
+/opt/kexec/evtest --query /dev/input/by-path/platform-gpio-keys-event EV_KEY KEY_POWER
+
+if [ $POWER_PRESSED -eq 10 ]; then
+	CMDLINE="$CMDLINE x1plus_debug=true"
+fi
 set -x
 insmod /opt/kexec/kexec_mod_arm.ko ptr_kallsyms_lookup_name=0x$KALLSYMS
 insmod /opt/kexec/kexec_mod.ko ptr_kallsyms_lookup_name=0x$KALLSYMS
