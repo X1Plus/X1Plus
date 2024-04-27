@@ -2,7 +2,7 @@
 
 DEVICE_SN=$(bbl_3dpsn 2> /dev/null)
 
-CRONTAB_FILE="/mnt/sdcard/x1plus/printers/$(DEVICE_SN)/crontab"
+CRONTAB_FILE="/mnt/sdcard/x1plus/printers/$DEVICE_SN/crontab"
 
 start() {
     if [ -f "$CRONTAB_FILE" ]; then
