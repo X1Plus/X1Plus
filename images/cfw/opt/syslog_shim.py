@@ -129,10 +129,13 @@ syslog_data = [
     ),
     # M1005 skew factor
     RegexParser(
-        r".*M1005:current\s*XY_comp_ang\s*=\s*(-?\d+\.?\d*)",
+        r".*M1005:(new|current)\s*XY_comp_ang\s*=\s*(-?\d+\.?\d*)",
         lambda match: {
             "command": "M1005",
-            "XY_comp_ang":  float(match.group(1)),
+            "param": {
+                "skew":  match.group(1),
+                "XY_comp_ang":  float(match.group(2)),
+            },
         },
     ),
 ]
