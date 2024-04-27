@@ -63,8 +63,16 @@ else
     BBL_SN=$(bbl_3dpsn 2> /dev/null)
 fi
 
+# Hold power button down during boot = Enable debug mode
+X1PLUS_DEBUG="false"
+/opt/kexec/evtest --query /dev/input/by-path/platform-gpio-keys-event EV_KEY KEY_POWER
+POWER_PRESSED=$?
+if [ $POWER_PRESSED -eq 10 ]; then
+	X1PLUS_DEBUG="true"
+fi
+
 # pass overlay parameters to initramfs
-CMDLINE="$CMDLINE bbl_serial=$BBL_SN -- $BASE $CFW $VOLATILE"
+CMDLINE="$CMDLINE bbl_serial=$BBL_SN x1plus_debug=$X1PLUS_DEBUG -- $BASE $CFW $VOLATILE"
 
 # Build our dts
 cat "$DTSFILE" | /opt/kexec/dtc -i $KDIR -O dts -o /tmp/boot.dts 2>/dev/null
@@ -81,11 +89,6 @@ if grep kexec /proc/cmdline >/dev/null; then
 	exit 1
 fi
 
-/opt/kexec/evtest --query /dev/input/by-path/platform-gpio-keys-event EV_KEY KEY_POWER
-
-if [ $POWER_PRESSED -eq 10 ]; then
-	CMDLINE="$CMDLINE x1plus_debug=true"
-fi
 set -x
 insmod /opt/kexec/kexec_mod_arm.ko ptr_kallsyms_lookup_name=0x$KALLSYMS
 insmod /opt/kexec/kexec_mod.ko ptr_kallsyms_lookup_name=0x$KALLSYMS

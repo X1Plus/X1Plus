@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PATH=/bin
+PATH=/:/bin
 
 mkdir /dev
 mknod /dev/mmcblk2p1 b 179 97
@@ -48,10 +48,11 @@ mkdir /proc
 mount -t proc /proc /proc
 
 VERBOSE_BOOT=$(cat /proc/cmdline | xargs -n1 | grep "=" | sed "s|x1plus_debug=||")
-
 if [ "$VERBOSE_BOOT" -eq "true" ] ; then
 	echo "Starting verbose boot mode" > /dev/tty0
-	init-stage2 > /dev/tty0 2>&1
+	{ 
+	. init-stage2
+	} > /dev/tty0 2>&1
 else
-    init-stage2
+    . init-stage2
 fi

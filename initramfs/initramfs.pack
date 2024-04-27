@@ -1,5 +1,5 @@
 file /init init 0755 0 0
-file /stage2 stage2 0755 0 0
+file /init-stage2 init-stage2 0755 0 0
 file /signon signon 0644 0 0
 file /ter-i32b.psf ter-i32b.psf 0644 0 0
 file /bootlogo.dat.gz bootlogo.dat.gz 0644 0 0
