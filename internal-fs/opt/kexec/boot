@@ -63,11 +63,8 @@ else
     BBL_SN=$(bbl_3dpsn 2> /dev/null)
 fi
 
-# Hold power button down during boot = Enable debug mode
 X1PLUS_DEBUG="false"
-/opt/kexec/evtest --query /dev/input/by-path/platform-gpio-keys-event EV_KEY KEY_POWER
-POWER_PRESSED=$?
-if [ $POWER_PRESSED -eq 10 ]; then
+if [ "$1" = "debug" ]; then
 	X1PLUS_DEBUG="true"
 fi
 

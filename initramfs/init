@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PATH=/:/bin
+PATH=/bin
 
 mkdir /dev
 mknod /dev/mmcblk2p1 b 179 97
@@ -41,6 +41,12 @@ echo "Initializing X1Plus filesystems." > /dev/tty0
 # probably show something on screen if we fail?
 echo "init params $*"
 
+die() {
+	echo "X1Plus startup failed. initramfs shell is available on UART at 1500000 baud." > /dev/tty0
+	echo "critical step failed; dropping you into a shell"
+	exec sh
+}
+
 mkdir /fs
 mount -t tmpfs none /fs
 
@@ -50,9 +56,71 @@ mount -t proc /proc /proc
 VERBOSE_BOOT=$(cat /proc/cmdline | xargs -n1 | grep "x1plus_debug=" | sed "s|x1plus_debug=||")
 if [ "$VERBOSE_BOOT" = "true" ] ; then
 	echo "Starting verbose boot mode" > /dev/tty0
-	{ 
-	. init-stage2
-	} > /dev/tty0 2>&1
-else
-    . init-stage2
+    exec >/dev/tty0 2>&1
 fi
+
+set -x
+
+mkdir /fs/sdcard || die
+
+# Before we mount, wait up to 5 seconds for mmcblk2p1 to ACTUALLY exist
+if ! grep -q "mmcblk2p1" /proc/partitions; then
+	for i in $(seq 0 5); do
+		sleep 1
+		# Is it available?
+		if grep -q "mmcblk2p1" /proc/partitions; then break; fi
+		# Did we time out?
+		if [ $i -eq 5 ]; then
+			echo "Error mounting MicroSD card.  Try another brand of SD card?" > /dev/tty0
+			die
+		fi
+	done
+fi
+
+mount -o rw,uid=1000,gid=1000,dmask=022,fmask=133,noatime /dev/mmcblk2p1 /fs/sdcard || die
+
+LOWERDIRS=
+while [ $# -gt 1 ]; do
+	mkdir /fs/$1 || die
+	# do we have a new version to upgrade with?
+	if [ -f /fs/sdcard/x1plus/images/$1.upgrade ]; then
+		echo "Upgrading layer $1 before mounting." > /dev/tty0
+		mv /fs/sdcard/x1plus/images/$1.upgrade /fs/sdcard/x1plus/images/$1
+	fi
+	echo "Mounting base layer $1." > /dev/tty0
+	mount -o loop /fs/sdcard/x1plus/images/$1 /fs/$1 || die
+	if [ ! -z "$LOWERDIRS" ]; then
+		LOWERDIRS=:${LOWERDIRS}
+	fi
+	LOWERDIRS=/fs/$1${LOWERDIRS}
+	shift
+done
+
+mkdir /fs/rw || die
+if [ ! -f /fs/sdcard/x1plus/$1 ]; then
+	echo "No user layer found -- creating 1GB ext4 filesystem at $1." > /dev/tty0
+	echo "This could take a few minutes." > /dev/tty0
+	truncate -s 1G /fs/sdcard/x1plus/$1
+	mkfs.ext4 /fs/sdcard/x1plus/$1
+fi
+echo "Mounting persistent storage layer." > /dev/tty0
+mount -o loop /fs/sdcard/x1plus/$1 /fs/rw || die
+mkdir -p /fs/rw/work || die
+mkdir -p /fs/rw/upper || die
+
+mkdir /overlay || die
+mount -t overlay overlay -o lowerdir=${LOWERDIRS},upperdir=/fs/rw/upper,workdir=/fs/rw/work /overlay || die
+
+mount --move /fs/sdcard /overlay/mnt/sdcard/ || die
+mkdir -p /overlay/mnt/overlay/ || die
+mount --move /fs /overlay/mnt/overlay/ || die
+
+# We need to land /config and /vendor from the rootfs in here eventually,
+# otherwise bcmdhd croaks.  Yes, really.
+mkdir -p /overlay/mnt/rootfs/ || die
+mount -o bind / /overlay/mnt/rootfs/ || die
+
+umount /proc
+
+echo "All filesystems mounted -- continuing startup." > /dev/tty0
+exec switch_root -c /dev/console /overlay /init
