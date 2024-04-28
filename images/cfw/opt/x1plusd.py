@@ -15,6 +15,8 @@ from jeepney.io.asyncio import open_dbus_connection, DBusRouter, Proxy
 
 BUS_NAME = 'x1plus.x1plusd'
 
+IS_EMULATING = not os.path.exists("/etc/bblap")
+
 class SettingsService:
     DEFAULT_X1PLUS_SETTINGS = {
         "ota": {
@@ -28,9 +30,12 @@ class SettingsService:
     def __init__(self, router):
         self.router = router
 
-        settings_dir = f"/mnt/sdcard/x1plus/printers/{_get_sn()}"
-        self.filename = f"{settings_dir}/settings.json"
-        os.makedirs(settings_dir, exist_ok = True)
+        if IS_EMULATING:
+            self.filename = "/tmp/x1plus-settings.json"
+        else:
+            settings_dir = f"/mnt/sdcard/x1plus/printers/{_get_sn()}"
+            self.filename = f"{settings_dir}/settings.json"
+            os.makedirs(settings_dir, exist_ok = True)
         
         # Before we startup, do we have our settings file? Try to read, create if it doesn't exist.
         try:
@@ -123,7 +128,7 @@ def _get_sn():
         raise
 
 async def main():
-    if not os.path.exists("/etc/bblap"):
+    if IS_EMULATING:
         # we must be running in emulation
         conn = await open_dbus_connection('SESSION')
     else:
