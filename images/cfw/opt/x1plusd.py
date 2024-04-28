@@ -12,7 +12,6 @@ import asyncio
 from jeepney import MessageType, HeaderFields, new_method_return, new_error, DBusAddress, new_signal
 from jeepney.bus_messages import message_bus, MatchRule
 from jeepney.io.asyncio import open_dbus_connection, DBusRouter, Proxy
-from queue import Queue
 
 BUS_NAME = 'x1plus.x1plusd'
 
@@ -67,6 +66,8 @@ class SettingsService:
                 try:
                     if method == 'PutSettings':
                         rv = await self.PutSettings(arg) 
+                    elif method == 'GetSettings':
+                        rv = json.dumps(self.settings)
                 except Exception as e:
                     print(f"{method}({arg}) -> exception {e}")
                     await self.router.send(new_error(msg, "x1plus.x1plusd.Error.InternalError"))

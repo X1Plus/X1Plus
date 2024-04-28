@@ -1,24 +1,20 @@
 #!/opt/python/bin/python3
-import os, dds
-import copy
-from functools import lru_cache 
-from threading import Thread
 import json
-import subprocess
-import traceback
-import time
+import os
 
-# probably this should be encapsulated in a DDS class, but...
+from jeepney import new_method_call, DBusAddress
+from jeepney.io.blocking import open_dbus_connection
 
-pub = dds.publisher("device/x1plus/request")
-resp = dds.subscribe("device/x1plus/report")
+if not os.path.exists("/etc/bblap"):
+    # we must be running in emulation
+    conn = open_dbus_connection('SESSION')
+else:
+    conn = open_dbus_connection('SYSTEM')
 
-time.sleep(3) # this really should instead use pub_matched_cb to know when we're ready to roll, but that's not exposed from dds.py yet
+msg = new_method_call(DBusAddress('/x1plus/settings', bus_name='x1plus.x1plusd', interface='x1plus.settings'), 'PutSettings', 's', (json.dumps({'hax': 'very'}), ))
+reply = conn.send_and_get_reply(msg)
+print(json.loads(reply.body[0]))
 
-pub(json.dumps({"settings": { "set": {"hax": "very"} }}))
-
-try:
-    while True:
-        print(resp.get())
-except:
-    dds.shutdown()
+msg = new_method_call(DBusAddress('/x1plus/settings', bus_name='x1plus.x1plusd', interface='x1plus.settings'), 'GetSettings', 's', (json.dumps({}), ))
+reply = conn.send_and_get_reply(msg)
+print(json.loads(reply.body[0]))
