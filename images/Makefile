@@ -9,6 +9,7 @@ all: cfw.squashfs
 
 clean:
 	@rm -fv *.squashfs
+	@rm -rfv cfw/opt/python
 
 clean-all: clean
 
