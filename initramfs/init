@@ -53,6 +53,12 @@ mount -t tmpfs none /fs
 mkdir /proc
 mount -t proc /proc /proc
 
+VERBOSE_BOOT=$(cat /proc/cmdline | xargs -n1 | grep "x1plus_debug=" | sed "s|x1plus_debug=||")
+if [ "$VERBOSE_BOOT" = "true" ] ; then
+	echo "Starting verbose boot mode" > /dev/tty0
+    exec >/dev/tty0 2>&1
+fi
+
 set -x
 
 mkdir /fs/sdcard || die

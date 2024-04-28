@@ -29,6 +29,10 @@ Rectangle {
     function startFromSd() {
         X1PlusNative.system("/opt/kexec/boot");
     }
+
+    function startFromSdDebug() {
+        X1PlusNative.system("/opt/kexec/boot debug");
+    }
     
     function startInstaller() {
         dialogStack.replace("SelectX1pPage.qml");
@@ -107,6 +111,7 @@ Rectangle {
         [qsTr("Start X1Plus from SD card"), hasSdCard, startFromSd],
         [qsTr("<b>Start X1Plus installer</b>"), true, startInstaller],
         [qsTr("Reset X1Plus settings"), true, promptWipeWritable],
+        [qsTr("Start X1Plus in debug mode"), hasSdCard, startFromSdDebug ],
         [qsTr("Emergency recovery console"), true, promptEmergencyConsole],
         [qsTr("<font color=\"#EEAAAA\">Start built-in firmware with updater disabled</font>"), true, promptBootDisable],
         [qsTr("<font color=\"#FF7777\">Start built-in firmware unmodified</font>"), true, promptBootUnmodified]

@@ -63,8 +63,13 @@ else
     BBL_SN=$(bbl_3dpsn 2> /dev/null)
 fi
 
+X1PLUS_DEBUG="false"
+if [ "$1" = "debug" ]; then
+	X1PLUS_DEBUG="true"
+fi
+
 # pass overlay parameters to initramfs
-CMDLINE="$CMDLINE bbl_serial=$BBL_SN -- $BASE $CFW $VOLATILE"
+CMDLINE="$CMDLINE bbl_serial=$BBL_SN x1plus_debug=$X1PLUS_DEBUG -- $BASE $CFW $VOLATILE"
 
 # Build our dts
 cat "$DTSFILE" | /opt/kexec/dtc -i $KDIR -O dts -o /tmp/boot.dts 2>/dev/null
