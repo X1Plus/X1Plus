@@ -1,12 +1,14 @@
 # Cross Compile Documentation
 
 This expects you to have the docker file made already, and to use it for compiling.
+
 ```
 docker build -t x1plusbuild scripts/docker/
 docker run -it -v `pwd`:/work:Z x1plusbuild
 ```
 
 ## Compile of pv (autoconf)
+
 ```
 cd ~
 git clone https://github.com/icetee/pv.git
@@ -21,6 +23,7 @@ exit
 ```
 
 ## Compile of jq (autoconf)
+
 ```
 cd ~
 git clone https://github.com/jqlang/jq.git
@@ -33,5 +36,18 @@ autoreconf -i
 make -j`nproc`
 cp jq /work/images/cfw/usr/bin/jq
 chmod +x /work/images/cfw/usr/bin/jq
+exit
+```
+
+## Compile of tailscale (go)
+
+```
+cd ~
+git clone https://github.com/tailscale/tailscale.git
+cd tailscale
+GOOS=linux GOARCH=arm ./tool/go build -o tailscale.combined -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion -ldflags "-w -s" ./cmd/tailscaled
+upx --lzma --best ./tailscale.combined
+cp tailscale.combined /work/images/cfw/usr/bin/tailscale.combined
+chmod +x /work/images/cfw/usr/bin/tailscale.combined
 exit
 ```
