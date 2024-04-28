@@ -1,6 +1,7 @@
 #!/opt/python/bin/python3
 import json
 import os
+import sys
 
 from jeepney import new_method_call, DBusAddress
 from jeepney.io.blocking import open_dbus_connection
@@ -11,7 +12,11 @@ if not os.path.exists("/etc/bblap"):
 else:
     conn = open_dbus_connection('SYSTEM')
 
-msg = new_method_call(DBusAddress('/x1plus/settings', bus_name='x1plus.x1plusd', interface='x1plus.settings'), 'PutSettings', 's', (json.dumps({'hax': 'very'}), ))
+upd = {}
+for arg in sys.argv[1:]:
+    k,v = arg.split('=', 1)
+    upd[k] = v
+msg = new_method_call(DBusAddress('/x1plus/settings', bus_name='x1plus.x1plusd', interface='x1plus.settings'), 'PutSettings', 's', (json.dumps(upd), ))
 reply = conn.send_and_get_reply(msg)
 print(json.loads(reply.body[0]))
 
