@@ -3,6 +3,7 @@ glob /    777 0 0 -type l .
 glob /etc 775 0 0 -type d etc/
 glob /etc   * 0 0 -type f -path "etc/*" -nonrecursive etc/
 glob /etc 754 0 0 -type f -path "etc/init.d/*" etc/
+glob /etc 754 0 0 -type f -path "etc/profile.d/*" etc/
 
 
 glob /usr 755 0 0 -type d usr/
