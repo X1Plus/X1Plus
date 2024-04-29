@@ -21,6 +21,13 @@ mtime = os.stat(__file__).st_mtime
 bio = io.BytesIO()
 
 tf = TarFile(fileobj = bio, mode = 'w', format = tarfile.GNU_FORMAT)
+packed = []
+
+def addfile_once(ti, fileobj = None):
+    if ti.name in packed:
+        return
+    tf.addfile(ti, fileobj)
+    packed.append(ti.name)
 
 def dir(dirname):
     ti = TarInfo(dirname)
@@ -29,7 +36,7 @@ def dir(dirname):
     ti.uid = 0
     ti.gid = 0
     ti.mtime = mtime
-    tf.addfile(ti)
+    addfile_once(ti)
 
 def whiteout(path):
     ti = TarInfo(path)
@@ -40,7 +47,7 @@ def whiteout(path):
     ti.uid = 0
     ti.gid = 0
     ti.mtime = mtime
-    tf.addfile(ti)
+    addfile_once(ti)
 
 def symlink(src, dest):
     ti = TarInfo(src)
@@ -50,16 +57,17 @@ def symlink(src, dest):
     ti.uid = 0
     ti.gid = 0
     ti.mtime = mtime
-    tf.addfile(ti)
+    addfile_once(ti)
 
 def globfiles(fromdir, todir, eatlinks = []):
     for f in glob.glob('**', root_dir = fromdir, recursive = True):
         if f[-1] == "~":
             continue
         inf = f"{fromdir}/{f}"
-        ti = tf.gettarinfo(name = inf, arcname = f"{todir}/{f}")
+        ti = tf.gettarinfo(name = inf)
         if (eatlinks == True or (f in eatlinks)) and ti.type == tarfile.SYMTYPE:
-            ti = tf.gettarinfo(name = os.path.join(os.path.dirname(inf), os.readlink(inf)), arcname = f"{todir}/{f}")
+            ti = tf.gettarinfo(name = os.path.join(os.path.dirname(inf), os.readlink(inf)))
+        ti.name = f"{todir}/{f}"
         ti.uid = 0
         ti.gid = 0
         ti.uname = "root"
@@ -67,9 +75,9 @@ def globfiles(fromdir, todir, eatlinks = []):
         ti.mtime = mtime
         if ti.isfile():
             with open(inf, 'rb') as infd:
-                tf.addfile(ti, fileobj = infd)
+                addfile_once(ti, fileobj = infd)
         else:
-            tf.addfile(ti)
+            addfile_once(ti)
 
 symlink('/root/.ssh', '/config/sshd')
 symlink('/etc/localtime', '/usr/share/zoneinfo/Etc/UTC')
@@ -106,6 +114,7 @@ globfiles("cfw/lib", "/lib")
 globfiles("cfw/sbin", "/sbin")
 globfiles("cfw/system", "/system", eatlinks = True)
 globfiles("cfw/opt", "/opt", eatlinks = True)
+globfiles("site-packages", "/opt/python/lib/python3.10/site-packages")
 
 with tarfile.open('../prebuilt/python3.tar.gz', 'r') as itf:
     for ti in itf.getmembers():
@@ -120,9 +129,9 @@ with tarfile.open('../prebuilt/python3.tar.gz', 'r') as itf:
         ti.gid = 0
         ti.mtime = mtime
         if ti.isfile():
-            tf.addfile(ti, itf.extractfile(ti))
+            addfile_once(ti, itf.extractfile(ti))
         else:
-            tf.addfile(ti)
+            addfile_once(ti)
 
 tf.close()
 sys.stdout.buffer.write(bio.getbuffer())
