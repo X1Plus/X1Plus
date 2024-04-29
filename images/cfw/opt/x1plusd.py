@@ -9,6 +9,8 @@ import time
 
 import asyncio
 
+import logging, logging.handlers
+
 from jeepney import MessageType, HeaderFields, new_method_return, new_error, DBusAddress, new_signal
 from jeepney.bus_messages import message_bus, MatchRule
 from jeepney.io.asyncio import open_dbus_connection, DBusRouter, Proxy
@@ -16,6 +18,19 @@ from jeepney.io.asyncio import open_dbus_connection, DBusRouter, Proxy
 BUS_NAME = 'x1plus.x1plusd'
 
 IS_EMULATING = not os.path.exists("/etc/bblap")
+
+logger = logging.getLogger('x1plusd')
+logger.setLevel(logging.DEBUG)
+
+slh = logging.handlers.SysLogHandler(address = '/dev/log')
+slh.setLevel(logging.INFO)
+slh.setFormatter(logging.Formatter('%(name)s: %(message)s'))
+logger.addHandler(slh)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(logging.Formatter('[%(asctime)s] %(name)s: %(levelname)s: %(message)s'))
+logger.addHandler(ch)
 
 class SettingsService:
     DEFAULT_X1PLUS_SETTINGS = {
@@ -42,8 +57,7 @@ class SettingsService:
             with open(self.filename, 'r') as fh:
                 self.settings = json.load(fh)
         except FileNotFoundError as exc:
-            # TODO: log to syslog
-            print("Settings file does not exist, creating with defaults...")
+            logger.warning('settings file does not exist; creating with defaults...')
             # TODO: Add logic here (call helper function) to check for flag files, 
             # and adjust our defaults to match
             self.settings = copy.deepcopy(SettingsService.DEFAULT_X1PLUS_SETTINGS)
@@ -74,16 +88,16 @@ class SettingsService:
                     elif method == 'GetSettings':
                         rv = json.dumps(self.settings)
                 except Exception as e:
-                    print(f"{method}({arg}) -> exception {e}")
+                    logger.error(f"{method}({arg}) -> exception {e}")
                     await self.router.send(new_error(msg, "x1plus.x1plusd.Error.InternalError"))
                     continue
                 
                 if not rv:
-                    print(f"{method} -> NoMethod")
+                    logger.warning(f"{method} -> NoMethod")
                     await self.router.send(new_error(msg, "x1plus.x1plusd.Error.NoMethod"))
                     continue
                 
-                print(f"{method}({arg}) -> {rv}")
+                logger.debug(f"{method}({arg}) -> {rv}")
                 await self.router.send(new_method_return(msg, "s", (rv, )))
 
     def _save(self):
@@ -96,14 +110,12 @@ class SettingsService:
         settings_set = json.loads(req)
         
         if not isinstance(settings_set, dict):
-            # TODO: log this to the syslog
-            print(f"x1p_settings: set request {req} is not a dictionary")
+            logger.error(f"x1p_settings: set request {req} is not a dictionary")
             return json.dumps({'status': 'error'})
         self.settings.update(settings_set)
         self._save()
         
-        # TODO: log this to the syslog
-        print(f"x1p_settings: updated {settings_set}")
+        logger.debug(f"x1p_settings: updated {settings_set}")
             
         # Inform everyone else on the system, only *after* we have saved
         # and made it visible.  That way, anybody who wants to know
@@ -124,10 +136,18 @@ def _get_sn():
     try:
         return subprocess.check_output(["bbl_3dpsn"], stderr=subprocess.DEVNULL).decode('utf-8')
     except:
-        print("_get_sn() failed to run bbl_3dpsn, and we are now dazed and confused. Exiting...")
+        logger.error("_get_sn() failed to run bbl_3dpsn, and we are now dazed and confused. Exiting...")
         raise
 
+def exceptions(loop, ctx):
+    logger.error(f"exception in coroutine: {ctx['message']} {ctx.get('exception', '')}")
+    loop.default_exception_handler(ctx)
+
 async def main():
+    logger.info('x1plusd is starting up')
+    
+    asyncio.get_running_loop().set_exception_handler(exceptions)
+    
     if IS_EMULATING:
         # we must be running in emulation
         conn = await open_dbus_connection('SESSION')
@@ -137,9 +157,19 @@ async def main():
     router = DBusRouter(conn)
 
     rv = await Proxy(message_bus, router).RequestName(BUS_NAME)
+    if rv != (1, ):
+        logger.error(f"failed to attach bus name {BUS_NAME}")
+        asyncio.get_running_loop().stop()
+        return
 
-    settings = SettingsService(router)
-    asyncio.create_task(settings.task())
+    try:
+        settings = SettingsService(router)
+        asyncio.create_task(settings.task())
+    except:
+        asyncio.get_running_loop().stop()
+        raise
+
+    logger.info('x1plusd is running')
 
 if __name__ == "__main__":
     #TODO: check if we are already running
@@ -148,5 +178,6 @@ if __name__ == "__main__":
     try:
         loop.run_forever()
     finally:
+        logger.error('x1plusd event loop has terminated!')
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
