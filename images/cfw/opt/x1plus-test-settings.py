@@ -15,6 +15,8 @@ else:
 upd = {}
 for arg in sys.argv[1:]:
     k,v = arg.split('=', 1)
+    if v == 'None':
+        v = None
     upd[k] = v
 msg = new_method_call(DBusAddress('/x1plus/settings', bus_name='x1plus.x1plusd', interface='x1plus.settings'), 'PutSettings', 's', (json.dumps(upd), ))
 reply = conn.send_and_get_reply(msg)

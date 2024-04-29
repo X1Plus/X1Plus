@@ -33,14 +33,7 @@ ch.setFormatter(logging.Formatter('[%(asctime)s] %(name)s: %(levelname)s: %(mess
 logger.addHandler(ch)
 
 class SettingsService:
-    DEFAULT_X1PLUS_SETTINGS = {
-        "ota": {
-            "enable_check": False
-        },
-        "quick_boot": False,
-        "dump_emmc": False,
-        "sdcard_syslog": False
-    }
+    DEFAULT_X1PLUS_SETTINGS = { }
 
     def __init__(self, router):
         self.router = router
@@ -101,10 +94,15 @@ class SettingsService:
                 await self.router.send(new_method_return(msg, "s", (rv, )))
 
     def _save(self):
-        # XXX: atomically rename this
+        # TODO: at some point, copy out the old file to .bak, and try
+        # loading the .bak at startup
         
-        with open(self.filename, 'w') as f:
+        with open(self.filename + ".new", 'w') as f:
             json.dump(self.settings, f, indent = 4)
+            f.flush()
+            os.fsync(f.fileno())
+        
+        os.replace(self.filename + ".new", self.filename)
     
     async def PutSettings(self, req: str) -> str:
         settings_set = json.loads(req)
@@ -112,20 +110,33 @@ class SettingsService:
         if not isinstance(settings_set, dict):
             logger.error(f"x1p_settings: set request {req} is not a dictionary")
             return json.dumps({'status': 'error'})
-        self.settings.update(settings_set)
+        
+        settings_updated = {}
+        for k, v in settings_set.items():
+            if v is None:
+                if k in self.settings:
+                    del self.settings[k]
+                    settings_updated[k] = v
+            else:
+                # TODO: this comparison does not make much sense for dicts /
+                # arrays, but at least we fail safe
+                if k not in self.settings or self.settings[k] != v:
+                    self.settings[k] = v
+                    settings_updated[k] = v
         self._save()
         
-        logger.debug(f"x1p_settings: updated {settings_set}")
+        logger.debug(f"x1p_settings: requested {settings_set}, updated {settings_updated}")
             
         # Inform everyone else on the system, only *after* we have saved
         # and made it visible.  That way, anybody who wants to know
         # about this setting either will have read it from disk
         # initially, or will have heard about the update from us after
         # they read it.
-        signal = new_signal(DBusAddress('/', interface = 'x1plus.settings'), 'SettingsChanged', signature = 's', body = (json.dumps(settings_set), ))
-        await self.router.send(signal)
+        if len(settings_updated) > 0:
+            signal = new_signal(DBusAddress('/', interface = 'x1plus.settings'), 'SettingsChanged', signature = 's', body = (json.dumps(settings_updated), ))
+            await self.router.send(signal)
         
-        return json.dumps({'status': 'ok'})
+        return json.dumps({'status': 'ok', 'updated': list(settings_updated.keys())})
 
 # TODO: hoist this into an x1plus package
 @lru_cache(None)
