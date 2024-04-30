@@ -52,7 +52,7 @@ function _migrate(k, newk) {
     if (v !== null) {
         console.log(`X1Plus.Settings: migrating key ${k} -> ${newk}`);
         put(newk, v);
-        DeviceManager.putSetting(k, null);
+        X1Plus.DeviceManager.putSetting(k, null);
     }
 }
 
