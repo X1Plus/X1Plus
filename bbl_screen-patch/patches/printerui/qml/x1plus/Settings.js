@@ -68,4 +68,7 @@ function awaken() {
     
     _migrate("cfw_passcode", "lockscreen.passcode");
     _migrate("cfw_locktype", "lockscreen.mode");
+    _migrate("cfw_lockscreen_image", "lockscreen.image");
+    _migrate("cfw_home_image", "homescreen.image");
+    _migrate("cfw_print_image", "homescreen.image.printing");
 }

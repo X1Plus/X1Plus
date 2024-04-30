@@ -16,7 +16,7 @@ Rectangle {
     property var passcode: X1Plus.Settings.get("lockscreen.passcode", "")
     property var locktype: X1Plus.Settings.get("lockscreen.mode", 0)
     /* 0 = screensaver only, 1 = swipe to unlock, 2 = passcode */
-    property var lockImage: X1PlusNative.getenv("EMULATION_WORKAROUNDS") + DeviceManager.getSetting("cfw_lockscreen_image", '/mnt/sdcard/x1plus/lockscreen.png')
+    property var lockImage: X1PlusNative.getenv("EMULATION_WORKAROUNDS") + X1Plus.Settings.get("lockscreen.image", '/mnt/sdcard/x1plus/lockscreen.png')
     color: Colors.gray_800
     visible: locked && locktype != 0
     
