@@ -7,7 +7,17 @@ from collections import namedtuple
 from logger.tail import TailLog
 import dds
 
-syslog_log = CustomLogger("Syslog parser", "/tmp/x1plus_data.log", 500000, 1)
+# Log setup - Check if SD logging is enabled
+# Start up our own logger (to sd card if SD logging, /tmp/ if not)
+log_path = (
+    "/mnt/sdcard/log/"
+    if os.path.exists("/tmp/.syslog_to_sd") and os.path.exists("/mnt/sdcard/log/")
+    else "/tmp/"
+)
+shim_log_path = os.path.join(log_path,"x1plus_data.log")
+syslog_log = CustomLogger("Syslog shim data", shim_log_path, 500000, 1)
+log_path = os.path.join(log_path,"syslog.log")
+
 
 # Define a basic mechanism for "do something when you see some particular
 # type of line in the syslog".
@@ -117,16 +127,21 @@ syslog_data = [
             },
         },
     ),
+    # M1005 skew factor
+    RegexParser(
+        r".*M1005:(new|current)\s*XY_comp_ang\s*=\s*(-?\d+\.?\d*)",
+        lambda match: {
+            "command": "M1005",
+            "param": {
+                "skew":  match.group(1),
+                "XY_comp_ang":  float(match.group(2)),
+            },
+        },
+    ),
 ]
 
 
 def main():
-    log_path = (
-        "/mnt/sdcard/log/syslog.log"
-        if os.path.exists("/tmp/.syslog_to_sd") and os.path.exists("/mnt/sdcard/log/syslog.log")
-        else "/tmp/syslog.log"
-    )
-
     tail_syslog = TailLog(log_path)
     for line in tail_syslog.lines():
         for handler in syslog_data:
