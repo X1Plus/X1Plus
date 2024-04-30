@@ -234,7 +234,7 @@ Item {
             clip: true
             TextArea {
                 id: outputTextArea
-                width: 1130 - 56
+                width: 1130 /* parent.width, but avoiding a binding loop */ - 56
                 textFormat: Qt.PlainText //RichText is way too slow on the printer
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
