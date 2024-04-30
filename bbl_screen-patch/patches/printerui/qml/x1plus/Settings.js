@@ -66,6 +66,6 @@ function awaken() {
     _settings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "GetSettings")();
     _PutSettings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "PutSettings");
     
-    _migrate("cfw_passcode", "passcode");
-    _migrate("cfw_locktype", "locktype");
+    _migrate("cfw_passcode", "lockscreen.passcode");
+    _migrate("cfw_locktype", "lockscreen.mode");
 }
