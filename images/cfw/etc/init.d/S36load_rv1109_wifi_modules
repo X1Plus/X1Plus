@@ -70,7 +70,7 @@ case "$1" in
 		fi
 		sync
 		
-		grep -V ccode /config/wifi/nvram_ap6212a.txt > /var/run/brcmfmac43430-sdio.txt
+		grep -v ccode /config/wifi/nvram_ap6212a.txt > /var/run/brcmfmac43430-sdio.txt
 		cat /config/wifi/config.txt >> /var/run/brcmfmac43430-sdio.txt
 
 		echo 1 > /sys/class/rfkill/rfkill1/state
