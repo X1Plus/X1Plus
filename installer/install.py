@@ -222,6 +222,9 @@ def validate_sd():
     if not found_sdcard:
         report_failure(f"SD card was not mounted in the expected location. If the SD card is inserted, please file a bug.")
 
+def debug_wifi():
+    os.system("/userdata/x1plus/debug_wifi.sh")
+
 validate_sd()
 
 df = shutil.disk_usage("/mnt/sdcard")
@@ -264,6 +267,8 @@ if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"
     report_failure("This custom firmware image does not support this printer's hardware version.")
 
 report_success()
+
+debug_wifi()
 
 # see if we already have a repacked base filesystem
 basefw_squashfs_path = f"{boot_path}/images/{basefw_squashfs}"
