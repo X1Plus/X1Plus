@@ -17,8 +17,8 @@
                                   ? WebContents.carouselImages2 : WebContents.carouselImages1
 -    property var defaultImage: DeviceManager.getSystemSetting("device/images_path")
 +    property var serialNo: DeviceManager.build.seriaNO
-+    property var home_png: DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
-+    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
++    property var home_png: X1Plus.Settings.get("homescreen.image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
++    property var print_png: X1Plus.Settings.get("homescreen.image.printing", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
 +    property var img_print: X1Plus.fileExists(print_png) ? "file://"+print_png: "qrc:/printerui/image/exhibition1.png"
 +    property var img_home: X1Plus.fileExists(home_png) ? "file://"+home_png: "qrc:/printerui/image/exhibition.png" 
      EventTrack.pageName: "Home"

@@ -10,7 +10,7 @@ import "../printer"
 
 Item {
     id: top
-    property var passcode: X1Plus.Settings.get("passcode", "")
+    property var passcode: X1Plus.Settings.get("lockscreen.passcode", "")
 
     MarginPanel {
         id: title
@@ -174,12 +174,12 @@ Item {
             backgroundColor: Colors.gray_500
             width: 300
             model: [qsTr("Screen saver only"), qsTr("Swipe to unlock"), qsTr("Passcode")]
-            currentIndex: X1Plus.Settings.get("locktype", 0)
+            currentIndex: X1Plus.Settings.get("lockscreen.mode", 0)
             Binding on currentIndex {
-                value: X1Plus.Settings.get("locktype", 0)
+                value: X1Plus.Settings.get("lockscreen.mode", 0)
             }
             onChoiseTapped: {
-                X1Plus.Settings.put("locktype", currentIndex);
+                X1Plus.Settings.put("lockscreen.mode", currentIndex);
                 const c = DeviceManager.power.mode; /* sort of janky mechanism to trigger the binding on the parent screen to reload */
                 DeviceManager.power.mode = 3 - c;
                 DeviceManager.power.mode = c;
@@ -271,7 +271,7 @@ Item {
             focusItem: focus
             onFinished: {
                 if (!cancel) {
-                    X1Plus.Settings.put("passcode", number);
+                    X1Plus.Settings.put("lockscreen.passcode", number);
                 }
             }
         }

@@ -52,7 +52,7 @@ function _migrate(k, newk) {
     if (v !== null) {
         console.log(`X1Plus.Settings: migrating key ${k} -> ${newk}`);
         put(newk, v);
-        DeviceManager.putSetting(k, null);
+        X1Plus.DeviceManager.putSetting(k, null);
     }
 }
 
@@ -66,6 +66,9 @@ function awaken() {
     _settings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "GetSettings")();
     _PutSettings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "PutSettings");
     
-    _migrate("cfw_passcode", "passcode");
-    _migrate("cfw_locktype", "locktype");
+    _migrate("cfw_passcode", "lockscreen.passcode");
+    _migrate("cfw_locktype", "lockscreen.mode");
+    _migrate("cfw_lockscreen_image", "lockscreen.image");
+    _migrate("cfw_home_image", "homescreen.image");
+    _migrate("cfw_print_image", "homescreen.image.printing");
 }

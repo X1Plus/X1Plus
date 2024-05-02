@@ -20,7 +20,7 @@
      property var defaultImage: DeviceManager.getSystemSetting("device/images_path")
      property bool printPrepare: task.state < PrintTask.RUNNING && task.state > PrintTask.IDLE
 +    property var serialNo: DeviceManager.build.seriaNO
-+    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
++    property var print_png: X1Plus.Settings.get("homescreen.image.printing", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
 +    property var img_print: X1Plus.fileExists(print_png) ? "file://" + print_png: "qrc:/printerui/image/exhibition1.png"
      property var stateIcons: {
          var icons = []
