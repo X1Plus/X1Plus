@@ -1,1 +1,1 @@
-../../../config/wifi/nvram_ap6212a.txt
+/var/run/brcmfmac43430-sdio.txt

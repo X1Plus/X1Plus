@@ -29,9 +29,14 @@ case "$1" in
 		if [ ! -f "/config/wifi/config.txt" ];then
 			echo "ccode=DE" > /config/wifi/config.txt
 			echo "regrev=7" >> /config/wifi/config.txt
+			echo "PM=0" >> /config/wifi/config.txt
 			sync
 		fi
 
+		if [ -z $(grep 'PM=0' "/config/wifi/config.txt") ]; then
+			echo "PM=0" >> /config/wifi/config.txt
+			sync
+		fi
 
 		if [ ! -f "/userdata/cfg/wpa_supplicant.conf" ];then
 			echo "wpa_supplicant.conf init"
@@ -64,6 +69,9 @@ case "$1" in
 			cp $from_nvram $to_nvram
 		fi
 		sync
+		
+		grep -v ccode /config/wifi/nvram_ap6212a.txt > /var/run/brcmfmac43430-sdio.txt
+		cat /config/wifi/config.txt >> /var/run/brcmfmac43430-sdio.txt
 
 		echo 1 > /sys/class/rfkill/rfkill1/state
 		for i in compat cfg80211 brcmutil brcmfmac; do
