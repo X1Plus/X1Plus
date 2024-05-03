@@ -23,9 +23,8 @@ from zipfile import *
 import ext4
 import tempfile
 import shutil
-import urllib.request
-import urllib.error
 import dds
+import requests
 import json
 import select
 import time
@@ -33,14 +32,17 @@ import filecmp
 import glob
 import subprocess
 import re
-import ssl
 import logging
 import atexit
+from datetime import datetime
 
 formatter = logging.Formatter("%(asctime)s - %(message)s")
-logging.basicConfig(filename='/mnt/sdcard/x1plus_installer.log', level=logging.INFO,
+now = datetime.now()
+timestamp = now.strftime("%Y%m%d_%H%M%S")
+log_name = f"/mnt/sdcard/installer_{timestamp}.log" #change to /sdcard/x1plus/printers/{serial}/logs/
+logging.basicConfig(filename=log_name, level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
-file_handler = logging.FileHandler('/mnt/sdcard/x1plus_installer.log')
+file_handler = logging.FileHandler(log_name)
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 logger = logging.getLogger(__name__) 
@@ -76,6 +78,9 @@ print_log(f"Checking info.json: {installer_path}/info.json")
 print_log(json.dumps(INFO))
 dds_rx_queue = dds.subscribe("device/request/upgrade")
 dds_tx_pub = dds.publisher("device/report/upgrade")
+
+process = subprocess.Popen(['bash', '-c', "/usr/bin/wpa_supplicant_hook.sh"])
+
 print_log("waiting for DDS to spin up...")
 time.sleep(1)
 print_log("ok, that oughta be good enough")
@@ -298,19 +303,16 @@ def download_firmware(update_url, dest_path):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
     }
-    ssl_context = ssl.create_default_context(cafile=None, capath="/etc/ssl/certs")
-
-    req = urllib.request.Request(update_url, headers=headers)
     try:
         os.makedirs(os.path.dirname(dest_path), exist_ok = True)
         report_interim_progress("Connecting...")
-        with urllib.request.urlopen(req, context=ssl_context) as resp, \
+        with requests.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/") as resp, \
             open(dest_path, "wb") as f:
-            totlen = resp.getheader('content-length')
+            resp.raise_for_status()
+            totlen = int(resp.headers.get('content-length', 0))
             curlen = 0
 
-            while True:
-                buf = resp.read(131072)
+            for buf in resp.iter_content(chunk_size=131072):
                 if not buf:
                     break
                 f.write(buf)
@@ -319,10 +321,10 @@ def download_firmware(update_url, dest_path):
                 totlen_mb = round(int(totlen) / 1024 / 1024, 2)
                 report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
         return True
-    except urllib.error.HTTPError as e:
-        report_failure(f"HTTP Error: {e.code} {e.reason}")
-    except urllib.error.URLError as e:
-        report_failure(f"URL Error: {e.reason}")
+    except requests.HTTPError as e:
+        report_failure(f"HTTP Error: {e.response.status_code} {e.response.reason}")
+    except requests.RequestException as e:
+        report_failure(f"Request Exception: {e}")
     except Exception as e:
         report_failure(f"An error occurred: {e}")
     return False
