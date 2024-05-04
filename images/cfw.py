@@ -121,7 +121,7 @@ globfiles("cfw/lib", "/lib")
 globfiles("cfw/sbin", "/sbin")
 globfiles("cfw/system", "/system", eatlinks = True)
 globfiles("cfw/opt", "/opt", eatlinks = True)
-globfiles("site-packages", "/opt/python/lib/python3.10/site-packages")
+globfiles("site-packages", "/opt/python/lib/python3.12/site-packages")
 
 symlink('/usr/libexec/sftp-server', '/usr/libexec/gesftpserver')
 
