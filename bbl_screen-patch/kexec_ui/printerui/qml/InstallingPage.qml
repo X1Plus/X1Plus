@@ -20,6 +20,11 @@ Rectangle {
     property var secondaryStatusText: null /* "<i>Blah</i>" */
     property var statusModel: [ ] /* [ ["success", "thing 1"], ["", "thing 2"], ["failure", "failed thing 3" ] ] */
     
+    WifiIcon {
+        anchors.right: parent.right
+        anchors.top:parent.top
+        id: wifiStatus
+    }
     function gotDdsEvent(topic, dstr) {
         if (topic == "device/report/upgrade") {
             console.log("DDS event", topic, dstr);
@@ -93,12 +98,18 @@ Rectangle {
             }
 
             var rv = X1PlusNative.system(`mkdir -p /userdata/x1plus && cd /userdata/x1plus && unzip -p /sdcard/${x1pName} payload.tar.gz | gunzip | tar xv`);
-            // We should probably error check this somehow -- do an XHR to make sure the launch script is there?
-            statusModel[statusModel.length - 1][0] = "success";
-            statusModel = statusModel;
-            secondaryStatusText = "";
-            X1PlusNative.system('mount -o remount,exec /userdata'); // Firmware R mounts it noeexec
-            X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
+            let install_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/userdata/x1plus/install.sh"
+            let resp = X1PlusNative.readFile(install_path);
+            if (resp.byteLength !== 0) {
+                statusModel[statusModel.length - 1][0] = "success";
+                statusModel = statusModel;
+                secondaryStatusText = "";
+                X1PlusNative.system('mount -o remount,exec /userdata'); // Firmware R mounts it noeexec
+                X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
+            } else {
+                console.log("[x1p] failed to unpack x1p file");
+                
+            }
         }
     }
     

@@ -301,7 +301,7 @@ debug_wifi()
     
 def download_firmware(update_url, dest_path):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+        'User-Agent': 'X1Plus/into'
     }
     try:
         os.makedirs(os.path.dirname(dest_path), exist_ok = True)
