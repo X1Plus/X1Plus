@@ -10,26 +10,33 @@ Rectangle {
     height: 103
     color: Colors.gray_500
     property var textToggle: true 
+    property var dbmVal: "0"
     ZImage {
         id: wifiIcon
         width: 100 
         height: 100
-        visible: true
+        visible: textToggle
         anchors.centerIn: parent
         fillMode: Image.PreserveAspectFit 
         originSource: "../image/wifi_0.svg"
         tintColor: Colors.gray_600
+        Binding on visible {
+            value: textToggle
+        }
         
     }
+    
     Text {
         id: wifiText
         visible: wifiIcon.visible == false
         anchors.centerIn: parent
-        text: "0"
+        text: dbmVal
         font.pixelSize: 30
         color: "white"
+        Binding on text {
+            value: dbmVal
+        }
     }
-
     MouseArea {
         anchors.fill:parent
         onClicked: {
@@ -37,9 +44,10 @@ Rectangle {
             wifiIcon.visible = textToggle;
             updateIcon();
         }
-        onEntered: wifiIcon.scale = 1.2
+        onEntered: wifiIcon.scale = 1.1
         onExited:  wifiIcon.scale = 1
     }
+
     Timer {
         id: wifiTimer
         running: true
@@ -57,7 +65,7 @@ Rectangle {
         if (isNaN(dBm)) {
             return; 
         }
-        wifiText.text = `${dBmString}dBm`; 
+        dbmVal = `${dBmString}dBm`; 
         let x_norm = dBm + 100;
         if (x_norm < 1) x_norm = 1;
         let y = Math.round((3 * Math.log10(x_norm)) / Math.log10(101));

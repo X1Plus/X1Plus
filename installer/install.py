@@ -56,9 +56,6 @@ def stop_logger():
     logger.removeHandler(file_handler)
     file_handler.close()
 
-# def print(msg):
-#     logger.info(msg)
-#     print(msg)
 atexit.register(stop_logger) #ensure that handler will be removed and then closed when the script is finished
 
 # wraps stdout and stderr in a fake file to be logged
@@ -394,7 +391,8 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
         if download_firmware(basefw_update_url, basefw_update_path):
             report_interim_progress("Verifying download...")
             if not exists_with_md5(basefw_update_path, basefw_update_md5):
-                report_failure("Checksum on downloaded file failed.")
+                if not debug_downloader: 
+                    report_failure("Checksum on downloaded file failed.")
             else:
                 report_success()
         else:
