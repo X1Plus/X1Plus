@@ -328,42 +328,59 @@ def download_firmware(update_url, dest_path):
         'User-Agent': 'X1Plus/into'
     }
     
-    retry_strategy = Retry(
-        total=5,  # Total number of retries
-        status_forcelist=[500, 502, 503, 504], 
-        backoff_factor=1, 
-        respect_retry_after_header=True
-    )
-    
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    http = requests.Session()
-    http.mount("https://", adapter) 
-    try:
-        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        report_interim_progress("Connecting...")
-        with http.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/") as resp, \
-            open(dest_path, "wb") as f:
-            resp.raise_for_status()
-            totlen = int(resp.headers.get('content-length', 0))
-            curlen = 0
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
-            for buf in resp.iter_content(chunk_size=131072):
-                if not buf:
-                    break
-                f.write(buf)
-                curlen += len(buf)
-                curlen_mb = round(int(curlen) / 1024 / 1024, 2)
-                totlen_mb = round(int(totlen) / 1024 / 1024, 2)
-                report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
+    report_interim_progress("Connecting...")
+    success = False
+    retry = 1
+    while success == False:
+        try:
+            resp = requests.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/")
+            resp.raise_for_status()
+        except requests.Timeout as e:
+            report_interim_progress(f"Timeout occurred: {e} ... retry {retry}")
+            if retry < 4:
+                time.sleep( pow( 2,retry ) )
+            else:
+                time.sleep( 16 )
+            retry += 1
+        except requests.exceptions.HTTPError as e:
+            report_interim_progress(f"HTTP Error: {e.response.status_code} {e.response.reason} ... retry {retry}")
+            if retry < 4:
+                time.sleep( pow( 2,retry ) )
+            else:
+                time.sleep( 16 )
+            retry += 1
+        except requests.exceptions.RequestException as e:
+            report_interim_progress(f"Request Exception: {e} ... retry {retry}")
+            if retry < 4:
+                time.sleep( pow( 2,retry ) )
+            else:
+                time.sleep( 16 )
+            retry += 1
+        except Exception as e:
+            report_interim_progress(f"An error occurred: {e} ... retry {retry}")
+            if retry < 4:
+                time.sleep( pow( 2,retry ) )
+            else:
+                time.sleep( 16 )
+            retry += 1
+        else:
+            success = True
+
+    with open(dest_path, "wb") as f:
+        totlen = int(resp.headers.get('content-length', 0))
+        curlen = 0
+
+        for buf in resp.iter_content(chunk_size=131072):
+            if not buf:
+                break
+            f.write(buf)
+            curlen += len(buf)
+            curlen_mb = round(int(curlen) / 1024 / 1024, 2)
+            totlen_mb = round(int(totlen) / 1024 / 1024, 2)
+            report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
         return True
-    except requests.Timeout as e:
-        report_failure(f"Timeout occurred: {e}")
-    except requests.exceptions.HTTPError as e:
-        report_failure(f"HTTP Error: {e.response.status_code} {e.response.reason}")
-    except requests.exceptions.RequestException as e:
-        report_failure(f"Request Exception: {e}")
-    except Exception as e:
-        report_failure(f"An error occurred: {e}")
     return False
 
 # see if we already have a repacked base filesystem
