@@ -35,11 +35,14 @@ import re
 import logging
 import atexit
 from datetime import datetime
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
+debug_downloader = False # Set to False unless debugging!
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 now = datetime.now()
 timestamp = now.strftime("%Y%m%d_%H%M%S")
-log_name = f"/mnt/sdcard/installer_{timestamp}.log" #change to /sdcard/x1plus/printers/{serial}/logs/
+log_name = f"/mnt/sdcard/installer_{timestamp}.log" #installer log filename
 logging.basicConfig(filename=log_name, level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 file_handler = logging.FileHandler(log_name)
@@ -53,10 +56,29 @@ def stop_logger():
     logger.removeHandler(file_handler)
     file_handler.close()
 
-def print_log(msg):
-    logger.info(msg)
-    print(msg)
-atexit.register(stop_logger)
+# def print(msg):
+#     logger.info(msg)
+#     print(msg)
+atexit.register(stop_logger) #ensure that handler will be removed and then closed when the script is finished
+
+# wraps stdout and stderr in a fake file to be logged
+class StreamToLogger: 
+    
+    def __init__(self, logger, log_level=logging.INFO):
+        self.logger = logger
+        self.log_level = log_level
+        self.linebuf = ''
+    
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.log_level, line.rstrip())
+
+    def flush(self):
+        pass
+
+# Redirect our stdout and stderr output to our logger
+sys.stdout = StreamToLogger(logger, logging.INFO)
+sys.stderr = StreamToLogger(logger, logging.ERROR)
 
 # XXX: have config for filesystem size
 installer_path = os.path.dirname(__file__) # will get cleaned out on boot
@@ -74,30 +96,29 @@ cfw_squashfs = f"{cfw_version}.squashfs"
 demand_free_space = fs_size + 1 * 1024 * 1024 * 1024
 # latest_safe_bblap = "00.00.28.55" # 1.07.02.00
 latest_safe_bblap = "00.00.30.73" # Firmware R - "1.06.06.58" aka 1.07.02.00+R
-print_log(f"Checking info.json: {installer_path}/info.json")
-print_log(json.dumps(INFO))
+print(f"Checking info.json: {installer_path}/info.json")
+print(json.dumps(INFO))
 dds_rx_queue = dds.subscribe("device/request/upgrade")
 dds_tx_pub = dds.publisher("device/report/upgrade")
 
-process = subprocess.Popen(['bash', '-c', "/usr/bin/wpa_supplicant_hook.sh"])
-
-print_log("waiting for DDS to spin up...")
-time.sleep(1)
-print_log("ok, that oughta be good enough")
+print("waiting for DDS to spin up...")
+time.sleep(3)
+print("ok, that oughta be good enough")
 def report_progress(what):
-    print_log(f"[...] {what}")
+    print(f"[...] {what}")
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress': what }))
 
 def report_interim_progress(what):
-    print_log(f"[...] ... {what} ...")
+    print(f"[...] ... {what} ...")
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_interim': what }))
 
 def report_success():
-    print_log("[+]")
+    print("[+]")
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_success': True }))
 
 def report_failure(why, e = None):
-    print_log(f"... failed ({why})")
+    print(f"... failed ({why})")
+    logger.debug(f"... failed ({why})")
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_failure': why }))
     if e is not None:
         dds.shutdown()
@@ -107,7 +128,7 @@ def report_failure(why, e = None):
 
 def report_complete():
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_complete': True }))
-    print_log("[+] complete")
+    print("[+] complete")
     dds.shutdown()
     sys.exit(0)
 
@@ -117,8 +138,8 @@ def ask_permission(what):
         dds_rx_queue.get()
 
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'prompt_yesno': what }))
-    print_log(f"[?] {what}")
-    print_log("y/n")
+    print(f"[?] {what}")
+    print("y/n")
     
     # This is sort of a cheesy way to impedance-match these two inputs, but
     # it is what it is.
@@ -134,7 +155,7 @@ def ask_permission(what):
             qv = dds_rx_queue.get_nowait()
             qv = json.loads(qv)
             if qv['command'] == 'x1plus' and 'yesno' in qv:
-                print_log(f"DDS chose {qv['yesno']}")
+                print(f"DDS chose {qv['yesno']}")
                 return qv['yesno'] == True
         except:
             pass
@@ -142,48 +163,51 @@ def ask_permission(what):
 def device_tree_compute_key():
     dtkey = b""
 
-    print_log("\nfirmware versions")
+    print("\nfirmware versions")
 
     for filename in glob.glob("/config/version/*"):
         print("[%s] [%s]" % ( filename, open(filename, "r").read().strip() ) )
 
-    print_log("\ndevicetree")
+    print("\ndevicetree")
 
     for root, dirs, files in os.walk('/proc/device-tree/'):
         for file in files:
-            print_log(os.path.join(root, file))
+            print(os.path.join(root, file))
 
     try:
         with open("/proc/device-tree/model", "rb") as f:
             dtkey += f.read()
     except Exception as e:
-        print_log(e)
+        print(e)
         dtkey += b"no device tree model"
 
-    print_log(f"device-tree model [{dtkey}]")
+    print(f"device-tree model [{dtkey}]")
 
     try:
         for panel in sorted(glob.glob("/proc/device-tree/dsi@ffb30000/panel@*")):
-            print_log(f"panel [{panel}]")
+            print(f"panel [{panel}]")
             try:
                 status = open(f"{panel}/status", "r").read()
-                print_log(f"status [{status}]")
+                print(f"status [{status}]")
             except:
                 # older oem firmware devicetrees have no status
                 status = "okay"
-                print_log("no status file in devicetree")
+                print("no status file in devicetree")
             if status[0:4] == "okay":
                 dtkey += open(f"{panel}/panel-init-sequence", "rb").read()
                 break
     except Exception as e:
-        print_log(e)
+        print(e)
         dtkey += b"no panel init sequence"
 
-    print_log(f"panel-init-sequence [{dtkey}]")
+    print(f"panel-init-sequence [{dtkey}]")
 
     return hashlib.md5(dtkey).hexdigest()
 
 def exists_with_md5(path, md5):
+    if debug_downloader:
+        return False
+    
     if not os.path.isfile(path):
         return False
 
@@ -298,15 +322,26 @@ if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"
 report_success()
 
 debug_wifi()
-    
+
 def download_firmware(update_url, dest_path):
     headers = {
         'User-Agent': 'X1Plus/into'
     }
+    
+    retry_strategy = Retry(
+        total=5,  # Total number of retries
+        status_forcelist=[500, 502, 503, 504], 
+        backoff_factor=1, 
+        respect_retry_after_header=True
+    )
+    
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter) 
     try:
-        os.makedirs(os.path.dirname(dest_path), exist_ok = True)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         report_interim_progress("Connecting...")
-        with requests.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/") as resp, \
+        with http.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/") as resp, \
             open(dest_path, "wb") as f:
             resp.raise_for_status()
             totlen = int(resp.headers.get('content-length', 0))
@@ -321,9 +356,11 @@ def download_firmware(update_url, dest_path):
                 totlen_mb = round(int(totlen) / 1024 / 1024, 2)
                 report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
         return True
-    except requests.HTTPError as e:
+    except requests.Timeout as e:
+        report_failure(f"Timeout occurred: {e}")
+    except requests.exceptions.HTTPError as e:
         report_failure(f"HTTP Error: {e.response.status_code} {e.response.reason}")
-    except requests.RequestException as e:
+    except requests.exceptions.RequestException as e:
         report_failure(f"Request Exception: {e}")
     except Exception as e:
         report_failure(f"An error occurred: {e}")
@@ -345,10 +382,10 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
                 report_success()
         else:
             report_failure(f"Download failed.")
-
+    
     report_progress("Uncompressing base firmware")
     report_interim_progress("<i>This bit takes a while.</i>")
-    print_log("decrypting")
+    print("decrypting")
     # decrypt the update.zip.sig
     bbl_verify = c.CDLL("libbbl_verify.so")
     rv = bbl_verify.bbl_image_verify(basefw_update_path.encode(), f"{installer_path}/".encode())
@@ -357,7 +394,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
     unpack_path = f"{installer_path}/{basefw_update}"[:-4]
     
     report_interim_progress("Really, go get a cup of tea or something.")
-    print_log("unzipping")
+    print("unzipping")
     # unpack the update.img
     try:
         with ZipFile(unpack_path, "r") as z:

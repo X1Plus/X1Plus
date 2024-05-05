@@ -25,6 +25,7 @@ Rectangle {
         anchors.top:parent.top
         id: wifiStatus
     }
+   
     function gotDdsEvent(topic, dstr) {
         if (topic == "device/report/upgrade") {
             console.log("DDS event", topic, dstr);
@@ -97,10 +98,10 @@ Rectangle {
                 X1PlusNative.system('while true ; do iwconfig wlan0 power off > /dev/null 2>&1 ; sleep 4 ; done &');
             }
 
-            var rv = X1PlusNative.system(`mkdir -p /userdata/x1plus && cd /userdata/x1plus && unzip -p /sdcard/${x1pName} payload.tar.gz | gunzip | tar xv`);
+            var rv = X1PlusNative.popen(`mkdir -p /userdata/x1plus && cd /userdata/x1plus && unzip -p /sdcard/${x1pName} payload.tar.gz | gunzip | tar xv`);
             let install_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/userdata/x1plus/install.sh"
             let resp = X1PlusNative.readFile(install_path);
-            if (resp.byteLength !== 0) {
+            if (resp.byteLength !== 0 && rv !== 0) { /* verify that install.sh exists and.. isn't blank? */
                 statusModel[statusModel.length - 1][0] = "success";
                 statusModel = statusModel;
                 secondaryStatusText = "";
@@ -108,7 +109,7 @@ Rectangle {
                 X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
             } else {
                 console.log("[x1p] failed to unpack x1p file");
-                
+                dialogStack.replace("SelectX1pPage.qml"); //send user back to selection page
             }
         }
     }

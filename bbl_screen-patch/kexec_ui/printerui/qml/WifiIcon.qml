@@ -1,35 +1,49 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import UIBase 1.0
-import Printer 1.0
 import X1PlusNative 1.0
+
 import "."
 
 Rectangle {
     width: 103
     height: 103
     color: Colors.gray_500
-    
+    property var textToggle: true 
     ZImage {
         id: wifiIcon
-        width: 70 
-        height: 70
+        width: 100 
+        height: 100
+        visible: true
         anchors.centerIn: parent
         fillMode: Image.PreserveAspectFit 
         originSource: "../image/wifi_0.svg"
+        tintColor: Colors.gray_600
+        
     }
+    Text {
+        id: wifiText
+        visible: wifiIcon.visible == false
+        anchors.centerIn: parent
+        text: "0"
+        font.pixelSize: 30
+        color: "white"
+    }
+
     MouseArea {
         anchors.fill:parent
         onClicked: {
-            updateIcon(); /* placeholder mousearea - this could open wifi setup or more details about the network */
+            textToggle = !textToggle;
+            wifiIcon.visible = textToggle;
+            updateIcon();
         }
-        onEntered: wifiIcon.opacity = 0.8
-        onExited: wifiIcon.opacity = 1.0
+        onEntered: wifiIcon.scale = 1.2
+        onExited:  wifiIcon.scale = 1
     }
     Timer {
         id: wifiTimer
         running: true
-        interval: 10000
+        interval: 5000
         repeat: true
         triggeredOnStart: true
         onTriggered: {
@@ -43,6 +57,7 @@ Rectangle {
         if (isNaN(dBm)) {
             return; 
         }
+        wifiText.text = `${dBmString}dBm`; 
         let x_norm = dBm + 100;
         if (x_norm < 1) x_norm = 1;
         let y = Math.round((3 * Math.log10(x_norm)) / Math.log10(101));
