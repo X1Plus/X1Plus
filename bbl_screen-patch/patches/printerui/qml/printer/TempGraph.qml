@@ -13,7 +13,21 @@ Item {
     property var samples: X1Plus.TempGraph.samples()
     
     onSamplesChanged: {
-        canvas.requestPaint();
+        if (visible) {
+            canvas.requestPaint();
+        }
+    }
+    
+    onVisibleChanged: {
+        if (visible) {
+            canvas.requestPaint();
+        }
+    }
+    
+    onWidthChanged: {
+        if (visible) {
+            canvas.requestPaint();
+        }
     }
     
     Canvas {
@@ -131,7 +145,7 @@ Item {
             }
             ctx.stroke();
 
-            var minsamp = N_SAMPLES - samples.length;
+            var minsamp = samples.length - N_SAMPLES;
             if (minsamp < 0)
                 minsamp = 0;
 
