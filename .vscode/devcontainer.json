@@ -1,0 +1,23 @@
+{
+  "name": "X1Plus Firmware Development",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "scripts/docker",
+    "args": {
+      "VARIANT": "buster"
+    }
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "ms-vscode.cpptools",
+    "ms-azuretools.vscode-docker",
+    "github.copilot",
+    "ms-vscode.cmake-tools",
+    "eamodio.gitlens"
+  ],
+  "forwardPorts": [],
+  "postCreateCommand": "echo 'Environment setup complete.'",
+  "remoteUser": "root"
+}
