@@ -558,6 +558,7 @@ namespace BDbus {
     };
     
     class Error {
+        char buf[256]; /* I have no idea how big this thing actually is */
     public:
         Error();
         ~Error();
