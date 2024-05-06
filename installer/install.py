@@ -354,31 +354,19 @@ def download_firmware(update_url, dest_path):
             resp.raise_for_status()
         except requests.Timeout as e:
             report_interim_progress(f"Timeout occurred: {e} ... retry {retry}")
-            if retry < 4:
-                time.sleep( pow( 2,retry ) )
-            else:
-                time.sleep( 16 )
+            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         except requests.exceptions.HTTPError as e:
             report_interim_progress(f"HTTP Error: {e.response.status_code} {e.response.reason} ... retry {retry}")
-            if retry < 4:
-                time.sleep( pow( 2,retry ) )
-            else:
-                time.sleep( 16 )
+            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         except requests.exceptions.RequestException as e:
             report_interim_progress(f"Request Exception: {e} ... retry {retry}")
-            if retry < 4:
-                time.sleep( pow( 2,retry ) )
-            else:
-                time.sleep( 16 )
+            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         except Exception as e:
             report_interim_progress(f"An error occurred: {e} ... retry {retry}")
-            if retry < 4:
-                time.sleep( pow( 2,retry ) )
-            else:
-                time.sleep( 16 )
+            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         else:
             success = True
