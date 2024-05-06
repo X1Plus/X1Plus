@@ -38,7 +38,6 @@ from datetime import datetime
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-debug_downloader = False # Set to False unless debugging!
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 now = datetime.now()
 timestamp = now.strftime("%Y%m%d_%H%M%S")
@@ -202,7 +201,7 @@ def device_tree_compute_key():
     return hashlib.md5(dtkey).hexdigest()
 
 def exists_with_md5(path, md5):
-    if debug_downloader:
+    if os.getenv('DEBUG_DOWNLOADER') == 'true': #debugging for wifi race condition
         return False
     
     if not os.path.isfile(path):
@@ -273,7 +272,16 @@ def validate_sd():
         report_failure(f"SD card was not mounted in the expected location. If the SD card is inserted, please file a bug.")
 
 def debug_wifi():
-    os.system("/userdata/x1plus/debug_wifi.sh")
+    try:
+        result = subprocess.run(
+            ["/userdata/x1plus/debug_wifi.sh"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        logger.info(result.stdout)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed: {e} | Output: {e.stderr}")
 
 validate_sd()
 
@@ -282,8 +290,15 @@ if df.free < demand_free_space:
     report_failure(f"The SD card does not have enough free space. Make sure that at least {demand_free_space//(1024*1024)} MB are available.")
 
 if not os.path.isfile("/sys/devices/virtual/misc/loop-control/dev"):
-    if os.system(f"insmod {installer_path}/loop.ko") != 0:
-        report_failure("Failed to load loopback kernel module.")
+    try:
+        subprocess.run(
+            ["insmod", f"{installer_path}/loop.ko"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+    except subprocess.CalledProcessError as e:
+        report_failure(f"Failed to load loopback kernel module. Error: {e.stderr}")
 
 report_success()
 
@@ -293,22 +308,24 @@ else:
     if os.system("bbl_3dpsn 2>/dev/null > /tmp/.bambu_sn") != 0:
         report_failure("Failed to get device serial number from bbl_3dpsn. Are you on the right BBL firmware version?")
     sn = open("/tmp/.bambu_sn", "r").read()
-
+    
 backup_path = f"{boot_path}/printers/{sn}/backups.tar"
 if not os.path.isfile(backup_path):
     # We only do this once, ideally to grab the keys and config in a pristine state.
     report_progress("Backing up printer configuration")
     try:
-        os.makedirs(os.path.dirname(backup_path), exist_ok = True)
-    except:
-        pass # whatever, we'll catch it in a moment anyway
-    files = [ "/oem", "/config", "/userdata/cfg" ]
-    files += glob.glob("/userdata/upgrade.json")
-    files += glob.glob("/userdata/upgrade/firmware/*.json")
-    if os.system(f"tar cvf {backup_path} {' '.join(files)}") != 0:
-        report_failure(f"Error while creating {backup_path}.")
-    os.system("sync")
-    report_success()
+        files = " ".join(["/oem", "/config", "/userdata/cfg"] + glob.glob("/userdata/upgrade.json") + glob.glob("/userdata/upgrade/firmware/*.json"))
+        subprocess.run(
+            f"tar cvf {backup_path} {files}",
+            shell=True,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        os.system("sync")
+        report_success()
+    except subprocess.CalledProcessError as e:
+        report_failure(f"Error while creating {backup_path}. Error: {e.stderr}")
 
 # validate that we're on a machine that has a supported device tree
 report_progress("Checking system compatibility")
@@ -322,7 +339,7 @@ debug_wifi()
 
 def download_firmware(update_url, dest_path):
     headers = {
-        'User-Agent': 'X1Plus/into'
+        'User-Agent': f"Python-urllib/3.{sys.version_info.minor}"
     }
     
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
@@ -391,7 +408,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
         if download_firmware(basefw_update_url, basefw_update_path):
             report_interim_progress("Verifying download...")
             if not exists_with_md5(basefw_update_path, basefw_update_md5):
-                if not debug_downloader: 
+                if not os.getenv('DEBUG_DOWNLOADER'): 
                     report_failure("Checksum on downloaded file failed.")
             else:
                 report_success()
@@ -419,7 +436,6 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
     except Exception as e:
         report_failure("Failed to extract original Bambu Lab update.", e)
     report_success()
-    
     report_progress("Extracting base firmware")
     # look for header offsets
     try:
@@ -497,7 +513,12 @@ if skip_ext4_create:
     report_progress("Preserved existing writable rootfs")
     if not system_is_sd_boot():
         os.makedirs("/tmp/rw_ext4", exist_ok = True)
-        if os.system(f"mount -o loop,ro {rw_ext4} /tmp/rw_ext4") != 0:
+        try:
+            subprocess.run(
+                ["mount", "-o", "loop,ro", f"{rw_ext4}", "/tmp/rw_ext4"],
+                check=True
+            )
+        except subprocess.CalledProcessError:
             report_failure(f"{rw_ext4} appears not to be mountable, but it was otherwise going to be preserved.")
         os.system("umount /tmp/rw_ext4")
 else:
@@ -505,20 +526,25 @@ else:
     try:
         with open(rw_ext4, "a+b") as f:
             f.truncate(fs_size)
-        if os.system(f"mkfs.ext4 -F {rw_ext4}") != 0:
-            raise RuntimeError("mkfs.ext4 returned error")
-        os.makedirs("/tmp/rw_ext4", exist_ok = True)
-        if os.system(f"mount -o loop {rw_ext4} /tmp/rw_ext4") != 0:
-            raise RuntimeError("mount returned error")
+        subprocess.run(
+            ["mkfs.ext4", "-F", rw_ext4],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        subprocess.run(
+            ["mount", "-o", "loop", rw_ext4, "/tmp/rw_ext4"],
+            check=True
+        )
         os.makedirs("/tmp/rw_ext4/upper", exist_ok = True)
         os.makedirs("/tmp/rw_ext4/work", exist_ok = True)
         os.chmod("/tmp/rw_ext4/upper", 0o755)
         os.chmod("/tmp/rw_ext4/work", 0o755)
         os.system("umount /tmp/rw_ext4")
         os.system("sync")
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         os.unlink(rw_ext4)
-        report_failure(f"Failed to create ext4 filesystem in {rw_ext4}.", e)
+        report_failure(f"Failed to create ext4 filesystem in {rw_ext4}. Error: {e.stderr}")
     report_success()
 
 report_progress("Copying custom firmware")
