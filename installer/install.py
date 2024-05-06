@@ -314,6 +314,7 @@ if not os.path.isfile(backup_path):
     # We only do this once, ideally to grab the keys and config in a pristine state.
     report_progress("Backing up printer configuration")
     try:
+        os.makedirs(os.path.dirname(backup_path), exist_ok = True)
         files = " ".join(["/oem", "/config", "/userdata/cfg"] + glob.glob("/userdata/upgrade.json") + glob.glob("/userdata/upgrade/firmware/*.json"))
         subprocess.run(
             f"tar cvf {backup_path} {files}",
