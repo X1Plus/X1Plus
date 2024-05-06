@@ -35,8 +35,6 @@ import re
 import logging
 import atexit
 from datetime import datetime
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 now = datetime.now()
