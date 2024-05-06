@@ -66,6 +66,7 @@ struct fb_map {
     void *p;
 };
 
+
 #define FB_MAPS_MAX 4
 static struct fb_map fb_maps[FB_MAPS_MAX] = {};
 
@@ -261,13 +262,38 @@ static void vnc_kbd_event(rfbBool down, rfbKeySym key, struct _rfbClientRec *cl)
     }
 }
 
+static bool _vnc_enabled = 0;
+void x1plus_vnc_enable(bool enabled) {
+    /* XXX: kick out any existing clients? */
+    _vnc_enabled = enabled;
+}
+
+static char *_vnc_passwords[] = { NULL, NULL };
+void x1plus_vnc_set_password(const char *pw) {
+    if (_vnc_passwords[0]) {
+        free(_vnc_passwords[0]);
+        _vnc_passwords[0] = NULL;
+    }
+    if (pw) {
+        _vnc_passwords[0] = strdup(pw);
+    }
+    if (rfbScreen) {
+        rfbScreen->authPasswdData = _vnc_passwords[0] ? _vnc_passwords : NULL;
+        rfbScreen->passwordCheck = _vnc_passwords[0] ? rfbCheckPasswordByList : NULL;
+    }
+}
+
 static enum rfbNewClientAction vnc_new_client(struct _rfbClientRec *cl) {
+    if (!_vnc_enabled) {
+        return RFB_CLIENT_REFUSE;
+    }
     if (fb_should_update_all) {
         printf("rfb is updating everything since someone connected\n");
         fb_transpose((uint32_t *)rfbScreen->frameBuffer, fb_most_recent);
     }
     return RFB_CLIENT_ACCEPT;
 }
+
 
 static void *vnc_thread(void *arg) {
     rfbRunEventLoop(rfbScreen, 40000, FALSE);
@@ -283,6 +309,8 @@ static void vnc_do_flip(void *fb) {
         rfbScreen->ptrAddEvent = vnc_ptr_event;
         rfbScreen->kbdAddEvent = vnc_kbd_event;
         rfbScreen->newClientHook = vnc_new_client;
+        rfbScreen->authPasswdData = _vnc_passwords[0] ? _vnc_passwords : NULL;
+        rfbScreen->passwordCheck = _vnc_passwords[0] ? rfbCheckPasswordByList : NULL;
         rfbScreen->httpDir = strdup("/opt/vnchttp");
         rfbScreen->httpEnableProxyConnect = TRUE;
         rfbInitServer(rfbScreen); 
@@ -299,6 +327,7 @@ static void vnc_do_flip(void *fb) {
         fb_transpose((uint32_t *)rfbScreen->frameBuffer, (uint32_t *)fb);
     }
 }
+
 
 SWIZZLE(int, drmIoctl, int fd, unsigned long request, void *arg)
     if (request == DRM_IOCTL_MODE_CREATE_DUMB) {

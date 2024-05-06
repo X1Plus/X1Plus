@@ -256,6 +256,26 @@ eject:
             unlink(tempFile.c_str());
         }
     }
+    
+    Q_INVOKABLE void vncEnable(int enabled) {
+#ifdef HAS_VNC
+        void x1plus_vnc_enable(bool enabled);
+        x1plus_vnc_enable(enabled);
+#endif
+    }
+    
+    Q_INVOKABLE void vncPassword(int hasPassword, QString password) {
+#ifdef HAS_VNC
+        void x1plus_vnc_set_password(const char *pw);
+        std::string password_str = password.toStdString();
+        if (hasPassword) {
+            x1plus_vnc_set_password(password_str.c_str() /* strdup()'ed internally */);
+        } else {
+            x1plus_vnc_set_password(NULL);
+        }
+#endif
+    }
+
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
 private:
     static const int minBacklightValue = 50;
