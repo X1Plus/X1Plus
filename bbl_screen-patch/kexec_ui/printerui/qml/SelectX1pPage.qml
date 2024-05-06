@@ -33,11 +33,6 @@ Rectangle {
         x1pJsons = x1pJsons;
         console.log(x1pNames, x1pJsons);
     }
-    WifiIcon {
-        anchors.right: parent.right
-        anchors.top:parent.top
-        id: wifiStatus
-    }
 
     Component.onDestruction: {
     }

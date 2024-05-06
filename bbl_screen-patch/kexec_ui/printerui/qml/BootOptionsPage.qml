@@ -15,12 +15,7 @@ Rectangle {
     width: 1280
     height: 720
     color: Colors.gray_500
-    
-    WifiIcon {
-        anchors.right: parent.right
-        anchors.top:parent.top
-        id: wifiStatus
-    }
+
     function confirmThenDo(prompt, what, confirm) {
         dialogStack.popupDialog("TextConfirm", {
             name: "installer yesno",

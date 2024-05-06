@@ -19,12 +19,6 @@ Rectangle {
     property var x1pName: null
     property var secondaryStatusText: null /* "<i>Blah</i>" */
     property var statusModel: [ ] /* [ ["success", "thing 1"], ["", "thing 2"], ["failure", "failed thing 3" ] ] */
-    
-    WifiIcon {
-        anchors.right: parent.right
-        anchors.top:parent.top
-        id: wifiStatus
-    }
    
     function gotDdsEvent(topic, dstr) {
         if (topic == "device/report/upgrade") {

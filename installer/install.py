@@ -30,49 +30,7 @@ import select
 import time
 import filecmp
 import glob
-import subprocess
 import re
-import logging
-import atexit
-from datetime import datetime
-
-formatter = logging.Formatter("%(asctime)s - %(message)s")
-now = datetime.now()
-timestamp = now.strftime("%Y%m%d_%H%M%S")
-log_name = f"/mnt/sdcard/installer_{timestamp}.log" #installer log filename
-logging.basicConfig(filename=log_name, level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
-file_handler = logging.FileHandler(log_name)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-logger = logging.getLogger(__name__) 
-logger.addHandler(file_handler)
-
-def stop_logger():
-    logger.info("Shutting down logger...")
-    logger.removeHandler(file_handler)
-    file_handler.close()
-
-atexit.register(stop_logger) #ensure that handler will be removed and then closed when the script is finished
-
-# wraps stdout and stderr in a fake file to be logged
-class StreamToLogger: 
-    
-    def __init__(self, logger, log_level=logging.INFO):
-        self.logger = logger
-        self.log_level = log_level
-        self.linebuf = ''
-    
-    def write(self, buf):
-        for line in buf.rstrip().splitlines():
-            self.logger.log(self.log_level, line.rstrip())
-
-    def flush(self):
-        pass
-
-# Redirect our stdout and stderr output to our logger
-sys.stdout = StreamToLogger(logger, logging.INFO)
-sys.stderr = StreamToLogger(logger, logging.ERROR)
 
 # XXX: have config for filesystem size
 installer_path = os.path.dirname(__file__) # will get cleaned out on boot
@@ -90,8 +48,7 @@ cfw_squashfs = f"{cfw_version}.squashfs"
 demand_free_space = fs_size + 1 * 1024 * 1024 * 1024
 # latest_safe_bblap = "00.00.28.55" # 1.07.02.00
 latest_safe_bblap = "00.00.30.73" # Firmware R - "1.06.06.58" aka 1.07.02.00+R
-print(f"Checking info.json: {installer_path}/info.json")
-print(json.dumps(INFO))
+
 dds_rx_queue = dds.subscribe("device/request/upgrade")
 dds_tx_pub = dds.publisher("device/report/upgrade")
 
@@ -112,7 +69,7 @@ def report_success():
 
 def report_failure(why, e = None):
     print(f"... failed ({why})")
-    logger.debug(f"... failed ({why})")
+    
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_failure': why }))
     if e is not None:
         dds.shutdown()
@@ -199,8 +156,6 @@ def device_tree_compute_key():
     return hashlib.md5(dtkey).hexdigest()
 
 def exists_with_md5(path, md5):
-    if os.getenv('DEBUG_DOWNLOADER') == 'true': #debugging for wifi race condition
-        return False
     
     if not os.path.isfile(path):
         return False
@@ -269,18 +224,6 @@ def validate_sd():
     if not found_sdcard:
         report_failure(f"SD card was not mounted in the expected location. If the SD card is inserted, please file a bug.")
 
-def debug_wifi():
-    try:
-        result = subprocess.run(
-            ["/userdata/x1plus/debug_wifi.sh"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        logger.info(result.stdout)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed: {e} | Output: {e.stderr}")
-
 validate_sd()
 
 df = shutil.disk_usage("/mnt/sdcard")
@@ -288,16 +231,8 @@ if df.free < demand_free_space:
     report_failure(f"The SD card does not have enough free space. Make sure that at least {demand_free_space//(1024*1024)} MB are available.")
 
 if not os.path.isfile("/sys/devices/virtual/misc/loop-control/dev"):
-    try:
-        subprocess.run(
-            ["insmod", f"{installer_path}/loop.ko"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-    except subprocess.CalledProcessError as e:
-        report_failure(f"Failed to load loopback kernel module. Error: {e.stderr}")
-
+   if os.system(f"insmod {installer_path}/loop.ko") != 0:
+        report_failure("Failed to load loopback kernel module.")
 report_success()
 
 if os.path.isfile("/oem/device/sn"):
@@ -313,18 +248,15 @@ if not os.path.isfile(backup_path):
     report_progress("Backing up printer configuration")
     try:
         os.makedirs(os.path.dirname(backup_path), exist_ok = True)
-        files = " ".join(["/oem", "/config", "/userdata/cfg"] + glob.glob("/userdata/upgrade.json") + glob.glob("/userdata/upgrade/firmware/*.json"))
-        subprocess.run(
-            f"tar cvf {backup_path} {files}",
-            shell=True,
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        os.system("sync")
-        report_success()
-    except subprocess.CalledProcessError as e:
-        report_failure(f"Error while creating {backup_path}. Error: {e.stderr}")
+    except:
+        pass # whatever, we'll catch it in a moment anyway
+    files = [ "/oem", "/config", "/userdata/cfg" ]
+    files += glob.glob("/userdata/upgrade.json")
+    files += glob.glob("/userdata/upgrade/firmware/*.json")
+    if os.system(f"tar cvf {backup_path} {' '.join(files)}") != 0:
+        report_failure(f"Error while creating {backup_path}.")
+    os.system("sync")
+    report_success()
 
 # validate that we're on a machine that has a supported device tree
 report_progress("Checking system compatibility")
@@ -334,7 +266,7 @@ if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"
 
 report_success()
 
-debug_wifi()
+os.system("/userdata/x1plus/debug_wifi.sh")
 
 def download_firmware(update_url, dest_path):
     headers = {
@@ -395,8 +327,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
         if download_firmware(basefw_update_url, basefw_update_path):
             report_interim_progress("Verifying download...")
             if not exists_with_md5(basefw_update_path, basefw_update_md5):
-                if not os.getenv('DEBUG_DOWNLOADER'): 
-                    report_failure("Checksum on downloaded file failed.")
+                report_failure("Checksum on downloaded file failed.")
             else:
                 report_success()
         else:
@@ -500,12 +431,7 @@ if skip_ext4_create:
     report_progress("Preserved existing writable rootfs")
     if not system_is_sd_boot():
         os.makedirs("/tmp/rw_ext4", exist_ok = True)
-        try:
-            subprocess.run(
-                ["mount", "-o", "loop,ro", f"{rw_ext4}", "/tmp/rw_ext4"],
-                check=True
-            )
-        except subprocess.CalledProcessError:
+        if os.system(f"mount -o loop,ro {rw_ext4} /tmp/rw_ext4") != 0:
             report_failure(f"{rw_ext4} appears not to be mountable, but it was otherwise going to be preserved.")
         os.system("umount /tmp/rw_ext4")
 else:
@@ -513,25 +439,20 @@ else:
     try:
         with open(rw_ext4, "a+b") as f:
             f.truncate(fs_size)
-        subprocess.run(
-            ["mkfs.ext4", "-F", rw_ext4],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        subprocess.run(
-            ["mount", "-o", "loop", rw_ext4, "/tmp/rw_ext4"],
-            check=True
-        )
+        if os.system(f"mkfs.ext4 -F {rw_ext4}") != 0:
+            raise RuntimeError("mkfs.ext4 returned error")
+        os.makedirs("/tmp/rw_ext4", exist_ok = True)
+        if os.system(f"mount -o loop {rw_ext4} /tmp/rw_ext4") != 0:
+            raise RuntimeError("mount returned error")
         os.makedirs("/tmp/rw_ext4/upper", exist_ok = True)
         os.makedirs("/tmp/rw_ext4/work", exist_ok = True)
         os.chmod("/tmp/rw_ext4/upper", 0o755)
         os.chmod("/tmp/rw_ext4/work", 0o755)
         os.system("umount /tmp/rw_ext4")
         os.system("sync")
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         os.unlink(rw_ext4)
-        report_failure(f"Failed to create ext4 filesystem in {rw_ext4}. Error: {e.stderr}")
+        report_failure(f"Failed to create ext4 filesystem in {rw_ext4}.", e)
     report_success()
 
 report_progress("Copying custom firmware")

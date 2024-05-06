@@ -25,16 +25,11 @@
 <file>printerui/qml/EmbededInputPanel.qml</file>
 <file>printerui/qml/EmergencyConsole.qml</file>
 <file>printerui/qml/SimplePager.qml</file>
-<file>printerui/qml/WifiIcon.qml</file>
 <file>printerui/qml/settings/CarbonFunction.qml</file>
 <file>printerui/image/cfw.png</file>
 <file>printerui/image/exclamation.svg</file>
 <file>printerui/image/roundHook.svg</file>
 <file>printerui/image/up.svg</file>
 <file>printerui/image/return.svg</file>
-<file>printerui/image/wifi_0.svg</file>
-<file>printerui/image/wifi_1.svg</file>
-<file>printerui/image/wifi_2.svg</file>
-<file>printerui/image/wifi_3.svg</file>
 <file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
 </qresource></RCC>
