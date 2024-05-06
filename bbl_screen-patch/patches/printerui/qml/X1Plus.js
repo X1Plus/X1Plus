@@ -11,6 +11,7 @@
 .import "./x1plus/ShaperCalibration.js" as X1PlusShaperCalibration
 .import "./x1plus/DBus.js" as X1PlusDBus
 .import "./x1plus/Settings.js" as X1PlusSettings
+.import "./x1plus/TempGraph.js" as X1PlusTempGraph
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -54,6 +55,8 @@ X1Plus.DBus = X1PlusDBus;
 var DBus = X1PlusDBus;
 X1Plus.Settings = X1PlusSettings;
 var Settings = X1PlusSettings;
+X1Plus.TempGraph = X1PlusTempGraph;
+var TempGraph = X1PlusTempGraph;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -62,6 +65,7 @@ ShaperCalibration.X1Plus = X1Plus;
 GpioKeys.X1Plus = X1Plus;
 DBus.X1Plus = X1Plus;
 Settings.X1Plus = X1Plus;
+TempGraph.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -151,6 +155,7 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();
+	TempGraph.awaken();
 }
 
 X1Plus.DBus.registerMethod("ping", (param) => {
