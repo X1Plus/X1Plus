@@ -48,6 +48,7 @@
 #include <QtGui/QWindow>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <QtQuick/QQuickView>
 #include <rfb/rfb.h>
 
 #define SWIZZLE(rtype, name, ...) \
@@ -190,53 +191,74 @@ static void fb_transpose_neon(uint32_t __restrict *fbout, uint32_t __restrict *f
     rfbMarkRectAsModified(rfbScreen, sx, sy, sx+dx, sy+dy);
 }
 
-#define _SYS_IOCTL_H 1 // I need to swizzle this later, leave me alone
-#include <linux/input.h>
+static QQuickView *toplevel;
+SWIZZLE(void, _ZN10QQuickViewC1EP7QWindow, QQuickView *self, QWindow *win)
+    printf("QQuickView %p is the top level to forward VNC events to\n", self);
+    toplevel = self;
+    next(self, win);
+}
+
+static Qt::KeyboardModifiers cur_modifiers = Qt::NoModifier;
 
 static void vnc_ptr_event(int button_mask, int x, int y, struct _rfbClientRec *cl) {
     static int last_button_mask = 0;
     
     if (button_mask || last_button_mask) {
-        /* TODO: either inject this through Qt or at least find the right evdev for it */
-        int fd = open("/dev/input/event1", O_RDWR);
-        struct input_event ev;
-        struct timeval tv;
-        
-        gettimeofday(&tv, 0);
-        ev.input_event_sec = tv.tv_sec;
-        ev.input_event_usec = tv.tv_usec;
-        
-        ev.type = EV_ABS;
-        ev.code = ABS_MT_TRACKING_ID;
-        ev.value = button_mask ? 31337 : -1;
-        write(fd, &ev, sizeof(ev));
-        
-        ev.code = ABS_MT_POSITION_X;
-        ev.value = y;
-        write(fd, &ev, sizeof(ev));
-        
-        ev.code = ABS_MT_POSITION_Y;
-        ev.value = 1279 - x;
-        write(fd, &ev, sizeof(ev));
-        
-        ev.type = EV_SYN;
-        ev.code = 0;
-        ev.value = 0;
-        write(fd, &ev, sizeof(ev));
-        
-        close(fd);
-#if 0
-        QGraphicsSceneMouseEvent event(button_mask ? QEvent::GraphicsSceneMousePress : QEvent::GraphicsSceneMouseRelease);
-        event.setScenePos(QPointF(x, y));
-        event.setButton(Qt::LeftButton);
-        event.setButtons(Qt::LeftButton);
-        printf("CLiCKY: %d %d\n", x, y);
-        printf("TOPLEVELAT: %p\n", QApplication::widgetAt(QPoint(x, y)));
-        //qDebug() << QApplication::topLevelWindows()[0];
-        QApplication::sendEvent(QApplication::topLevelWindows()[0], &event);
-#endif
+        QMouseEvent *event = new QMouseEvent(
+            button_mask == last_button_mask ? QEvent::MouseMove :
+            button_mask ? QEvent::MouseButtonPress
+                        : QEvent::MouseButtonRelease,
+            QPointF(x, y),
+            Qt::LeftButton,
+            button_mask ? Qt::LeftButton : Qt::NoButton,
+            cur_modifiers);
+        QApplication::postEvent(toplevel, event);
     }
     last_button_mask = button_mask;
+}
+
+/* from QVncClient, roughly */
+#include "qvnc_keys.h"
+
+static void vnc_kbd_event(rfbBool down, rfbKeySym key, struct _rfbClientRec *cl) {
+    int unicode;
+    int keycode;
+
+    unicode = 0;
+    keycode = 0;
+    int i = 0;
+    while (keyMap[i].keysym && !keycode) {
+        if (keyMap[i].keysym == static_cast<int>(key))
+            keycode = keyMap[i].keycode;
+        i++;
+    }
+
+    if (keycode >= ' ' && keycode <= '~')
+        unicode = keycode;
+
+    if (!keycode) {
+        if (key <= 0xff) {
+            unicode = key;
+            if (key >= 'a' && key <= 'z')
+                keycode = Qt::Key_A + key - 'a';
+            else if (key >= ' ' && key <= '~')
+                keycode = Qt::Key_Space + key - ' ';
+        }
+    }
+    
+    if (keycode == Qt::Key_Shift) {
+        cur_modifiers = down ? (cur_modifiers | Qt::ShiftModifier) : (cur_modifiers & ~Qt::ShiftModifier);
+    } else if (keycode == Qt::Key_Control) {
+        cur_modifiers = down ? (cur_modifiers | Qt::ControlModifier) : (cur_modifiers & ~Qt::ControlModifier);
+    } else if (keycode == Qt::Key_Alt) {
+        cur_modifiers = down ? (cur_modifiers | Qt::AltModifier) : (cur_modifiers & ~Qt::AltModifier);
+    }
+    
+    if (keycode || unicode) {
+        /* XXX: this does not fire QShortcuts like ctrl-O properly */
+        QKeyEvent *event = new QKeyEvent(down ? QEvent::KeyPress : QEvent::KeyRelease, keycode, cur_modifiers, QString(unicode));
+        QApplication::postEvent(toplevel, event);
+    }
 }
 
 static enum rfbNewClientAction vnc_new_client(struct _rfbClientRec *cl) {
@@ -259,13 +281,13 @@ static void vnc_do_flip(void *fb) {
         rfbScreen->desktopName = "X1Plus";
         rfbScreen->alwaysShared = TRUE;
         rfbScreen->ptrAddEvent = vnc_ptr_event;
+        rfbScreen->kbdAddEvent = vnc_kbd_event;
         rfbScreen->newClientHook = vnc_new_client;
         rfbScreen->httpDir = strdup("/opt/vnchttp");
         rfbScreen->httpEnableProxyConnect = TRUE;
         rfbInitServer(rfbScreen); 
         /* TODO: lan access code = password */
         /* TODO: fire up novnc / vnc websocket */
-        /* TODO: add keyboard support */
         pthread_t vnc_pth;
         pthread_create(&vnc_pth, NULL, vnc_thread, NULL);
     }
