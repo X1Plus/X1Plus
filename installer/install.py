@@ -278,20 +278,12 @@ def download_firmware(update_url, dest_path):
     report_interim_progress("Connecting...")
     success = False
     retry = 1
-    while success == False:
+    while success == False and retry < 20:
         try:
             resp = requests.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/")
             resp.raise_for_status()
-        except requests.Timeout as e:
-            report_interim_progress(f"Timeout occurred: {e} ... retry {retry}")
-            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
-            retry += 1
-        except requests.exceptions.HTTPError as e:
-            report_interim_progress(f"HTTP Error: {e.response.status_code} {e.response.reason} ... retry {retry}")
-            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
-            retry += 1
-        except requests.exceptions.RequestException as e:
-            report_interim_progress(f"Request Exception: {e} ... retry {retry}")
+        except (requests.Timeout, requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+            report_interim_progress(f"{e.__class__.__name__}: {e} ... retry {retry}")
             time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         except Exception as e:
@@ -300,6 +292,10 @@ def download_firmware(update_url, dest_path):
             retry += 1
         else:
             success = True
+
+    # max retries, we give up
+    if success != True:
+        report_failure(f"Download failed.")
 
     with open(dest_path, "wb") as f:
         totlen = int(resp.headers.get('content-length', 0))
