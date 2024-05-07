@@ -2,6 +2,8 @@
 #
 # Start logging
 
+. /opt/x1plus/libexec/functions.sh
+
 SYSLOGD_ARGS="-n -O /tmp/syslog.log -s 4096 -b 4"
 KLOGD_ARGS=-n
 DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
@@ -10,7 +12,7 @@ start() {
 	printf "Starting logging: "
 
 	# If persist is enabled, log to card
-	if [ -f "/mnt/sdcard/x1plus/printers/$DEVICE_SN/logsd" ]; then
+	if x1p_get_setting boot.sdcard_syslog logsd; then
 		if [ ! -d "/mnt/sdcard/log/" ]; then
 			/bin/mkdir -p "/mnt/sdcard/log/"
 		fi
