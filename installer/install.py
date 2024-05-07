@@ -282,7 +282,8 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
         try:
             os.makedirs(os.path.dirname(basefw_update_path), exist_ok = True)
             report_interim_progress("Connecting...")
-            with urllib.request.urlopen(basefw_update_url, capath="/etc/ssl/certs") as resp, \
+            req = urllib.request.Request(basefw_update_url, data = None, headers = { 'User-Agent': f'X1Plus/{cfw_version}' })
+            with urllib.request.urlopen(req, capath="/etc/ssl/certs") as resp, \
                  open(basefw_update_path, "wb") as f:
                 totlen = resp.getheader('content-length')
                 curlen = 0
