@@ -119,6 +119,8 @@ globfiles("cfw/system", "/system", eatlinks = True)
 globfiles("cfw/opt", "/opt", eatlinks = True)
 globfiles("site-packages", "/opt/python/lib/python3.10/site-packages")
 
+symlink('/usr/libexec/sftp-server', '/usr/libexec/gesftpserver')
+
 with tarfile.open('../prebuilt/python3.tar.gz', 'r') as itf:
     for ti in itf.getmembers():
         if ti.name[:2] == './':
