@@ -31,6 +31,7 @@ import time
 import filecmp
 import glob
 import re
+import subprocess
 
 # XXX: have config for filesystem size
 installer_path = os.path.dirname(__file__) # will get cleaned out on boot
@@ -69,7 +70,7 @@ def report_success():
 
 def report_failure(why, e = None):
     print(f"... failed ({why})")
-    
+
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_failure': why }))
     if e is not None:
         dds.shutdown()
@@ -91,7 +92,7 @@ def ask_permission(what):
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'prompt_yesno': what }))
     print(f"[?] {what}")
     print("y/n")
-    
+
     # This is sort of a cheesy way to impedance-match these two inputs, but
     # it is what it is.
     while True:
@@ -156,7 +157,6 @@ def device_tree_compute_key():
     return hashlib.md5(dtkey).hexdigest()
 
 def exists_with_md5(path, md5):
-    
     if not os.path.isfile(path):
         return False
 
@@ -241,7 +241,7 @@ else:
     if os.system("bbl_3dpsn 2>/dev/null > /tmp/.bambu_sn") != 0:
         report_failure("Failed to get device serial number from bbl_3dpsn. Are you on the right BBL firmware version?")
     sn = open("/tmp/.bambu_sn", "r").read()
-    
+
 backup_path = f"{boot_path}/printers/{sn}/backups.tar"
 if not os.path.isfile(backup_path):
     # We only do this once, ideally to grab the keys and config in a pristine state.
@@ -266,22 +266,21 @@ if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"
 
 report_success()
 
-os.system("/userdata/x1plus/debug_wifi.sh")
 
 def download_firmware(update_url, dest_path):
-    headers = {
-        'User-Agent': f"Python-urllib/3.{sys.version_info.minor}"
-    }
-    
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    if os.system("ping -c 3 -W 1000 8.8.8.8") != 0: 
+        report_failure("Network is unreachable. Please check your WiFi connection.")
+        return False
 
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     report_interim_progress("Connecting...")
     success = False
     retry = 1
     while success == False and retry < 20:
         try:
-            resp = requests.get(update_url, headers=headers, stream=True, verify="/etc/ssl/certs/")
+            resp = requests.get(update_url, headers={'User-Agent': f'X1Plus/{cfw_version}'}, stream=True, verify="/etc/ssl/certs/")
             resp.raise_for_status()
+            success = True
         except (requests.Timeout, requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
             report_interim_progress(f"{e.__class__.__name__}: {e} ... retry {retry}")
             time.sleep( pow( 2, retry ) if retry < 4 else 16 )
@@ -291,26 +290,19 @@ def download_firmware(update_url, dest_path):
             time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         else:
-            success = True
+            with open(dest_path, "wb") as f:
+                totlen = int(resp.headers.get('content-length', 0))
+                curlen = 0
 
-    # max retries, we give up
-    if success != True:
-        report_failure(f"Download failed.")
-
-    with open(dest_path, "wb") as f:
-        totlen = int(resp.headers.get('content-length', 0))
-        curlen = 0
-
-        for buf in resp.iter_content(chunk_size=131072):
-            if not buf:
-                break
-            f.write(buf)
-            curlen += len(buf)
-            curlen_mb = round(int(curlen) / 1024 / 1024, 2)
-            totlen_mb = round(int(totlen) / 1024 / 1024, 2)
-            report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
-        return True
-    return False
+                for buf in resp.iter_content(chunk_size=131072):
+                    if not buf:
+                        break
+                    f.write(buf)
+                    curlen += len(buf)
+                    curlen_mb = round(int(curlen) / 1024 / 1024, 2)
+                    totlen_mb = round(int(totlen) / 1024 / 1024, 2)
+                    report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
+            return success
 
 # see if we already have a repacked base filesystem
 basefw_squashfs_path = f"{boot_path}/images/{basefw_squashfs}"
@@ -328,7 +320,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
                 report_success()
         else:
             report_failure(f"Download failed.")
-    
+
     report_progress("Uncompressing base firmware")
     report_interim_progress("<i>This bit takes a while.</i>")
     print("decrypting")
@@ -338,7 +330,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
     if rv != 0:
         report_failure("Failed to verify original Bambu Lab update.")
     unpack_path = f"{installer_path}/{basefw_update}"[:-4]
-    
+
     report_interim_progress("Really, go get a cup of tea or something.")
     print("unzipping")
     # unpack the update.img
@@ -360,7 +352,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
             f.seek(0x21)
             rkafoff, rkafsize = struct.unpack("<LL", f.read(8))
             print(f"RKFW header: RKAF @ {rkafoff}, sz {rkafsize}")
-            
+
             # RKAF header next
             f.seek(rkafoff)
             if f.read(4) != b'RKAF':
@@ -379,7 +371,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
             print(f"RKAF header: rootfs at {rootfsoff}")
     except Exception as e:
         report_failure("Failed to unpack original Bambu Lab update.", e)
-    
+
     # actually do the repacking
     try:
         with open(update_img_path, "rb") as f:
@@ -399,7 +391,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
                     raise RuntimeError("failed to invoke gensquashfs")
     except Exception as e:
         report_failure("Failed to repack original Bambu Lab update.", e)
-    
+
     if not exists_with_md5(basefw_update_path, basefw_update_md5):
         report_failure("Generated base filesystem has incorrect digest.")
     report_success()
@@ -516,7 +508,7 @@ def bootloader_is_outdated(path):
 def install_bootloader_in_path(path):
     # We try to be a little more careful here -- we do this in a
     # sequence that ought be safe.
-    
+
     # Don't install on anything newer than a version that we know is ok.
     try:
         with open(f"{path}/etc/bblap/Version", "r") as apvf:
@@ -525,7 +517,7 @@ def install_bootloader_in_path(path):
                 raise RuntimeError(f"rootfs version {apv} too new to install bootloader")
     except Exception as e:
         return e
-    
+
     # Before we go fiddling with anything, make sure there is not an old
     # init script that can end up in a bad state.
     for script in ["S48kexec", "S75kexec"]:
@@ -534,22 +526,22 @@ def install_bootloader_in_path(path):
         except FileNotFoundError as e:
             pass
     os.system("sync")
-    
+
     try:
         # Now we can copy in the stub...
         shutil.rmtree(f"{path}/opt/kexec", ignore_errors = True)
         os.makedirs(f"{path}/opt", exist_ok = True)
         shutil.copytree(f"{installer_path}/kexec", f"{path}/opt/kexec")
         os.system("sync")
-        
+
         # Write the start script...
         shutil.copy(f"{installer_path}/S75kexec", f"{path}/etc/init.d/x75kexec")
         os.system("sync")
-        
+
         # ... then rename it as atomically as an inexpensive eMMC will let us.
         os.rename(f"{path}/etc/init.d/x75kexec", f"{path}/etc/init.d/S75kexec")
         os.system("sync")
-        
+
     except Exception as e:
         return e
 

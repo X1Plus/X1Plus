@@ -19,7 +19,8 @@ Rectangle {
     property var x1pName: null
     property var secondaryStatusText: null /* "<i>Blah</i>" */
     property var statusModel: [ ] /* [ ["success", "thing 1"], ["", "thing 2"], ["failure", "failed thing 3" ] ] */
-   
+    property bool showBackButton: false
+    
     function gotDdsEvent(topic, dstr) {
         if (topic == "device/report/upgrade") {
             console.log("DDS event", topic, dstr);
@@ -103,13 +104,14 @@ Rectangle {
                 X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
             } else {
                 console.log("[x1p] failed to unpack x1p file");
-                dialogStack.replace("SelectX1pPage.qml"); //send user back to selection page
+                showBackButton = true;
             }
         }
     }
     
     Component.onCompleted: {
         if (x1pName) {
+            showBackButton = false;
             statusModel.push(["", qsTr("Unpacking installer")]);
             secondaryStatusText = qsTr("Extracting %1 to internal storage.").arg(x1pName);
             statusModel = statusModel;
@@ -128,13 +130,28 @@ Rectangle {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.topMargin: 48
-        anchors.leftMargin: 48
+        anchors.leftMargin: 48*1.5
         anchors.right: parent.right
         font: Fonts.head_48
         color: Colors.brand
         text: qsTr("X1Plus custom firmware installation")
     }
-    
+    ZButton {
+        id: backButton
+        visible: showBackButton
+        anchors.verticalCenter: titlelabel.verticalCenter
+        anchors.right: titlelabel.left
+        anchors.leftMargin: -width * 0.38 // fudge it to align with the button
+        height: width
+        width: 80
+        cornerRadius: width / 2
+        iconSize: 40
+        type: ZButtonAppearance.Secondary
+        icon: "../image/return.svg"
+        onClicked: {
+            dialogStack.replace("SelectX1pPage.qml");
+        }
+    }
     ZLineSplitter {
         id: splitter
         height: 2
