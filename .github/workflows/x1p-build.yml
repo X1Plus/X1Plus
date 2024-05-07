@@ -51,17 +51,12 @@ jobs:
         translation: '%locale%/Firmware/base.ts'
         project_id: 659058
         token: ${{ secrets.CROWDIN_UPLOAD_SOURCE_TOKEN }}
-    - name: remote upload x1p artifact
-      if: startsWith(github.ref, 'refs/tags/x1plus/') || startsWith(github.ref, 'refs/heads/main')
-      run: |
-        for file in *.x1p; do
-          echo "Uploading ${file}";
-          curl \
-            -u '${{ secrets.REMOTE_UPLOAD_USERNAME }}:${{ secrets.REMOTE_UPLOAD_PASSWORD }}' \
-            -T "${file}" \
-            -g "${{ secrets.REMOTE_UPLOAD_URL }}${{ secrets.REMOTE_UPLOAD_USERNAME }}${{ secrets.REMOTE_UPLOAD_PATH }}" \
-            && echo "### X1P build ${file} uploaded to the remote location! :rocket:" >> $GITHUB_STEP_SUMMARY
-        done
+    - name: upload x1p artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: x1p
+        path: |
+          *.x1p
     - name: upload release x1p
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/x1plus/') 
