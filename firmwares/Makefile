@@ -20,6 +20,11 @@ define fetchimage =
 	../scripts/repack_update.py $(3) $(4)
 endef
 
+define fetchimage_fullurl =
+	wget -q -N -c "$(1)/$(2)"
+	../scripts/repack_update.py $(2) $(3)
+endef
+
 00.00.19.15.squashfs:
 	$(call fetchimage,01.05.01.00,,update-v00.00.19.15-20230423131316_product.img.zip.sig,$@)
 
@@ -49,3 +54,6 @@ endef
 
 00.00.32.17.squashfs:
 	$(call fetchimage,01.07.03.05,79a426f63e/,update-v00.00.32.17-20240409222723_product.img.zip.sig,$@)
+
+00.00.32.18.squashfs:
+	$(call fetchimage_fullurl,https://public-cdn.bblmw.com/upgrade/device/BL-P001/01.08.00.00/product/45ea644d25,update-v00.00.32.18-20240422102213_product.img.zip.sig,$@)
