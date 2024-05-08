@@ -4,6 +4,7 @@
 
 start() {
   # Determine if we are enabled or not
+  # TODO: Migrate to x1p_get_setting once bbl_screen moves over to settings.json
   SHIELD_FLAG=$(jq -r '.cfw_shield' /config/screen/printer.json)
   # If unset in UI, default to disable
   if [ "${SHIELD_FLAG}" == "null" ]; then
