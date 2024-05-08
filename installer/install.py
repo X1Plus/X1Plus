@@ -268,16 +268,15 @@ report_success()
 
 
 def download_firmware(update_url, dest_path):
-    if os.system("ping -c 3 -W 1000 8.8.8.8") != 0: 
-        report_failure("Network is unreachable. Please check your WiFi connection.")
-        return False
-
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     report_interim_progress("Connecting...")
     success = False
     retry = 1
     while success == False and retry < 20:
         try:
+            if os.system("ping -c 3 -W 1000 8.8.8.8") != 0:
+                report_interim_progress("Network is unreachable. Please check your WiFi connection.")
+                time.sleep(5)
             resp = requests.get(update_url, headers={'User-Agent': f'X1Plus/{cfw_version}'}, stream=True, verify="/etc/ssl/certs/")
             resp.raise_for_status()
             success = True
