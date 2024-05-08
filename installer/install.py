@@ -277,9 +277,8 @@ def download_firmware(update_url, dest_path):
             if os.system("ping -c 3 -W 1000 8.8.8.8") != 0:
                 report_interim_progress("Network is unreachable. Please check your WiFi connection.")
                 time.sleep(5)
-            resp = requests.get(update_url, headers={'User-Agent': f'X1Plus/{cfw_version}'}, stream=True, verify="/etc/ssl/certs/")
+            resp = requests.get(update_url, headers={'User-Agent': f'X1Plus/{cfw_version}'}, stream=True, verify="/etc/ssl/certs/", timeout=30)
             resp.raise_for_status()
-            success = True
         except (requests.Timeout, requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
             report_interim_progress(f"{e.__class__.__name__}: {e} ... retry {retry}")
             time.sleep( pow( 2, retry ) if retry < 4 else 16 )
@@ -289,19 +288,29 @@ def download_firmware(update_url, dest_path):
             time.sleep( pow( 2, retry ) if retry < 4 else 16 )
             retry += 1
         else:
-            with open(dest_path, "wb") as f:
+            try:
                 totlen = int(resp.headers.get('content-length', 0))
                 curlen = 0
-
-                for buf in resp.iter_content(chunk_size=131072):
-                    if not buf:
-                        break
-                    f.write(buf)
-                    curlen += len(buf)
-                    curlen_mb = round(int(curlen) / 1024 / 1024, 2)
-                    totlen_mb = round(int(totlen) / 1024 / 1024, 2)
-                    report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
-            return success
+                with open(dest_path, "wb") as f:
+                    for buf in resp.iter_content(chunk_size=131072):
+                        if not buf:
+                            break
+                        f.write(buf)
+                        curlen += len(buf)
+                        curlen_mb = round(int(curlen) / 1024 / 1024, 2)
+                        totlen_mb = round(int(totlen) / 1024 / 1024, 2)
+                        report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)")
+                if curlen == totlen:
+                    success = True
+                else:
+                    report_interim_progress(f"Error - downloaded {curlen} bytes, expected {totlen} ... retry {retry}")
+                    time.sleep( pow( 2, retry ) if retry < 4 else 16 )
+                    retry += 1
+            except Exception as e:
+                report_interim_progress(f"An error occurred: {e} ... retry {retry}")
+                time.sleep( pow( 2, retry ) if retry < 4 else 16 )
+                retry += 1
+    return success
 
 # see if we already have a repacked base filesystem
 basefw_squashfs_path = f"{boot_path}/images/{basefw_squashfs}"
