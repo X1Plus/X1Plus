@@ -35,12 +35,12 @@ like:
 ```
 $ git clone ...
 $ cd X1Plus
-$ docker build -t x1plusbuild scripts/docker/
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global --add safe.directory /work'
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make scripts
+$ sudo docker build -t x1plusbuild scripts/docker/
+$ sudo docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global --add safe.directory /work'
+$ sudo docker run -u `id -u` -v `pwd`:/work x1plusbuild make scripts
 $ scp scripts/getkey root@bambu:/tmp
 $ ssh root@bambu /tmp/getkey >> localconfig.mk
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make
+$ sudo docker run -u `id -u` -v `pwd`:/work x1plusbuild make
 ```
 
 With some luck, you should get a `.x1p` file in your working directory!  You
