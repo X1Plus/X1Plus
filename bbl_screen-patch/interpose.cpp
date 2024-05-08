@@ -776,16 +776,6 @@ SWIZZLE(void *, _ZN7QObjectC2EPS_, void *p1, void *p2)
 
 static QMap<QByteArray, QString> *langmap;
 
-SWIZZLE(void *, _Z12bbl_get_propNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_bb, void *a, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s1, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s2, bool b1, bool b2)
-    if (lang_init == 3 && *s1 == "device/model_int") {
-        printf("LANG INTERPOSE: found init for DeviceManager\n");
-        void **DeviceManager = (void **)last_qobject;
-        langmap = (QMap<QByteArray, QString> *) (DeviceManager + 9);
-        lang_init++;
-    }
-    return next(a, s1, s2, b1, b2);
-}
-
 SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
     if (s && strcmp(s, "en") == 0) {
         if (lang_init == 0) {
@@ -801,17 +791,18 @@ SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
                 lang_init = -1;
             }
         } else if (lang_init == 3) {
-            printf("LANG INTERPOSE: saw en for round 1 language default initializer\n");
+            printf("LANG INTERPOSE: saw en for round 1 language default initializer, qByteArray at %p, lr = %p\n", qba, __builtin_return_address(0));
+            langmap = (QMap <QByteArray, QString>*)(((void **)qba) - 1);
             lang_init++;
         } else if (lang_init == 4) {
-            printf("LANG INTERPOSE: saw en for round 2 map initializer\n");
+            printf("LANG INTERPOSE: saw en for round 2 map initializer, lr = %p\n", __builtin_return_address(0));
             lang_init++;
             if (*(void **)langmap != &QMapDataBase::shared_null) {
                 printf("LANG INTERPOSE: this bbl_screen does NOT look like the memory mapping we expect... not injecting languages into this version of bbl_screen\n");
                 lang_init = -1;
             }
         } else {
-            printf("LANG INTERPOSE: saw en fly by again... but after lang init?\n");
+            printf("LANG INTERPOSE: saw en fly by again... but after lang init?, lr = %p\n", __builtin_return_address(0));
         }
     } else if (s && strcmp(s, "sv") == 0) {
         if (lang_init == 2 || lang_init == 5) {
@@ -821,7 +812,7 @@ SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
             qDebug() << *langmap;
             lang_init++;
         } else {
-            printf("LANG INTERPOSE: saw sv fly by again... but after lang init?\n");
+            printf("LANG INTERPOSE: saw sv fly by again... but after lang init?, lr = %p\n", __builtin_return_address(0));
         }
     }
 
