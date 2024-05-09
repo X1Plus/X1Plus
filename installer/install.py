@@ -70,7 +70,6 @@ def report_success():
 
 def report_failure(why, e = None):
     print(f"... failed ({why})")
-
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'progress_failure': why }))
     if e is not None:
         dds.shutdown()
@@ -92,7 +91,7 @@ def ask_permission(what):
     dds_tx_pub(json.dumps({ 'command': 'x1plus', 'prompt_yesno': what }))
     print(f"[?] {what}")
     print("y/n")
-
+    
     # This is sort of a cheesy way to impedance-match these two inputs, but
     # it is what it is.
     while True:
@@ -231,8 +230,9 @@ if df.free < demand_free_space:
     report_failure(f"The SD card does not have enough free space. Make sure that at least {demand_free_space//(1024*1024)} MB are available.")
 
 if not os.path.isfile("/sys/devices/virtual/misc/loop-control/dev"):
-   if os.system(f"insmod {installer_path}/loop.ko") != 0:
+    if os.system(f"insmod {installer_path}/loop.ko") != 0:
         report_failure("Failed to load loopback kernel module.")
+
 report_success()
 
 if os.path.isfile("/oem/device/sn"):
@@ -338,7 +338,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
     if rv != 0:
         report_failure("Failed to verify original Bambu Lab update.")
     unpack_path = f"{installer_path}/{basefw_update}"[:-4]
-
+    
     report_interim_progress("Really, go get a cup of tea or something.")
     print("unzipping")
     # unpack the update.img
@@ -350,6 +350,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
     except Exception as e:
         report_failure("Failed to extract original Bambu Lab update.", e)
     report_success()
+    
     report_progress("Extracting base firmware")
     # look for header offsets
     try:
@@ -360,7 +361,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
             f.seek(0x21)
             rkafoff, rkafsize = struct.unpack("<LL", f.read(8))
             print(f"RKFW header: RKAF @ {rkafoff}, sz {rkafsize}")
-
+            
             # RKAF header next
             f.seek(rkafoff)
             if f.read(4) != b'RKAF':
@@ -379,7 +380,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
             print(f"RKAF header: rootfs at {rootfsoff}")
     except Exception as e:
         report_failure("Failed to unpack original Bambu Lab update.", e)
-
+    
     # actually do the repacking
     try:
         with open(update_img_path, "rb") as f:
@@ -399,7 +400,7 @@ if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
                     raise RuntimeError("failed to invoke gensquashfs")
     except Exception as e:
         report_failure("Failed to repack original Bambu Lab update.", e)
-
+    
     if not exists_with_md5(basefw_update_path, basefw_update_md5):
         report_failure("Generated base filesystem has incorrect digest.")
     report_success()
@@ -516,7 +517,7 @@ def bootloader_is_outdated(path):
 def install_bootloader_in_path(path):
     # We try to be a little more careful here -- we do this in a
     # sequence that ought be safe.
-
+    
     # Don't install on anything newer than a version that we know is ok.
     try:
         with open(f"{path}/etc/bblap/Version", "r") as apvf:
@@ -525,7 +526,7 @@ def install_bootloader_in_path(path):
                 raise RuntimeError(f"rootfs version {apv} too new to install bootloader")
     except Exception as e:
         return e
-
+    
     # Before we go fiddling with anything, make sure there is not an old
     # init script that can end up in a bad state.
     for script in ["S48kexec", "S75kexec"]:
@@ -534,22 +535,22 @@ def install_bootloader_in_path(path):
         except FileNotFoundError as e:
             pass
     os.system("sync")
-
+    
     try:
         # Now we can copy in the stub...
         shutil.rmtree(f"{path}/opt/kexec", ignore_errors = True)
         os.makedirs(f"{path}/opt", exist_ok = True)
         shutil.copytree(f"{installer_path}/kexec", f"{path}/opt/kexec")
         os.system("sync")
-
+        
         # Write the start script...
         shutil.copy(f"{installer_path}/S75kexec", f"{path}/etc/init.d/x75kexec")
         os.system("sync")
-
+        
         # ... then rename it as atomically as an inexpensive eMMC will let us.
         os.rename(f"{path}/etc/init.d/x75kexec", f"{path}/etc/init.d/S75kexec")
         os.system("sync")
-
+        
     except Exception as e:
         return e
 

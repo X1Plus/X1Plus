@@ -15,7 +15,7 @@ Rectangle {
     width: 1280
     height: 720
     color: Colors.gray_500
-
+    
     function confirmThenDo(prompt, what, confirm) {
         dialogStack.popupDialog("TextConfirm", {
             name: "installer yesno",

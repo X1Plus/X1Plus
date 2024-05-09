@@ -33,7 +33,7 @@ Rectangle {
         x1pJsons = x1pJsons;
         console.log(x1pNames, x1pJsons);
     }
-
+    
     Component.onDestruction: {
     }
 
