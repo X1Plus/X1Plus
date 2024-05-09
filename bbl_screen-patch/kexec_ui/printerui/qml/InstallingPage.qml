@@ -19,6 +19,7 @@ Rectangle {
     property var x1pName: null
     property var secondaryStatusText: null /* "<i>Blah</i>" */
     property var statusModel: [ ] /* [ ["success", "thing 1"], ["", "thing 2"], ["failure", "failed thing 3" ] ] */
+    property bool showBackButton: false
     
     function gotDdsEvent(topic, dstr) {
         if (topic == "device/report/upgrade") {
@@ -92,18 +93,28 @@ Rectangle {
                 X1PlusNative.system('while true ; do iwconfig wlan0 power off > /dev/null 2>&1 ; sleep 4 ; done &');
             }
 
-            var rv = X1PlusNative.system(`mkdir -p /userdata/x1plus && cd /userdata/x1plus && unzip -p /sdcard/${x1pName} payload.tar.gz | gunzip | tar xv`);
-            // We should probably error check this somehow -- do an XHR to make sure the launch script is there?
-            statusModel[statusModel.length - 1][0] = "success";
-            statusModel = statusModel;
-            secondaryStatusText = "";
-            X1PlusNative.system('mount -o remount,exec /userdata'); // Firmware R mounts it noeexec
-            X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
+            var rv = X1PlusNative.popen(`mkdir -p /userdata/x1plus && cd /userdata/x1plus && unzip -p /sdcard/${x1pName} payload.tar.gz | gunzip | tar xv`);
+            let install_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/userdata/x1plus/install.sh"
+            let resp = X1PlusNative.readFile(install_path);
+            if (resp.byteLength !== 0 && rv !== 0) { /* verify that install.sh exists and.. isn't blank? */
+                statusModel[statusModel.length - 1][0] = "success";
+                statusModel = statusModel;
+                secondaryStatusText = "";
+                X1PlusNative.system('mount -o remount,exec /userdata'); // Firmware R mounts it noeexec
+                X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
+            } else {
+                statusModel[statusModel.length - 1][0] = "failure";
+                statusModel = statusModel;
+                secondaryStatusText = qsTr("Firmware bundle failed to extract (is the file corrupt?).  Redownload the X1P file and copy it to your SD card again, then retry installation.");
+                console.log("[x1p] failed to unpack x1p file");
+                showBackButton = true;
+            }
         }
     }
     
     Component.onCompleted: {
         if (x1pName) {
+            showBackButton = false;
             statusModel.push(["", qsTr("Unpacking installer")]);
             secondaryStatusText = qsTr("Extracting %1 to internal storage.").arg(x1pName);
             statusModel = statusModel;
@@ -122,13 +133,28 @@ Rectangle {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.topMargin: 48
-        anchors.leftMargin: 48
+        anchors.leftMargin: 48*1.5
         anchors.right: parent.right
         font: Fonts.head_48
         color: Colors.brand
         text: qsTr("X1Plus custom firmware installation")
     }
-    
+    ZButton {
+        id: backButton
+        visible: showBackButton
+        anchors.verticalCenter: titlelabel.verticalCenter
+        anchors.right: titlelabel.left
+        anchors.leftMargin: -width * 0.38 // fudge it to align with the button
+        height: width
+        width: 80
+        cornerRadius: width / 2
+        iconSize: 40
+        type: ZButtonAppearance.Secondary
+        icon: "../image/return.svg"
+        onClicked: {
+            dialogStack.replace("SelectX1pPage.qml");
+        }
+    }
     ZLineSplitter {
         id: splitter
         height: 2
