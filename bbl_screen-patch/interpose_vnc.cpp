@@ -22,14 +22,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <QtCore/QObject>
-#include <QtCore/QSettings>
-#include <QtQml/qqml.h>
-#include <QtQml/qjsengine.h>
-#include <QtQml/qjsvalue.h>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -40,14 +32,11 @@
 #include <cstdio>
 #include <sys/mman.h>
 #include <dlfcn.h>
-#include <QtCore/QtEndian>
 
 #include <xf86drm.h>
 #include <QtGui/QRegion>
-#include <QtWidgets/QWidget>
 #include <QtGui/QWindow>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QGraphicsSceneMouseEvent>
 #include <QtQuick/QQuickView>
 #include <rfb/rfb.h>
 
