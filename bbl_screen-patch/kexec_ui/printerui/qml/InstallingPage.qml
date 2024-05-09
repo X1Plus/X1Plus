@@ -103,6 +103,9 @@ Rectangle {
                 X1PlusNative.system('mount -o remount,exec /userdata'); // Firmware R mounts it noeexec
                 X1PlusNative.system(`/userdata/x1plus/install.sh &`); // this will soon start communicating with us over DDS, hopefully
             } else {
+                statusModel[statusModel.length - 1][0] = "failure";
+                statusModel = statusModel;
+                secondaryStatusText = qsTr("Firmware bundle failed to extract (is the file corrupt?).  Redownload the X1P file and copy it to your SD card again, then retry installation.");
                 console.log("[x1p] failed to unpack x1p file");
                 showBackButton = true;
             }
