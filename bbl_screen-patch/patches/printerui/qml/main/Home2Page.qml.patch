@@ -26,7 +26,7 @@
      property var stateIcons: {
          var icons = []
          if (RecordManager.isTimelapseOn) {
-@@ -297,20 +304,28 @@
+@@ -297,20 +304,27 @@
          topMargin: statusPanel.topMargin
          bottomMargin: statusPanel.bottomMargin
          color: hmsItem.visible ? Colors.gray_700: Colors.gray_600
@@ -34,12 +34,12 @@
 +        
 +        
          ZCarouselView {
-+            visible: !is_showing_graph
              anchors.fill: parent
              anchors.margins: 10
              interval: 10000
              orientation: Qt.Vertical
-             visible: !hmsItem.visible && !printStep.visible
+-            visible: !hmsItem.visible && !printStep.visible
++            visible: !hmsItem.visible && !printStep.visible && !is_showing_graph
              model: carouselImages.length === 0
 -                   ? [ "file:" + defaultImage + "exhibition1.png" ]
 +                   ? [ img_print ]
