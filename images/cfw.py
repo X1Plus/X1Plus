@@ -111,6 +111,10 @@ whiteout('/lib/optee_armtz/e6a33ed4-562b-463a-bb7e-ff5e15a493c8.ta')
 whiteout('/lib/optee_armtz/f157cda0-550c-11e5-a6fa-0002a5d5c51b.ta')
 whiteout('/lib/optee_armtz/ffd2bded-ab7d-4988-95ee-e4962fff7154.ta')
 
+whiteout('/usr/share/ca-certificates/mozilla/DST_Root_CA_X3.crt')
+whiteout('/etc/ssl/certs/DST_Root_CA_X3.pem')
+whiteout('/etc/ssl/certs/2e5ac55d.0')
+
 globfiles("cfw/etc", "/etc")
 globfiles("cfw/usr", "/usr", eatlinks = [ 'bin/jq' ])
 globfiles("cfw/lib", "/lib")
@@ -118,6 +122,8 @@ globfiles("cfw/sbin", "/sbin")
 globfiles("cfw/system", "/system", eatlinks = True)
 globfiles("cfw/opt", "/opt", eatlinks = True)
 globfiles("site-packages", "/opt/python/lib/python3.10/site-packages")
+
+symlink('/usr/libexec/sftp-server', '/usr/libexec/gesftpserver')
 
 with tarfile.open('../prebuilt/python3.tar.gz', 'r') as itf:
     for ti in itf.getmembers():

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# X1Plus Daemon, our Python do-it-all script that interfaces with DDS.
+# X1Plus Daemon, our Python do-it-all script that interfaces with Dbus.
 
 start() {
 	printf "Starting x1plusd: "

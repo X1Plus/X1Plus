@@ -6,6 +6,7 @@ HOST_KEYFILE="${CONFIG_DIR}/dropbear_ecdsa_host_key"
 PIDFILE="/var/run/x1plus_sshd.pid"
 
 update_rootpw() {
+  # TODO: Migrate to x1p_get_setting once bbl_screen moves over to settings.json
   ROOT_PW=$(jq -r '.cfw_rootpw' /config/screen/printer.json)
   # Nothing has been generated, so default to device pass
   if [ "${ROOT_PW}" == "null" ]; then
@@ -22,6 +23,7 @@ update_rootpw() {
 
 start() {
   # Get our flag
+  # TODO: Migrate to x1p_get_setting once bbl_screen moves over to settings.json
   SSH_START_FLAG=$(jq -r '.cfw_sshd' /config/screen/printer.json)
   if [ "${SSH_START_FLAG}" == "null" ]; then
     SSH_START_FLAG="false" # Default disable SSH

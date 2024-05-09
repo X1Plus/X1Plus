@@ -2,9 +2,25 @@
 
 # X1Plus optional emmc backup
 
+. /opt/x1plus/libexec/functions.sh
+
+DEVICE_SN=$(x1p_sn)
+
 msg() {
-    echo -e "$1" > /dev/tty0
-    echo -e "$1" # For UART/logs
+    echo -e "${1}" > /dev/tty0
+    echo -e "${1}" # For UART/logs
+}
+
+_clear_flag() {
+    # This is here instead of functions.sh because ONLY backup_emmc should 
+    # clear it's own flag, as it runs before x1plusd, so it needs to handle
+    # the flag reset on it's own if we are moved to settings.json
+    [ -f "/mnt/sdcard/x1plus/printers/${DEVICE_SN}/dump-emmc" ] && rm /mnt/sdcard/x1plus/printers/${DEVICE_SN}/dump-emmc
+    if [ -f "/mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json" ]; then
+        TMPSETTINGS=$(mktemp)
+        jq ".\"boot.dump_emmc\" = false" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json > "${TMPSETTINGS}"
+        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json
+    fi
 }
 
 dump_emmc() {
@@ -14,30 +30,27 @@ dump_emmc() {
         exit 0
     fi
 
-    # Get SN from cmdline
-    DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
-
     # Now that sd is mounted, do we need to do an emmc dump?
-    if [ -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/dump-emmc ]; then
+    if x1p_get_setting boot.dump_emmc dump-emmc; then
         msg "Attempting to dump emmc as requested..." # Progress spinner sits ontop of this but that's fine
-        if [ -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/emmc.bin ]; then
+        _clear_flag # Clear now, so we unset even if there's no free disk space to do the dump
+        if [ -f "/mnt/sdcard/x1plus/printers/${DEVICE_SN}/emmc.bin" ]; then
             msg "Unable to backup emmc, as emmc.bin already exists! Resuming boot..."
         else
             # Do we have space?
             EMMC_SIZE=$(expr $(grep -E "mmcblk0$" /proc/partitions | awk '{print $3}') + 65536) # Pad 64 MB for calculations
             SD_FREE=$(df /dev/mmcblk2p1 | tail -1 | awk '{print $4}')
             SD_PERCENT=$(df /dev/mmcblk2p1 | tail -1 | awk '{ gsub("%",""); print $5 }')
-            if [ $SD_PERCENT -ge 80 ]; then
+            if [ ${SD_PERCENT} -ge 80 ]; then
                 msg "Unable to backup emmc, SD card is over 80% full! Resuming boot..."
                 exit 0
-            elif [ $EMMC_SIZE -ge $SD_FREE ]; then
+            elif [ ${EMMC_SIZE} -ge ${SD_FREE} ]; then
                 msg "Unable to backup emmc, SD card does not have enough free space! Resuming boot..."
                 exit 0
             fi
             # If so, do the dump
             echo "Dumping EMMC..." > /tmp/.progress_spinner
-            pv /dev/mmcblk0 2> /dev/tty0 > /mnt/sdcard/x1plus/printers/$DEVICE_SN/emmc.bin
-            rm -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/dump-emmc
+            pv /dev/mmcblk0 2> /dev/tty0 > /mnt/sdcard/x1plus/printers/${DEVICE_SN}/emmc.bin
             msg "Onboard emmc dump complete! Resuming boot..."
             echo "Booting X1Plus..." > /tmp/.progress_spinner # Update spinner message
         fi

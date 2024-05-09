@@ -208,7 +208,7 @@ Item {
     MarginPanel {
         id: outputPanel
         width: 1130
-        height: parent.height-80 - 150
+        height: parent.height - 80 - 150
         anchors.left: parent.left
         anchors.top:  inputPanel.bottom
         anchors.right: parent.right
@@ -234,7 +234,7 @@ Item {
             clip: true
             TextArea {
                 id: outputTextArea
-                width: parent.width - 56
+                width: 1130 /* parent.width, but avoiding a binding loop */ - 56
                 textFormat: Qt.PlainText //RichText is way too slow on the printer
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
@@ -325,10 +325,13 @@ Item {
                     borderColor: "transparent"
                     //cornerRadius: width / 2
                     onClicked: {
-                        let commandToAdd = gcodeConsole ? modelData.action : shellCommands[index].trim().replace("<br>", "");
-                        if (inputText.trim().length > 0 && gcodeConsole) inputText += "\\n";
-                        inputText += commandToAdd;
-                        
+                        if (index == 0 ){
+                            navigateHistory();
+                        } else {
+                            let commandToAdd = gcodeConsole ? modelData.action : shellCommands[index].trim().replace("<br>", "");
+                            if (inputText.trim().length > 0 && gcodeConsole) inputText += "\\n";
+                            inputText += commandToAdd;
+                        }
                     }
                 }
 
@@ -352,7 +355,11 @@ Item {
             }
         }
     }
-    
+    function navigateHistory() {
+        if (cmdHistory.length === 0) return;
+        historyIndex = (historyIndex - 1 + cmdHistory.length) % cmdHistory.length;
+        inputText = cmdHistory[historyIndex];
+    }
     function timestamp(offset){
         const now = new Date();
         now.setDate(now.getDate()-offset);
