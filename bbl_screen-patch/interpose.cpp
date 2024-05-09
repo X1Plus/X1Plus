@@ -256,6 +256,26 @@ eject:
             unlink(tempFile.c_str());
         }
     }
+    
+    Q_INVOKABLE void vncEnable(int enabled) {
+#ifdef HAS_VNC
+        void x1plus_vnc_enable(bool enabled);
+        x1plus_vnc_enable(enabled);
+#endif
+    }
+    
+    Q_INVOKABLE void vncPassword(int hasPassword, QString password) {
+#ifdef HAS_VNC
+        void x1plus_vnc_set_password(const char *pw);
+        std::string password_str = password.toStdString();
+        if (hasPassword) {
+            x1plus_vnc_set_password(password_str.c_str() /* strdup()'ed internally */);
+        } else {
+            x1plus_vnc_set_password(NULL);
+        }
+#endif
+    }
+
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
 private:
     static const int minBacklightValue = 50;
@@ -558,6 +578,7 @@ namespace BDbus {
     };
     
     class Error {
+        char buf[256]; /* I have no idea how big this thing actually is */
     public:
         Error();
         ~Error();
@@ -840,7 +861,7 @@ SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int version, unsigned char co
     next(version, tree, name, data);
 } 
 
-SWIZZLE(int, ioctl, int fd, unsigned long req, void *p)
+SWIZZLE(int, ioctl, int fd, unsigned long int req, void *p)
     if (req == SIOCGIWMODE) {
         struct iwreq *wrq = (struct iwreq *)p;
         wrq->u.mode = IW_MODE_INFRA;

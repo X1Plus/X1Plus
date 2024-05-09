@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,12 +1,49 @@
+@@ -1,12 +1,72 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -12,6 +12,29 @@
  
  Rectangle {
  
++    /* CFW: VNC */
++    
++    /* This is a weird place for this -- not in X1Plus.js -- because it
++     * depends on the binding behavior.  At some point there should be an
++     * X1Plus.Settings.on() that can be called from X1Plus.js, but today is
++     * not that day.  */
++    property var vncEnabled: X1Plus.Settings.get("vnc.enabled", false)
++    property var vncPassword: X1Plus.Settings.get("vnc.password", NetworkManager.lanAccessToken)
++
++    onVncEnabledChanged: {
++        console.log(`X1Plus: VNC is ${vncEnabled?'en':'dis'}abled`);
++        X1Plus._X1PlusNative.vncEnable(!!vncEnabled);
++    }
++    onVncPasswordChanged: {
++        if (vncPassword == "") {
++            console.log("X1Plus: VNC password is disabled entirely!");
++            X1Plus._X1PlusNative.vncPassword(0, "");
++        } else {
++            console.log("X1Plus: VNC password is set");
++            X1Plus._X1PlusNative.vncPassword(1, vncPassword);
++        }
++    }
++
 +    /* CFW: updater */
 +    
 +    property var cfwVersions: ({})
@@ -50,7 +73,7 @@
      /* Updater */
  
      id: settingListener
-@@ -18,22 +55,57 @@
+@@ -18,22 +78,57 @@
  
      property var updatePage
      property bool versionNotify
@@ -114,7 +137,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +125,8 @@
+@@ -53,12 +148,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -129,7 +152,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +166,7 @@
+@@ -98,6 +189,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -137,7 +160,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +234,7 @@
+@@ -165,7 +257,7 @@
              blackColor = !blackColor
          }
      }
@@ -146,7 +169,7 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +288,14 @@
+@@ -219,14 +311,14 @@
              }
          }
      }

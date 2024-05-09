@@ -116,7 +116,7 @@ whiteout('/etc/ssl/certs/DST_Root_CA_X3.pem')
 whiteout('/etc/ssl/certs/2e5ac55d.0')
 
 globfiles("cfw/etc", "/etc")
-globfiles("cfw/usr", "/usr", eatlinks = [ 'bin/jq' ])
+globfiles("cfw/usr", "/usr", eatlinks = [ 'bin/jq', 'lib/libvncserver.so.1' ])
 globfiles("cfw/lib", "/lib")
 globfiles("cfw/sbin", "/sbin")
 globfiles("cfw/system", "/system", eatlinks = True)
