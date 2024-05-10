@@ -2,7 +2,7 @@
 
 start() {
 	printf "Starting device gate: "
-	export LD_PRELOAD=/opt/workaround_ifaddrs.so
+	export LD_PRELOAD=/opt/x1plus/lib/workaround_ifaddrs.so
 	start-stop-daemon -S -m -b -p /var/run/device_gate.pid \
 		--exec /usr/bin/device_gate \
 	[ $? = 0 ] && echo "OK" || echo "FAIL"

@@ -2,7 +2,7 @@
 
 start() {
 	printf "Grabbing gpiokeys"
-	start-stop-daemon -S -m -b -p /var/run/gpiokeys.pid --exec /opt/python/bin/python3 -- /opt/gpiokeys.py
+	start-stop-daemon -S -m -b -p /var/run/gpiokeys.pid --exec /opt/python/bin/python3 -- -m x1plus.services.gpiokeys
 }
 stop() {
 	printf "Ungrabbing gpiokeys"

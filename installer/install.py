@@ -467,7 +467,7 @@ try:
     if os.system(f"{installer_path}/xdelta3 -f -d -s {installer_path}/bbl_screen.orig {installer_path}/bbl_screen.xdelta {installer_path}/printer_ui.so") != 0:
         report_failure("Failed to patch binaries from base filesystem.")
     with open(f"{installer_path}/printer_ui.pack", "w") as f:
-        f.write(f"file /opt/printer_ui.so 755 0 0 printer_ui.so")
+        f.write(f"file /opt/x1plus/lib/printer_ui.so 755 0 0 printer_ui.so")
     if os.system(f"{installer_path}/gensquashfs -d mtime=${basefw_mtime} -c xz -X dictsize=8192,level=0 -F \"{installer_path}/printer_ui.pack\" -D \"{installer_path}\" -f {boot_path}/images/{bbl_screen_squashfs}") != 0:
         raise RuntimeError("failed to invoke gensquashfs")
 except Exception as e:

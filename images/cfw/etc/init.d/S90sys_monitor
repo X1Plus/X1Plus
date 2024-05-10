@@ -2,7 +2,7 @@
 
 start() {
     printf "Starting system monitor: "
-    export LD_PRELOAD=/opt/evdev_fix.so
+    export LD_PRELOAD=/opt/x1plus/lib/evdev_fix.so
     start-stop-daemon -S -m -b -p /var/run/sys_monitor.pid \
         --exec /usr/bin/sys_monitor.sh \
         [ $? = 0 ] && echo "OK" || echo "FAIL"
