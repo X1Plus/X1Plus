@@ -34,10 +34,14 @@ Rectangle {
     color: Colors.gray_500
     
     Component.onCompleted: {
-        if (X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") != "")
-            dialogStack.push("SelectX1pPage.qml", { noBackButton: true } );
+        var KEXEC_LAUNCH_INSTALLER = X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER");
+        var OTA_X1P = X1PlusNative.getenv("OTA_X1P"); //name .x1p file in /mnt/sdcard/ (filename only)
+        var STARTUP_MODE = X1PlusNative.getenv("STARTUP_MODE") || "default" //startup modes ["default", "updaterNotify", "autoInstall"] 
+       
+        if (KEXEC_LAUNCH_INSTALLER != "")
+            dialogStack.popupDialog("KexecDialog", {startupMode:"installerSelect",countdown: 0}); //startupMode=installerSelect  ---> loads SelectX1pPage.qml
         else
-            dialogStack.popupDialog("KexecDialog", {});
+            dialogStack.popupDialog("KexecDialog", {x1pName:OTA_X1P,startupMode:STARTUP_MODE, countdown: 10}); 
     }
     
     Component.onDestruction: {
