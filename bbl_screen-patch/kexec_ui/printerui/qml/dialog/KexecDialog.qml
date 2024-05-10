@@ -51,7 +51,7 @@ Item {
             },
             "title": qsTr("Installing X1Plus update."),
             "subtitle": function() {
-                return qsTr("Automatically installing %1 in %2 seconds. Press 'Cancel' or 'Ignore' to skip for now.").arg(x1pName).arg(countdown);
+                return qsTr("Automatically installing %1 in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
             }
         },
        
@@ -106,15 +106,10 @@ Item {
         onTriggered: {
             countdown--;
             if (countdown == -1) {
-                switch (startupMode) {
-                    case 0:
-                    case 1:
-                    case 2:
-                        menuAction(startupMode, "yes_confirm");
-                        break;
-                    case 3:
-                        dialogStack.replace("../SelectX1pPage.qml", {noBackButton: true});
-                        break;
+                if (startupMode == "installerSelect") { //install.sh, go directly to x1p selection menu
+                    dialogStack.replace("../SelectX1pPage.qml", {noBackButton: true});
+                }else { //default, updaterNotify, and autoInstall
+                    menuAction(startupMode, "yes_confirm");
                 }
             }
         }
