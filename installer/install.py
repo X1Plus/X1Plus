@@ -276,6 +276,7 @@ def download_firmware(update_url, dest_path):
         try:
             if os.system("ping -c 3 -W 1000 8.8.8.8") != 0:
                 report_interim_progress("Network is unreachable. Please check your WiFi connection.")
+                os.system("/userdata/x1plus/debug_wifi.sh")
                 time.sleep(5)
             resp = requests.get(update_url, headers={'User-Agent': f'X1Plus/{cfw_version}'}, stream=True, verify="/etc/ssl/certs/", timeout=30)
             resp.raise_for_status()
