@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,12 +1,72 @@
+@@ -1,12 +1,70 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -54,26 +54,24 @@
 +    function cfwOnCompleted() {
 +        X1Plus.DDS.requestVersions();
 +
-+        let contents = X1Plus.loadJson("/opt/cfwversions.json");
-+        if (contents) {
-+            cfwVersions = contents;
-+        }
-+        
 +        // Later, we might want to take other interesting things out of
 +        // info.json, like the build date and release notes -- or even
 +        // render like a QR code for each version or something.  But for
 +        // now, we just transplant in the cfwVersion.
-+        contents = X1Plus.loadJson("/opt/info.json");
-+        if (contents && cfwVersions) {
-+            cfwVersions['cfw']['version'] = contents['cfwVersion'];
++        var contents = X1Plus.loadJson("/opt/x1plus/etc/version.json");
++        if (contents) {
++            var otamodules = contents['base']['modules'];
++            otamodules['cfw']['version'] = contents['cfwVersion'];
++            otamodules['ota']['version'] = contents['base']['version'];
++            otamodules['rv1126']['version'] = contents['base']['ap'];
++            cfwVersions = otamodules;
 +        }
-+
 +    }
 +
      /* Updater */
  
      id: settingListener
-@@ -18,22 +78,57 @@
+@@ -18,22 +76,57 @@
  
      property var updatePage
      property bool versionNotify
@@ -137,7 +135,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +148,8 @@
+@@ -53,12 +146,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -152,7 +150,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +189,7 @@
+@@ -98,6 +187,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -160,7 +158,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +257,7 @@
+@@ -165,7 +255,7 @@
              blackColor = !blackColor
          }
      }
@@ -169,7 +167,7 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +311,14 @@
+@@ -219,14 +309,14 @@
              }
          }
      }
