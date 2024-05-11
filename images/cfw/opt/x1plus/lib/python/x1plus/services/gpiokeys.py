@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Always invoke this with python3 -m x1plus.services.gpiokeys.
 
 import os
 import re
@@ -72,4 +72,6 @@ def main():
         device.ungrab()
 
 if __name__ == "__main__":
+    import setproctitle
+    setproctitle.setproctitle(__spec__.name)
     main()
