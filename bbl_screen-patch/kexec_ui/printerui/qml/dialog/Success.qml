@@ -13,7 +13,7 @@ Item {
     property string title
     property alias text: textContent.text
     property alias textFont: textContent.font
-    property int countdown: 10
+    property int countdown: (X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") !== "") ? 15 : 0 
     property bool finished: false
     property var paddingBottom: 50
     
@@ -49,7 +49,10 @@ Item {
             }
         }
     }
-
+    //Minor regression from 1.1: 
+    //This dialog only displays after installing for the first time, and when it does, it will reboot after 15 seconds. 
+    //This dialog provides post-install instructions important for new user, but after this the dialog is skipped. If we
+    //want to change this, it seems we need to come up with a new dialog message with general install info 
     Text {
         id: textContent
         anchors.fill: parent
