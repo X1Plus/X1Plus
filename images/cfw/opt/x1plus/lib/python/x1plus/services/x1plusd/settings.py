@@ -107,6 +107,10 @@ class SettingsService(X1PlusDBusService):
 
         os.replace(self.filename + ".new", self.filename)
 
+    def get(self, *args):
+        "For internal consumers in x1plusd, returns the value of a setting."
+        return self.settings.get(*args)
+
     async def dbus_GetSettings(self, req):
         return self.settings
 
