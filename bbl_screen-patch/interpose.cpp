@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <QtCore/QObject>
 #include <QtCore/QSettings>
+#include <QtCore/QProcess>
+#include <QtCore/QVariantList>
 #include <QtQml/qqml.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
@@ -753,7 +755,7 @@ public:
                 QProcess::kill();
             }
         }
-    }
+    }  
     Q_DISABLE_COPY(Process);
 };
 
@@ -932,6 +934,7 @@ extern "C" void __attribute__ ((constructor)) init() {
         needs_emulation_workarounds = 1;
     setenv("QML_XHR_ALLOW_FILE_READ", "1", 1); // Tell QML that it's ok to let us read files from inside XHR land.
     setenv("QML_XHR_ALLOW_FILE_WRITE", "1", 1); // Tell QML that it's ok to let us write files from inside XHR land.
+    qmlRegisterType<Process>("Process", 1, 0, "Process");
     qmlRegisterSingletonType("X1PlusNative", 1, 0, "X1PlusNative", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QJSValue {
         Q_UNUSED(engine)
 
