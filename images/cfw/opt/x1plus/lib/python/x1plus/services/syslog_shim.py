@@ -1,3 +1,5 @@
+# Always invoke this with python3 -m x1plus.services.syslog_shim.
+
 import os
 import sys
 import re
@@ -151,6 +153,8 @@ def main():
 
 
 if __name__ == "__main__":
+    import setproctitle
+    setproctitle.setproctitle(__spec__.name)
     try:
         main()
     except:

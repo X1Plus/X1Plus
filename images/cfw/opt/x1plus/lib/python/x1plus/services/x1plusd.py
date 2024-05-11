@@ -1,4 +1,5 @@
-#!/opt/python/bin/python3
+# Always invoke this with python3 -m x1plus.services.x1plusd.
+
 import os
 import copy
 from functools import lru_cache
@@ -242,6 +243,9 @@ async def main():
 
 
 if __name__ == "__main__":
+    import setproctitle
+    setproctitle.setproctitle(__spec__.name)
+
     # TODO: check if we are already running
     loop = asyncio.new_event_loop()
     loop.create_task(main())
