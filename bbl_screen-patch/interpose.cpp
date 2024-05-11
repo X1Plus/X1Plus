@@ -726,6 +726,37 @@ SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESa
 
 #endif
 
+/* QProcess class for running shell from QML a bit more reliably */
+class Process : public QProcess
+{
+    Q_OBJECT
+public:
+    explicit Process(QObject* parent = nullptr) : QProcess(parent) {
+        setProcessChannelMode(QProcess::MergedChannels);
+    }
+
+    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList()) {
+        QStringList args;
+        for (const auto& arg : arguments) {
+            args << arg.toString();
+        }
+        QProcess::start(program, args);
+    }
+
+    Q_INVOKABLE QByteArray readAll() { return QProcess::readAll(); }
+    Q_INVOKABLE QByteArray readLine() { return QProcess::readLine(); }
+
+    Q_INVOKABLE void terminate() {
+        if (state() == QProcess::Running) {
+            QProcess::terminate();
+            if (!waitForFinished(3000)) {
+                QProcess::kill();
+            }
+        }
+    }
+    Q_DISABLE_COPY(Process);
+};
+
 /*** Tricks to override the backlight.  See X1PlusNative.updateBacklight above. ***/
 
 FILE *backlight_fp = NULL;
