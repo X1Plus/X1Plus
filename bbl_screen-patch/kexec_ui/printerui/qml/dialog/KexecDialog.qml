@@ -20,14 +20,11 @@ Item {
     property var countdown: 10
     property string startupMode: (function () {
         if (stage1 !== "") {
-            console.log("stage1", x1pName,stage1);
-            return "stage1";
+            return "stage1"; //stage 1 of x1plus installer
         } else if (x1pName !== "") {
-            console.log("ota", x1pName,stage1);
-            return "ota";
+            return "ota"; //ota autoupdate
         } else {
-            console.log("default", x1pName,stage1);
-            return "default";
+            return "default"; //default boot behavior
         }
     }())
      
@@ -51,7 +48,7 @@ Item {
             },
             "title": qsTr("Update ready to install!"),
             "subtitle": function() {
-                return qsTr("Automatically installing %1 in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
+                return qsTr("Automatically installing .x1p file '%1' in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
             }
         }
     }

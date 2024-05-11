@@ -38,8 +38,8 @@ if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
         # Always clear the flag no matter what if it wasn't null, we have to do this ourselves as we don't have dbus
         # for x1plusd as we are NOT in x1plus yet!
         TMPSETTINGS=$(mktemp)
-        /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json > "${TMPSETTINGS}"
-        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json 2> /dev/null # suppress permissions warning
+        /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json > "${TMPSETTINGS}"
+        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json 2> /dev/null # suppress permissions warning
         sync
     fi
 fi

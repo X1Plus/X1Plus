@@ -34,13 +34,15 @@ Rectangle {
     color: Colors.gray_500
     
     Component.onCompleted: {
-        var KEXEC_LAUNCH_INSTALLER = X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER");
-        var X1P_OTA = X1PlusNative.getenv("X1P_OTA");
-        if (!X1P_OTA) X1P_OTA = "";
-        if (KEXEC_LAUNCH_INSTALLER != "") //stage 1 of the installer
+        /* Boot flags set in check_kexec */
+        var KEXEC_LAUNCH_INSTALLER = X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") || "";
+        var BOOT_DIALOG_TIMER = X1PlusNative.getenv("BOOT_DIALOG_TIMER") || 10;        
+        var X1P_OTA = X1PlusNative.getenv("X1P_OTA") || "";
+
+        if (KEXEC_LAUNCH_INSTALLER != "") //first stage installer is running, skip dialog
             dialogStack.popupDialog("KexecDialog", { stage1: KEXEC_LAUNCH_INSTALLER, countdown: 0});
-        else //normal boot and OTA updates
-            dialogStack.popupDialog("KexecDialog", {x1pName:X1P_OTA, countdown: 10}); 
+        else //normal boot behavior, check_kexec decides whether an OTA update is ready
+            dialogStack.popupDialog("KexecDialog", {x1pName:X1P_OTA, countdown: BOOT_DIALOG_TIMER}); 
     }
     
     Component.onDestruction: {
