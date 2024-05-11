@@ -10,13 +10,8 @@ Item {
     property string title
     property alias text: textContent.text
     property alias textFont: textContent.font
-    property var buttons: SimpleItemModel {
-        DialogButtonItem {
-            name: "reboot"; title: qsTr("Reboot")
-            isDefault: true
-            onClicked: function() { X1PlusNative.system("echo b > /proc/sysrq-trigger"); }
-        }
-    }
+    property var otaFlag:  X1PlusNative.getenv("X1P_OTA"); //name .x1p file in /mnt/sdcard/ (filename only)
+    property int countdown: 10
     property bool finished: false
     property var paddingBottom: 50
 
@@ -24,15 +19,36 @@ Item {
         if (callback)
             callback(index)
     }
-
-    id: textConfirm
-    width: 650
-    height: textContent.contentHeight
-    objectName: "got it"
+    Timer {
+        id: timer
+        interval: 1000 // Check every second
+        repeat: true // Repeat every second
+        running: otaFlag !== "" && !finished
+        onTriggered: {
+            if (countdown > 0) {
+                countdown--;
+            } else {
+                X1PlusNative.system("echo b > /proc/sysrq-trigger");
+                finished = true;
+                timer.stop();
+            }
+        }
+    }
+    
+   property var buttons: SimpleItemModel {
+        DialogButtonItem {
+            name: "reboot"
+            title: countdown > 0 ? qsTr("Reboot in ") + countdown + qsTr(" seconds") : qsTr("Reboot Now")
+            isDefault: true
+            onClicked: {
+                X1PlusNative.system("echo b > /proc/sysrq-trigger");
+            }
+        }
+    }
 
     Text {
         id: textContent
-        width: parent.width
+        anchors.fill: parent
         font: Fonts.body_30
         color: Colors.gray_100
         wrapMode: Text.Wrap
