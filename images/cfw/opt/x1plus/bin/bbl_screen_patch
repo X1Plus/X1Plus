@@ -1,0 +1,2 @@
+#!/bin/sh
+LD_PRELOAD=/opt/x1plus/lib/printer_ui.so exec /usr/bin/bbl_screen "$@"

@@ -2,11 +2,11 @@
 
 import os
 import re
-import dds
+import x1plus.dds
 import json
 import time 
 from evdev import InputDevice, categorize, ecodes
-from logger.custom_logger import CustomLogger
+from x1plus.logger.custom_logger import CustomLogger
  
 LONG_PRESS_THRESHOLD = 0.850 # seconds
 KEY_POWER = 116
@@ -14,7 +14,7 @@ KEY_STOP = 128
 #KEY_DOOR = 134 #DOOR SENSOR
 
 
-gpio_dds_publisher = dds.publisher('device/x1plus')
+gpio_dds_publisher = x1plus.dds.publisher('device/x1plus')
 gpio_log = CustomLogger("gpiokeys", "/tmp/gpiokeys.log",500000,1)  
 
 def send_dds(name, press_type):
@@ -47,24 +47,29 @@ buttons = [
     Button(scancode = KEY_STOP,  name = "estop"),
 ]
 
-device = InputDevice("/dev/input/by-path/platform-gpio-keys-event")
-device.grab()
 
-try:
-    for event in device.read_loop():
-        if event.type != ecodes.EV_KEY:
-            continue
+def main():
+    device = InputDevice("/dev/input/by-path/platform-gpio-keys-event")
+    device.grab()
+
+    try:
+        for event in device.read_loop():
+            if event.type != ecodes.EV_KEY:
+                continue
         
-        data = categorize(event)
-        for button in buttons:
-            if button.scancode == data.scancode:
-                if data.keystate:
-                    button.press()
-                else:
-                    button.release()
-                    gpio_log.info(data)
-except:
-	dds.shutdown()
-	raise
-finally:
-    device.ungrab()
+            data = categorize(event)
+            for button in buttons:
+                if button.scancode == data.scancode:
+                    if data.keystate:
+                        button.press()
+                    else:
+                        button.release()
+                        gpio_log.info(data)
+    except:
+        x1plus.dds.shutdown()
+        raise
+    finally:
+        device.ungrab()
+
+if __name__ == "__main__":
+    main()

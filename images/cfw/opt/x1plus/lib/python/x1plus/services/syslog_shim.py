@@ -2,10 +2,10 @@ import os
 import sys
 import re
 import json
-from logger.custom_logger import CustomLogger
+from x1plus.logger.custom_logger import CustomLogger
 from collections import namedtuple
-from logger.tail import TailLog
-import dds
+from x1plus.logger.tail import TailLog
+import x1plus.dds
 
 # Log setup - Check if SD logging is enabled
 # Start up our own logger (to sd card if SD logging, /tmp/ if not)
@@ -23,7 +23,7 @@ log_path = os.path.join(log_path,"syslog.log")
 # type of line in the syslog".
 RegexHandler = namedtuple("RegexHandler", ["regex", "callback"])
 
-dds_publish_mc_print = dds.publisher("device/report/mc_print")
+dds_publish_mc_print = x1plus.dds.publisher("device/report/mc_print")
         
 def RegexParser(regex, format):
     """
@@ -154,5 +154,5 @@ if __name__ == "__main__":
     try:
         main()
     except:
-        dds.shutdown()
+        x1plus.dds.shutdown()
         raise

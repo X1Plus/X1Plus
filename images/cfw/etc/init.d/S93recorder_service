@@ -5,7 +5,7 @@
 
 start() {
 	printf "Starting recorder service: "
-        export LD_PRELOAD=/opt/uncurl.so
+        export LD_PRELOAD=/opt/x1plus/lib/uncurl.so
 	start-stop-daemon -S -m -b -p /var/run/recorder_service.pid --exec /usr/bin/recorder -- subscriber
 }
 stop() {

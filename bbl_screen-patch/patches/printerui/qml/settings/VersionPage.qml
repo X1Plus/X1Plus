@@ -12,7 +12,7 @@ Item {
     property var mapping: ([
         { "friendly": QT_TR_NOOP("X1Plus version"), "cfw": "cfw", "icon": "../../icon/components/cfw.png" },
         { "friendly": QT_TR_NOOP("Base firmware version"), "cfw": "ota", "icon": "../../icon/components/mainfw.png" },
-        { "friendly": QT_TR_NOOP("AP board"), "bambu": "rv1126", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
+        { "friendly": QT_TR_NOOP("AP board"), "bambu": "ap", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
         { "friendly": QT_TR_NOOP("MC board"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
         { "friendly": QT_TR_NOOP("Toolhead"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
         { "friendly": QT_TR_NOOP("AMS hub"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },

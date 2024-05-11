@@ -9,6 +9,6 @@ mkdir -p /userdata/firmware/x1plus
 mount -o bind /userdata/firmware/x1plus /userdata/firmware
 
 echo "Overriding OTA version to 99.00.00.00."
-mount -o bind /opt/ota-99.00.00.00/config_version_OTA /config/version/OTA
-cp -u /opt/ota-99.00.00.00/userdata_firmware_ota-v99.00.00.00.json /userdata/firmware/ota-v99.00.00.00-00000000000000.json
+mount -o bind /opt/x1plus/etc/ota-99.00.00.00/config_version_OTA /config/version/OTA
+cp -u /opt/x1plus/etc/ota-99.00.00.00/userdata_firmware_ota-v99.00.00.00.json /userdata/firmware/ota-v99.00.00.00-00000000000000.json
 
