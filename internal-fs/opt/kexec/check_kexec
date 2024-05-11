@@ -28,7 +28,7 @@ fi
 
 # Also check, and get/clear our OTA filename flag for auto install
 if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
-    OTA_FILENAME=$(/opt/kexec/jq ".\"ota.filename\" // null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json)
+    OTA_FILENAME=$(/opt/kexec/jq -r ".\"ota.filename\" // null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json)
     # Did we have something set?
     if [ "${OTA_FILENAME}" != "null" ]; then
         if [ -f /mnt/sdcard/${OTA_FILENAME} ]; then
@@ -39,8 +39,7 @@ if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
         # for x1plusd as we are NOT in x1plus yet!
         TMPSETTINGS=$(mktemp)
         /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json > "${TMPSETTINGS}"
-        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json
-        rm -f "${TMPSETTINGS}"
+        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json 2> /dev/null # suppress permissions warning
         sync
     fi
 fi
