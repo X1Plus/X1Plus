@@ -4,8 +4,11 @@ import copy
 from functools import lru_cache
 from pathlib import Path
 import json
+import ssl
 import subprocess
+import datetime
 
+import aiohttp
 import asyncio
 
 import logging, logging.handlers
@@ -37,7 +40,137 @@ ch.setLevel(logging.DEBUG)
 ch.setFormatter(logging.Formatter("[%(asctime)s] %(name)s: %(levelname)s: %(message)s"))
 logger.addHandler(ch)
 
+# Setup SSL for aiohttp
+ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
 
+# Used for sharing settings between X1Plus daemon classes
+class X1PSettingStore:
+    def __init__(self):
+        self.__settings = {}
+
+    def GetSettings(self):
+        return self.__settings
+
+    def SetSettings(self, dict):
+        self.__settings = dict
+
+
+# Class for our X1Plus OTA Engine
+class OTACheckService:
+    def __init__(self, router, settings):
+        self.router = router
+        self.x1psettings = settings
+        self.ota_url = "https://ota.x1plus.net/stable/ota.json"
+        self.ota_available = False
+        self.last_check_timestamp = None
+        self.last_check_response = None
+        self.last_check_error = False
+        self.ota_downloaded = False
+
+        try:
+            with open("/opt/info.json", "r") as fh:
+                self.build_info = json.load(fh)
+        except FileNotFoundError:
+            logger.warning(
+                "OTA engine did not find /opt/info.json, Setting mock values so we get an OTA to recover!"
+            )
+            self.build_info = {
+                "cfwVersion": "0.1",
+                "date": "2024-04-17",
+                "buildTimestamp": 1713397465.0,
+            }
+
+    async def task(self):
+        # On startup run an update check to populate info
+        await self._update_check()
+        # Catch our OTA calls
+        OTAMatch = MatchRule(
+            interface="x1plus.ota", path="/x1plus/ota", type="method_call"
+        )
+        await Proxy(message_bus, self.router).AddMatch(OTAMatch)
+        with self.router.filter(OTAMatch, bufsize=0) as queue:
+            while True:
+                msg = await queue.get()
+                method = msg.header.fields[HeaderFields.member]
+
+                if msg.header.fields[HeaderFields.signature] != "s":
+                    await self.router.send(
+                        new_error(msg, "x1plus.x1plusd.Error.BadSignature")
+                    )
+                    continue
+
+                arg = msg.body[0]
+
+                rv = None
+                try:
+                    if method == "CheckNow":
+                        # Force update
+                        await self._update_check()
+                        rv = json.dumps({"CheckNow": "Triggered"})
+                    elif method == "GetStatus":
+                        # Return OTA status
+                        rv = json.dumps(
+                            {
+                                "ota_available": self.ota_available,
+                                "err_on_last_check": self.last_check_error,
+                                "last_checked": self.last_check_timestamp,
+                                "ota_info": self.last_check_response,
+                                "is_downloaded": self.ota_downloaded,
+                            }
+                        )
+                except Exception as e:
+                    logger.error(f"{method}({arg}) -> exception {e}")
+                    await self.router.send(
+                        new_error(msg, "x1plus.x1plusd.Error.InternalError")
+                    )
+                    continue
+
+                if not rv:
+                    logger.warning(f"{method} -> NoMethod")
+                    await self.router.send(
+                        new_error(msg, "x1plus.x1plusd.Error.NoMethod")
+                    )
+                    continue
+
+                logger.debug(f"{method}({arg}) -> {rv}")
+                await self.router.send(new_method_return(msg, "s", (rv,)))
+
+    async def _update_check(self):
+        # Do we have OTAs enabled? If not, just return current status
+        if not self.x1psettings.GetSettings().get("ota.enable", False):
+            logger.info("OTA check is disabled, skipping check!")
+            return
+
+        # If we are here we want to check, so check
+        try:
+            # Update check timestamp first
+            self.last_check_timestamp = datetime.datetime.now().timestamp()
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_ctx)) as session:
+                async with session.get(self.ota_url, timeout=5) as response:
+                    self.last_check_response = await response.json()
+        except Exception as e:
+            logger.error(f"Exception calling OTA URL! Error of: {e}")
+            # we Timed out, or hit other error with requests
+            self.last_check_error = True
+            return
+
+        # Reset error flag at this point, since we ran through correctly
+        self.last_check_error = False
+
+        # Now that we have the build info, do our check to see if there's an update
+        if self.build_info.get("buildTimestamp", 0) < self.last_check_response.get(
+            "buildTimestamp", 0
+        ):
+            self.ota_available = True
+
+        logger.debug(
+            f"Finished running _update_check, results of: {self.last_check_response}"
+        )
+
+        return
+
+
+# Class for our X1Plus Settings Engine
 class SettingsService:
     DEFAULT_X1PLUS_SETTINGS = {
         "boot.quick_boot": False,
@@ -47,8 +180,9 @@ class SettingsService:
         "ota.enable": False,
     }
 
-    def __init__(self, router):
+    def __init__(self, router, settings):
         self.router = router
+        self.x1psettings = settings
 
         if IS_EMULATING:
             self.settings_dir = "/"
@@ -66,6 +200,10 @@ class SettingsService:
             logger.warning("settings file does not exist; creating with defaults...")
             self.settings = self._migrate_old_settings()
             self._save()
+
+        self.x1psettings.SetSettings(
+            self.settings
+        )  # Sync settings for x1plusd classes to use
 
     def _migrate_old_settings(self):
         """
@@ -187,6 +325,9 @@ class SettingsService:
             )
             await self.router.send(signal)
 
+        self.x1psettings.SetSettings(
+            self.settings
+        )  # Sync settings for x1plusd classes to use
         return json.dumps({"status": "ok", "updated": list(settings_updated.keys())})
 
 
@@ -231,9 +372,14 @@ async def main():
         asyncio.get_running_loop().stop()
         return
 
+    x1psettings = X1PSettingStore()
+
     try:
-        settings = SettingsService(router)
+        settings = SettingsService(router, x1psettings)
+        ota = OTACheckService(router, x1psettings)
+        # Start tasks
         asyncio.create_task(settings.task())
+        asyncio.create_task(ota.task())
     except:
         asyncio.get_running_loop().stop()
         raise
