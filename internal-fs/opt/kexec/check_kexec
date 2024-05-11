@@ -26,6 +26,25 @@ elif [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/quick-boot ]; then
     QUICKBOOT_FLAG="true"
 fi
 
+# Also check, and get/clear our OTA filename flag for auto install
+if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
+    OTA_FILENAME=$(/opt/kexec/jq ".\"ota.filename\" // null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json)
+    # Did we have something set?
+    if [ "${OTA_FILENAME}" != "null" ]; then
+        if [ -f /mnt/sdcard/${OTA_FILENAME} ]; then
+            export X1P_OTA=${OTA_FILENAME}
+            QUICKBOOT_FLAG="false" # Back to false, so we make it to installer if we are re-installing a matching named build
+        fi
+        # Always clear the flag no matter what if it wasn't null, we have to do this ourselves as we don't have dbus
+        # for x1plusd as we are NOT in x1plus yet!
+        TMPSETTINGS=$(mktemp)
+        /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json > "${TMPSETTINGS}"
+        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${DEVICE_SN}/settings.json
+        rm -f "${TMPSETTINGS}"
+        sync
+    fi
+fi
+
 # Is our quick boot flag set?
 if [ "${QUICKBOOT_FLAG}" == "true" ]; then
     # Before we do, are there any NEW x1p files?!
