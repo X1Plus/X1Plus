@@ -5,32 +5,36 @@ import "qrc:/uibase/qml/widgets"
 import X1PlusNative 1.0
 
 Item {
-
+    id: textConfirm
+    width: 650
+    height: textContent.contentHeight
+    objectName: "got it"
     property alias name: textConfirm.objectName
     property string title
     property alias text: textContent.text
     property alias textFont: textContent.font
-    property var otaFlag:  X1PlusNative.getenv("X1P_OTA"); //name .x1p file in /mnt/sdcard/ (filename only)
     property int countdown: 10
     property bool finished: false
     property var paddingBottom: 50
-
+    
     function buttonClicked(index) {
         if (callback)
             callback(index)
     }
+    function doReboot(){
+        finished = true;
+        X1PlusNative.system("echo b > /proc/sysrq-trigger");
+    }
+    
     Timer {
         id: timer
-        interval: 1000 // Check every second
-        repeat: true // Repeat every second
-        running: otaFlag !== "" && !finished
+        interval: 1000 
+        repeat: true
+        running: !finished
         onTriggered: {
-            if (countdown > 0) {
-                countdown--;
-            } else {
-                X1PlusNative.system("echo b > /proc/sysrq-trigger");
-                finished = true;
-                timer.stop();
+            countdown--;
+            if (countdown <= 0) {
+                doReboot();
             }
         }
     }
@@ -38,10 +42,10 @@ Item {
    property var buttons: SimpleItemModel {
         DialogButtonItem {
             name: "reboot"
-            title: countdown > 0 ? qsTr("Reboot in ") + countdown + qsTr(" seconds") : qsTr("Reboot Now")
+            title: countdown > 0 ? qsTr("Reboot in ") + countdown + qsTr(" seconds") : qsTr("Rebooting..")
             isDefault: true
             onClicked: {
-                X1PlusNative.system("echo b > /proc/sysrq-trigger");
+                doReboot();
             }
         }
     }

@@ -35,11 +35,12 @@ Rectangle {
     
     Component.onCompleted: {
         var KEXEC_LAUNCH_INSTALLER = X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER");
-        var X1P_OTA = X1PlusNative.getenv("X1P_OTA"); //string, x1p filename
-        if (KEXEC_LAUNCH_INSTALLER != "")
-            dialogStack.popupDialog("KexecDialog", {startupMode:"installerSelect",countdown: 0}); //startupMode=installerSelect  ---> loads SelectX1pPage.qml
-        else
-            dialogStack.popupDialog("KexecDialog", {x1pName:X1P_OTA,  countdown: 10}); 
+        var X1P_OTA = X1PlusNative.getenv("X1P_OTA");
+        if (!X1P_OTA) X1P_OTA = "";
+        if (KEXEC_LAUNCH_INSTALLER != "") //stage 1 of the installer
+            dialogStack.popupDialog("KexecDialog", { stage1: KEXEC_LAUNCH_INSTALLER, countdown: 0});
+        else //normal boot and OTA updates
+            dialogStack.popupDialog("KexecDialog", {x1pName:X1P_OTA, countdown: 10}); 
     }
     
     Component.onDestruction: {

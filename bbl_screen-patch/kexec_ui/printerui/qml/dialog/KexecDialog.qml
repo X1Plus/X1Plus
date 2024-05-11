@@ -8,7 +8,7 @@ import "qrc:/uibase/qml/widgets"
 Item {
     property alias name: textConfirm.objectName
     property var x1pName: ""
-    property var kexec_launch: X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER");
+    property var stage1: ""
     /* Replicated in BootOptionsPage.qml; keep this in sync if you change this (or, really, refactor it then). */
     property var hasSdCard: (function () {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/boot.conf";
@@ -18,8 +18,19 @@ Item {
         return xhr.status == 200;
     }())
     property var countdown: 10
-    property var startupMode: (kexec_launch !== "") ? "kexecLaunch" : (x1pName !== "") ? "otaUpdate" : "default" 
-    
+    property string startupMode: (function () {
+        if (stage1 !== "") {
+            console.log("stage1", x1pName,stage1);
+            return "stage1";
+        } else if (x1pName !== "") {
+            console.log("ota", x1pName,stage1);
+            return "ota";
+        } else {
+            console.log("default", x1pName,stage1);
+            return "default";
+        }
+    }())
+     
     property var startupStrings: {
         "default": { /* Normal Boot: 10 sec dialog then boot X1Plus */
             "buttons": {
@@ -32,7 +43,7 @@ Item {
                 return qsTr("Your printer will automatically boot from the SD card in %1 seconds.").arg(countdown)
             }
         },
-        "otaUpdate": {
+        "ota": {
             "buttons": {/* auto install x1p Boot: 10 sec dialog then tell InstallingPage.qml to start installing x1p */
                 "yes_confirm": {"text": qsTr("Install"), "action": function() { dialogStack.replace("../InstallingPage.qml", {x1pName: x1pName}) }},
                 "no": {"text": qsTr("Startup options"), "action": function() { dialogStack.replace("../BootOptionsPage.qml", {hasSdCard: hasSdCard}) }},
@@ -45,45 +56,33 @@ Item {
         }
     }
 
-    function menuText(type) {
-        var mode = (x1pName !== "") ? "otaUpdate" : "default" 
-        var entry = startupStrings[startupMode].buttons;
-        return entry && entry[type] ? entry[type].text : "";
-    }
-    function menuAction(type) {
-        var mode = (x1pName !== "") ? "otaUpdate" : "default"
-        var entry = startupStrings[startupMode].buttons;
-        if (entry && entry[type]) {
-            entry[type].action();
-        }
-    }
     property var buttons: SimpleItemModel {
         DialogButtonItem {
             name: "yes_confirm"
-            title: menuText("yes_confirm")
+            title: startupStrings[startupMode].buttons["yes_confirm"].text
             isDefault: defaultButton == 0
-            onClicked: function() { menuAction("yes_confirm"); }
+            onClicked: startupStrings[startupMode].buttons["yes_confirm"].action()
             visible: hasSdCard && countdown > 0
         }
         DialogButtonItem {
             name: "no"
-            title: menuText("no")
+            title: startupStrings[startupMode].buttons["no"].text
             isDefault: defaultButton == 1
-            onClicked: function() { menuAction("no"); }
+            onClicked: startupStrings[startupMode].buttons["no"].action()
             visible: countdown > 0
         }
         DialogButtonItem {
             name: "cancel"
-            title: menuText("cancel")
+            title: startupStrings[startupMode].buttons["cancel"].text
             isDefault: defaultButton == 2
-            onClicked: function() { menuAction("cancel"); }
-            visible: hasSdCard && countdown > 0 && menuText("cancel").length > 0
+            onClicked: startupStrings[startupMode].buttons["cancel"].action()
+            visible: hasSdCard && countdown > 0 && startupStrings[startupMode].buttons["cancel"].text.length > 0
         }
     }
 
 
     Component.onCompleted: {
-        if (startupMode== "kexecLaunch") {
+        if (startupMode == "stage1") {
             dialogStack.replace("../SelectX1pPage.qml", {noBackButton: true});
         }
     }
@@ -92,11 +91,11 @@ Item {
         id: timer
         interval: 1000
         repeat: true
-        running: hasSdCard && startupMode !== "kexecLaunch"
+        running: hasSdCard && startupMode !== "stage1"
         onTriggered: {
             countdown--;
             if (countdown == -1) {
-                menuAction("yes_confirm");
+                startupStrings[startupMode].buttons["yes_confirm"].action();
             }
         }
     }
