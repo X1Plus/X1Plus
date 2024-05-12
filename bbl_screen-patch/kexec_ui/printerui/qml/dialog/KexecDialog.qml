@@ -8,7 +8,6 @@ import "qrc:/uibase/qml/widgets"
 Item {
     property alias name: textConfirm.objectName
     property var x1pName: ""
-    property var stage1: ""
     /* Replicated in BootOptionsPage.qml; keep this in sync if you change this (or, really, refactor it then). */
     property var hasSdCard: (function () {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/boot.conf";
@@ -18,15 +17,7 @@ Item {
         return xhr.status == 200;
     }())
     property var countdown: 10
-    property string startupMode: (function () {
-        if (stage1 !== "") {
-            return "stage1"; //stage 1 of x1plus installer
-        } else if (x1pName !== "") {
-            return "ota"; //ota autoupdate
-        } else {
-            return "default"; //default boot behavior
-        }
-    }())
+    property string currentMode: (x1pName !== "") ? "ota" : "default"
      
     property var startupStrings: {
         "default": { /* Normal Boot: 10 sec dialog then boot X1Plus */
@@ -37,7 +28,10 @@ Item {
             },
             "title": qsTr("Bootable SD card detected."),
             "subtitle": function() {
-                return qsTr("Your printer will automatically boot from the SD card in %1 seconds.").arg(countdown)
+                if (countdown > 0)
+                    return qsTr("Your printer is rebooting into the OS on the inserted SD card.")
+                else 
+                    return qsTr("Your printer will automatically boot from the SD card in %1 seconds.").arg(countdown)
             }
         },
         "ota": {
@@ -48,7 +42,10 @@ Item {
             },
             "title": qsTr("Update ready to install!"),
             "subtitle": function() {
-                return qsTr("Automatically installing .x1p file '%1' in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
+                if (countdown > 0)
+                    return qsTr("Automatically installing .x1p file '%1' in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
+                else 
+                    return qsTr("Your printer will now install .x1p file '%1'.").arg(x1pName);                
             }
         }
     }
@@ -56,43 +53,41 @@ Item {
     property var buttons: SimpleItemModel {
         DialogButtonItem {
             name: "yes_confirm"
-            title: startupStrings[startupMode].buttons["yes_confirm"].text
+            title: startupStrings[currentMode].buttons["yes_confirm"].text
             isDefault: defaultButton == 0
-            onClicked: startupStrings[startupMode].buttons["yes_confirm"].action()
+            onClicked: startupStrings[currentMode].buttons["yes_confirm"].action()
             visible: hasSdCard && countdown > 0
         }
         DialogButtonItem {
             name: "no"
-            title: startupStrings[startupMode].buttons["no"].text
+            title: startupStrings[currentMode].buttons["no"].text
             isDefault: defaultButton == 1
-            onClicked: startupStrings[startupMode].buttons["no"].action()
+            onClicked: startupStrings[currentMode].buttons["no"].action()
             visible: countdown > 0
         }
         DialogButtonItem {
             name: "cancel"
-            title: startupStrings[startupMode].buttons["cancel"].text
+            title: startupStrings[currentMode].buttons["cancel"].text
             isDefault: defaultButton == 2
-            onClicked: startupStrings[startupMode].buttons["cancel"].action()
-            visible: hasSdCard && countdown > 0 && startupStrings[startupMode].buttons["cancel"].text.length > 0
+            onClicked: startupStrings[currentMode].buttons["cancel"].action()
+            visible: hasSdCard && countdown > 0 && startupStrings[currentMode].buttons["cancel"].text.length > 0
         }
     }
 
 
     Component.onCompleted: {
-        if (startupMode == "stage1") {
-            dialogStack.replace("../SelectX1pPage.qml", {noBackButton: true});
-        }
+
     }
 
     Timer {
         id: timer
         interval: 1000
         repeat: true
-        running: hasSdCard && startupMode !== "stage1"
+        running: hasSdCard
         onTriggered: {
             countdown--;
             if (countdown == -1) {
-                startupStrings[startupMode].buttons["yes_confirm"].action();
+                startupStrings[currentMode].buttons["yes_confirm"].action();
             }
         }
     }
@@ -120,7 +115,7 @@ Item {
         font: Fonts.body_36
         color: Colors.gray_100
         wrapMode: Text.Wrap
-        text: hasSdCard ? startupStrings[startupMode].title : qsTr("No SD Card detected.")
+        text: hasSdCard ? startupStrings[currentMode].title : qsTr("No bootable SD Card detected.")
     }
 
     Text {
@@ -133,6 +128,6 @@ Item {
         font: Fonts.body_32
         color: Colors.gray_200
         wrapMode: Text.Wrap
-        text: hasSdCard ? startupStrings[startupMode].subtitle() : qsTr("Please insert an SD card to continue.")
+        text: hasSdCard ? startupStrings[currentMode].subtitle() : qsTr("Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.")
     }
 }
