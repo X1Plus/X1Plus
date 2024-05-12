@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <QtCore/QObject>
 #include <QtCore/QSettings>
+#include <QtCore/QProcess>
+#include <QtCore/QVariantList>
 #include <QtQml/qqml.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
@@ -726,6 +728,44 @@ SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESa
 
 #endif
 
+/* QProcess class for running shell from QML a bit more reliably */
+class X1PlusProcess : public QProcess
+{
+    Q_OBJECT
+public:
+    explicit X1PlusProcess(QObject* parent = nullptr) : QProcess(parent) {
+        setProcessChannelMode(QProcess::MergedChannels);
+    }
+
+    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList()) {
+        QStringList args;
+        for (const auto& arg : arguments) {
+            args << arg.toString();
+        }
+        QProcess::start(program, args);
+    }
+
+    Q_INVOKABLE QByteArray readAll() { return QProcess::readAll(); }
+    Q_INVOKABLE QByteArray readLine() { return QProcess::readLine(); }
+
+    /* Write to an active process */
+    Q_INVOKABLE qint64 write( const QString& data ){
+        return QProcess::write( qPrintable( data ) );
+    }
+    
+    Q_INVOKABLE void terminate() {
+        if (state() == QProcess::Running) {
+            QProcess::terminate();
+            if (!waitForFinished(3000)) {
+                QProcess::kill();
+            }
+        }
+    }  
+
+private:
+    Q_DISABLE_COPY(X1PlusProcess);
+};
+
 /*** Tricks to override the backlight.  See X1PlusNative.updateBacklight above. ***/
 
 FILE *backlight_fp = NULL;
@@ -901,6 +941,7 @@ extern "C" void __attribute__ ((constructor)) init() {
         needs_emulation_workarounds = 1;
     setenv("QML_XHR_ALLOW_FILE_READ", "1", 1); // Tell QML that it's ok to let us read files from inside XHR land.
     setenv("QML_XHR_ALLOW_FILE_WRITE", "1", 1); // Tell QML that it's ok to let us write files from inside XHR land.
+    qmlRegisterType<X1PlusProcess>("X1PlusProcess", 1, 0, "X1PlusProcess");
     qmlRegisterSingletonType("X1PlusNative", 1, 0, "X1PlusNative", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QJSValue {
         Q_UNUSED(engine)
 
