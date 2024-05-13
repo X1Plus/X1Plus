@@ -71,7 +71,7 @@ class X1PlusDBusService:
                     continue
                 
                 try:
-                    rv = await impl(arg)
+                    rv = await impl(json.loads(arg))
                 except Exception as e:
                     logger.error(f"{method}({arg}) -> exception {e}")
                     await self.router.send(
@@ -80,14 +80,14 @@ class X1PlusDBusService:
                     continue
 
                 logger.debug(f"{method}({arg}) -> {rv}")
-                await self.router.send(new_method_return(msg, "s", (rv,)))
+                await self.router.send(new_method_return(msg, "s", (json.dumps(rv),)))
     
     async def emit_signal(self, name, val):
         signal = new_signal(
             DBusAddress("/", interface=self.dbus_interface),
             name,
             signature="s",
-            body=(val,),
+            body=(json.dumps(val),),
         )
         await self.router.send(signal)
     
@@ -142,7 +142,7 @@ class SettingsService(X1PlusDBusService):
         return defaults
 
     async def task(self):
-        await self.emit_signal("SettingsChanged", json.dumps(self.settings))
+        await self.emit_signal("SettingsChanged", self.settings)
         await super().task()
 
     def _save(self):
@@ -156,15 +156,13 @@ class SettingsService(X1PlusDBusService):
 
         os.replace(self.filename + ".new", self.filename)
 
-    async def dbus_GetSettings(self, req: str) -> str:
-        return json.dumps(self.settings)
+    async def dbus_GetSettings(self, req):
+        return self.settings
 
-    async def dbus_PutSettings(self, req: str) -> str:
-        settings_set = json.loads(req)
-
+    async def dbus_PutSettings(self, settings_set):
         if not isinstance(settings_set, dict):
-            logger.error(f"x1p_settings: set request {req} is not a dictionary")
-            return json.dumps({"status": "error"})
+            logger.error(f"x1p_settings: set request {settings_set} is not a dictionary")
+            return {"status": "error"}
 
         settings_updated = {}
         for k, v in settings_set.items():
@@ -190,9 +188,9 @@ class SettingsService(X1PlusDBusService):
         # initially, or will have heard about the update from us after
         # they read it.
         if len(settings_updated) > 0:
-            await self.emit_signal("SettingsChanged", json.dumps(settings_updated))
+            await self.emit_signal("SettingsChanged", settings_updated)
 
-        return json.dumps({"status": "ok", "updated": list(settings_updated.keys())})
+        return {"status": "ok", "updated": list(settings_updated.keys())}
 
 
 # TODO: hoist this into an x1plus package
