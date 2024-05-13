@@ -38,8 +38,61 @@ ch.setLevel(logging.DEBUG)
 ch.setFormatter(logging.Formatter("[%(asctime)s] %(name)s: %(levelname)s: %(message)s"))
 logger.addHandler(ch)
 
+class X1PlusDBusService:
+    def __init__(self, router, dbus_interface, dbus_path):
+        self.router = router
+        self.dbus_interface = dbus_interface
+        self.dbus_path = dbus_path
 
-class SettingsService:
+    async def task(self):
+        match = MatchRule(
+            interface=self.dbus_interface, path=self.dbus_path, type="method_call"
+        )
+        await Proxy(message_bus, self.router).AddMatch(match)
+        with self.router.filter(match, bufsize=0) as queue:
+            while True:
+                msg = await queue.get()
+                method = msg.header.fields[HeaderFields.member]
+
+                if msg.header.fields[HeaderFields.signature] != "s":
+                    await self.router.send(
+                        new_error(msg, "x1plus.x1plusd.Error.BadSignature")
+                    )
+                    continue
+
+                arg = msg.body[0]
+
+                impl = getattr(self, f"dbus_{method}", None)
+                if not callable(impl):
+                    logger.warning(f"{method} -> NoMethod")
+                    await self.router.send(
+                        new_error(msg, "x1plus.x1plusd.Error.NoMethod")
+                    )
+                    continue
+                
+                try:
+                    rv = await impl(arg)
+                except Exception as e:
+                    logger.error(f"{method}({arg}) -> exception {e}")
+                    await self.router.send(
+                        new_error(msg, "x1plus.x1plusd.Error.InternalError")
+                    )
+                    continue
+
+                logger.debug(f"{method}({arg}) -> {rv}")
+                await self.router.send(new_method_return(msg, "s", (rv,)))
+    
+    async def emit_signal(self, name, val):
+        signal = new_signal(
+            DBusAddress("/", interface=self.dbus_interface),
+            name,
+            signature="s",
+            body=(val,),
+        )
+        await self.router.send(signal)
+    
+
+class SettingsService(X1PlusDBusService):
     DEFAULT_X1PLUS_SETTINGS = {
         "boot.quick_boot": False,
         "boot.dump_emmc": False,
@@ -48,9 +101,7 @@ class SettingsService:
         "ota.enable": False,
     }
 
-    def __init__(self, router):
-        self.router = router
-
+    def __init__(self, *args, **kwargs):
         if IS_EMULATING:
             self.settings_dir = "/"
             self.filename = "/tmp/x1plus-settings.json"
@@ -67,6 +118,8 @@ class SettingsService:
             logger.warning("settings file does not exist; creating with defaults...")
             self.settings = self._migrate_old_settings()
             self._save()
+        
+        super().__init__(dbus_interface = "x1plus.settings", dbus_path = "/x1plus/settings", *args, **kwargs)
 
     def _migrate_old_settings(self):
         """
@@ -89,54 +142,8 @@ class SettingsService:
         return defaults
 
     async def task(self):
-        signal = new_signal(
-            DBusAddress("/", interface="x1plus.settings"),
-            "SettingsChanged",
-            signature="s",
-            body=(json.dumps(self.settings),),
-        )
-        await self.router.send(signal)
-
-        # probably ought refactor this out into a decorator, but here we are
-        SettingsMatch = MatchRule(
-            interface="x1plus.settings", path="/x1plus/settings", type="method_call"
-        )
-        await Proxy(message_bus, self.router).AddMatch(SettingsMatch)
-        with self.router.filter(SettingsMatch, bufsize=0) as queue:
-            while True:
-                msg = await queue.get()
-                method = msg.header.fields[HeaderFields.member]
-
-                if msg.header.fields[HeaderFields.signature] != "s":
-                    await self.router.send(
-                        new_error(msg, "x1plus.x1plusd.Error.BadSignature")
-                    )
-                    continue
-
-                arg = msg.body[0]
-
-                rv = None
-                try:
-                    if method == "PutSettings":
-                        rv = await self.PutSettings(arg)
-                    elif method == "GetSettings":
-                        rv = json.dumps(self.settings)
-                except Exception as e:
-                    logger.error(f"{method}({arg}) -> exception {e}")
-                    await self.router.send(
-                        new_error(msg, "x1plus.x1plusd.Error.InternalError")
-                    )
-                    continue
-
-                if not rv:
-                    logger.warning(f"{method} -> NoMethod")
-                    await self.router.send(
-                        new_error(msg, "x1plus.x1plusd.Error.NoMethod")
-                    )
-                    continue
-
-                logger.debug(f"{method}({arg}) -> {rv}")
-                await self.router.send(new_method_return(msg, "s", (rv,)))
+        await self.emit_signal("SettingsChanged", json.dumps(self.settings))
+        await super().task()
 
     def _save(self):
         # TODO: at some point, copy out the old file to .bak, and try
@@ -149,7 +156,10 @@ class SettingsService:
 
         os.replace(self.filename + ".new", self.filename)
 
-    async def PutSettings(self, req: str) -> str:
+    async def dbus_GetSettings(self, req: str) -> str:
+        return json.dumps(self.settings)
+
+    async def dbus_PutSettings(self, req: str) -> str:
         settings_set = json.loads(req)
 
         if not isinstance(settings_set, dict):
@@ -180,13 +190,7 @@ class SettingsService:
         # initially, or will have heard about the update from us after
         # they read it.
         if len(settings_updated) > 0:
-            signal = new_signal(
-                DBusAddress("/", interface="x1plus.settings"),
-                "SettingsChanged",
-                signature="s",
-                body=(json.dumps(settings_updated),),
-            )
-            await self.router.send(signal)
+            await self.emit_signal("SettingsChanged", json.dumps(settings_updated))
 
         return json.dumps({"status": "ok", "updated": list(settings_updated.keys())})
 
@@ -241,17 +245,3 @@ async def main():
 
     logger.info("x1plusd is running")
 
-
-if __name__ == "__main__":
-    import setproctitle
-    setproctitle.setproctitle(__spec__.name)
-
-    # TODO: check if we are already running
-    loop = asyncio.new_event_loop()
-    loop.create_task(main())
-    try:
-        loop.run_forever()
-    finally:
-        logger.error("x1plusd event loop has terminated!")
-        loop.run_until_complete(loop.shutdown_asyncgens())
-        loop.close()
