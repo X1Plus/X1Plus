@@ -29,9 +29,10 @@ Item {
             "title": qsTr("Bootable SD card detected."),
             "subtitle": function() {
                 if (countdown > 0)
-                    return qsTr("Your printer is rebooting into the OS on the inserted SD card.")
-                else 
                     return qsTr("Your printer will automatically boot from the SD card in %1 seconds.").arg(countdown)
+                else 
+                    return qsTr("Your printer is rebooting into the OS on the inserted SD card.")
+                    
             }
         },
         "ota": {

@@ -13,7 +13,7 @@ Item {
     property string title
     property alias text: textContent.text
     property alias textFont: textContent.font
-    property int countdown: (X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") !== "") ? 15 : 0 
+    property int countdown: (X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") !== "") ? 15 : 5 
     property bool finished: false
     property var paddingBottom: 50
     
