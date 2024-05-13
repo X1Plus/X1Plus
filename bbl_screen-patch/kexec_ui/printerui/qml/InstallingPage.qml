@@ -55,7 +55,7 @@ Rectangle {
                     textConfirmTimer.start()
                     dialogStack.popupDialog("TextConfirm", {
                         name: "installer yesno",
-                        text: datum.prompt_yesno + qsTr(" Download beginning in %1 seconds.").arg(textConfirmTimer.timerCount),
+                        text: Qt.binding(function() {  return datum.prompt_yesno + qsTr(" Download beginning in %1 seconds.").arg(textConfirmTimer.timerCount)}),
                         titles: [qsTr("Download"), qsTr("Cancel")],
                         finished: Qt.binding(function() { if (!textConfirmTimer.running) return true}),
                         onYes: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: true })); dialogStack.pop(); },
