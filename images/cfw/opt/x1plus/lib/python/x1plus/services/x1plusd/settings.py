@@ -55,8 +55,16 @@ class SettingsService(X1PlusDBusService):
             with open(self.filename, "r") as fh:
                 self.settings = json.load(fh)
                 logger.debug(f"loaded settings with {len(self.settings)} keys")
-        except FileNotFoundError as exc:
-            logger.warning("settings file does not exist; creating with defaults...")
+        except Exception as e:
+            if isinstance(e, FileNotFoundError):
+                logger.warning("settings file does not exist; creating with defaults...")
+            else:
+                bakfile = f"{self.filename}.bad"
+                logger.error(f"settings file was unreadable ({e}); moving it to {bakfile} and starting from scratch")
+                try:
+                    os.replace(self.filename, bakfile)
+                except Exception as e:
+                    logger.error(f"failed to even move the old file out of the way ({e})!")
             self.settings = self._migrate_old_settings()
             self._save()
 
