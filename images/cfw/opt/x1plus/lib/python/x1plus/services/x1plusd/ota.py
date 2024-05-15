@@ -21,6 +21,10 @@ ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
 
 
 class OTAService(X1PlusDBusService):
+    STATUS_DISABLED = "DISABLED"
+    STATUS_IDLE = "IDLE"
+    STATUS_CHECKING_OTA = "CHECKING_OTA"
+    
     def __init__(self, settings, **kwargs):
         self.x1psettings = settings
         self.ota_url = DEFAULT_OTA_URL
@@ -31,6 +35,8 @@ class OTAService(X1PlusDBusService):
         self.next_check_timestamp = datetime.datetime.now()
         self.ota_downloaded = False
         self.ota_task_wake = asyncio.Event()
+        self.last_status_object = None
+        self.task_status = OTAService.STATUS_DISABLED
 
         try:
             # XXX: check is_emulating
@@ -51,12 +57,23 @@ class OTAService(X1PlusDBusService):
         )
 
     def ota_enabled(self):
-        return self.x1psettings.get("ota.enabled", False)
+        return not not self.x1psettings.get("ota.enabled", False)
 
     async def task(self):
         # On startup run an update check to populate info
         asyncio.create_task(self._ota_task())
         await super().task()
+    
+    def _make_status_object(self):
+        return {
+            "status": self.task_status,
+            "enabled": self.ota_enabled(),
+            "ota_available": self.ota_available,
+            "err_on_last_check": self.last_check_error,
+            "last_checked": self.last_check_timestamp,
+            "ota_info": self.last_check_response,
+            "is_downloaded": self.ota_downloaded,
+        }
     
     async def dbus_CheckNow(self, req):
         self.next_check_timestamp = datetime.datetime.now()
@@ -64,27 +81,38 @@ class OTAService(X1PlusDBusService):
         return {"status": "ok" if self.ota_enabled() else "disabled"}
 
     async def dbus_GetStatus(self, req):
-        return {
-            "ota_available": self.ota_available,
-            "err_on_last_check": self.last_check_error,
-            "last_checked": self.last_check_timestamp,
-            "ota_info": self.last_check_response,
-            "is_downloaded": self.ota_downloaded,
-        }
+        return self._make_status_object()
+
+    async def _maybe_publish_status_object(self):
+        "Publish a new _make_status_object as a DBus signal iff something has changed."
+        
+        status_object = self._make_status_object()
+        if status_object != self.last_status_object:
+            # equality on a dict is object-equality, not reference-equality
+            self.last_status_object = status_object
+            await self.emit_signal("StatusChanged", status_object)
+            logger.debug(f"ota status changed to {status_object}")
 
     async def _check_for_ota(self):
+        self.task_status = OTAService.STATUS_CHECKING_OTA
+        await self._maybe_publish_status_object()
+
         try:
             # Update check timestamp first
             self.last_check_timestamp = datetime.datetime.now().timestamp()
             async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_ctx)) as session:
                 async with session.get(self.ota_url, timeout=5) as response:
+                    response.raise_for_status()
                     self.last_check_response = await response.json()
         except Exception as e:
-            logger.error(f"Exception calling OTA URL! Error of: {e}")
+            logger.error(f"Exception calling OTA URL! {e.__class__.__name__}: \"{e}\"")
             # we Timed out, or hit other error with requests
             self.last_check_error = True
             self.next_check_timestamp = datetime.datetime.now() + UPDATE_CHECK_FAILED_INTERVAL
             return
+        finally:
+            self.task_status = OTAService.STATUS_IDLE
+            # this will get published at the end of the main loop either way
 
         # Reset error flag at this point, since we ran through correctly
         self.last_check_error = False
@@ -108,13 +136,25 @@ class OTAService(X1PlusDBusService):
         while True:
             did_work = False
             ota_enabled = self.ota_enabled()
-            
-            if not ota_enabled:
-                logger.debug(f"OTA engine is disabled, so we are definitely doing nothing")
 
             if ota_enabled and datetime.datetime.now() > self.next_check_timestamp:
                 await self._check_for_ota()
                 did_work = True
+            
+            # if someone_asked_me_to_download_an_ota:
+            #     do it...
+            #     and grab the Bambu firmware associated with the ota?...
+            #     and clear the someone_asked_me flag...
+            #     did_work = True
+            #
+            # if someone_asked_me_to_reboot_into_the_ota:
+            #     do it...
+
+            if not ota_enabled:
+                logger.debug(f"OTA engine is disabled, so we are definitely doing nothing")
+                self.task_status = OTAService.STATUS_DISABLED
+            
+            await self._maybe_publish_status_object()
             
             if not did_work:
                 # we have nothing to do -- wait until we either have
