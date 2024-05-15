@@ -36,7 +36,7 @@ class SettingsService(X1PlusDBusService):
         "boot.dump_emmc": False,
         "boot.sdcard_syslog": False,
         "boot.perf_log": False,
-        "ota.enable": False,
+        "ota.enabled": False,
     }
 
     def __init__(self, **kwargs):
@@ -67,6 +67,8 @@ class SettingsService(X1PlusDBusService):
                     logger.error(f"failed to even move the old file out of the way ({e})!")
             self.settings = self._migrate_old_settings()
             self._save()
+        
+        self.settings_callbacks = {}
 
         super().__init__(
             dbus_interface=SETTINGS_INTERFACE, dbus_path=SETTINGS_PATH, **kwargs
@@ -107,6 +109,22 @@ class SettingsService(X1PlusDBusService):
 
         os.replace(self.filename + ".new", self.filename)
 
+    def get(self, *args):
+        "For internal consumers in x1plusd, returns the value of a setting."
+
+        return self.settings.get(*args)
+    
+    def on(self, setting, fn):
+        """
+        For internal consumers in x1plusd, receive a synchronous callback
+        when an x1plusd setting changes.  If you need to perform an async
+        task, then you will need to spawn it with asyncio.create_task().
+        """
+        
+        if setting not in self.settings_callbacks:
+            self.settings_callbacks[setting] = []
+        self.settings_callbacks[setting].append(fn)
+
     async def dbus_GetSettings(self, req):
         return self.settings
 
@@ -134,6 +152,12 @@ class SettingsService(X1PlusDBusService):
         logger.debug(
             f"x1p_settings: requested {settings_set}, updated {settings_updated}"
         )
+        
+        # Inform everybody locally inside x1plusd who might want to know
+        # that a setting has changed.
+        for k in settings_updated.keys():
+            for cb in self.settings_callbacks.get(k, []):
+                cb()
 
         # Inform everyone else on the system, only *after* we have saved
         # and made it visible.  That way, anybody who wants to know
