@@ -36,18 +36,6 @@ else:
     cfwVersion = describe[0].split('/')[1] 
     # date of the tag
     cfwdate = subprocess.run(["git", "tag", "-l", describe[0], "--format=%(taggerdate:format:%Y-%m-%d)"], capture_output=True, check=True, cwd=ROOTPATH).stdout.decode().strip()
-    # Generate OTA file
-    json.dump(
-        {
-            "cfwVersion": cfwVersion,
-            "date": cfwdate,
-            "buildTimestamp": timestamp,
-            "notes": tagnotes,
-            "url": f"https://github.com/X1Plus/X1Plus/releases/download/x1plus%2F{cfwVersion}/{cfwVersion}.x1p"
-        },
-        open(f"{ROOTPATH}/ota.json", "w"),
-        indent = 4,
-    )
 
 # Dump installer json for x1p
 json.dump(

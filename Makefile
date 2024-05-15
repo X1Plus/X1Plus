@@ -41,6 +41,7 @@ all: $(CFWVERSION).x1p
 #   images/cfw.squashfs
 $(CFWVERSION).x1p: images initramfs bbl_screen-patch
 	scripts/mkx1p.py $@
+	scripts/mkotajson.py
 
 bbl_screen-patch: firmwares
 
