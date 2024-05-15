@@ -43,7 +43,7 @@ $(CFWVERSION).x1p: images initramfs bbl_screen-patch
 	scripts/mkx1p.py $@
 
 ota.json: $(CFWVERSION).x1p
-	scripts/mkotajson $< $@
+	scripts/mkotajson.py $< $@
 
 bbl_screen-patch: firmwares
 
