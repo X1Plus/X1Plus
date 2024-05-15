@@ -1,6 +1,14 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -16,7 +16,14 @@
+@@ -6,6 +6,7 @@
+ 
+ import ".."
+ import "qrc:/uibase/qml/widgets"
++import "../X1Plus.js" as X1Plus
+ 
+ Item {
+ 
+@@ -16,7 +17,13 @@
      property var extruders: hasExtruderList ? extruderList.extruders : []
      property var currentExtruder: hasExtruderList ? extruderList.currentExtruder : null
      property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
@@ -8,9 +16,8 @@
 +    property var isHomed: (PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) >= PrintManager.AXIS_HOMED_ALL
 +    
 +    property bool ignoreDialog: false
-+    property var speedValues: [50,100,125,175]
++    property var speedValues: [50,100,124,166]
 +    property var speedStr: ["Silent","Normal","Sport","Ludicrous"]
-+    property var speedStrs: []
 +    property bool customSpeed: X1Plus.Settings.get("printerui.speedadjust", false);
 +    
      property var speedAdjust: QtObject {
@@ -87,7 +94,7 @@
                  }
                  speedPad_close();
              }
-@@ -400,36 +425,54 @@
+@@ -400,36 +425,55 @@
              tempList.currentIndex = -1
          }
      }
@@ -143,6 +150,7 @@
          }
 -
 +        
++        /* Speed adjustment stepbar (OEM) */
          Rectangle {
 +            id: defaultSpeed
              width: 540
@@ -154,15 +162,13 @@
  
              MouseArea {
                  anchors.fill: parent
-@@ -437,12 +480,42 @@
+@@ -437,13 +481,44 @@
              }
  
              Text {
 -                x: 50
 +                x: 180
                  y: 18
-+                // anchors.right: toDial.left
-+                // anchors.leftMargin: 30
                  font: Fonts.body_30
                  color: Colors.gray_300
                  text: qsTr("Printing speed")
@@ -171,8 +177,9 @@
 +            /* Button for switching to dial */
 +            Rectangle {
 +                id: toDial
-+                width: 60
-+                height: 60
++                width: 90
++                height: 90
++                z: 1
 +                color: Colors.gray_600
 +                anchors.right: parent.right
 +                anchors.rightMargin:10
@@ -182,23 +189,26 @@
 +                    id: defaultButton
 +                    width: 60
 +                    height: 60
-+                    anchors.fill:parent
++                    anchors.centerIn: parent
 +                    fillMode: Image.PreserveAspectFit 
 +                    originSource:  "../../icon/right.svg"
 +                }
-+
+ 
 +                MouseArea {
 +                    anchors.fill: parent
 +                    onClicked: {
 +                        customSpeed = true
 +                        X1Plus.Settings.put("printerui.speedadjust", customSpeed);
 +                    }
++                    onEntered: parent.opacity = 0.8
++                    onExited: parent.opacity = 1.0
 +                }
 +            }
- 
++            /* OEM speed adjust UI */
              ZStepBar {
                  id: stepBar
-@@ -460,8 +533,9 @@
+                 width: parent.width - 260
+@@ -460,8 +535,9 @@
                  }
                  titleFont: Fonts.body_36
                  steps: PrintManager.currentTask.printSpeedModeStrings
@@ -209,16 +219,19 @@
      }
  
      Item {
-@@ -517,7 +591,7 @@
-             EventTrack.itemName: "tempAndSpeed_" + modelData.name
+@@ -515,9 +591,9 @@
+             text: modelData.currentTemp.toFixed(0)
  
+             EventTrack.itemName: "tempAndSpeed_" + modelData.name
+-
++            
              Binding on text {
 -               value: speedPad.step
 +               value: customSpeed ? speedDial.targetSpeed + "%" : speedPad.step
                 when: speedPad.target == modelData
              }
  
-@@ -828,7 +902,7 @@
+@@ -828,7 +904,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -227,7 +240,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +920,7 @@
+@@ -846,7 +922,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -236,7 +249,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +975,13 @@
+@@ -901,11 +977,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",
