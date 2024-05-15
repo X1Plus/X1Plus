@@ -36,11 +36,11 @@ if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
             QUICKBOOT_FLAG="false" # Back to false, so we make it to installer if we are re-installing a matching named build
         fi
         # Always clear the flag no matter what if it wasn't null, we have to do this ourselves as we don't have dbus
-        # for x1plusd as we are NOT in x1plus yet!
-        TMPSETTINGS=$(mktemp)
-        /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json > "${TMPSETTINGS}"
-        mv "${TMPSETTINGS}" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json 2> /dev/null # suppress permissions warning
-        sync
+        # for x1plusd as we are NOT in x1plus yet! Also, we need to do this atomically, so it has to be on the same FS.
+        /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json > /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json.kexectmp
+        sync # Ensure our changed file is saved
+        mv /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json.kexectmp /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json
+        sync # Ensure the file mv is commited to disk
     fi
 fi
 
