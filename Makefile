@@ -28,7 +28,7 @@ define make =
 	$(MAKE) -C $(1) $(MAKEFLAGS) FIRMWARE=$(FIRMWARE) $(2)
 endef
 
-all: $(CFWVERSION).x1p
+all: $(CFWVERSION).x1p ota.json
 	make -C installer-clientside/stage1
 
 # needs:
@@ -41,7 +41,9 @@ all: $(CFWVERSION).x1p
 #   images/cfw.squashfs
 $(CFWVERSION).x1p: images initramfs bbl_screen-patch
 	scripts/mkx1p.py $@
-	scripts/mkotajson.py
+
+ota.json: $(CFWVERSION).x1p
+	scripts/mkotajson $< $@
 
 bbl_screen-patch: firmwares
 
