@@ -219,53 +219,27 @@ Rectangle {
                 }
             }
 
-            // handle: Rectangle {
-            //     id: dialHandle 
-            //     width: 30
-            //     height: 30
-            //     radius: 15
-            //     color: dial.pressed ?"#4E4F4E": "#3A3B3A" 
-            //     border.color: "#eb6600"
-            //     border.width: 2
-            //     x: dialBackground.x + dialBackground.width / 2 - dialHandle.width / 2
-            //     y: dialBackground.y + dialBackground.height / 2 - dialHandle.height / 2
-            //         transform: [
-            //         Translate {
-            //             y: -Math.min(dialBackground.width, dialBackground.height) * 0.5 + dialHandle.height / 2
-            //         },
-            //         Rotation {
-            //             angle: dial.angle
-            //             origin.x: dialHandle.width / 2
-            //             origin.y: dialHandle.height / 2
-            //         }
-            //     ]
-            // }
-                // If the dial handle needs a larger mouse area, we can do this:
-                // MouseArea {
-                //     id: touchArea
-                //     width: parent.width*1.2
-                //     height: parent.height*1.2
-                //     x: parent.x
-                //     y: parent.y
-                //     anchors.fill: parent
-                //     property point handleCenter: Qt.point(dialHandle.x + dialHandle.width / 2, dialHandle.y + dialHandle.height / 2)
-
-                //     onPressed: {
-                //         var dx = dialHandle.x - touchArea.handleCenter.x;
-                //         var dy = dialHandle.y - touchArea.handleCenter.y;
-                //         // dial.angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                //     }
-
-                //     onPositionChanged: {
-                //         if (pressed) {
-                //             var angle = Math.atan2(dialHandle.y - height / 2, dialHandle.x - width / 2) * 180 / Math.PI;
-                //             angle = (angle < 0) ? 360 + angle : angle; 
-                //             var normalizedAngle = (angle - 130) % 360;
-                //             dial.value = (normalizedAngle / 360) * (dial.to - dial.from) + dial.from;
-                //         }
-                //     }
-                // }
-            
+            handle: Rectangle {
+                id: dialHandle 
+                width: 20
+                height: 20
+                radius: 10
+                color: dial.pressed ? Colors.gray_300 : Colors.gray_400
+                // border.color: "black"
+                // border.width: 2
+                x: dialBackground.x + dialBackground.width / 2 - dialHandle.width / 2
+                y: dialBackground.y + dialBackground.height / 2 - dialHandle.height / 2
+                    transform: [
+                    Translate {
+                        y: -Math.min(dialBackground.width, dialBackground.height) * 0.5 + dialHandle.height / 2 + 3.5
+                    },
+                    Rotation {
+                        angle: dial.angle
+                        origin.x: dialHandle.width / 2
+                        origin.y: dialHandle.height / 2
+                    }
+                ]
+            }  
     
             Text {
                 text: qsTr("%1%").arg(Math.round(dial.value))
