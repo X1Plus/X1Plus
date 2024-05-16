@@ -93,6 +93,7 @@ EMULATION_WORKAROUNDS=$X1PLUS/fakeroot/ \
 QML2_IMPORT_PATH=$ROOTFS/usr/qml \
 qemu-arm \
 -E LD_PRELOAD=$X1PLUS/bbl_screen-patch/printer_ui.so \
+-E LD_LIBRARY_PATH=$X1PLUS/images/cfw/usr/lib/ \
 -L $ROOTFS \
 ./bbl_screen -platform vnc:size=1280x720
 ```
