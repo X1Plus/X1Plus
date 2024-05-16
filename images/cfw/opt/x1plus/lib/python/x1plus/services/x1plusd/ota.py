@@ -1,8 +1,10 @@
+import os
 import json
 import ssl
 import aiohttp
 import datetime
 import asyncio
+import hashlib
 
 import x1plus.utils
 from .dbus import *
@@ -33,10 +35,13 @@ class OTAService(X1PlusDBusService):
         self.last_check_response = None
         self.last_check_error = False
         self.next_check_timestamp = datetime.datetime.now()
+        self.recheck_files_request = False
         self.ota_downloaded = False
+        self.base_update_downloaded = False
         self.ota_task_wake = asyncio.Event()
         self.last_status_object = None
         self.task_status = OTAService.STATUS_DISABLED
+        self.sdcard_path = "/tmp/x1plus" if x1plus.utils.is_emulating() else "/sdcard"
 
         try:
             # XXX: check is_emulating
@@ -72,13 +77,19 @@ class OTAService(X1PlusDBusService):
             "err_on_last_check": self.last_check_error,
             "last_checked": self.last_check_timestamp,
             "ota_info": self.last_check_response,
-            "is_downloaded": self.ota_downloaded,
+            "ota_is_downloaded": self.ota_downloaded,
+            "ota_base_is_downloaded": self.base_update_downloaded,
         }
     
     async def dbus_CheckNow(self, req):
         self.next_check_timestamp = datetime.datetime.now()
         self.ota_task_wake.set()
         return {"status": "ok" if self.ota_enabled() else "disabled"}
+
+    async def dbus_CheckFiles(self, req):
+        self.recheck_files_request = True
+        self.ota_task_wake.set()
+        return {"status": "ok"}
 
     async def dbus_GetStatus(self, req):
         return self._make_status_object()
@@ -104,6 +115,9 @@ class OTAService(X1PlusDBusService):
                 async with session.get(self.ota_url, timeout=5) as response:
                     response.raise_for_status()
                     self.last_check_response = await response.json()
+                    if not isinstance(self.last_check_response, dict):
+                        self.last_check_response = None
+                        raise ValueError("OTA response was not a dict")
         except Exception as e:
             logger.error(f"Exception calling OTA URL! {e.__class__.__name__}: \"{e}\"")
             # we Timed out, or hit other error with requests
@@ -117,16 +131,65 @@ class OTAService(X1PlusDBusService):
         # Reset error flag at this point, since we ran through correctly
         self.last_check_error = False
         self.next_check_timestamp = datetime.datetime.now() + UPDATE_CHECK_SUCCESSFUL_INTERVAL
+        
+        # Also, since the last_check_response has changed, blank out that
+        # the OTA has been downloaded until we check.
+        self.ota_downloaded = False
+        self.base_update_downloaded = False
 
         # Now that we have the build info, do our check to see if there's an update
         if self.build_info.get("buildTimestamp", 0) < self.last_check_response.get(
             "buildTimestamp", 0
         ):
             self.ota_available = True
+            self._check_fwfiles()
 
-        logger.debug(
-            f"Finished running _update_check, results of: {self.last_check_response}"
-        )
+        # the status diagnostics will give the contents later
+        logger.debug("_update_check successfully downloaded ota.json")
+    
+    def _check_fwfiles(self):
+        if not self.last_check_response:
+            return
+
+        logger.debug("checking to see if any OTA files are already on disk...")
+
+        if not self.ota_downloaded:
+            try:
+                ota_url = self.last_check_response['ota_url']
+                ota_md5 = self.last_check_response['ota_md5']
+                ota_filename = os.path.split(ota_url)[-1]
+                ota_on_disk_path = os.path.join(self.sdcard_path, ota_filename)
+                accum = hashlib.md5()
+                with open(ota_on_disk_path, "rb") as f:
+                    for chunk in iter(lambda: f.read(65536), b""):
+                        accum.update(chunk)
+                disk_md5 = accum.hexdigest()
+                logger.debug(f"{ota_on_disk_path} has md5 {disk_md5}, want md5 {ota_md5}")
+                self.ota_downloaded = ota_md5 == disk_md5
+            except FileNotFoundError as e:
+                logger.debug(f"{e}")
+                pass
+            except Exception as e:
+                logger.error(f"exception while checking OTA file: {e.__class__.__name__}: \"{e}\"")
+
+        if not self.base_update_downloaded:
+            try:
+                base_update_url = self.last_check_response['base_update_url']
+                base_update_md5 = self.last_check_response['base_update_md5']
+                base_update_filename = os.path.split(base_update_url)[-1]
+                base_update_on_disk_path = os.path.join(self.sdcard_path, "x1plus", "firmware", base_update_filename)
+                accum = hashlib.md5()
+                with open(base_update_on_disk_path, "rb") as f:
+                    for chunk in iter(lambda: f.read(65536), b""):
+                        accum.update(chunk)
+                disk_md5 = accum.hexdigest()
+                logger.debug(f"{base_update_on_disk_path} has md5 {disk_md5}, want md5 {base_update_md5}")
+                self.base_update_downloaded = base_update_md5 == disk_md5
+            except FileNotFoundError as e:
+                logger.debug(f"{e}")
+                pass
+            except Exception as e:
+                logger.error(f"exception while checking base update file: {e.__class__.__name__}: \"{e}\"")
     
     async def _ota_task(self):
         # Make sure that we are given a chance to see if there is work to do
@@ -139,6 +202,11 @@ class OTAService(X1PlusDBusService):
 
             if ota_enabled and datetime.datetime.now() > self.next_check_timestamp:
                 await self._check_for_ota()
+                did_work = True
+            
+            if self.recheck_files_request:
+                self._check_fwfiles()
+                self.recheck_files_request = False
                 did_work = True
             
             # if someone_asked_me_to_download_an_ota:
