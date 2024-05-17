@@ -39,6 +39,7 @@ class OTAService(X1PlusDBusService):
         self.next_check_timestamp = datetime.datetime.now()
         self.recheck_files_request = False
         self.download_ota_request = False
+        self.download_base_update = False
         self.ota_downloaded = False
         self.base_update_downloaded = False
         self.ota_task_wake = asyncio.Event()
@@ -47,6 +48,7 @@ class OTAService(X1PlusDBusService):
         self.sdcard_path = "/tmp/x1plus" if x1plus.utils.is_emulating() else "/sdcard"
         self.download_bytes = 0
         self.download_bytes_total = 0
+        self.download_last_error = None
 
         try:
             # XXX: check is_emulating
@@ -67,7 +69,7 @@ class OTAService(X1PlusDBusService):
         )
 
     def ota_enabled(self):
-        return not not self.x1psettings.get("ota.enabled", False)
+        return bool(self.x1psettings.get("ota.enabled", False))
 
     async def task(self):
         # On startup run an update check to populate info
@@ -87,7 +89,8 @@ class OTAService(X1PlusDBusService):
             "download": {
                 "bytes": self.download_bytes,
                 "bytes_total": self.download_bytes_total,
-            }
+                "last_error": self.download_last_error,
+            },
         }
     
     async def dbus_CheckNow(self, req):
@@ -103,7 +106,7 @@ class OTAService(X1PlusDBusService):
     async def dbus_Download(self, req):
         self.download_ota_request = True
         self.ota_task_wake.set()
-        # XXX: check for base update request in req also
+        self.download_base_update = bool(req.get('base_firmware', False))
         return {"status": "ok"}
 
     async def dbus_GetStatus(self, req):
@@ -262,6 +265,7 @@ class OTAService(X1PlusDBusService):
                 did_work = True
             
             if ota_enabled and self.download_ota_request:
+                self.download_last_error = None
                 if not self.ota_downloaded:
                     self.task_status = OTAService.STATUS_DOWNLOADING_X1P
                     try:
@@ -272,19 +276,26 @@ class OTAService(X1PlusDBusService):
                         await self._download_file(ota_url, ota_on_disk_path, ota_md5)
                         self.ota_downloaded = True
                     except Exception as e:
-                        logger.debug(f"exception while downloading OTA: {e.__class__.__name__}: \"{e}\"")
-                        # XXX: set err_on_last_download_attempt
+                        self.download_last_error = f"exception while downloading OTA: {e.__class__.__name__}: \"{e}\""
+                        logger.debug(self.download_last_error)
                     self.task_status = OTAService.STATUS_IDLE
-                # XXX: also download the base_update based on an appropriate flag
+                
+                if not self.base_update_downloaded and self.download_base_update:
+                    self.task_status = OTAService.STATUS_DOWNLOADING_BASE
+                    try:
+                        base_update_url = self.last_check_response['base_update_url']
+                        base_update_md5 = self.last_check_response['base_update_md5']
+                        base_update_filename = os.path.split(base_update_url)[-1]
+                        base_update_on_disk_path = os.path.join(self.sdcard_path, "x1plus", "firmware", base_update_filename)
+                        await self._download_file(base_update_url, base_update_on_disk_path, base_update_md5)
+                        self.base_update_downloaded = True
+                    except Exception as e:
+                        self.download_last_error = f"exception while downloading base firmware: {e.__class__.__name__}: \"{e}\""
+                        logger.debug(self.download_last_error)
+                    self.task_status = OTAService.STATUS_IDLE
                 self.download_ota_request = False
                 did_work = True
             
-            # if someone_asked_me_to_download_an_ota:
-            #     do it...
-            #     and grab the Bambu firmware associated with the ota?...
-            #     and clear the someone_asked_me flag...
-            #     did_work = True
-            #
             # if someone_asked_me_to_reboot_into_the_ota:
             #     do it...
 
