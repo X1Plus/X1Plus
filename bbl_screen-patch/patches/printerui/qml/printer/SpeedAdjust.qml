@@ -41,6 +41,9 @@ Rectangle {
     property var layerNum: PrintManager.currentTask.layerNum
     property var totalLayerNum: PrintManager.currentTask.totalLayerNum
     property var target: parent.target
+    property alias stepSize: dial.stepSize
+    property var stepSizes: [2,4,10] //step size options (%)
+    
     property var nearestLevel: function(val) { 
         var closestIndex = 0; 
         var minDiff = Math.abs(val - speedValues[0]);
@@ -60,12 +63,15 @@ Rectangle {
 
     onTargetChanged:{
         if (target != null){
-            dialCanvas.requestPaint();
+            updateDial()
         }
     }
     Component.onCompleted: {
-        updateDial();
-        targetSpeed = currentSpeed;
+        if (target != null){
+            stepSize = X1Plus.Settings.get("printerui.speedadjust.stepSize", 2);
+            dial.value = currentSpeed;
+            updateDial();
+        }
     }
     
     /* Button for switching to stepbar */
@@ -141,8 +147,8 @@ Rectangle {
                 updateDial();
             }
             onValueChanged: {
-                dial.value = Math.round(dial.value / dial.stepSize) * dial.stepSize;
-                dial.value = 2 * Math.floor(dial.value / 2); //snap to nearest even value
+                dial.value = Math.round(dial.value / stepSize) * stepSize;
+                dial.value = stepSize * Math.floor(dial.value / stepSize); //snap to nearest even value
                 targetSpeed = dial.value;
                 updateDial();
             }
@@ -167,10 +173,10 @@ Rectangle {
                         ctx.clearRect(0, 0, width, height);
 
                         var startAngle = 130;
-                        var endAngle = 270;
+                        var endAngle = 130 + 280/stepSize
                         var range = dial.to - dial.from;
                         
-                        var stepAngle = (startAngle - endAngle) / range * dial.stepSize;
+                        var stepAngle = (startAngle - endAngle) / range * stepSize;
                         var currentAngle = startAngle - ((dial.value - dial.from) * stepAngle); // calculate angle for current value
 
                         // Draw arc for the current value
@@ -180,7 +186,7 @@ Rectangle {
                         ctx.lineWidth = 20;
                         ctx.stroke();
 
-                        for (var i = 0; i <= range; i += dial.stepSize) {
+                        for (var i = 0; i <= range; i += stepSize) {
                             var angle = (startAngle - i * stepAngle) * Math.PI / 180;
                             var outerX = centerX + radius * Math.cos(angle);
                             var outerY = centerY + radius * Math.sin(angle);
@@ -225,8 +231,6 @@ Rectangle {
                 height: 20
                 radius: 10
                 color: dial.pressed ? Colors.gray_300 : Colors.gray_400
-                // border.color: "black"
-                // border.width: 2
                 x: dialBackground.x + dialBackground.width / 2 - dialHandle.width / 2
                 y: dialBackground.y + dialBackground.height / 2 - dialHandle.height / 2
                     transform: [
@@ -247,7 +251,54 @@ Rectangle {
                 font.pixelSize: 36
                 anchors.centerIn: dial
             }
+            
         }
+        
+        Rectangle {
+            id: stepRect
+            color: "#3b3b39"
+            width: 100
+            height: width
+            radius: width/2
+            border.color: Colors.gray_400
+            anchors.left: parent.left
+            anchors.leftMargin: 30
+            anchors.verticalCenter: parent.verticalCenter
+            property var stepCount: 0
+            Text {
+                color: "white"
+                font.pixelSize: 36
+                anchors.centerIn: stepRect
+                text: "±" + stepSize + "%"
+            }
+            MouseArea {
+                anchors.fill: parent
+                width: parent.width*1.3
+                height: parent.height*1.3
+                onClicked: {
+                    parent.stepCount++;
+                    if (parent.stepCount >= 3){
+                        parent.stepCount = 0;
+                    }
+                    stepSize = stepSizes[parent.stepCount];
+                    updateDial();
+                    X1Plus.Settings.put("printerui.speedadjust.stepsize", stepSize);
+                }
+                onEntered: stepRect.color = "#2e2e2c"
+                onExited: stepRect.color = "#3b3b39"
+            } 
+        }
+        Text {
+            id: stepLabel
+            font.pixelSize: 18
+            anchors.top: stepRect.bottom
+            anchors.left:stepRect.left
+            anchors.leftMargin: 10
+            anchors.topMargin: 10
+            color: "white"
+            text: qsTr("Step size")
+        }
+        
         Text { 
             id: txtParams //displays the parameters that will be applied
             property var speedParams: X1Plus.GcodeGenerator.speed_interpolation
@@ -286,7 +337,7 @@ Rectangle {
         
         Text {
             id: targetSpeedLabel //displays the equivalent speed string for the target speed speed
-            text: speedStr[nearestLevel(dial.value)]
+            text: speedStr[nearestLevel(targetSpeed)]
             color: Colors.brand
             font.pixelSize: 18
             anchors.left: targetSpeedPercent.right

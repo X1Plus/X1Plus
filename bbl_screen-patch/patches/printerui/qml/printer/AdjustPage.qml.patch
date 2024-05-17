@@ -90,7 +90,7 @@
 +                        "currentItemText": PrintManager.currentTask.printSpeedModeStrings[speedPad.speedMode]
 +                    }
 +                } else {
-+                    speedDial.targetSpeed = PrintManager.currentTask.printSpeed
++                    //speedDial.targetSpeed = PrintManager.currentTask.printSpeed
                  }
                  speedPad_close();
              }
@@ -135,16 +135,17 @@
 +        }
 +        
 +        onTargetChanged:{
-+            if (target != null){
++            if (target != null && !customSpeed){
                  speedMode = PrintManager.currentTask.printSpeedMode
 +            } 
          }
 -
 -        onSpeedModeChanged: {
+-            if (target != null) {
+-                PrintManager.currentTask.printSpeedMode = speedMode
 +        
 +        onSpeedModeChanged:{
-             if (target != null) {
--                PrintManager.currentTask.printSpeedMode = speedMode
++            if (target != null && !customSpeed) {
 +                PrintManager.currentTask.printSpeedMode = speedMode;
              }
          }
