@@ -117,7 +117,7 @@ class OTAService(X1PlusDBusService):
         await self.x1psettings.put('ota.filename', os.path.split(self.last_check_response['ota_url'])[-1])
         if not x1plus.utils.is_emulating():
             os.system("sync; sync; reboot")
-            # we ought never return from this!
+            return {"status": "rebooting"}
         else:
             return {"status": "ok"}
 
