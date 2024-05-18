@@ -1,8 +1,10 @@
+import os
 import json
 import ssl
 import aiohttp
 import datetime
 import asyncio
+import hashlib
 
 import x1plus.utils
 from .dbus import *
@@ -24,19 +26,29 @@ class OTAService(X1PlusDBusService):
     STATUS_DISABLED = "DISABLED"
     STATUS_IDLE = "IDLE"
     STATUS_CHECKING_OTA = "CHECKING_OTA"
+    STATUS_DOWNLOADING_X1P = "DOWNLOADING_X1P"
+    STATUS_DOWNLOADING_BASE = "DOWNLOADING_BASE"
     
     def __init__(self, settings, **kwargs):
         self.x1psettings = settings
-        self.ota_url = DEFAULT_OTA_URL
+        self.ota_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
         self.ota_available = False
         self.last_check_timestamp = None
         self.last_check_response = None
         self.last_check_error = False
         self.next_check_timestamp = datetime.datetime.now()
+        self.recheck_files_request = False
+        self.download_ota_request = False
+        self.download_base_update = False
         self.ota_downloaded = False
+        self.base_update_downloaded = False
         self.ota_task_wake = asyncio.Event()
         self.last_status_object = None
         self.task_status = OTAService.STATUS_DISABLED
+        self.sdcard_path = "/tmp/x1plus" if x1plus.utils.is_emulating() else "/sdcard"
+        self.download_bytes = 0
+        self.download_bytes_total = 0
+        self.download_last_error = None
 
         try:
             # XXX: check is_emulating
@@ -57,7 +69,7 @@ class OTAService(X1PlusDBusService):
         )
 
     def ota_enabled(self):
-        return not not self.x1psettings.get("ota.enabled", False)
+        return bool(self.x1psettings.get("ota.enabled", False))
 
     async def task(self):
         # On startup run an update check to populate info
@@ -72,13 +84,42 @@ class OTAService(X1PlusDBusService):
             "err_on_last_check": self.last_check_error,
             "last_checked": self.last_check_timestamp,
             "ota_info": self.last_check_response,
-            "is_downloaded": self.ota_downloaded,
+            "ota_is_downloaded": self.ota_downloaded,
+            "ota_base_is_downloaded": self.base_update_downloaded,
+            "download": {
+                "bytes": self.download_bytes,
+                "bytes_total": self.download_bytes_total,
+                "last_error": self.download_last_error,
+            },
         }
     
     async def dbus_CheckNow(self, req):
         self.next_check_timestamp = datetime.datetime.now()
         self.ota_task_wake.set()
         return {"status": "ok" if self.ota_enabled() else "disabled"}
+
+    async def dbus_CheckFiles(self, req):
+        self.recheck_files_request = True
+        self.ota_task_wake.set()
+        return {"status": "ok"}
+
+    async def dbus_Download(self, req):
+        self.download_ota_request = True
+        self.ota_task_wake.set()
+        self.download_base_update = bool(req.get('base_firmware', False))
+        return {"status": "ok"}
+    
+    async def dbus_Update(self, req):
+        # you're on your own to make sure you're not printing when you call
+        # this method!
+        if not self.ota_downloaded:
+            return {"status": "failure", "reason": "ota not downloaded, doofus"}
+        await self.x1psettings.put('ota.filename', os.path.split(self.last_check_response['ota_url'])[-1])
+        if not x1plus.utils.is_emulating():
+            os.system("sync; sync; reboot")
+            return {"status": "rebooting"}
+        else:
+            return {"status": "ok"}
 
     async def dbus_GetStatus(self, req):
         return self._make_status_object()
@@ -104,6 +145,9 @@ class OTAService(X1PlusDBusService):
                 async with session.get(self.ota_url, timeout=5) as response:
                     response.raise_for_status()
                     self.last_check_response = await response.json()
+                    if not isinstance(self.last_check_response, dict):
+                        self.last_check_response = None
+                        raise ValueError("OTA response was not a dict")
         except Exception as e:
             logger.error(f"Exception calling OTA URL! {e.__class__.__name__}: \"{e}\"")
             # we Timed out, or hit other error with requests
@@ -117,21 +161,116 @@ class OTAService(X1PlusDBusService):
         # Reset error flag at this point, since we ran through correctly
         self.last_check_error = False
         self.next_check_timestamp = datetime.datetime.now() + UPDATE_CHECK_SUCCESSFUL_INTERVAL
+        
+        # Also, since the last_check_response has changed, blank out that
+        # the OTA has been downloaded until we check.
+        self.ota_downloaded = False
+        self.base_update_downloaded = False
 
         # Now that we have the build info, do our check to see if there's an update
         if self.build_info.get("buildTimestamp", 0) < self.last_check_response.get(
             "buildTimestamp", 0
         ):
             self.ota_available = True
+            self._check_fwfiles()
 
-        logger.debug(
-            f"Finished running _update_check, results of: {self.last_check_response}"
-        )
+        # the status diagnostics will give the contents later
+        logger.debug("_update_check successfully downloaded ota.json")
+    
+    def _check_fwfiles(self):
+        if not self.last_check_response:
+            return
+
+        logger.debug("checking to see if any OTA files are already on disk...")
+
+        if not self.ota_downloaded:
+            try:
+                ota_url = self.last_check_response['ota_url']
+                ota_md5 = self.last_check_response['ota_md5']
+                ota_filename = os.path.split(ota_url)[-1]
+                ota_on_disk_path = os.path.join(self.sdcard_path, ota_filename)
+                accum = hashlib.md5()
+                with open(ota_on_disk_path, "rb") as f:
+                    for chunk in iter(lambda: f.read(65536), b""):
+                        accum.update(chunk)
+                disk_md5 = accum.hexdigest()
+                logger.debug(f"{ota_on_disk_path} has md5 {disk_md5}, want md5 {ota_md5}")
+                self.ota_downloaded = ota_md5 == disk_md5
+            except FileNotFoundError as e:
+                logger.debug(f"{e}")
+                pass
+            except Exception as e:
+                logger.error(f"exception while checking OTA file: {e.__class__.__name__}: \"{e}\"")
+
+        if not self.base_update_downloaded:
+            try:
+                base_update_url = self.last_check_response['base_update_url']
+                base_update_md5 = self.last_check_response['base_update_md5']
+                base_update_filename = os.path.split(base_update_url)[-1]
+                base_update_on_disk_path = os.path.join(self.sdcard_path, "x1plus", "firmware", base_update_filename)
+                accum = hashlib.md5()
+                with open(base_update_on_disk_path, "rb") as f:
+                    for chunk in iter(lambda: f.read(65536), b""):
+                        accum.update(chunk)
+                disk_md5 = accum.hexdigest()
+                logger.debug(f"{base_update_on_disk_path} has md5 {disk_md5}, want md5 {base_update_md5}")
+                self.base_update_downloaded = base_update_md5 == disk_md5
+            except FileNotFoundError as e:
+                logger.debug(f"{e}")
+                pass
+            except Exception as e:
+                logger.error(f"exception while checking base update file: {e.__class__.__name__}: \"{e}\"")
+
+    # can throw!  handle it yourself!
+    async def _download_file(self, url, dest, md5):
+        try:
+            logger.debug(f"downloading {url} to {dest}")
+            accum = hashlib.md5()
+            with open(dest, 'wb') as f:
+                # Total timeout of 15 minutes per request means you need to
+                # sustain 100 kB/s from Bambu on a 90MB update.zip before we
+                # time out.
+                timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
+                async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout) as session:
+                    async with session.get(url) as response:
+                        response.raise_for_status()
+                        self.download_bytes_total = int(response.headers['content-length'])
+                        self.download_bytes = 0
+                        last_publish = datetime.datetime.now()
+                        async for chunk in response.content.iter_chunked(131072):
+                            self.download_bytes += len(chunk)
+                            accum.update(chunk)
+                            f.write(chunk)
+                            
+                            # only make noise at 5Hz
+                            if (datetime.datetime.now() - last_publish) > datetime.timedelta(seconds = 0.2):
+                                last_publish = datetime.datetime.now()
+                                await self._maybe_publish_status_object()
+                        await self._maybe_publish_status_object()
+            disk_md5 = accum.hexdigest()
+            logger.debug(f"{dest} has md5 {disk_md5}, want md5 {md5}")
+            if disk_md5 != md5:
+                raise ValueError("downloaded file had incorrect md5")
+        except:
+            try:
+                os.unlink(dest)
+            except:
+                pass
+            raise
+    
+    def _ota_url_changed(self):
+        new_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
+        if self.ota_url != new_url:
+            logger.debug("OTA URL has changed, triggering recheck")
+        self.ota_url = new_url
+        self.next_check_timestamp = datetime.datetime.now()
+        self.ota_task_wake.set()
     
     async def _ota_task(self):
         # Make sure that we are given a chance to see if there is work to do
         # when the OTA status changes.
         self.x1psettings.on("ota.enabled", lambda: self.ota_task_wake.set())
+        self.x1psettings.on("ota.json_url", lambda: self._ota_url_changed())
         
         while True:
             did_work = False
@@ -141,15 +280,43 @@ class OTAService(X1PlusDBusService):
                 await self._check_for_ota()
                 did_work = True
             
-            # if someone_asked_me_to_download_an_ota:
-            #     do it...
-            #     and grab the Bambu firmware associated with the ota?...
-            #     and clear the someone_asked_me flag...
-            #     did_work = True
-            #
-            # if someone_asked_me_to_reboot_into_the_ota:
-            #     do it...
-
+            if self.recheck_files_request or self.download_ota_request:
+                self._check_fwfiles()
+                self.recheck_files_request = False
+                did_work = True
+            
+            if ota_enabled and self.download_ota_request:
+                self.download_last_error = None
+                if not self.ota_downloaded:
+                    self.task_status = OTAService.STATUS_DOWNLOADING_X1P
+                    try:
+                        ota_url = self.last_check_response['ota_url']
+                        ota_md5 = self.last_check_response['ota_md5']
+                        ota_filename = os.path.split(ota_url)[-1]
+                        ota_on_disk_path = os.path.join(self.sdcard_path, ota_filename)
+                        await self._download_file(ota_url, ota_on_disk_path, ota_md5)
+                        self.ota_downloaded = True
+                    except Exception as e:
+                        self.download_last_error = f"exception while downloading OTA: {e.__class__.__name__}: \"{e}\""
+                        logger.debug(self.download_last_error)
+                    self.task_status = OTAService.STATUS_IDLE
+                
+                if not self.base_update_downloaded and self.download_base_update:
+                    self.task_status = OTAService.STATUS_DOWNLOADING_BASE
+                    try:
+                        base_update_url = self.last_check_response['base_update_url']
+                        base_update_md5 = self.last_check_response['base_update_md5']
+                        base_update_filename = os.path.split(base_update_url)[-1]
+                        base_update_on_disk_path = os.path.join(self.sdcard_path, "x1plus", "firmware", base_update_filename)
+                        await self._download_file(base_update_url, base_update_on_disk_path, base_update_md5)
+                        self.base_update_downloaded = True
+                    except Exception as e:
+                        self.download_last_error = f"exception while downloading base firmware: {e.__class__.__name__}: \"{e}\""
+                        logger.debug(self.download_last_error)
+                    self.task_status = OTAService.STATUS_IDLE
+                self.download_ota_request = False
+                did_work = True
+            
             if not ota_enabled:
                 logger.debug(f"OTA engine is disabled, so we are definitely doing nothing")
                 self.task_status = OTAService.STATUS_DISABLED
