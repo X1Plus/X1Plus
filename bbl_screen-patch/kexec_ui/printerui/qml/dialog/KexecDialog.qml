@@ -7,7 +7,7 @@ import "qrc:/uibase/qml/widgets"
 
 Item {
     property alias name: textConfirm.objectName
-    property var x1pName: ""
+    property var x1pName: X1PlusNative.getenv("X1P_OTA") || ""
     /* Replicated in BootOptionsPage.qml; keep this in sync if you change this (or, really, refactor it then). */
     property var hasSdCard: (function () {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/boot.conf";
@@ -16,7 +16,7 @@ Item {
         xhr.send();
         return xhr.status == 200;
     }())
-    property var countdown: 10
+    property var countdown: parseInt(X1PlusNative.getenv("BOOT_DIALOG_TIMER") || "10")
     property string currentMode: (x1pName !== "") ? "ota" : "default"
      
     property var startupStrings: {
