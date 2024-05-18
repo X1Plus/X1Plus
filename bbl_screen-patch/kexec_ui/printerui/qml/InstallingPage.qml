@@ -52,33 +52,18 @@ Rectangle {
                     statusList.positionViewAtEnd();
                 }
                 if (datum.prompt_yesno) {
-                    textConfirmTimer.start()
                     dialogStack.popupDialog("TextConfirm", {
                         name: "installer yesno",
-                        text: Qt.binding(function() {  return datum.prompt_yesno + qsTr(" Download beginning in %1 seconds.").arg(textConfirmTimer.timerCount)}),
-                        titles: [qsTr("Download"), qsTr("Cancel")],
-                        finished: Qt.binding(function() { if (!textConfirmTimer.running) return true}),
+                        text: datum.prompt_yesno,
+                        titles: [qsTr("Yes"), qsTr("No")],
                         onYes: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: true })); dialogStack.pop(); },
-                        onNo: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: false })); dialogStack.pop(); },
-                        onFinished: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: true })); dialogStack.pop(); }
+                        onNo: function() { DdsListener.publishJson("device/request/upgrade", JSON.stringify({ command: 'x1plus', yesno: false })); dialogStack.pop(); }
                     });
                 }
             }
         }
     }
-    Timer {
-        id: textConfirmTimer
-        interval: 1000
-        repeat: true
-        running: false
-        property int timerCount:10
-        onTriggered: {
-            timerCount--;
-            if (timerCount <= -1){
-                textConfirmTimer.stop();
-            }
-        }
-    }
+    
     Timer {
         /* This is super hokey, to allow a paint after we say 'unpacking
          * firmware bundle' but before we go to sleep for a while doing it. 
