@@ -24,15 +24,14 @@ Item {
             "buttons": {
                 "yes_confirm": {"text": qsTr("Boot X1Plus"), "action": function() { X1PlusNative.system("/opt/kexec/boot"); }},
                 "no": {"text": qsTr("Startup options..."), "action": function() { dialogStack.replace("../BootOptionsPage.qml", {hasSdCard: hasSdCard}) }},
-                "cancel": {"text": "", "action": function() {}},  
+                "cancel": {"text": "", "action": function() {}},
             },
             "title": qsTr("Bootable SD card detected."),
             "subtitle": function() {
                 if (countdown > 0)
                     return qsTr("Your printer will automatically boot from the SD card in %1 seconds.").arg(countdown)
-                else 
+                else
                     return qsTr("Your printer is rebooting into the OS on the inserted SD card.")
-                    
             }
         },
         "ota": {
@@ -45,8 +44,8 @@ Item {
             "subtitle": function() {
                 if (countdown > 0)
                     return qsTr("Automatically installing .x1p file '%1' in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
-                else 
-                    return qsTr("Your printer will now install .x1p file '%1'.").arg(x1pName);                
+                else
+                    return qsTr("Your printer will now install .x1p file '%1'.").arg(x1pName);
             }
         }
     }
@@ -75,20 +74,17 @@ Item {
         }
     }
 
-
-    Component.onCompleted: {
-
-    }
-
     Timer {
         id: timer
+        running: hasSdCard
         interval: 1000
         repeat: true
-        running: hasSdCard
         onTriggered: {
-            countdown--;
-            if (countdown == -1) {
-                startupStrings[currentMode].buttons["yes_confirm"].action();
+            if (countdown >= 0) {
+                countdown--;
+                if (countdown == -1) {
+                    startupStrings[currentMode].buttons["yes_confirm"].action();
+                }
             }
         }
     }
@@ -97,7 +93,6 @@ Item {
     width: 800
     height: textContent.contentHeight + 12 + subtitle.contentHeight
     
-
     Image {
         id: bambuman
         anchors.left: parent.left
@@ -116,9 +111,10 @@ Item {
         font: Fonts.body_36
         color: Colors.gray_100
         wrapMode: Text.Wrap
-        text: hasSdCard ? startupStrings[currentMode].title : qsTr("No bootable SD Card detected.")
+        text: hasSdCard ? startupStrings[currentMode].title
+                        : qsTr("No bootable SD card detected.")
     }
-
+    
     Text {
         id: subtitle
         anchors.top: textContent.bottom
@@ -129,6 +125,8 @@ Item {
         font: Fonts.body_32
         color: Colors.gray_200
         wrapMode: Text.Wrap
-        text: hasSdCard ? startupStrings[currentMode].subtitle() : qsTr("Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.")
+        text: hasSdCard
+            ? startupStrings[currentMode].subtitle()
+            : qsTr("Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.")
     }
 }
