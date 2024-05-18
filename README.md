@@ -260,7 +260,7 @@ You almost certainly want to build in Docker.
 ### How do I contribute?
 
 For better or for worse, we do most of our development discussion in
-Discord.  Because of how much of a pain it is to merge `printer_ui` patches,
+[Discord](https://discord.gg/4SfCufp6SB).  Because of how much of a pain it is to merge `printer_ui` patches,
 please let other people know what you're working on!
 
 We work with pull requests and bug reports on GitHub.  Please reserve bug
