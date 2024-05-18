@@ -258,10 +258,19 @@ class OTAService(X1PlusDBusService):
                 pass
             raise
     
+    def _ota_url_changed(self):
+        new_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
+        if self.ota_url != new_url:
+            logger.debug("OTA URL has changed, triggering recheck")
+        self.ota_url = new_url
+        self.next_check_timestamp = datetime.datetime.now()
+        self.ota_task_wake.set()
+    
     async def _ota_task(self):
         # Make sure that we are given a chance to see if there is work to do
         # when the OTA status changes.
         self.x1psettings.on("ota.enabled", lambda: self.ota_task_wake.set())
+        self.x1psettings.on("ota.json_url", lambda: self._ota_url_changed())
         
         while True:
             did_work = False
