@@ -31,7 +31,7 @@ class OTAService(X1PlusDBusService):
     
     def __init__(self, settings, **kwargs):
         self.x1psettings = settings
-        self.ota_url = DEFAULT_OTA_URL
+        self.ota_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
         self.ota_available = False
         self.last_check_timestamp = None
         self.last_check_response = None
@@ -108,6 +108,18 @@ class OTAService(X1PlusDBusService):
         self.ota_task_wake.set()
         self.download_base_update = bool(req.get('base_firmware', False))
         return {"status": "ok"}
+    
+    async def dbus_Update(self, req):
+        # you're on your own to make sure you're not printing when you call
+        # this method!
+        if not self.ota_downloaded:
+            return {"status": "failure", "reason": "ota not downloaded, doofus"}
+        await self.x1psettings.put('ota.filename', os.path.split(self.last_check_response['ota_url'])[-1])
+        if not x1plus.utils.is_emulating():
+            os.system("sync; sync; reboot")
+            # we ought never return from this!
+        else:
+            return {"status": "ok"}
 
     async def dbus_GetStatus(self, req):
         return self._make_status_object()
@@ -296,9 +308,6 @@ class OTAService(X1PlusDBusService):
                 self.download_ota_request = False
                 did_work = True
             
-            # if someone_asked_me_to_reboot_into_the_ota:
-            #     do it...
-
             if not ota_enabled:
                 logger.debug(f"OTA engine is disabled, so we are definitely doing nothing")
                 self.task_status = OTAService.STATUS_DISABLED
