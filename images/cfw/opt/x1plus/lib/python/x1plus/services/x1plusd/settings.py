@@ -113,7 +113,7 @@ class SettingsService(X1PlusDBusService):
         "For internal consumers in x1plusd, returns the value of a setting."
 
         return self.settings.get(*args)
-    
+
     def on(self, setting, fn):
         """
         For internal consumers in x1plusd, receive a synchronous callback
@@ -125,16 +125,7 @@ class SettingsService(X1PlusDBusService):
             self.settings_callbacks[setting] = []
         self.settings_callbacks[setting].append(fn)
 
-    async def dbus_GetSettings(self, req):
-        return self.settings
-
-    async def dbus_PutSettings(self, settings_set):
-        if not isinstance(settings_set, dict):
-            logger.error(
-                f"x1p_settings: set request {settings_set} is not a dictionary"
-            )
-            return {"status": "error"}
-
+    async def put_multiple(self, settings_set):
         settings_updated = {}
         for k, v in settings_set.items():
             if v is None:
@@ -149,10 +140,6 @@ class SettingsService(X1PlusDBusService):
                     settings_updated[k] = v
         self._save()
 
-        logger.debug(
-            f"x1p_settings: requested {settings_set}, updated {settings_updated}"
-        )
-        
         # Inform everybody locally inside x1plusd who might want to know
         # that a setting has changed.
         for k in settings_updated.keys():
@@ -166,5 +153,26 @@ class SettingsService(X1PlusDBusService):
         # they read it.
         if len(settings_updated) > 0:
             await self.emit_signal("SettingsChanged", settings_updated)
+        
+        return settings_updated
+    
+    async def put(self, key, value):
+        return await self.put_multiple({key: value})
+
+    async def dbus_GetSettings(self, req):
+        return self.settings
+
+    async def dbus_PutSettings(self, settings_set):
+        if not isinstance(settings_set, dict):
+            logger.error(
+                f"x1p_settings: set request {settings_set} is not a dictionary"
+            )
+            return {"status": "error"}
+
+        settings_updated = await self.put_multiple(settings_set)
+        
+        logger.debug(
+            f"x1p_settings: requested {settings_set}, updated {settings_updated}"
+        )
 
         return {"status": "ok", "updated": list(settings_updated.keys())}
