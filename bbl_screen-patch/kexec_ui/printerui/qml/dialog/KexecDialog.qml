@@ -8,6 +8,7 @@ import "qrc:/uibase/qml/widgets"
 Item {
     property alias name: textConfirm.objectName
     property var x1pName: X1PlusNative.getenv("X1P_OTA") || ""
+    property var x1pVer: x1pName.replace(".x1p", "")
     /* Replicated in BootOptionsPage.qml; keep this in sync if you change this (or, really, refactor it then). */
     property var hasSdCard: (function () {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/boot.conf";
@@ -22,7 +23,7 @@ Item {
     property var startupStrings: {
         "default": { /* Normal Boot: 10 sec dialog then boot X1Plus */
             "buttons": {
-                "yes_confirm": {"text": qsTr("Boot X1Plus"), "action": function() { X1PlusNative.system("/opt/kexec/boot"); }},
+                "yes_confirm": {"text": qsTr("Start from SD card"), "action": function() { countdown = -1; X1PlusNative.system("/opt/kexec/boot"); }},
                 "no": {"text": qsTr("Startup options..."), "action": function() { dialogStack.replace("../BootOptionsPage.qml", {hasSdCard: hasSdCard}) }},
                 "cancel": {"text": "", "action": function() {}},
             },
@@ -36,16 +37,15 @@ Item {
         },
         "ota": {
             "buttons": {/* auto install x1p Boot: 10 sec dialog then tell InstallingPage.qml to start installing x1p */
-                "yes_confirm": {"text": qsTr("Install"), "action": function() { dialogStack.replace("../InstallingPage.qml", {x1pName: x1pName}) }},
-                "no": {"text": qsTr("Startup options"), "action": function() { dialogStack.replace("../BootOptionsPage.qml", {hasSdCard: hasSdCard}) }},
-                "cancel": {"text": qsTr("Boot X1Plus"), "action": function() { X1PlusNative.system("/opt/kexec/boot"); }}
+                "yes_confirm": {"text": qsTr("Install update"), "action": function() { countdown = -1; dialogStack.replace("../InstallingPage.qml", {x1pName: x1pName}) }},
+                "no": {"text": qsTr("Startup options..."), "action": function() { dialogStack.replace("../BootOptionsPage.qml", {hasSdCard: hasSdCard}) }},
             },
-            "title": qsTr("Update ready to install!"),
+            "title": qsTr("X1Plus update ready to install."),
             "subtitle": function() {
                 if (countdown > 0)
-                    return qsTr("Automatically installing .x1p file '%1' in %2 seconds. To cancel or skip installation, select 'Startup options' or 'Boot X1Plus'.").arg(x1pName).arg(countdown);
+                    return qsTr("Automatically installing X1Plus version %1 in %2 seconds. To cancel or skip installation, use the startup options menu.").arg(x1pVer).arg(countdown);
                 else
-                    return qsTr("Your printer will now install .x1p file '%1'.").arg(x1pName);
+                    return qsTr("Starting installation of X1Plus version %1.").arg(x1pVer);
             }
         }
     }
@@ -64,13 +64,6 @@ Item {
             isDefault: defaultButton == 1
             onClicked: startupStrings[currentMode].buttons["no"].action()
             visible: countdown > 0
-        }
-        DialogButtonItem {
-            name: "cancel"
-            title: startupStrings[currentMode].buttons["cancel"].text
-            isDefault: defaultButton == 2
-            onClicked: startupStrings[currentMode].buttons["cancel"].action()
-            visible: hasSdCard && countdown > 0 && startupStrings[currentMode].buttons["cancel"].text.length > 0
         }
     }
 
