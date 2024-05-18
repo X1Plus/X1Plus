@@ -13,10 +13,11 @@ Item {
     property string title
     property alias text: textContent.text
     property alias textFont: textContent.font
-    property int countdown: (X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") !== "") ? 15 : 5 
+    property int countdown: 10
+    property bool shouldCountdown: (X1PlusNative.getenv("X1P_OTA") || "") != ""
     property bool finished: false
     property var paddingBottom: 50
-    
+
     function buttonClicked(index) {
         if (callback)
             callback(index)
@@ -28,9 +29,9 @@ Item {
     
     Timer {
         id: timer
-        interval: 1000 
+        interval: 1000
         repeat: true
-        running: !finished
+        running: !finished && shouldCountdown
         onTriggered: {
             countdown--;
             if (countdown <= 0) {
@@ -42,17 +43,16 @@ Item {
    property var buttons: SimpleItemModel {
         DialogButtonItem {
             name: "reboot"
-            title: countdown > 0 ? qsTr("Reboot in ") + countdown + qsTr(" seconds") : qsTr("Rebooting..")
+            title: finished ? qsTr("Rebooting...") :
+                   shouldCountdown ? qsTr("Rebooting in %1 seconds").arg(countdown)
+                                   : "Reboot"
             isDefault: true
             onClicked: {
                 doReboot();
             }
         }
     }
-    //Minor regression from 1.1: 
-    //This dialog only displays after installing for the first time, and when it does, it will reboot after 15 seconds. 
-    //This dialog provides post-install instructions important for new user, but after this the dialog is skipped. If we
-    //want to change this, it seems we need to come up with a new dialog message with general install info 
+
     Text {
         id: textContent
         anchors.fill: parent
