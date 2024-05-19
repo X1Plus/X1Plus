@@ -86,6 +86,7 @@ symlink('/usr/sbin/mount.smb3', '/usr/sbin/mount.cifs')
 symlink('/usr/bin/python', '/opt/python/bin/python3.12')
 symlink('/usr/bin/python3', '/opt/python/bin/python3.12')
 symlink('/usr/bin/python3-config', '/opt/python/bin/python3.12-config')
+symlink('/usr/sbin/x1plus.services.sd_watchdog', '/opt/x1plus/bin/sd_watchdog')
 
 whiteout('/etc/init.d/S50fcgiwrap')
 whiteout('/usr/bin/wl')
