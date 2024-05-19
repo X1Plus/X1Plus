@@ -320,6 +320,8 @@ class OTAService(X1PlusDBusService):
             if not ota_enabled:
                 logger.debug(f"OTA engine is disabled, so we are definitely doing nothing")
                 self.task_status = OTAService.STATUS_DISABLED
+            else:
+                self.task_status = OTAService.STATUS_IDLE
             
             await self._maybe_publish_status_object()
             

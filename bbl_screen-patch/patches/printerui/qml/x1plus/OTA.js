@@ -35,7 +35,7 @@ function download(base_firmware = false) {
 }
 
 function update() {
-    _Update({});
+    return _Update({});
 }
 
 function awaken() {
@@ -43,7 +43,7 @@ function awaken() {
     _setStatus(curStatus);
 
     X1Plus.DBus.onSignal("x1plus.ota", "StatusChanged", (arg) => {
-        setStatus(arg);
+        _setStatus(arg);
     });
     
     _CheckNow = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/ota", "x1plus.ota", "CheckNow");
