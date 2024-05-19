@@ -12,6 +12,7 @@
 .import "./x1plus/DBus.js" as X1PlusDBus
 .import "./x1plus/Settings.js" as X1PlusSettings
 .import "./x1plus/TempGraph.js" as X1PlusTempGraph
+.import "./x1plus/OTA.js" as X1PlusOTA
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -57,6 +58,8 @@ X1Plus.Settings = X1PlusSettings;
 var Settings = X1PlusSettings;
 X1Plus.TempGraph = X1PlusTempGraph;
 var TempGraph = X1PlusTempGraph;
+X1Plus.OTA = X1PlusOTA;
+var OTA = X1PlusOTA;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -66,6 +69,7 @@ GpioKeys.X1Plus = X1Plus;
 DBus.X1Plus = X1Plus;
 Settings.X1Plus = X1Plus;
 TempGraph.X1Plus = X1Plus;
+OTA.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -152,6 +156,7 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	X1Plus.printerConfigDir = printerConfigDir = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
 	_X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + printerConfigDir);
 	Settings.awaken();
+	OTA.awaken();
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();
