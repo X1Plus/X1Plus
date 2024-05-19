@@ -1,4 +1,5 @@
 .pragma library
+.import "Binding.js" as Binding
 
 /* QML interface for x1plusd OTA engine
  *
@@ -19,8 +20,7 @@
 
 var X1Plus = null;
 
-var status = null;
-var onStatus = null;
+var [status, onStatus, _setStatus] = Binding.makeBinding({});
 
 var _CheckNow = null;
 var _Download = null;
@@ -40,9 +40,8 @@ function update() {
 
 function awaken() {
     const curStatus = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/ota", "x1plus.ota", "GetStatus")({});
-    const [_status, _onStatus, setStatus] = X1Plus.Binding.makeBinding(curStatus);
-    status = _status;
-    onStatus = _onStatus;
+    _setStatus(curStatus);
+
     X1Plus.DBus.onSignal("x1plus.ota", "StatusChanged", (arg) => {
         setStatus(arg);
     });

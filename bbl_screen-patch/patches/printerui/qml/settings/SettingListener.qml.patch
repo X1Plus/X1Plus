@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,12 +1,70 @@
+@@ -1,12 +1,80 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -67,11 +67,21 @@
 +            cfwVersions = otamodules;
 +        }
 +    }
++    
++    property var newX1pOtaAvailable: X1Plus.OTA.status()['ota_available']
++    property var newX1pOtaDidKvetch: false
++    property var newX1pOtaShouldKvetch: newX1pOtaAvailable && !newX1pOtaDidKvetch
++    onNewX1pOtaShouldKvetch: {
++        if (!updater.hasPendingNotify)
++            return
++        if (printIdle)
++            popupUpdate();
++    }
 +
      /* Updater */
  
      id: settingListener
-@@ -18,22 +76,57 @@
+@@ -18,22 +86,77 @@
  
      property var updatePage
      property bool versionNotify
@@ -99,9 +109,29 @@
  
      function popupUpdate() {
 -        if (!printIdle || !updater.hasPendingNotify || versionNotify)
-+        if (!printIdle || (!updater.hasPendingNotify && !fwShouldKvetch) || versionNotify)
++        if (!printIdle || (!updater.hasPendingNotify && !fwShouldKvetch && !newX1pOtaShouldKvetch) || versionNotify)
              return
          updater.clearPendingNotify()
++
++        if (newX1pOtaShouldKvetch) {
++            newX1pOtaDidKvetch = true;
++            
++            versionNotify = true;
++            dialogStack.popupDialog(
++                "TextConfirm", {
++                    name: "X1Plus OTA notify",
++                    type: TextConfirm.YES_NO,
++                    text: qsTr("A new version of X1Plus is available!<br><br>Would you like to go to the update page?"),
++                    callback: function(index) {
++                        if (index === TextConfirm.CONFIRM) {
++                            screen.jumpTo("Settings/Device")
++                            pageStack.push("VersionPage.qml")
++                        }
++                        versionNotify = false;
++                    }
++                });
++            return;
++        }
 +        
 +        /* CFW should pop up the gentle warning. */
 +        if (fwShouldKvetch && !(updater.consistency || updater.forceUpgrade)) {
@@ -135,7 +165,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +146,8 @@
+@@ -53,12 +176,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -150,7 +180,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +187,7 @@
+@@ -98,6 +217,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -158,7 +188,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +255,7 @@
+@@ -165,7 +285,7 @@
              blackColor = !blackColor
          }
      }
@@ -167,7 +197,7 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +309,14 @@
+@@ -219,14 +339,14 @@
              }
          }
      }

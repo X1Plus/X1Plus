@@ -62,7 +62,7 @@
 -        DeviceInfoItem { title: qsTr("Firmware Version"); value: build.version
 -            dot: DeviceManager.updater.hasNewVersion || DeviceManager.updater.consistency
 +        DeviceInfoItem { title: qsTr("Firmware Version"); value: screenSaver.fwVersion
-+            dot: screenSaver.fwIsBusted
++            dot: screenSaver.fwIsBusted || screenSaver.newX1pOtaAvailable
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]

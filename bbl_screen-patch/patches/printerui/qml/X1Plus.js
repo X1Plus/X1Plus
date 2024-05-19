@@ -161,6 +161,7 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();
 	TempGraph.awaken();
+	console.log("X1Plus.js is awake");
 }
 
 X1Plus.DBus.registerMethod("ping", (param) => {
