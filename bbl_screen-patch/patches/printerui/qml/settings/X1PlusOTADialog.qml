@@ -148,8 +148,6 @@ Item {
                 width: 46
                 height: width
                 radius: width / 2
-                anchors.top: accessCodeText.top
-                anchors.horizontalCenter: rtspServerBtn.horizontalCenter
                 type: ZButtonAppearance.Secondary
                 iconPosition: ZButtonAppearance.Center
                 paddingX: 0
