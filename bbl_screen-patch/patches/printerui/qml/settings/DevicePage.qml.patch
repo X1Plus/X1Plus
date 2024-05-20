@@ -111,7 +111,7 @@
 +        DeviceInfoItem {
 +            title: qsTr("LAN access");
 +            value: [RecordManager.rtspServerOn ? "RTSP" : "",
-+                    enableSshBtn.dynamicChecked ? "SSH" : "",
++                    X1Plus.Settings.get("ssh.enabled", false) ? "SSH" : "",
 +                    X1Plus.Settings.get("vnc.enabled", false) ? "VNC" : ""
 +                   ].filter(a => a)
 +                    .join(", ") || qsTr("Off")
@@ -206,8 +206,8 @@
          }
 -    }
 +    }*/
- 
 +
+ 
 +    
      MarginPanel {
          id: ctrlPanel
@@ -524,7 +524,7 @@
              anchors.top: lanOnly.bottom
              anchors.topMargin: 16
              anchors.left: lanOnly.left
-@@ -373,28 +500,84 @@
+@@ -373,28 +500,76 @@
              marginColor: "transparent"
  
              Text {
@@ -554,26 +554,18 @@
 -                dynamicChecked: RecordManager.rtspServerOn
 -                enabled: !RecordManager.syncingRtspServer
 +                anchors.verticalCenter: enableSshTx.verticalCenter
-+                dynamicChecked: DeviceManager.getSetting("cfw_sshd", false)
++                dynamicChecked: X1Plus.Settings.get("ssh.enabled", false)
                  onToggled: {
 -                    RecordManager.rtspServerOn = checked
-+                    DeviceManager.putSetting("cfw_sshd", checked)
-+                    dynamicChecked = checked
-+                    if (checked) {
-+                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd start`);
-+                    } else {
-+                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd stop`);
-+                    }
-+                }
-+            }
++                    X1Plus.Settings.put("ssh.enabled", checked)
+                 }
+             }
 +            
 +            ZText {
-+                property var rootpw: DeviceManager.getSetting("cfw_rootpw", "")
++                property var rootpw: X1Plus.Settings.get("ssh.root_password", false)
 +                function regenRootPw() {
 +                    var newpw = X1PlusNative.popen(`dd if=/dev/urandom bs=10 count=1 | md5sum | cut -c 1-12`); // now THAT is cheesy!
-+                    DeviceManager.putSetting("cfw_rootpw", newpw);
-+                    rootpw = newpw;
-+                    X1PlusNative.system(`/etc/init.d/S70x1plus_sshd new_password`);
++                    X1Plus.Settings.put("ssh.root_password", newpw);
 +                }
 +            
 +                id: rootpwText
@@ -613,13 +605,13 @@
 +                    duration: 1000
 +                    from: 0
 +                    to: 360
-                 }
-             }
++                }
++            }
 +
          }
      }
  
-@@ -404,7 +587,9 @@
+@@ -404,7 +579,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -630,7 +622,7 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -581,6 +766,114 @@
+@@ -581,6 +758,114 @@
  
      }
  
@@ -745,7 +737,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +900,41 @@
+@@ -607,4 +892,41 @@
              }
          }
      }

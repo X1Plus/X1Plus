@@ -234,7 +234,7 @@ Item {
             
             ZSwitchButton {
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                dynamicChecked: X1Plus.Settings.get("vnc.enabled", false)
+                dynamicChecked: !!X1Plus.Settings.get("vnc.enabled", false)
                 onToggled: {
                     X1Plus.Settings.put("vnc.enabled", checked)
                 }
@@ -245,7 +245,7 @@ Item {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                visible: X1Plus.Settings.get("vnc.enabled", false)
+                visible: !!X1Plus.Settings.get("vnc.enabled", false)
                 text: X1Plus.Settings.get("vnc.password", null) == null ? qsTr("The VNC password is set to the LAN access code.") :
                       X1Plus.Settings.get("vnc.password", null) == ""   ? qsTr("The VNC password is disabled.  Be careful!") :
                                                                           qsTr("The VNC password has been customized through the X1Plus command-line, and is not shown here.");
@@ -274,20 +274,17 @@ Item {
             ZSwitchButton {
                 id: enableSshSw
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                dynamicChecked: DeviceManager.getSetting("cfw_sshd", false)
+                dynamicChecked: !!X1Plus.Settings.get("ssh.enabled", false)
                 onToggled: {
-                    DeviceManager.putSetting("cfw_sshd", checked)
-                    dynamicChecked = checked
+                    X1Plus.Settings.put("ssh.enabled", checked)
                 }
             }
             
             Text {
-                property var rootpw: DeviceManager.getSetting("cfw_rootpw", "")
+                property var rootpw: X1Plus.Settings.get("ssh.root_password", false)
                 function regenRootPw() {
                     var newpw = X1PlusNative.popen(`dd if=/dev/urandom bs=10 count=1 | md5sum | cut -c 1-12`); // now THAT is cheesy!
-                    DeviceManager.putSetting("cfw_rootpw", newpw);
-                    rootpw = newpw;
-                    X1PlusNative.system(`/etc/init.d/S70x1plus_sshd new_password`);
+                    X1Plus.Settings.put("ssh.root_password", newpw);
                 }
             
                 id: rootpwText
