@@ -5,7 +5,21 @@
 start() {
 	printf "Starting x1plusd: "
 	start-stop-daemon -S -m -b -p /var/run/x1plusd.pid --exec /opt/python/bin/python3 -- -m x1plus.services.x1plusd
-    [ $? = 0 ] && echo "OK" || echo "FAIL"
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+	printf "Waiting for x1plusd to be active on DBus... "
+	i=0
+	for i in `seq 10 -1 0`; do
+		dbus-send --system --print-reply --dest=x1plus.x1plusd /x1plus/ota x1plus.ota.GetStatus string:'{}' >/dev/null 2>/dev/null
+		if [ $? = 0 ]; then
+			echo "OK"
+			break
+		fi
+		printf "$i... "
+		sleep 1
+	done
+	if [ $i = -1 ]; then
+		echo "timed out"
+	fi
 }
 stop() {
 	printf "Stopping x1plusd: "
