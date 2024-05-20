@@ -61,7 +61,7 @@
              } }
 -        DeviceInfoItem { title: qsTr("Firmware Version"); value: build.version
 -            dot: DeviceManager.updater.hasNewVersion || DeviceManager.updater.consistency
-+        DeviceInfoItem { title: qsTr("Firmware Version"); value: screenSaver.fwVersion
++        DeviceInfoItem { title: qsTr("Firmware version"); value: screenSaver.fwVersion
 +            dot: screenSaver.fwIsBusted || screenSaver.newX1pOtaAvailable
              property var onClicked: triggerVersion
          }
@@ -84,7 +84,7 @@
 -//        DeviceInfoItem { title: qsTr("Model Name"); value: build.product }
 -        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
 -            function onClicked() { pageStack.push("DeviceInfoPage.qml") }
-+        DeviceInfoItem { title: qsTr("Screen lock"); value: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")][DeviceManager.power.mode] + ", " + ["screen saver", "swipe to unlock", "passcode"][X1Plus.Settings.get("lockscreen.mode", 0)]
++        DeviceInfoItem { title: qsTr("Screen lock"); value: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")][DeviceManager.power.mode] + ", " + [qsTr("screen saver"), qsTr("swipe to unlock"), qsTr("passcode")][X1Plus.Settings.get("lockscreen.mode", 0)]
 +            function onClicked() { pageStack.push("ScreenLockPage.qml") }
          }
 -//        DeviceInfoItem { title: qsTr("Certification"); value: ""
