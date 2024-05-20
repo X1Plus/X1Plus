@@ -66,7 +66,7 @@
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +89,59 @@
+@@ -56,79 +89,69 @@
                  }
                  choisePad.popupFor()
              } }
@@ -108,11 +108,17 @@
 -                            onNo: function(index) { pageStack.push("VersionPage.qml") }
 -                        })
 -            return
-+        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
-+            function onClicked() { pageStack.push("DeviceInfo.qml") }
++        DeviceInfoItem {
++            title: qsTr("LAN access");
++            value: [RecordManager.rtspServerOn ? "RTSP" : "",
++                    enableSshBtn.dynamicChecked ? "SSH" : "",
++                    X1Plus.Settings.get("vnc.enabled", false) ? "VNC" : ""
++                   ].filter(a => a)
++                    .join(", ") || qsTr("Off")
++            function onClicked() { pageStack.push("LanAccessPage.qml") }
          }
 -        pageStack.push("VersionPage.qml")
-     }
+-    }
  
 -    function formatStorage() {
 -        var format = function() {
@@ -137,7 +143,11 @@
 -                                     return !DeviceManager.formattingSDCard
 -                                 })
 -                             })
--        }
++        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
++            function onClicked() { pageStack.push("DeviceInfo.qml") }
+         }
++    }
++
 +    function triggerName() {
          dialogStack.popupDialog("TextConfirm", {
 -                             name: "Format storage",
@@ -190,14 +200,14 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,30 +186,36 @@
+@@ -173,30 +196,36 @@
                                          onYes: restore
                                      })
          }
 -    }
 +    }*/
-+
  
++
 +    
      MarginPanel {
          id: ctrlPanel
@@ -237,7 +247,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  color: Colors.gray_200
                  font: Fonts.body_40
-@@ -206,6 +225,7 @@
+@@ -206,6 +235,7 @@
              ZText {
                  id: sdSpace
                  anchors.top: sdName.bottom
@@ -245,7 +255,7 @@
                  anchors.horizontalCenter: sdName.horizontalCenter
                  color: Colors.font2
                  font: Fonts.body_24
-@@ -215,12 +235,12 @@
+@@ -215,12 +245,12 @@
  
              ZProgressBar {
                  id: sdProgressBar
@@ -261,7 +271,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,25 +249,73 @@
+@@ -229,25 +259,73 @@
          }
  
          MarginPanel {
@@ -351,7 +361,7 @@
                  }
              }
          }
-@@ -255,7 +323,7 @@
+@@ -255,7 +333,7 @@
          MarginPanel {
              id: lanOnly
              width: 426
@@ -360,7 +370,7 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -266,30 +334,45 @@
+@@ -266,30 +344,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -420,7 +430,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -302,27 +385,62 @@
+@@ -302,27 +395,62 @@
                                                                  }
                                                              })
                                              }
@@ -492,7 +502,7 @@
                  anchors.left: lanOnlyText.left
                  color: Colors.brand
                  font: Fonts.body_24
-@@ -335,8 +453,7 @@
+@@ -335,8 +463,7 @@
                  height: width
                  radius: width / 2
                  anchors.top: accessCodeText.top
@@ -502,7 +512,7 @@
                  type: ZButtonAppearance.Secondary
                  iconPosition: ZButtonAppearance.Center
                  paddingX: 0
-@@ -362,9 +479,9 @@
+@@ -362,9 +489,9 @@
          }
  
          MarginPanel {
@@ -514,7 +524,7 @@
              anchors.top: lanOnly.bottom
              anchors.topMargin: 16
              anchors.left: lanOnly.left
-@@ -373,28 +490,84 @@
+@@ -373,28 +500,84 @@
              marginColor: "transparent"
  
              Text {
@@ -609,7 +619,7 @@
          }
      }
  
-@@ -404,7 +577,9 @@
+@@ -404,7 +587,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -620,7 +630,7 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -581,6 +756,114 @@
+@@ -581,6 +766,114 @@
  
      }
  
@@ -735,7 +745,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +890,41 @@
+@@ -607,4 +900,41 @@
              }
          }
      }
