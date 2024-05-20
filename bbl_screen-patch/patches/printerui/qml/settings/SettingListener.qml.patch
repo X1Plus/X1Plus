@@ -197,7 +197,17 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +339,14 @@
+@@ -206,7 +326,8 @@
+                             if(index === TextConfirm.YES) {
+                                 screen.jumpTo("Settings/Maintenance")
+                             }
+-                        }
++                        },
++                        image: "../../icon/joel.png"
+                     })
+     }
+ 
+@@ -219,14 +340,14 @@
              }
          }
      }
