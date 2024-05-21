@@ -32,7 +32,7 @@ Rectangle {
     width: parent.width
     height: parent.height
     anchors.fill: parent
-    color:"#B20D0F0D"
+    color: "#B20D0F0D"
     property alias speed: dial.value
     property bool ramping: false
     property int mode: 0 
@@ -42,7 +42,7 @@ Rectangle {
     property var totalLayerNum: PrintManager.currentTask.totalLayerNum
     property var target: parent.target
     property alias stepSize: dial.stepSize
-    property var stepSizes: [2,4,10] //step size options (%)
+    property var stepSizes: [2, 10]
     
     property var nearestLevel: function(val) { 
         var closestIndex = 0; 
@@ -136,8 +136,8 @@ Rectangle {
         }
         Dial {
             id: dial
-            width: 190*1.3
-            height: 190*1.3
+            width: 270
+            height: 270
             from: 30
             stepSize:2
             to:180
@@ -147,15 +147,50 @@ Rectangle {
                 updateDial();
             }
             onValueChanged: {
-                dial.value = Math.round(dial.value / stepSize) * stepSize;
-                dial.value = stepSize * Math.floor(dial.value / stepSize); //snap to nearest even value
+                if (dial.value < 30) {
+                    dial.value = 30;
+                } else {
+                    dial.value = 30 + stepSize * Math.round((dial.value - 30) / stepSize);
+                }
                 targetSpeed = dial.value;
                 updateDial();
             }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    mouse.accepted = true;
+                    updateDialValue(mouse.x, mouse.y);
+                }
+                
+                onPositionChanged: {
+                    updateDialValue(mouse.x, mouse.y);
+                }
+                function updateDialValue(mouseX, mouseY) {
+                    var dx = mouseX - dial.width / 2;
+                    var dy = mouseY - dial.height / 2;
+                    var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    angle = (angle + 360) % 360;
+                    dial.value = mapAngleToValue(angle);
+                }
+                function mapAngleToValue(angle) {
+                    var startAngle = 130;
+                    var sweepAngle = 280;
+                    if (angle < startAngle) angle += 360;
+                    if (angle > startAngle+sweepAngle) return dial.to; 
+                    var relativeAngle = angle - startAngle;
+                    if (relativeAngle > sweepAngle) {
+                        relativeAngle = sweepAngle; 
+                    }
+                    var p = relativeAngle / sweepAngle;
+                    var value = dial.from + p * (dial.to - dial.from);
+                    return value;
+                }
+                
+            }
             background: Rectangle {
                 id: dialBackground
-                implicitWidth: 190*1.3
-                implicitHeight: 190*1.3
+                implicitWidth: 270
+                implicitHeight: 270
                 width:implicitWidth
                 height:implicitHeight
                 color: "#2F302F"
@@ -200,24 +235,16 @@ Rectangle {
                             ctx.moveTo(outerX, outerY);
                             ctx.lineTo(innerX, innerY);
                             var currentValue = dial.from + i;
-                            if (currentValue === Math.round(targetSpeed)) {
-                                ctx.strokeStyle = (ramping) ? "#FF0000" : "#00ff00";
-                            } else if (ramping && ((currentSpeed > targetSpeed && currentValue >= targetSpeed && currentValue <= currentSpeed) ||
-                                                (currentSpeed < targetSpeed && currentValue <= targetSpeed && currentValue >= currentSpeed))) {
-                                ctx.strokeStyle = (currentSpeed > targetSpeed) ? "red" : Colors.brand;
-                            } else {
-                                ctx.strokeStyle =  "#6B6B6A";
-                            }
-                            
+
+                            ctx.strokeStyle =  "#6B6B6A";
                             ctx.lineWidth = 2;
                             ctx.stroke();
-
-                            if (i % 10 === 0) {// sets number of labels
-                                var labelRadius = radius -30; //label position
+                            
+                            if (i % 10 === 0) {
+                                var labelRadius = radius - 30;
                                 var labelX = centerX + labelRadius * Math.cos(angle) - 10; 
                                 var labelY = centerY + labelRadius * Math.sin(angle) + 5;
-                                
-                                ctx.fillStyle = "white"//"#6B6B6A"; //label color
+                                ctx.fillStyle = "white"
                                 ctx.fillText(currentValue, labelX, labelY);
                             }
                         }
@@ -227,9 +254,9 @@ Rectangle {
 
             handle: Rectangle {
                 id: dialHandle 
-                width: 20
-                height: 20
-                radius: 10
+                width: 25
+                height: width
+                radius: width/2
                 color: dial.pressed ? Colors.gray_300 : Colors.gray_400
                 x: dialBackground.x + dialBackground.width / 2 - dialHandle.width / 2
                 y: dialBackground.y + dialBackground.height / 2 - dialHandle.height / 2
@@ -252,51 +279,6 @@ Rectangle {
                 anchors.centerIn: dial
             }
             
-        }
-        
-        Rectangle {
-            id: stepRect
-            color: "#3b3b39"
-            width: 100
-            height: width
-            radius: width/2
-            border.color: Colors.gray_400
-            anchors.left: parent.left
-            anchors.leftMargin: 30
-            anchors.verticalCenter: parent.verticalCenter
-            property var stepCount: 0
-            Text {
-                color: "white"
-                font.pixelSize: 36
-                anchors.centerIn: stepRect
-                text: "±" + stepSize + "%"
-            }
-            MouseArea {
-                anchors.fill: parent
-                width: parent.width*1.3
-                height: parent.height*1.3
-                onClicked: {
-                    parent.stepCount++;
-                    if (parent.stepCount >= 3){
-                        parent.stepCount = 0;
-                    }
-                    stepSize = stepSizes[parent.stepCount];
-                    updateDial();
-                    X1Plus.Settings.put("printerui.speedadjust.stepsize", stepSize);
-                }
-                onEntered: stepRect.color = "#2e2e2c"
-                onExited: stepRect.color = "#3b3b39"
-            } 
-        }
-        Text {
-            id: stepLabel
-            font.pixelSize: 18
-            anchors.top: stepRect.bottom
-            anchors.left:stepRect.left
-            anchors.leftMargin: 10
-            anchors.topMargin: 10
-            color: "white"
-            text: qsTr("Step size")
         }
         
         Text { 
@@ -374,43 +356,22 @@ Rectangle {
                     height: 125
                     color: (ramping) ? "#2F302F": Colors.gray_600
                     radius: 25
-            
+                    
                     Text {
-                        text: "Cancel"//(ramping) ? qsTr("Ramp: ON") : qsTr("Ramp: OFF")
+                        text: "Step size\n±" + stepSize + "%"
                         anchors.centerIn: parent
                         color: "white"
-                        font.pixelSize: 30 
+                        font.pixelSize: 30
+                        horizontalAlignment: Text.AlignHCenter
                     }
-                    
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            // ramping = !(ramping);
-                            // let range = Math.abs(PrintManager.currentTask.printSpeed-targetSpeed);
-                            // let delta = 2;
-                            // dialCanvas.requestPaint();
-                            // if (ramping){
-                            //     let curr = (X1Plus.emulating) ? 100 : layerNum;
-                            //     let tot = (X1Plus.emulating) ?  200 : totalLayerNum;
-                            //     var tar = 0;
-                            //     if (curr == tot || tot <= 1 || range <= 1){
-                            //         ramping = false;
-                            //         X1Plus.Bindings.printerStatus.setRamp([]);
-                            //         targetSpeed = PrintManager.currentTask.printSpeed;
-                            //         return;
-                            //     } else {
-                            //         for (let i = 0; i < tot; ++i){
-                            //             if ((tot - curr) % delta == 0) {
-                            //                 break;
-                            //             } else {
-                            //                 delta += 1;
-                            //             }
-                            //         }
-                            //         tar = curr + range/delta;
-                            //         X1Plus.Bindings.printerStatus.setRamp([curr,tar,PrintManager.currentTask.printSpeed,targetSpeed,delta]);
-                                    // console.log(curr,tar,PrintManager.currentTask.printSpeed,targetSpeed,delta);
-                                parent.parent.parent.parent.parent.parent.target = null;
-                                targetSpeed = currentSpeed;
+                            var idx = stepSizes.indexOf(stepSize);
+                            idx = idx >= stepSizes.length - 1 ? 0 : idx + 1;
+                            stepSize = stepSizes[idx];
+                            updateDial();
+                            X1Plus.Settings.put("printerui.speedadjust.stepsize", stepSize);
                         }  
                         onEntered: parent.opacity = 0.8
                         onExited: parent.opacity = 1.0

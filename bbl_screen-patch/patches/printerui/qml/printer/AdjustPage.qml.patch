@@ -73,7 +73,7 @@
                              limitFrame()
                          }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-@@ -388,11 +409,15 @@
+@@ -388,11 +409,16 @@
              if(speedPad.target) {
                  speedPad.target = null
                  // here only when close "speedPad" then upload once the event track msg of "speedMode"
@@ -90,11 +90,12 @@
 +                        "currentItemText": PrintManager.currentTask.printSpeedModeStrings[speedPad.speedMode]
 +                    }
 +                } else {
-+                    //speedDial.targetSpeed = PrintManager.currentTask.printSpeed
++                    //EventTrack is what results in OEM speed gcode being published, so we want to avoid that here
++                    speedDial.targetSpeed = speedValues[speedPad.speedMode];
                  }
                  speedPad_close();
              }
-@@ -400,36 +425,55 @@
+@@ -400,36 +426,55 @@
              tempList.currentIndex = -1
          }
      }
@@ -163,7 +164,7 @@
  
              MouseArea {
                  anchors.fill: parent
-@@ -437,13 +481,44 @@
+@@ -437,13 +482,44 @@
              }
  
              Text {
@@ -209,7 +210,7 @@
              ZStepBar {
                  id: stepBar
                  width: parent.width - 260
-@@ -460,8 +535,9 @@
+@@ -460,8 +536,9 @@
                  }
                  titleFont: Fonts.body_36
                  steps: PrintManager.currentTask.printSpeedModeStrings
@@ -220,7 +221,7 @@
      }
  
      Item {
-@@ -515,9 +591,9 @@
+@@ -515,9 +592,9 @@
              text: modelData.currentTemp.toFixed(0)
  
              EventTrack.itemName: "tempAndSpeed_" + modelData.name
@@ -232,7 +233,7 @@
                 when: speedPad.target == modelData
              }
  
-@@ -828,7 +904,7 @@
+@@ -828,7 +905,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -241,7 +242,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +922,7 @@
+@@ -846,7 +923,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -250,7 +251,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +977,13 @@
+@@ -901,11 +978,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",
