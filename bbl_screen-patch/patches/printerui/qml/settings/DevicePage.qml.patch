@@ -61,12 +61,12 @@
              } }
 -        DeviceInfoItem { title: qsTr("Firmware Version"); value: build.version
 -            dot: DeviceManager.updater.hasNewVersion || DeviceManager.updater.consistency
-+        DeviceInfoItem { title: qsTr("Firmware Version"); value: screenSaver.fwVersion
++        DeviceInfoItem { title: qsTr("Firmware version"); value: screenSaver.fwVersion
 +            dot: screenSaver.fwIsBusted || screenSaver.newX1pOtaAvailable
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +89,59 @@
+@@ -56,79 +89,70 @@
                  }
                  choisePad.popupFor()
              } }
@@ -84,7 +84,7 @@
 -//        DeviceInfoItem { title: qsTr("Model Name"); value: build.product }
 -        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
 -            function onClicked() { pageStack.push("DeviceInfoPage.qml") }
-+        DeviceInfoItem { title: qsTr("Screen lock"); value: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")][DeviceManager.power.mode] + ", " + ["screen saver", "swipe to unlock", "passcode"][X1Plus.Settings.get("lockscreen.mode", 0)]
++        DeviceInfoItem { title: qsTr("Screen lock"); value: [qsTr("2min"), qsTr("5min"), qsTr("10min"), qsTr("15min")][DeviceManager.power.mode] + ", " + [qsTr("screen saver"), qsTr("swipe to unlock"), qsTr("passcode")][X1Plus.Settings.get("lockscreen.mode", 0)]
 +            function onClicked() { pageStack.push("ScreenLockPage.qml") }
          }
 -//        DeviceInfoItem { title: qsTr("Certification"); value: ""
@@ -108,11 +108,18 @@
 -                            onNo: function(index) { pageStack.push("VersionPage.qml") }
 -                        })
 -            return
-+        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
-+            function onClicked() { pageStack.push("DeviceInfo.qml") }
++        DeviceInfoItem {
++            title: qsTr("LAN access");
++            value: ["Slicer",
++                    RecordManager.rtspServerOn ? "RTSP" : "",
++                    X1Plus.Settings.get("ssh.enabled", false) ? "SSH" : "",
++                    X1Plus.Settings.get("vnc.enabled", false) ? "VNC" : ""
++                   ].filter(a => a)
++                    .join(", ") || qsTr("Off")
++            function onClicked() { pageStack.push("LanAccessPage.qml") }
          }
 -        pageStack.push("VersionPage.qml")
-     }
+-    }
  
 -    function formatStorage() {
 -        var format = function() {
@@ -137,7 +144,11 @@
 -                                     return !DeviceManager.formattingSDCard
 -                                 })
 -                             })
--        }
++        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
++            function onClicked() { pageStack.push("DeviceInfo.qml") }
+         }
++    }
++
 +    function triggerName() {
          dialogStack.popupDialog("TextConfirm", {
 -                             name: "Format storage",
@@ -190,14 +201,14 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,30 +186,36 @@
+@@ -173,30 +197,36 @@
                                          onYes: restore
                                      })
          }
 -    }
 +    }*/
-+
  
++
 +    
      MarginPanel {
          id: ctrlPanel
@@ -237,7 +248,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  color: Colors.gray_200
                  font: Fonts.body_40
-@@ -206,6 +225,7 @@
+@@ -206,6 +236,7 @@
              ZText {
                  id: sdSpace
                  anchors.top: sdName.bottom
@@ -245,7 +256,7 @@
                  anchors.horizontalCenter: sdName.horizontalCenter
                  color: Colors.font2
                  font: Fonts.body_24
-@@ -215,12 +235,12 @@
+@@ -215,12 +246,12 @@
  
              ZProgressBar {
                  id: sdProgressBar
@@ -261,7 +272,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,25 +249,73 @@
+@@ -229,25 +260,73 @@
          }
  
          MarginPanel {
@@ -279,21 +290,11 @@
 +            anchors.left: sdIdStorage.left
 +            color: Colors.gray_600
 +            radius: 15
-             marginColor: "transparent"
--            leftRadiusOff: true
--            color: formatBtn.color
++            marginColor: "transparent"
 +            visible: false
- 
--            ZButton {
--                id: formatBtn
++
 +            Loader {
-                 anchors.fill: parent
--                type: ZButtonAppearance.Tertiary
--                backgroundColor: StateColors.get("gray_600_pressed")
--                textColor: StateColors.get("gray_300")
--                text: qsTr("Format")
--                onClicked: {
--                    formatStorage()
++                anchors.fill: parent
 +                property var text1: [qsTr("Video"), qsTr("Resolution"), "720p", "1080p"]
 +                property var check: RecordManager.isVideoOn
 +                property var check2: RecordManager.resolution == "720p"
@@ -325,11 +326,21 @@
 +            anchors.left: sdIdStorage.left
 +            color: Colors.gray_600
 +            radius: 15
-+            marginColor: "transparent"
+             marginColor: "transparent"
+-            leftRadiusOff: true
+-            color: formatBtn.color
 +            visible: false
-+
+ 
+-            ZButton {
+-                id: formatBtn
 +            Loader {
-+                anchors.fill: parent
+                 anchors.fill: parent
+-                type: ZButtonAppearance.Tertiary
+-                backgroundColor: StateColors.get("gray_600_pressed")
+-                textColor: StateColors.get("gray_300")
+-                text: qsTr("Format")
+-                onClicked: {
+-                    formatStorage()
 +                property var text1: [qsTr("Timelapse"), qsTr("Resolution"), "720p", "1080p"]
 +                property var check: RecordManager.isTimelapseOn
 +                property var check2: RecordManager.resolution == "720p"
@@ -351,16 +362,16 @@
                  }
              }
          }
-@@ -255,7 +323,7 @@
+@@ -255,7 +334,7 @@
          MarginPanel {
              id: lanOnly
              width: 426
 -            height: 178
-+            height: 220
++            height: 396
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -266,30 +334,45 @@
+@@ -266,30 +345,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -420,7 +431,12 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -302,27 +385,62 @@
+@@ -297,103 +391,48 @@
+                                                                 text: qsTr("Do you need to open LAN Mode Liveview?"),
+                                                                 defaultButton: 0,
+                                                                 onYes: function() {
+-                                                                    rtspServerBtn.checked = true
+                                                                     RecordManager.rtspServerOn = true
                                                                  }
                                                              })
                                              }
@@ -458,158 +474,94 @@
 -                padding: 24
 -                offset: 66
 -                color: Colors.gray_400
-+            Text {
-+                id: rtspServerTx
-+                anchors.left: lanOnlyText.left
-+                anchors.top: choiceLanOnly.bottom
-+                anchors.topMargin: 20
-+                font: Fonts.body_28
-+                color: Colors.gray_100
-+                width: 310
-+                wrapMode: Text.WordWrap
-+                text: qsTr("LAN Only Liveview")
-+            }
-+
-+            ZSwitchButton {
-+                id: rtspServerBtn
-+                anchors.verticalCenter: rtspServerTx.verticalCenter
-+                anchors.right: parent.right
-+                anchors.rightMargin: 25
-+                dynamicChecked: RecordManager.rtspServerOn
-+                enabled: !RecordManager.syncingRtspServer
-+                onToggled: {
-+                    RecordManager.rtspServerOn = checked
-+                }
-             }
- 
+-            }
+-
              ZText {
                  id: accessCodeText
-                 maxWidth: 320
+-                maxWidth: 320
 -                anchors.top: line1.top
 -                anchors.topMargin: 28
-+                anchors.top: rtspServerBtn.bottom
++                anchors.top: choiceLanOnly.bottom
 +                anchors.topMargin: 25
                  anchors.left: lanOnlyText.left
-                 color: Colors.brand
-                 font: Fonts.body_24
-@@ -335,8 +453,7 @@
-                 height: width
-                 radius: width / 2
-                 anchors.top: accessCodeText.top
+-                color: Colors.brand
+-                font: Fonts.body_24
+-                text: qsTr("Access Code: ") + "<font size=\"5\" color=\"#00AE42\">" + NetworkManager.lanAccessToken + "</font>"
+-            }
+-
+-            ZButton {
+-                id: refreshBtn
+-                width: 46
+-                height: width
+-                radius: width / 2
+-                anchors.top: accessCodeText.top
 -                anchors.right: line1.right
 -                anchors.rightMargin: 10
-+                anchors.horizontalCenter: rtspServerBtn.horizontalCenter
-                 type: ZButtonAppearance.Secondary
-                 iconPosition: ZButtonAppearance.Center
-                 paddingX: 0
-@@ -362,9 +479,9 @@
-         }
- 
-         MarginPanel {
+-                type: ZButtonAppearance.Secondary
+-                iconPosition: ZButtonAppearance.Center
+-                paddingX: 0
+-                iconSize: 46
+-                textColor: StateColors.get("gray_100")
+-                icon: "../../icon/refresh.svg"
+-                onClicked: {
+-                    NetworkManager.refreshLanAccessToken()
+-                }
+-
+-                RotationAnimation {
+-                    id: rotationId
+-                    target: refreshBtn.iconItem
+-                    property: "rotation"
+-                    loops: Animation.Infinite
+-                    alwaysRunToEnd: true
+-                    duration: 1000
+-                    from: 0
+-                    to: 360
+-                    running: NetworkManager.tokenSyncing
+-                }
+-            }
+-        }
+-
+-        MarginPanel {
 -            id: rtspServer
-+            id: enableSsh
-             width: 426
+-            width: 426
 -            height: 108
-+            height: 160
-             anchors.top: lanOnly.bottom
-             anchors.topMargin: 16
-             anchors.left: lanOnly.left
-@@ -373,28 +490,84 @@
-             marginColor: "transparent"
- 
-             Text {
+-            anchors.top: lanOnly.bottom
+-            anchors.topMargin: 16
+-            anchors.left: lanOnly.left
+-            color: Colors.gray_600
+-            radius: 15
+-            marginColor: "transparent"
+-
+-            Text {
 -                id: rtspServerTx
-+                id: enableSshTx
-                 anchors.left: parent.left
+-                anchors.left: parent.left
 -                anchors.leftMargin: 30
 -                anchors.verticalCenter: parent.verticalCenter
--                font: Fonts.body_24
-+                anchors.leftMargin: 24
-+                anchors.top: parent.top
-+                anchors.topMargin: 20
-+                font: Fonts.body_28
-                 color: Colors.gray_100
-                 width: 310
++                anchors.right: parent.right
++                anchors.rightMargin: 25
++                color: Colors.font2
+                 font: Fonts.body_24
+-                color: Colors.gray_100
+-                width: 310
                  wrapMode: Text.WordWrap
 -                text: qsTr("LAN Only Liveview")
-+                text: qsTr("Enable SSH Server")
-             }
- 
-             ZSwitchButton {
+-            }
+-
+-            ZSwitchButton {
 -                id: rtspServerBtn
-+                id: enableSshBtn
-                 anchors.right: parent.right
-                 anchors.rightMargin: 24
+-                anchors.right: parent.right
+-                anchors.rightMargin: 24
 -                anchors.verticalCenter: parent.verticalCenter
 -                dynamicChecked: RecordManager.rtspServerOn
 -                enabled: !RecordManager.syncingRtspServer
-+                anchors.verticalCenter: enableSshTx.verticalCenter
-+                dynamicChecked: DeviceManager.getSetting("cfw_sshd", false)
-                 onToggled: {
+-                onToggled: {
 -                    RecordManager.rtspServerOn = checked
-+                    DeviceManager.putSetting("cfw_sshd", checked)
-+                    dynamicChecked = checked
-+                    if (checked) {
-+                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd start`);
-+                    } else {
-+                        X1PlusNative.system(`/etc/init.d/S70x1plus_sshd stop`);
-+                    }
-+                }
-+            }
-+            
-+            ZText {
-+                property var rootpw: DeviceManager.getSetting("cfw_rootpw", "")
-+                function regenRootPw() {
-+                    var newpw = X1PlusNative.popen(`dd if=/dev/urandom bs=10 count=1 | md5sum | cut -c 1-12`); // now THAT is cheesy!
-+                    DeviceManager.putSetting("cfw_rootpw", newpw);
-+                    rootpw = newpw;
-+                    X1PlusNative.system(`/etc/init.d/S70x1plus_sshd new_password`);
-+                }
-+            
-+                id: rootpwText
-+                maxWidth: 320
-+                anchors.top: enableSshTx.bottom
-+                anchors.topMargin: 28
-+                anchors.left: enableSshTx.left
-+                color: Colors.brand
-+                font: Fonts.body_24
-+                text: qsTr("Root password: ") + "<br><font size=\"4\" color=\"#00AE42\">" + (rootpw == "" ? qsTr("[not yet set]") : rootpw) + "</font>"
-+            }
-+
-+            ZButton {
-+                id: refreshRootPwBtn
-+                width: 46
-+                height: width
-+                radius: width / 2
-+                anchors.horizontalCenter: enableSshBtn.horizontalCenter
-+                anchors.verticalCenter: rootpwText.verticalCenter
-+                type: ZButtonAppearance.Secondary
-+                iconPosition: ZButtonAppearance.Center
-+                paddingX: 0
-+                iconSize: 46
-+                textColor: StateColors.get("gray_100")
-+                icon: "../../icon/refresh.svg"
-+                onClicked: {
-+                    rootpwText.regenRootPw()
-+                    rootpwRotationId.start()
-+                }
-+
-+                RotationAnimation {
-+                    id: rootpwRotationId
-+                    target: refreshRootPwBtn.iconItem
-+                    property: "rotation"
-+                    loops: 1
-+                    alwaysRunToEnd: true
-+                    duration: 1000
-+                    from: 0
-+                    to: 360
-                 }
+-                }
++                text: qsTr("The Access Code has moved to the \"LAN access\" menu, at right.")
              }
-+
          }
      }
- 
-@@ -404,7 +577,9 @@
+@@ -404,7 +443,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -620,7 +572,7 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -581,6 +756,114 @@
+@@ -581,6 +622,114 @@
  
      }
  
@@ -735,7 +687,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +890,41 @@
+@@ -607,4 +756,41 @@
              }
          }
      }
