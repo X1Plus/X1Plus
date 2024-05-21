@@ -175,7 +175,10 @@ Rectangle {
                 function mapAngleToValue(angle) {
                     var startAngle = 130;
                     var sweepAngle = 280;
-                    if (angle < startAngle) angle += 360;
+                    if (angle < startAngle){
+                        if (Math.abs(dial.value - stepSize) > 100) angle += 360;
+                    }
+                    
                     if (angle > startAngle+sweepAngle) return dial.to; 
                     var relativeAngle = angle - startAngle;
                     if (relativeAngle > sweepAngle) {
