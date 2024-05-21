@@ -1,0 +1,50 @@
+--- printer_ui-orig/printerui/qml/dialog/TextConfirm.qml
++++ printer_ui/printerui/qml/dialog/TextConfirm.qml
+@@ -7,6 +7,7 @@
+ 
+     property alias name: textConfirm.objectName
+     property string title
++    property var image: null
+     property alias text: textContent.text
+     property alias textFont: textContent.font
+     property alias checkBoxText: checkBox.text
+@@ -61,8 +62,8 @@
+     }
+ 
+     id: textConfirm
+-    width: Math.min(600, textMetrics.implicitWidth)
+-    height: textContent.contentHeight + (checkBox.visible ? checkBox.height : 0)
++    width: Math.min(600, textMetrics.implicitWidth) + (iconImage.visible ? 132 : 0)
++    height: Math.max(iconImage.visible ? iconImage.height : 0, textContent.contentHeight) + (checkBox.visible ? checkBox.height : 0)
+ 
+     Text { // TextMetrics has BUG
+         id: textMetrics
+@@ -71,9 +72,17 @@
+         text: textContent.text
+     }
+ 
++    Image {
++        id: iconImage
++        source: image || ""
++        visible: !!image
++    }
++
+     Text {
+         id: textContent
+-        width: parent.width
++        anchors.left: iconImage.visible ? iconImage.right : parent.left
++        anchors.leftMargin: iconImage.visible ? 32 : 0
++        anchors.right: parent.right
+         font: Fonts.body_36
+         color: Colors.gray_100
+         wrapMode: Text.Wrap
+@@ -81,7 +90,8 @@
+ 
+     ZCheckBox {
+         id: checkBox
+-        width: parent.width
++        anchors.left: iconImage.visible ? iconImage.right : parent.left
++        anchors.right: parent.right
+         visible: (checkBoxText != "")
+         anchors.top: textContent.bottom
+         anchors.topMargin: 10
