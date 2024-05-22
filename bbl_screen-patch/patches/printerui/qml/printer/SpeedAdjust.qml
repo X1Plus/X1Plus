@@ -56,21 +56,19 @@ Rectangle {
         }
         return closestIndex; 
     }
-    
-    function updateDial() {
-        dialCanvas.requestPaint();
-    }
 
     onTargetChanged:{
         if (target != null){
-            updateDial()
+            dialCanvas.requestPaint();
+            curValArc.requestPaint();
         }
     }
     Component.onCompleted: {
         if (target != null){
             stepSize = X1Plus.Settings.get("printerui.speedadjust.stepSize", 2);
             dial.value = currentSpeed;
-            updateDial();
+            dialCanvas.requestPaint();
+            curValArc.requestPaint();
         }
     }
     
@@ -144,7 +142,8 @@ Rectangle {
             value: PrintManager.currentTask.printSpeed;
             anchors.centerIn: parent
             Component.onCompleted: {
-                updateDial();
+                dialCanvas.requestPaint();
+                curValArc.requestPaint();
             }
             onValueChanged: {
                 if (dial.value < 30) {
@@ -153,7 +152,7 @@ Rectangle {
                     dial.value = 30 + stepSize * Math.round((dial.value - 30) / stepSize);
                 }
                 targetSpeed = dial.value;
-                updateDial();
+                curValArc.requestPaint();
             }
             MouseArea {
                 anchors.fill: parent
@@ -199,7 +198,23 @@ Rectangle {
                 color: "#2F302F"
                 radius: implicitWidth/2
                 anchors.fill: parent
-
+                Canvas {
+                    id: curValArc
+                    anchors.fill: parent
+                    onPaint: {
+                        var ctx = getContext("2d");
+                        ctx.clearRect(0, 0, width, height);
+                        
+                        // Draw arc for the current value
+                        ctx.beginPath();
+                        var stepAngle = (-280/(dial.to - dial.from));
+                        var currentAngle = 130 - ((dial.value - dial.from) * stepAngle);
+                        ctx.arc(width/2, height/2, width/2 - 15,  currentAngle * Math.PI / 180, 130 * Math.PI / 180, true);
+                        ctx.strokeStyle = "rgba(180, 180, 180, 0.25)";
+                        ctx.lineWidth = 20;
+                        ctx.stroke();
+                    }
+                }
                 Canvas {
                     id: dialCanvas
                     anchors.fill: parent
@@ -209,21 +224,12 @@ Rectangle {
                         var centerY = height / 2;
                         var radius = Math.min(centerX, centerY) - 5; //tick positioning
                         ctx.clearRect(0, 0, width, height);
-
                         var startAngle = 130;
-                        var endAngle = 130 + 280/stepSize
-                        var range = dial.to - dial.from;
-                        
+                        var endAngle = 130 + 280/stepSize;
+                        var range = dial.to - dial.from; 
                         var stepAngle = (startAngle - endAngle) / range * stepSize;
                         var currentAngle = startAngle - ((dial.value - dial.from) * stepAngle); // calculate angle for current value
-
-                        // Draw arc for the current value
-                        ctx.beginPath();
-                        ctx.arc(centerX, centerY, radius - 10,  currentAngle * Math.PI / 180,startAngle * Math.PI / 180, true);
-                        ctx.strokeStyle = "rgba(180, 180, 180, 0.25)";
-                        ctx.lineWidth = 20;
-                        ctx.stroke();
-
+                        
                         for (var i = 0; i <= range; i += stepSize) {
                             var angle = (startAngle - i * stepAngle) * Math.PI / 180;
                             var outerX = centerX + radius * Math.cos(angle);
@@ -247,7 +253,7 @@ Rectangle {
                                 var labelRadius = radius - 30;
                                 var labelX = centerX + labelRadius * Math.cos(angle) - 10; 
                                 var labelY = centerY + labelRadius * Math.sin(angle) + 5;
-                                ctx.fillStyle = "white"
+                                ctx.fillStyle = "white";
                                 ctx.fillText(currentValue, labelX, labelY);
                             }
                         }
@@ -373,7 +379,8 @@ Rectangle {
                             var idx = stepSizes.indexOf(stepSize);
                             idx = idx >= stepSizes.length - 1 ? 0 : idx + 1;
                             stepSize = stepSizes[idx];
-                            updateDial();
+                            dialCanvas.requestPaint();
+                            curValArc.requestPaint();
                             X1Plus.Settings.put("printerui.speedadjust.stepsize", stepSize);
                         }  
                         onEntered: parent.opacity = 0.8
@@ -403,7 +410,6 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             let gcode = X1Plus.GcodeGenerator.printSpeed(targetSpeed)
-                            console.log(gcode);
                             X1Plus.sendGcode(gcode);
                             parent.parent.parent.parent.parent.parent.target = null;
                         }
