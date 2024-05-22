@@ -737,14 +737,16 @@ public:
         setProcessChannelMode(QProcess::MergedChannels);
     }
 
-    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList()) {
+    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList(), bool waitForCompletion = false, int timeout = 30000) {
         QStringList args;
         for (const auto& arg : arguments) {
             args << arg.toString();
         }
         QProcess::start(program, args);
+        if (waitForCompletion) {
+            waitForFinished(5); 
+        }
     }
-
     Q_INVOKABLE QByteArray readAll() { return QProcess::readAll(); }
     Q_INVOKABLE QByteArray readLine() { return QProcess::readLine(); }
 
