@@ -76,20 +76,26 @@ $ docker exec -v `pwd`:/work x1plusmake sh -c 'ls /work | grep .x1p'
 $ <somefilename>.x1p
 ```
 
-Copy that out of the Docker container 
+Copy that out of the Docker container. 
 
 ```
-$ docker cp x1plusmake:/work/<somefilename>.x1p .
+$ docker cp x1plusmake:/work/<somefilename>.x1p
 ```
 
-And `scp` it to the printer. NEVER remove an SD card from a live X1Plus system, 
-you goofball!
+And `scp` it to the printer (never remove an SD card from a live X1Plus system, 
+you goofball).
 
 ```
-scp <somefilename>.x1p root@<printer’s IP>/sdcard
+scp <somefilename>.x1p root@<printer’s IP>:/sdcard
 ```
 
-Reboot your printer, and install it from the menu.
+Reboot your printer, and install X1Plus from the menu.
+
+Finally, don't forget to stop your Docker container!
+
+```
+docker stop x1plusmake
+```
 
 If you're going to make changes to any of the UI files, you should really
 read the rest of this document...  otherwise you might be in for a nasty
