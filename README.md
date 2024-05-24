@@ -29,13 +29,38 @@ container.  If you're adventurous, you can probably build X1Plus on any old
 Linux machine (I do), but if you do that and it breaks, we really don't want
 to hear about it, so you really should just build it in Docker.  You'll need
 the filesystem decryption key from a live printer (running either X1Plus or
-the Official Rootable Firmware) in order to build X1Plus; try something
-like:
+the Official Rootable Firmware) in order to build X1Plus
+
+First, copy the getkey bin over to the printer:
+
+```
+scp scp scripts/getkey root@<printer’s IP>:/tmp
+```
+
+Now retrieve the key:
+
+```
+ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
+```
+
+Clone down the X1Plus repo and build the Docker image from the Dockerfile in `scripts/docker`:
 
 ```
 $ git clone ...
 $ cd X1Plus
 $ docker build -t x1plusbuild scripts/docker/
+```
+
+To get the make to work on the Docker container a safe directory must be added to the
+git config. As that will only persist for one run the Docker container must be run in interactive mode. 
+
+```
+$ docker run -it -v `pwd`:/work x1plusbuild 
+```
+
+
+
+```
 $ docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global --add safe.directory /work'
 $ docker run -u `id -u` -v `pwd`:/work x1plusbuild make scripts
 $ scp scripts/getkey root@bambu:/tmp
