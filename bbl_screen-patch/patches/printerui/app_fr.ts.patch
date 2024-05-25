@@ -1,0 +1,136 @@
+--- printer_ui-orig/printerui/app_fr.ts
++++ printer_ui/printerui/app_fr.ts
+@@ -3432,4 +3432,132 @@
+         <translation>Voulez-vous vraiment annuler cette tâche ?</translation>
+     </message>
+ </context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>Annuler</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>réinitialiser</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Prepare</source>
++    <translation>Préparer</translation>
++  </message>
++</context>
++<context>
++  <name>ConsolePage</name>
++  <message>
++    <source>Home</source>
++    <translation>Maison</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorer</translation>
++  </message>
++  <message>
++    <source>Close</source>
++    <translation>Fermer</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorer</translation>
++  </message>
++</context>
++<context>
++  <name>BootOptionsPage</name>
++  <message>
++    <source>Cancel</source>
++    <translation>Annuler</translation>
++  </message>
++</context>
++<context>
++  <name>InstallingPage</name>
++  <message>
++    <source>Yes</source>
++    <translation>Oui</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>Non</translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>HardwarePage</name>
++  <message>
++    <source>Stainless steel</source>
++    <translation>Acier inoxydable</translation>
++  </message>
++  <message>
++    <source>Hardened steel</source>
++    <translation>Acier trempé</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>Pas installé</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>Installé</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>Accessoires</translation>
++  </message>
++  <message>
++    <source>Nozzle</source>
++    <translation>Buse</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>Si vous avez remplacé des accessoires, veuillez mettre à jour les paramètres ci-dessous pour qu'ils correspondent à l'état réel de l'accessoire afin de garantir la qualité d'impression.</translation>
++  </message>
++</context>
+ </TS>
+\ No newline at end of file

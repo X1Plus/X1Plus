@@ -7,6 +7,8 @@
 <file>printerui/app_ja.qm</file>
 <file>printerui/app_nl.qm</file>
 <file>printerui/app_ru.qm</file>
+<file>printerui/app_pt.qm</file>
+<file>printerui/app_tr.qm</file>
 <file>printerui/app_sv.qm</file>
 <file>printerui/app_tw.qm</file>
 <file>printerui/qml/DynamicString.qml</file>
