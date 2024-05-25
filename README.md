@@ -44,7 +44,7 @@ ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
 ```
 
 The next steps involve Docker. If you're on Windows you'd need to install Windows 
-subsystem for linux:
+Subsystem for Linux:
 
 ```
 wsl --install
