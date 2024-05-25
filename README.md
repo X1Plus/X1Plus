@@ -29,7 +29,15 @@ container.  If you're adventurous, you can probably build X1Plus on any old
 Linux machine (I do), but if you do that and it breaks, we really don't want
 to hear about it, so you really should just build it in Docker.  You'll need
 the filesystem decryption key from a live printer (running either X1Plus or
-the Official Rootable Firmware) in order to build X1Plus
+the Official Rootable Firmware) in order to build X1Plus.
+
+
+Note that if you're on Windows you'd need to install Windows Subsystem for Linux:
+
+```
+wsl --install
+wsl -d Ubuntu
+```
 
 First, copy the getkey bin over to the printer:
 
@@ -41,14 +49,6 @@ Now retrieve the key:
 
 ```
 ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
-```
-
-The next steps involve Docker. If you're on Windows you'd need to install Windows 
-Subsystem for Linux:
-
-```
-wsl --install
-wsl -d Ubuntu
 ```
 
 Clone down the X1Plus repo and build the Docker image from the Dockerfile in 
