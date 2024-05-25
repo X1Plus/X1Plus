@@ -43,6 +43,14 @@ Now retrieve the key:
 ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
 ```
 
+The next steps involve Docker. If you're on Windows you'd need to install Windows 
+subsystem for linux:
+
+```
+wsl --install
+wsl -d Ubuntu
+```
+
 Clone down the X1Plus repo and build the Docker image from the Dockerfile in 
 `scripts/docker`:
 
