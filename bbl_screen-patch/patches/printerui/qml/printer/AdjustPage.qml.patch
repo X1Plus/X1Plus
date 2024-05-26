@@ -16,9 +16,9 @@
 +    property var isHomed: (PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) >= PrintManager.AXIS_HOMED_ALL
 +    
 +    property bool ignoreDialog: false
-+    property var speedValues: [50,100,124,166]
-+    property var speedStr: ["Silent","Normal","Sport","Ludicrous"]
-+    property bool customSpeed: X1Plus.Settings.get("printerui.speedadjust", false);
++    property var speedValues: [50,100,124,166] // corresponding to PrintManager.currentTask.printSpeedModeStrings
++    property var speedStr: [3,2,1,0].map(n => PrintManager.currentTask.printSpeedModeStrings[n])
++    property bool customSpeed: X1Plus.Settings.get("printerui.speedadjust", false)
 +    
      property var speedAdjust: QtObject {
          property string name: "speed"
@@ -95,7 +95,7 @@
                  }
                  speedPad_close();
              }
-@@ -400,36 +426,55 @@
+@@ -400,36 +426,49 @@
              tempList.currentIndex = -1
          }
      }
@@ -103,8 +103,6 @@
      Rectangle {
          id: speedPad
 -        anchors.fill: axisPanel
-+        width: 540
-+        height: 591
          color: "#B20D0F0D"
 +        anchors.fill: axisPanel
          visible: target != null
@@ -122,11 +120,7 @@
 +        /* Speed adjustment dial */
 +        SpeedAdjust {
 +            id: speedDial
-+            width: parent.width
-+            height: parent.height
-+            anchors.fill: parent
-+            visible: parent.visible
-+            color: "#B20D0F0D"
++            visible: customSpeed && parent.visible
 +            
 +            onSpeedChanged:{
 +                if (speedPad.target != null && customSpeed){
@@ -164,7 +158,7 @@
  
              MouseArea {
                  anchors.fill: parent
-@@ -437,13 +482,44 @@
+@@ -437,13 +476,44 @@
              }
  
              Text {
@@ -210,7 +204,7 @@
              ZStepBar {
                  id: stepBar
                  width: parent.width - 260
-@@ -460,8 +536,9 @@
+@@ -460,8 +530,9 @@
                  }
                  titleFont: Fonts.body_36
                  steps: PrintManager.currentTask.printSpeedModeStrings
@@ -221,7 +215,7 @@
      }
  
      Item {
-@@ -515,9 +592,9 @@
+@@ -515,9 +586,9 @@
              text: modelData.currentTemp.toFixed(0)
  
              EventTrack.itemName: "tempAndSpeed_" + modelData.name
@@ -233,7 +227,7 @@
                 when: speedPad.target == modelData
              }
  
-@@ -828,7 +905,7 @@
+@@ -828,7 +899,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -242,7 +236,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +923,7 @@
+@@ -846,7 +917,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -251,7 +245,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +978,13 @@
+@@ -901,11 +972,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",

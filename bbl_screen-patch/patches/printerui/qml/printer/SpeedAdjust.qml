@@ -27,12 +27,11 @@ import ".."
 * is displayed to the user by default.
 */
 
-Rectangle {
+Item {
     id: speedDial
     width: parent.width
     height: parent.height
     anchors.fill: parent
-    color: "#B20D0F0D"
     property alias speed: dial.value
     property bool ramping: false
     property int mode: 0 
