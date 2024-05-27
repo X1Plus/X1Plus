@@ -1,4 +1,5 @@
 *~
+.DS_Store # MacOS metadata
 __pycache__
 localconfig.mk
 installer/info.json
