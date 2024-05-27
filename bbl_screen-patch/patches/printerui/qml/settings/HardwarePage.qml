@@ -542,7 +542,7 @@ Rectangle {
                         font: Fonts.body_22
                         color: Colors.gray_300
                         text: "<b>" + label + "</b>: " + description
-                        wrapMode: Text.WordWra
+                        wrapMode: Text.WordWrap
                     }
                 }
                 Text {
