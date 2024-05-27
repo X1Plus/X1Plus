@@ -532,17 +532,17 @@ Rectangle {
                     width: parent.width - 40
                     height: 160
                     model: ListModel { //Note for when we refactor Gpiokeys - these strings should be stored in Gpiokeys.js
-                        ListElement { label: "Sleep/wake"; description: qsTr("Toggles LCD screen (and lock screen if configured)") }
-                        ListElement { label: "Reboot"; description: qsTr("Restarts Linux with a shell command") }
-                        ListElement { label: "Pause print"; description: qsTr("Pauses current print job.") } 
-                        ListElement { label: "Abort print"; description: qsTr("Aborts current print job.") }
-                        ListElement { label: "Ignore"; description: qsTr("No action") }
+                        ListElement { label: qsTr("Sleep/wake"); description: qsTr("Toggles LCD screen (and lock screen if configured)") }
+                        ListElement { label: qsTr("Reboot"); description: qsTr("Restarts Linux with a shell command") }
+                        ListElement { label: qsTr("Pause print"); description: qsTr("Pauses current print job.") } 
+                        ListElement { label: qsTr("Abort print"); description: qsTr("Aborts current print job.") }
+                        ListElement { label: qsTr("Ignore"); description: qsTr("No action") }
                     }
                     delegate: Text {
                         font: Fonts.body_22
                         color: Colors.gray_300
                         text: "<b>" + label + "</b>: " + description
-                        wrapMode: Text.WordWra
+                        wrapMode: Text.WordWrap
                     }
                 }
                 Text {
