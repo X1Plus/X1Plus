@@ -1,5 +1,4 @@
 *~
-.DS_Store # MacOS metadata
 __pycache__
 localconfig.mk
 installer/info.json
@@ -9,3 +8,6 @@ bbl_screen-patch/interpose.moc.h
 *.x1p
 bbl_screen-patch/printer_ui.so.xdelta
 ota.json
+
+# MacOS metadata
+.DS_Store
