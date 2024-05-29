@@ -24,40 +24,36 @@
     "action": "chroot"
   },
   {
-    "name": "reboot",
-    "action": "reboot"
+    "name": "python3",
+    "action": "python3"
   },
   {
-    "name": "awk",
-    "action": "awk"
+    "name": "wget",
+    "action": "wget"
   },
   {
-    "name": "cat",
-    "action": "cat"
+    "name": "curl",
+    "action": "curl"
   },
   {
-    "name": "chmod",
-    "action": "chmod"
+    "name": "mount",
+    "action": "mount"
   },
   {
-    "name": "chown",
-    "action": "chown"
+    "name": "remount",
+    "action": "remount"
   },
   {
-    "name": "chroot",
-    "action": "chroot"
+    "name": "bash -i",
+    "action": "bash-i"
   },
   {
-    "name": "cp",
-    "action": "cp"
+    "name": "cd",
+    "action": "cd"
   },
   {
-    "name": "df",
-    "action": "df"
-  },
-  {
-    "name": "dd",
-    "action": "dd"
+    "name": "ping",
+    "action": "ping"
   },
   {
     "name": "echo",
@@ -88,24 +84,16 @@
     "action": "killall"
   },
   {
-    "name": "ls -l",
-    "action": "ls -l"
+    "name": "ls",
+    "action": "ls"
   },
   {
     "name": "pidof",
     "action": "pidof"
   },
   {
-    "name": "ping -c 1",
-    "action": "ping -c 1"
-  },
-  {
-    "name": "ps aux",
-    "action": "ps aux"
-  },
-  {
-    "name": "remount",
-    "action": "remount"
+    "name": "ps",
+    "action": "ps"
   },
   {
     "name": "rm",
