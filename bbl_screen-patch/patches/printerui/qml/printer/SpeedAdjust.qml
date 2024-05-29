@@ -37,7 +37,7 @@ Item {
     property int mode: 0 
     property var targetSpeed:100
     property var currentSpeed: PrintManager.currentTask.printSpeed
-    property var diff: Math.abs(currentSpeed-targetSpeed) == 0
+    property var speedLabel:  (Math.abs(currentSpeed-targetSpeed) > 0) ? `${targetSpeed} / ${currentSpeed}%` : `${currentSpeed}%`
     property var layerNum: PrintManager.currentTask.layerNum
     property var totalLayerNum: PrintManager.currentTask.totalLayerNum
     property var target: parent.target
