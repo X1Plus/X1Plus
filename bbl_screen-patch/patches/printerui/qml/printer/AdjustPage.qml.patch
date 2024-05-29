@@ -73,7 +73,7 @@
                              limitFrame()
                          }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-@@ -388,11 +409,16 @@
+@@ -388,48 +409,63 @@
              if(speedPad.target) {
                  speedPad.target = null
                  // here only when close "speedPad" then upload once the event track msg of "speedMode"
@@ -82,6 +82,7 @@
 -                    "control": "Choise",
 -                    "currentIndex": speedPad.speedMode,
 -                    "currentItemText": PrintManager.currentTask.printSpeedModeStrings[speedPad.speedMode]
+-                }
 +                if (!customSpeed) {
 +                    EventTrack.itemName = "speedAdjust"
 +                    EventTrack.extraInfo = {
@@ -89,13 +90,10 @@
 +                        "currentIndex": speedPad.speedMode,
 +                        "currentItemText": PrintManager.currentTask.printSpeedModeStrings[speedPad.speedMode]
 +                    }
-+                } else {
-+                    //EventTrack is what results in OEM speed gcode being published, so we want to avoid that here
-+                    speedDial.targetSpeed = speedValues[speedPad.speedMode];
-                 }
++                } 
                  speedPad_close();
              }
-@@ -400,36 +426,49 @@
+             fanPad.target = null
              tempList.currentIndex = -1
          }
      }
@@ -158,7 +156,7 @@
  
              MouseArea {
                  anchors.fill: parent
-@@ -437,13 +476,44 @@
+@@ -437,13 +473,44 @@
              }
  
              Text {
@@ -204,7 +202,7 @@
              ZStepBar {
                  id: stepBar
                  width: parent.width - 260
-@@ -460,8 +530,9 @@
+@@ -460,8 +527,9 @@
                  }
                  titleFont: Fonts.body_36
                  steps: PrintManager.currentTask.printSpeedModeStrings
@@ -215,7 +213,7 @@
      }
  
      Item {
-@@ -515,9 +586,9 @@
+@@ -515,9 +583,19 @@
              text: modelData.currentTemp.toFixed(0)
  
              EventTrack.itemName: "tempAndSpeed_" + modelData.name
@@ -223,11 +221,21 @@
 +            
              Binding on text {
 -               value: speedPad.step
-+               value: customSpeed ? speedDial.targetSpeed + "%" : speedPad.step
++               value:{
++                    if (customSpeed){
++                        if (speedDial.diff){
++                            return `${speedDial.targetSpeed} / ${speedDial.currentSpeed}%`
++                        } else {
++                            return `${speedDial.currentSpeed}%`
++                        } 
++                    } else {
++                        return speedPad.step
++                    }
++               }
                 when: speedPad.target == modelData
              }
  
-@@ -828,7 +899,7 @@
+@@ -828,7 +906,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -236,7 +244,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +917,7 @@
+@@ -846,7 +924,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -245,7 +253,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +972,13 @@
+@@ -901,11 +979,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",

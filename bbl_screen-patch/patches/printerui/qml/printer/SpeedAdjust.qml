@@ -37,6 +37,7 @@ Item {
     property int mode: 0 
     property var targetSpeed:100
     property var currentSpeed: PrintManager.currentTask.printSpeed
+    property var diff: Math.abs(currentSpeed-targetSpeed) == 0
     property var layerNum: PrintManager.currentTask.layerNum
     property var totalLayerNum: PrintManager.currentTask.totalLayerNum
     property var target: parent.target
@@ -281,9 +282,10 @@ Item {
             }  
     
             Text {
-                text: qsTr("%1%").arg(Math.round(dial.value))
+                text: qsTr(`%1%\n${speedStr[nearestLevel(PrintManager.currentTask.printSpeed)]}`).arg(Math.round(dial.value))
                 color: "white"
                 font.pixelSize: 36
+                horizontalAlignment: Text.AlignHCenter
                 anchors.centerIn: dial
             }
             
@@ -303,49 +305,8 @@ Item {
             anchors.rightMargin: 20
             
         }
-            
-        Text {
-            id: currentSpeedLabel //displays the equivalent speed string for the current speed speed
-            text: speedStr[nearestLevel(PrintManager.currentTask.printSpeed)]
-            color: "white"
-            font.pixelSize: 18
-            anchors.right: currentSpeedPecentage.left
-            anchors.top:currentSpeedPecentage.top
-            anchors.rightMargin: 20
-            anchors.topMargin:5
-        }
-        Text {
-            id: currentSpeedPecentage
-            text:("%1%").arg(Math.round(PrintManager.currentTask.printSpeed))
-            color: "white"
-            font.pixelSize: 36
-            anchors.left: parent.left
-            anchors.leftMargin: 120
-            anchors.bottom: dial.top
-            anchors.bottomMargin: 20
-        }
         
-        Text {
-            id: targetSpeedLabel //displays the equivalent speed string for the target speed speed
-            text: speedStr[nearestLevel(targetSpeed)]
-            color: Colors.brand
-            font.pixelSize: 18
-            anchors.left: targetSpeedPercent.right
-            anchors.leftMargin: 20
-            anchors.top:targetSpeedPercent.top
-            anchors.topMargin:5
-        }
-        Text {
-            id: targetSpeedPercent
-            text: ("%1%").arg(Math.round(targetSpeed))
-            color: Colors.brand
-            font.pixelSize: 36
-            anchors.right: parent.right
-            anchors.rightMargin: 120
-            anchors.bottom: dial.top
-            anchors.bottomMargin: 20
-
-        }   
+       
         Item {
             id: buttonsContainer
             width: parent.width
