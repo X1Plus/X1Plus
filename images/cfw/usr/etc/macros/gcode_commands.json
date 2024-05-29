@@ -1,0 +1,174 @@
+[
+  {
+    "name": "Toggle<br>ABL",
+    "action": "G29.2 S1"
+  },
+  {
+    "name": "Absolute<br>coords",
+    "action": "G90"
+  },
+  {
+    "name": "Relative<br>coords",
+    "action": "G91"
+  },
+  {
+    "name": "Disable<br>endstops",
+    "action": "M211 X0 Y0 Z0"
+  },
+  {
+    "name": "Retract",
+    "action": "G1 E-5 F300"
+  },
+  {
+    "name": "Extrude",
+    "action": "G1 E5 F300"
+  },
+  {
+    "name": "Aux fan",
+    "action": "M106 P2 S255"
+  },
+  {
+    "name": "Chamber fan",
+    "action": "M106 P3 S255"
+  },
+  {
+    "name": "Part fan",
+    "action": "M106 P1 S255"
+  },
+  {
+    "name": "Skew<br>correction",
+    "action": "M1005 I0.00"
+  },
+  {
+    "name": "Home:<br>XYZ",
+    "action": "G28"
+  },
+  {
+    "name": "Home:<br>XY",
+    "action": "G28 X"
+  },
+  {
+    "name": "Home:<br>Low<br>Precision",
+    "action": "G28 Z P0"
+  },
+  {
+    "name": "Toggle<br>input<br>shaping",
+    "action": "M975 S1"
+  },
+  {
+    "name": "Jerk<br>Limits",
+    "action": "M205 X0 Y0 Z0 E0"
+  },
+  {
+    "name": "K value",
+    "action": "M900 K0.01 L1 M1000"
+  },
+  {
+    "name": "Toolhead<br>Laser 1",
+    "action": "M960 S1 P1"
+  },
+  {
+    "name": "Toolhead<br>Laser 2",
+    "action": "M960 S2 P1"
+  },
+  {
+    "name": "OV2740:<br>on",
+    "action": "M973 S3 P1"
+  },
+  {
+    "name": "OV2740:<br>off",
+    "action": "M973 S4"
+  },
+  {
+    "name": "OV2740:<br>exposure",
+    "action": "M973 S2 P600"
+  },
+  {
+    "name": "OV2740:<br>Capture",
+    "action": "M971 S1 P1"
+  },
+  {
+    "name": "Toolhead<br>LED",
+    "action": "M960 S4 P1"
+  },
+  {
+    "name": "Z-axis<br>down",
+    "action": "G91\\nG0 Z5 F200"
+  },
+  {
+    "name": "Z-axis<br>up",
+    "action": "G91\\nG0 Z-5 F200"
+  },
+  {
+    "name": "Move<br>toolhead",
+    "action": "G91\\nG0 X228 Y253 Z8 F1200"
+  },
+  {
+    "name": "Disable<br>Motor<br>Noise<br>Cancellation",
+    "action": "M982.2 C0\\nM982.2 C1"
+  },
+  {
+    "name": "Pause<br>(G4)",
+    "action": "G4 P100"
+  },
+  {
+    "name": "Pause<br>(M400)",
+    "action": "M400 P100"
+  },
+  {
+    "name": "Speed:<br>silent",
+    "action": "M204.2 K0.30\\nM220 K0.70\\nM73.2 R2\\nM1002 set_gcode_claim_speed_level 4"
+  },
+  {
+    "name": "Speed:<br>normal",
+    "action": "M204.2 K1.0\\nM220 K1.0\\nM73.2 R1.0\\nM1002 set_gcode_claim_speed_level 5"
+  },
+  {
+    "name": "Speed:<br>sport",
+    "action": "M204.2 K1.40\\nM220 K1.4\\nM73.2 R0.8\\nM1002 set_gcode_claim_speed_level 6"
+  },
+  {
+    "name": "Speed:<br>ludicrous",
+    "action": "M204.2 K1.6\\nM220 K2.0\\nM73.2 R0.6\\nM1002 set_gcode_claim_speed_level 7"
+  },
+  {
+    "name": "Timeline<br>Update",
+    "action": "M73 P100 R0"
+  },
+  {
+    "name": "Reset<br>Feed Rate",
+    "action": "M220 S100"
+  },
+  {
+    "name": "Reset<br>Flow Rate",
+    "action": "M221 S100"
+  },
+  {
+    "name": "Save<br>settings",
+    "action": "M500"
+  },
+  {
+    "name": "Disable<br>steppers",
+    "action": "M18"
+  },
+  {
+    "name": "Stepper<br>Current",
+    "action": "M17 X0.3 Y0.3 Z0.3"
+  },
+  {
+    "name": "Heat nozzle",
+    "action": "M104 S250"
+  },
+  {
+    "name": "Heat nozzle<br>set temp delay",
+    "action": "M109 S250"
+  },
+  {
+    "name": "Heat Bed",
+    "action": "M140 S55"
+  },
+  {
+    "name": "Heat bed<br>set temp delay",
+    "action": "M190 S55"
+  }
+]

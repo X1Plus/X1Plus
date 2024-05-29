@@ -20,191 +20,26 @@ Item {
     property bool printing: PrintManager.currentTask.stage >= PrintTask.WORKING
     property bool ignoreDialog: false
     property var gcodeLibrary: X1Plus.GcodeGenerator
-    property var gcodeCommands: [
+    property var gcodeCommand: [
         {
-            name: "History",
-            action: "command history"
-        },
-        {
-            name: "ABL On",
-            action: gcodeLibrary.G292(1)
-        },
-        {
-            name: "Toolhead:<br>Absolute",
-            action: gcodeLibrary.G90()
-        },
-        {
-            name: "Toolhead:<br>Relative",
-            action: gcodeLibrary.G91()
-        },
-        {
-            name: "Disable<br>Endstops",
-            action: gcodeLibrary.M211({x:0, y:0, z:0})
-        },
-        {
-            name: "Extruder:<br>Retract",
-            action: gcodeLibrary.G1({e: -5, accel: 300})
-        },
-        {
-            name: "Extruder:<br>Extrude",
-            action: gcodeLibrary.G1({e: 5, accel: 300})
-        },
-        {
-            name: "Fan Speed:<br>Aux",
-            action: gcodeLibrary.M106.aux(255)
-        },
-        {
-            name: "Fan Speed:<br>Chamber",
-            action: gcodeLibrary.M106.chamber(255)
-        },
-        {
-            name: "Fan Speed:<br>Part",
-            action: gcodeLibrary.M106.part(255)
-        },
-        {
-            name: "Skew<br>Correction",
-            action: gcodeLibrary.M1005.i(0.001)
-        },
-        {
-            name: "Home:<br>XYZ",
-            action: gcodeLibrary.G28.xyz()
-        },
-        {
-            name: "Home:<br>XY",
-            action: gcodeLibrary.G28.xy()
-        },
-        {
-            name: "Home:<br>Low<br>Precision",
-            action: gcodeLibrary.G28.z_low_precision()
-        },
-        {
-            name: "Input<br>Shaper<br>On/Off",
-            action: gcodeLibrary.M975(true)
-        },
-        {
-            name: "Jerk<br>Limits",
-            action: gcodeLibrary.M205({x:0, y:0, z:0, e:0})
-        },
-        {
-            name: "K-value",
-            action: gcodeLibrary.M900(0.01, 1, 1000)
-        },
-        {
-            name: "Toolhead<br>Laser 1",
-            action: gcodeLibrary.M960.laser_vertical(1)
-        },
-        {
-            name: "Toolhead<br>Laser 2",
-            action: gcodeLibrary.M960.laser_horizontal(1)
-        },
-        {
-            name: "Toolhead<br>Camera<br>On",
-            action: gcodeLibrary.M973.on()
-        },
-        {
-            name: "Toolhead<br>Camera<br>Off",
-            action: gcodeLibrary.M973.off()
-        },
-        {
-            name: "Toolhead<br>Camera<br>Exposure",
-            action: gcodeLibrary.M973.expose(2, 600)
-        },
-        {
-            name: "Toolhead<br>Camera<br>Capture",
-            action: gcodeLibrary.M973.capture(1, 1)
-        },
-        {
-            name: "Toolhead<br>LED",
-            action: gcodeLibrary.M960.nozzle(1)
-        },
-        {
-            name: "Z-axis<br>down",
-            action: gcodeLibrary.G91() + gcodeLibrary.G0({z:5,accel:200})
-        },
-        {
-            name: "Z-axis<br>up",
-            action: gcodeLibrary.G91() + gcodeLibrary.G0({z:-5,accel:200})
-
-        },
-        {
-            name: "Move<br>toolhead",
-            action: gcodeLibrary.G91() + gcodeLibrary.G0({x:228,y:253,z:8,accel:1200})
-        },
-        {
-            name: "Disable<br>Motor<br>Noise<br>Cancellation",
-            action: gcodeLibrary.M9822()
-        },
-        {
-            name: "Pause<br>(G4)",
-            action: gcodeLibrary.G4(1)
-        },
-        {
-            name: "Pause<br>(M400)",
-            action: gcodeLibrary.M400.M400(1)
-        },
-        {
-            name: "Print<br>speed<br>50%",
-            action: gcodeLibrary.printSpeed("Silent")
-        },
-        {
-            name: "Print<br>speed<br>100%",
-            action: gcodeLibrary.printSpeed("Normal")
-        },
-        {
-            name: "Print<br>speed<br>124%",
-            action: gcodeLibrary.printSpeed("Sport")
-        },
-        {
-            name: "Print<br>speed<br>166%",
-            action: gcodeLibrary.printSpeed("Ludicrous")
-        },
-        {
-            name: "Timeline<br>Update",
-            action: gcodeLibrary.M73(100,0)
-        },
-        {
-            name: "Reset<br>Feed Rate",
-            action: gcodeLibrary.M220(100)
-        },
-        {
-            name: "Reset<br>Flow Rate",
-            action: gcodeLibrary.M221(100)
-        },
-        {
-            name: "Save<br>settings",
-            action: gcodeLibrary.M500()
-        },  
-        {
-            name: "Disable<br>steppers",
-            action: gcodeLibrary.M84()
-        },  
-        {
-            name: "Stepper<br>Current",
-            action: gcodeLibrary.M17(0.3,0.3,0.3)
-        },  
-        {
-            name: "Nozzle<br>Temp",
-            action: gcodeLibrary.M104(250)
-        },  
-        {
-            name: "Nozzle<br>Temp<br>(delay)",
-            action: gcodeLibrary.M109(250)
-        },  
-        {
-            name: "Bed<br>Temp",
-            action: gcodeLibrary.M140(55)
-        },  
-        {
-            name: "Bed Temp<br>(delay)",
-            action: gcodeLibrary.M190(55)
+            "name": "Command<br>History",
+            "action": "",
         }
+        ]
+    property var shellCommand: [
+        {
+            "name": "Command<br>History",
+            "action": "",
+        }
+        ]
 
-    ]
-    property var shellCommands: ["History"," $ ","  ( )  "," ` ", "  { }  ","  |  ","  -  ","  &  ","  /  ", "reboot","awk ","cat ", "chmod ","chown ", "chroot", "cp ","date -s ", "dd ", "df ", "echo ","grep", "head ","ifconfig", "iptables ", "kill ","killall ","ln -s","ls -l ","mount ","mv ","pgrep ","pidof","ping -c 1","poweroff","print ","ps aux ", "ps -ef ", "pwd", "remount", "rm ", "sed","sort","tar","test","touch ", "uname -a"]
     property var outputText:""
     property string savePath
     property string space: '       '
+    property bool jsonLoaded: false
+    
 
+    
     MarginPanel {
         id: outputPanel
         width: 1130
@@ -252,15 +87,10 @@ Item {
                     space + qsTr("S255: parameter to set fan speed (0 to 255)") + '<br><br>' +
                     qsTr("For multi-line commands, each G-code command must be separated by the newline escape " +
                         "sequence, \\n. For example:") +'<br>' +
-                    space + qsTr("M106 P2 S255\\nG4 S5\\nM106 P2 S0") + '<br><br>' +
-                    space + qsTr("Aux fan to 255 -> Wait 5 sec -> Aux fan to 0")
-                    : qsTr("This interface allows you to run commands on your printer as root. You can enter commands " +
-                        "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
-                        "the screen. Commands are executed synchronously, so long-running commands or commands " +
-                        "that require user input may hang the UI; use caution! This is intended as a quick diagnostic " +
-                        "tool, but for more intensive tasks, consider SSHing to the printer instead.") + '<br><br>' +
-                    qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
-                        "console. Do not enter commands unless you understand what you are typing.")
+                    space + qsTr("M106 P2 S255\\nG4 S5") + '<br><br>' +
+                    space + qsTr("Aux fan to 255 -> Wait 5 sec")
+                    : qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
+                        "console. For any intensive tasks, consider SSHing to the printer instead ")
 
                 placeholderTextColor: Colors.gray_300
             }
@@ -302,43 +132,81 @@ Item {
         leftMargin: 26
         topMargin: 5
         bottomMargin:18
+
         Flickable {
             id: flickable
             width: parent.width
+            anchors.fill: parent
             height: 105
-            contentWidth: hotkeysList.width
+            contentWidth: hotkeysList.contentWidth
             contentHeight: hotkeysList.height
             interactive: true
             flickableDirection: Flickable.HorizontalFlick
+            clip: true
+            ScrollBar.horizontal: ScrollBar {
+                id: horizontalScrollBar
+                active: true
+                width: flickable.width
+                height: 10
+                anchors.bottom: flickable.bottom
+
+                contentItem: Rectangle {
+                    color: Colors.gray_300
+                    radius: 10
+                }
+
+                policy: ScrollBar.AsNeeded
+                visible: flickable.contentWidth > flickable.width
+            }
             ListView {
                 id: hotkeysList
+                visible: jsonLoaded
                 width: parent.width
                 height: 105
                 orientation: ListView.Horizontal
-                model: gcodeConsole ? gcodeCommands : shellCommands
+                model: !jsonLoaded ? null : 
+                        gcodeConsole ? gcodeCommand : shellCommand
                 clip:true
+                Component.onCompleted:{
+                    loadJsonData();
+                }
                 delegate: Item {
                     id: itm
-                    width: (index == 0) ? 100 : gcodeConsole ? 130 : (index < 9) ? 70 : 130
+                    width: (index == 0) ? 100 : 130 //: gcodeConsole ? 130 : (index < 9) ? 70 : 130
                     height: parent.height
-                    ZButton {
+                    Rectangle {
                         id: hotkeyBtn
-                        text: gcodeConsole ? modelData.name : modelData
                         width: parent.width
                         height: hotkeysList.height - 10
-                        type: ZButtonAppearance.Tertiary
-                        textSize: 26
-                        textColor: Colors.gray_300
-                        backgroundColor: "transparent_pressed"
-                        borderColor: "transparent"
-                        //cornerRadius: width / 2 
-                        onClicked: {
-                            if (index == 0 ){
-                                navigateHistory();
-                            } else {
-                                let commandToAdd = gcodeConsole ? modelData.action : shellCommands[index].trim().replace("<br>", "");
-                                if (inputText.trim().length > 0 && gcodeConsole) inputText += "\\n";
-                                inputText += commandToAdd;
+                        color: Colors.gray_600
+                        radius: width / 2
+                        
+                        Text {
+                            id: hotkeyTxt
+                            anchors.centerIn : parent
+                            width: parent.width
+                            height: parent.height
+                            text: modelData.name
+                            color: Colors.gray_300
+                            font: Fonts.body_20
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            
+                            onClicked: {
+                                if (index == 0 ){
+                                    navigateHistory();
+                                } else {
+                                    let commandToAdd = modelData.action.trim().replace("<br>", "");
+                                    inputText += commandToAdd;
+                                }
+                            }
+                            onDoubleClicked:{
+                                console.log(";l");
                             }
                         }
                     }
@@ -349,19 +217,34 @@ Item {
                         height: parent.height-20
                         anchors.left: parent.left
                         color: "#606060"
-                        visible: index >0 && itm.width > 1//< model.count - 1 // Hide for the last item
+                        visible: index > 0 && itm.width > 1//< model.count - 1 // Hide for the last item
                     
                     }
                 }
-
-                ScrollBar.horizontal: ScrollBar {
-                    policy: ScrollBar.AlwaysOn
-                }
-
-                ScrollBar.vertical: ScrollBar {
-                    policy: ScrollBar.AlwaysOff
-                }
             }
+        
+        }
+    }
+    function loadJsonData(){
+        jsonLoaded = false;
+        var gcodeJsonPath = X1Plus.Settings.get("consolepage.gcode.json","/usr/etc/macros/gcode_commands.json")
+        var shellJsonPath = X1Plus.Settings.get("consolepage.gcode.shell","/usr/etc/macros/shell_commands.json")
+        var jsonData = X1Plus.loadJson(gcodeJsonPath);
+        if (jsonData){
+            jsonData.forEach(function(item) {
+                gcodeCommand.push(item);
+            });
+        } else {
+            console.error("Failed to load gcode commands.");
+        }
+        jsonData = X1Plus.loadJson(shellJsonPath);
+        if (jsonData){
+            jsonData.forEach(function(item) {
+                shellCommand.push(item);
+            });
+            jsonLoaded = true;
+        } else {
+            console.error("Failed to load shell commands.");
         }
     }
     function navigateHistory() {
@@ -388,14 +271,17 @@ Item {
     
     function sendCommand(str){
         try {
-            if (gcodeConsole) {
-                console.log("[x1p] publishing gcode ", str);
-                X1Plus.sendGcode(str);
-                cmdHistory[0].push(str);
-                idx = cmdHistory[0].length;
+            var inputCmd = str.replace(/\\n/g, '\n  ');
+            inputCmd = str.trim();
+            var rootStr = "<font color='#AAFF00'>[root@BL-P001]: </font>"
+            consoleComp.outputText += `${rootStr} ${inputCmd}<br>`
 
+            if (gcodeConsole) {
+                consoleComp.outputText = consoleComp.outputText.replace("enter gcode", '<br>');
+                gcodeProc.write(inputCmd + "\n");
+                cmdHistory[0].push(inputCmd);
+                idx = cmdHistory[0].length;
             } else {
-                var inputCmd = str.replace(/\\n/g, '\n  ');
                 let commandParts = inputCmd.split(' ')
                 if (commandParts.length > 0) {
                     let command = commandParts[0]
@@ -405,10 +291,10 @@ Item {
                     idx = cmdHistory[1].length;
                 }
             }
-            return true;
+            return inputCmd;
         } catch (e) {
             console.log("[x1p] error executing command", e);
-            return false;
+            return "";
         }
     }
 
@@ -456,7 +342,7 @@ Item {
                     if (gcodeProc.running) gcodeProc.terminate();
                     
                     if (gcodeConsole) {
-                        gcodeProc.start("python3",["-u", "/opt/tail.py"]);
+                        gcodeProc.start("python3",["-u", "/opt/x1plus/bin/log_monitor.py"]);
                     } else {
                         gcodeProc.terminate();
                     }
@@ -518,19 +404,20 @@ Item {
         Shortcut {
             sequences: ["Stop", "Ctrl+D"]
             onActivated: {
-                shellProcess.terminate();
-                gcodeProc.terminate();
+                if (shellProcess.running) shellProcess.terminate();
+                if (gcodeProc.running) gcodeProc.terminate();
             }
         }
         
         Component.onCompleted: {
             if (gcodeConsole) {
-                gcodeProc.start("python3",["-u", "/usr/bin/log_monitor.py"]);
+                gcodeProc.start("python3",["-u", "/opt/x1plus/bin/log_monitor.py"]);
             }
         }
+        
         Component.onDestruction: {
-            shellProcess.terminate();
-            gcodeProc.terminate();
+            if (shellProcess.running) shellProcess.terminate();
+            if (gcodeProc.running) gcodeProc.terminate();
         }
 
         X1PlusProcess {
@@ -566,23 +453,21 @@ Item {
             property string output: ""
             property bool running: false
             onStarted: {
-                console.log("Running gcode");
                 running = true;
             }
             onFinished:{
-                console.log("Process finished with exit code:", exitCode, "and status:", exitStatus)
+                console.log("Helper script: exit code:", exitCode, "and status:", exitStatus)
                 running = false;
             }
             onErrorOccurred: {
-                console.log("Error Ocuured: ", error)
+                console.log("Helper script: error ", error)
                 running = false;
             }
             
             onReadyReadStandardOutput: {
                 output = gcodeProc.readAll().toString().trim();
-                consoleComp.outputText += `${output}<br>`;
+                consoleComp.outputText += `${output}`;
                 termScroll.scroll();
-                console.log(output);
             }
         }
         
@@ -615,31 +500,28 @@ Item {
                         var inputCmd = inputText.trim();
                         if (inputCmd.length <1) return;
                         
-                        if (shellProcess.running){
+                        if (shellProcess.running && !gcodeConsole){
                             shellProcess.write(inputTextBox.text + "\n");
                             consoleComp.outputText += '<br>' + inputTextBox.text + "<br>"
                             inputTextBox.text = "";
+                            termScroll.scroll();
                             return;
                         }
                         if (printing && !ignoreDialog) {
                             dialogStack.popupDialog(
                                 "TextConfirm", {
                                     name: "Limit Frame",
-                                    type: TextConfirm.YES_NO_CANCEL,
-                                    titles: [qsTr("Home"), qsTr("Ignore"), qsTr("Close")],
+                                    type: TextConfirm.YES_NO,
+                                    titles: [qsTr("Ignore"), qsTr("Close")],
                                     text: qsTr("Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message."),
-                                    onNo: function() {ignoreDialog = true},
-                                    OnCancel: function () {return},
+                                    onYes: function() {ignoreDialog = true},
+                                    onNo: function () {return},
                             }); 
                         }
                     
+                        
                         inputCmd = inputCmd.replace(/\\n/g, '\n  ');
-                        // consoleComp.outputText += `<font color='white'>[root@BL-P001]: </font><font color='yellow'>${inputCmd}</font><br>`;
-                        var rootText = `<br><font color='green'>[root@BL-P001]: </font>` + inputCmd + "<br>"
-                        consoleComp.outputText += rootText;
-                        let resp = sendCommand(inputCmd);
-                        inputCmd = "";
-                        var origHeight = outputText == "" ? 0 : outputTextArea.contentHeight;
+                        sendCommand(inputCmd);
                         inputText = "";  
                     }
                     onEntered: parent.opacity = 0.8
@@ -693,10 +575,8 @@ Item {
             if(!isInputting){
                 if (!savePath== ""){
                     console.log(`[x1p] saving console log ${savePath}`);
-                    X1PlusNative.saveFile(savePath, outputTextArea.text);
+                    //X1PlusNative.saveFile(savePath, outputTextArea.text);
                 }
-    
-                
             }
         }
     }

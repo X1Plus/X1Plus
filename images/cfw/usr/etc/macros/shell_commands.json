@@ -1,0 +1,114 @@
+[
+  {
+    "name": "reboot",
+    "action": "reboot"
+  },
+  {
+    "name": "awk",
+    "action": "awk"
+  },
+  {
+    "name": "cat",
+    "action": "cat"
+  },
+  {
+    "name": "chmod",
+    "action": "chmod"
+  },
+  {
+    "name": "chown",
+    "action": "chown"
+  },
+  {
+    "name": "chroot",
+    "action": "chroot"
+  },
+  {
+    "name": "reboot",
+    "action": "reboot"
+  },
+  {
+    "name": "awk",
+    "action": "awk"
+  },
+  {
+    "name": "cat",
+    "action": "cat"
+  },
+  {
+    "name": "chmod",
+    "action": "chmod"
+  },
+  {
+    "name": "chown",
+    "action": "chown"
+  },
+  {
+    "name": "chroot",
+    "action": "chroot"
+  },
+  {
+    "name": "cp",
+    "action": "cp"
+  },
+  {
+    "name": "df",
+    "action": "df"
+  },
+  {
+    "name": "dd",
+    "action": "dd"
+  },
+  {
+    "name": "echo",
+    "action": "echo"
+  },
+  {
+    "name": "grep",
+    "action": "grep"
+  },
+  {
+    "name": "head",
+    "action": "head"
+  },
+  {
+    "name": "ifconfig",
+    "action": "ifconfig"
+  },
+  {
+    "name": "iptables",
+    "action": "iptables"
+  },
+  {
+    "name": "kill",
+    "action": "kill"
+  },
+  {
+    "name": "killall",
+    "action": "killall"
+  },
+  {
+    "name": "ls -l",
+    "action": "ls -l"
+  },
+  {
+    "name": "pidof",
+    "action": "pidof"
+  },
+  {
+    "name": "ping -c 1",
+    "action": "ping -c 1"
+  },
+  {
+    "name": "ps aux",
+    "action": "ps aux"
+  },
+  {
+    "name": "remount",
+    "action": "remount"
+  },
+  {
+    "name": "rm",
+    "action": "rm"
+  }
+]
