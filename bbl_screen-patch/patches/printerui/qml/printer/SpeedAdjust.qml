@@ -282,7 +282,7 @@ Item {
             }  
     
             Text {
-                text: qsTr(`%1%\n${speedStr[nearestLevel(PrintManager.currentTask.printSpeed)]}`).arg(Math.round(dial.value))
+                text: qsTr(`%1%\n${speedStr[nearestLevel(targetSpeed)]}`).arg(Math.round(dial.value))
                 color: "white"
                 font.pixelSize: 36
                 horizontalAlignment: Text.AlignHCenter
