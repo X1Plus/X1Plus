@@ -20,6 +20,8 @@ def serial_number():
 
 def get_MAC() -> str:
     """Return the MAC address of the printer."""
+    if is_emulating():
+        return "CC:BD:D3:00:3B:D5"
     # Get the device id of the currently-active network device.
     devices = subprocess.Popen(["ip", "link"], stdout=subprocess.PIPE)
     # The active device _should_ be broadcasting.
@@ -33,5 +35,7 @@ def get_MAC() -> str:
 
 def get_IP() -> str:
     """Return the IP address of the printer."""
+    if is_emulating():
+        return "192.168.2.113"
     hostname = subprocess.run(["hostname", "-I"], capture_output=True)
     return hostname.stdout.decode().split(" ")[0]
