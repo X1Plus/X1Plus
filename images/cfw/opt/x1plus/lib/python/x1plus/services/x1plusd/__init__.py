@@ -7,6 +7,7 @@ from .dbus import *
 from .settings import SettingsService
 from .ota import OTAService
 from .sshd import SSHService
+from .polar_cloud import PolarPrint
 
 logger = logging.getLogger(__name__)
 
@@ -22,5 +23,7 @@ async def main():
 
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
+    if settings.polar_cloud:
+        await polar_cloud.begin()
 
     logger.info("x1plusd is running")
