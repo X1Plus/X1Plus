@@ -23,7 +23,6 @@ async def main():
 
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
-    if settings.polar_cloud:
-        await polar_cloud.begin()
+    asyncio.create_task(polar_cloud.begin())
 
     logger.info("x1plusd is running")
