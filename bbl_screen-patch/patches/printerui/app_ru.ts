@@ -2637,9 +2637,79 @@ Click the pencil icon to edit your filament</translation>
       <translation>Если вы заменили принадлежности, пожалуйста, обновите настройки, чтобы соответствовать фактическому состоянию аксессуара, чтобы обеспечить качество печати</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="505"></location>
-      <source>&lt;b&gt;You can change the behavior of the hardware buttons on the top of the printer.&lt;/b&gt;  A short press is less than 0.85 seconds, and a long press is anything longer than that.&lt;br&gt;&lt;br&gt;&lt;b&gt;Reboot&lt;/b&gt;: gracefully restarts Linux with 'reboot' command.&lt;br&gt;&lt;b&gt;Set temp&lt;/b&gt;: sets nozzle or bed target temperature.&lt;br&gt;&lt;b&gt;Pause print&lt;/b&gt;: pauses current print job.  (Original behavior for red button.)&lt;br&gt;&lt;b&gt;Abort print&lt;/b&gt;: cancels current print job.&lt;br&gt;&lt;b&gt;Sleep/wake&lt;/b&gt;: toggles display screen saver.  (Original behavior for black button.)&lt;br&gt;&lt;b&gt;Run macro&lt;/b&gt;: executes G-code or Python macro.</source>
-      <translation>&lt;b&gt;Вы можете изменить поведение аппаратных кнопок в верхней части принтера.&lt;/b&gt; Короткое нажатие занимает менее 0,85 секунды, а длительное нажатие — более длительное.&lt;br&gt;&lt;br&gt;&lt;b&gt;Перезагрузка&lt;/b&gt;: корректно перезапускает Linux с помощью 'reboot' команда.&lt;br&gt;&lt;b&gt;Установить температуру&lt;/b&gt;: устанавливает целевую температуру сопла или стола.&lt;br&gt;&lt;b&gt;Приостановить печать&lt;/b&gt;: приостанавливает текущее задание печати. (Исходное поведение красной кнопки.)&lt;br&gt;&lt;b&gt;Прервать печать&lt;/b&gt;: отменяет текущее задание печати.&lt;br&gt;&lt;b&gt;Сон/Пробуждение&lt;/b&gt;: включает заставку экрана. (Исходное поведение черной кнопки.)&lt;br&gt;&lt;b&gt;Выполнить макрос&lt;/b&gt;: выполняет G-код или макрос Python.</translation>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="519"></location>
+      <source>Tooltip: Re-mapping the hardware buttons</source>
+      <translation type="unfinished">Tooltip: Re-mapping the hardware buttons</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="529"></location>
+      <source>Button Actions:</source>
+      <translation type="unfinished">Button Actions:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Sleep/wake</source>
+      <translation>Сон/пробуждение</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Toggles LCD screen (and lock screen if configured)</source>
+      <translation type="unfinished">Toggles LCD screen (and lock screen if configured)</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Reboot</source>
+      <translation>Перезагрузка</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Restarts Linux with a shell command</source>
+      <translation type="unfinished">Restarts Linux with a shell command</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pause print</source>
+      <translation>Приостановить печать</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pauses current print job.</source>
+      <translation type="unfinished">Pauses current print job.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Abort print</source>
+      <translation>Прервать печать</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Aborts current print job.</source>
+      <translation type="unfinished">Aborts current print job.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>Ignore</source>
+      <translation>Игнор</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>No action</source>
+      <translation type="unfinished">No action</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="551"></location>
+      <source>Button Press Gestures:</source>
+      <translation type="unfinished">Button Press Gestures:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="556"></location>
+      <source>Short press: &lt; 0.85 seconds</source>
+      <translation type="unfinished">Short press: &lt; 0.85 seconds</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="561"></location>
+      <source>Long press: &gt;= 0.85 seconds</source>
+      <translation type="unfinished">Long press: &gt;= 0.85 seconds</translation>
     </message>
   </context>
   <context>

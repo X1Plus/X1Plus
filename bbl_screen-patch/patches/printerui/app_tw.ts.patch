@@ -5,6 +5,13 @@
      </message>
  </context>
 +<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
 +  <name>UpgradeDialog</name>
 +  <message>
 +    <source>Cancel</source>
@@ -13,46 +20,6 @@
 +  <message>
 +    <source>Return</source>
 +    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VersionDialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>DeviceInfo</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+  <message>
-+    <source>reset</source>
-+    <translation>重置</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedTramming</name>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>准备</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ConsolePage</name>
-+  <message>
-+    <source>Home</source>
-+    <translation>回零</translation>
-+  </message>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>忽略</translation>
-+  </message>
-+  <message>
-+    <source>Close</source>
-+    <translation>关闭</translation>
 +  </message>
 +</context>
 +<context>
@@ -67,38 +34,6 @@
 +  <message>
 +    <source>Ignore</source>
 +    <translation>忽略</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BootOptionsPage</name>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>取消</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>InstallingPage</name>
-+  <message>
-+    <source>Yes</source>
-+    <translation>是</translation>
-+  </message>
-+  <message>
-+    <source>No</source>
-+    <translation>否</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>LanAccessPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
 +  </message>
 +</context>
 +<context>
@@ -134,6 +69,71 @@
 +  <message>
 +    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
 +    <translation>如果您更换过配件，请更新如下设置保持和配件实际情况一致，以保证打印质量。</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>重置</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Prepare</source>
++    <translation>准备</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>InstallingPage</name>
++  <message>
++    <source>Yes</source>
++    <translation>是</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>否</translation>
++  </message>
++</context>
++<context>
++  <name>BootOptionsPage</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>ConsolePage</name>
++  <message>
++    <source>Home</source>
++    <translation>回零</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
++  </message>
++  <message>
++    <source>Close</source>
++    <translation>关闭</translation>
 +  </message>
 +</context>
  </TS>

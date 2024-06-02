@@ -1,0 +1,18 @@
+--- printer_ui-orig/printerui/text/hms_texts.zh-cn.json
++++ printer_ui/printerui/text/hms_texts.zh-cn.json
+@@ -1,5 +1,4 @@
+ {
+-    "ver": 202311242020,
+     "zh-cn": [
+         {
+             "ecode": "030091000001000A",
+@@ -3021,5 +3020,6 @@
+             "ecode": "0500040000010002",
+             "intro": "打印状态上传错误，请检查网络连接。"
+         }
+-    ]
+-}
++    ],
++    "ver": 202406020147
++}
+\ No newline at end of file

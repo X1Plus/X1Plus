@@ -3,15 +3,15 @@
     <name></name>
     <message>
       <source>CertificateConfirm2Page.Connecting...</source>
-      <translation type="unfinished">CertificateConfirm2Page.Connecting...</translation>
+      <translation>CertificateConfirm2Page.Bağlanıyor...</translation>
     </message>
     <message>
       <source>CertificateConfirm2Page.Certificate connect timeout!</source>
-      <translation type="unfinished">CertificateConfirm2Page.Certificate connect timeout!</translation>
+      <translation>CertificateConfirm2Page.Certificate Bağlantı zaman aşımı!</translation>
     </message>
     <message>
       <source>CertificateConfirm2Page.Connect to Network</source>
-      <translation type="unfinished">CertificateConfirm2Page.Connect to Network</translation>
+      <translation>CertificateConfirm2Page.Ağa Bağlanıyor</translation>
     </message>
   </context>
   <context>
@@ -43,13 +43,13 @@ Not: Yazdırma sırasında yeni filament takılırsa, AMS yazdırma tamamlanana 
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSSettingPage.qml" line="25"></location>
       <source>The AMS will not automatically read information from inserted filament during startup and will continue to use the information recorded before the last shutdown.</source>
-      <translation>AMS, başlatma sırasında takılan filamentden bilgileri otomatik olarak okumaz ve son kapatmadan önce kaydedilen bilgileri kullanmaya devam eder.</translation>
+      <translation>AMS, başlatma sırasında takılan filamentin bilgileri otomatik olarak okumaz ve son kapatmadan önce kaydedilen bilgileri kullanmaya devam eder.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSSettingPage.qml" line="26"></location>
       <source>The AMS will automatically read the information of inserted filament on start-up. It will take about 1 minute.
 The reading process will roll filament spools.</source>
-      <translation>AMS, başlangıçta takılan filamentin bilgilerini otomatik olarak okuyacaktır. Yaklaşık 1 dakika sürecektir. Okuma işlemi filament makaralarını saracaktır.</translation>
+      <translation>AMS, başlangıçta takılan filament bilgilerini otomatik olarak okuyacaktır. Yaklaşık 1 dakika sürecektir. Okuma işlemi filament makaralarını saracaktır.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSSettingPage.qml" line="30"></location>
@@ -102,7 +102,7 @@ The reading process will roll filament spools.</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSUseBootPage.qml" line="17"></location>
       <source>Loading Filament</source>
-      <translation>Filament Yükleme</translation>
+      <translation>Filament Yükleniyor</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSUseBootPage.qml" line="18"></location>
@@ -190,7 +190,7 @@ The reading process will roll filament spools.</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSUseBootPage.qml" line="49"></location>
       <source>Filament color and type indication</source>
-      <translation>Filament rengi ve türü göstergesi</translation>
+      <translation>Filament renk ve tür göstergesi</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSUseBootPage.qml" line="50"></location>
@@ -485,7 +485,7 @@ The reading process will roll filament spools.</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/BedLevelDiag.qml" line="76"></location>
       <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
-      <translation>&lt;font size='3' color='#AEAEAE'&gt;Bu kalibrasyon çalışması %1 yatak sıcaklığında gerçekleştirilmiştir. %2.&lt;br&gt;&lt;br&gt;Tespit edilen yatak eğimi X ekseni boyunca %3 ve Y ekseni boyunca %4'tür. Yatağın tepeden tepeye sapması %5'tir ve yatak mükemmel bir şekilde tramlandıktan sonra kalan düzlemsizlik %6 olacaktır.&lt;br&gt;&lt;br&gt;</translation>
+      <translation>&lt;font size='3' color='#AEAEAE'&gt;Bu kalibrasyon çalışması %1, tarihinde %2.&lt;br&gt;&lt;br&gt; yatak sıcaklığında kaydedildi. X ekseni boyunca tespit edilen yatak eğimi %3 ve Y ekseni boyunca ise %4'tür. Yatağın tepe-tepe sapması %5'tir ve yatağı tamamen düzeltseniz bile kalan düz olmama %6 olacaktır.&lt;br&gt;&lt;br&gt;</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/BedLevelDiag.qml" line="119"></location>
@@ -503,7 +503,7 @@ The reading process will roll filament spools.</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/BedMesh.qml" line="47"></location>
       <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
-      <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Hesaplanan yatak eğimi (X ekseni) X ekseni boyunca %2 mm ve Y ekseni boyunca %3 mm'dir; tamponlama sonrası tepeden tepeye sapma %4 mm'dir.&lt;/font&gt;</translation>
+      <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Hesaplanan yatak eğimi (X ekseni) X ekseni boyunca %2 mm ve Y ekseni boyunca %3 mm'dir; tamponlama sonrası tepe-tepe sapma %4 mm.&lt;/font&gt;</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/BedMesh.qml" line="66"></location>
@@ -573,7 +573,7 @@ Progress: %5%</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="20"></location>
       <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
-      <translation>Yatak vidalarını, Bambu Lab wiki'sinin "Yatak Tesviyesine Hazırlık" bölümünde açıklandığı gibi temel gerilim ayarlarına getirin.  (Bu metnin altında bir QR kodu bağlantısı verilmiştir.)</translation>
+      <translation>Bambu Lab wiki'sindeki "Yatak Düzleme İçin Hazırlık" bölümünde açıklandığı gibi yatak vidalarını temel gerilim ayarına getirin. (Bu metnin altında bir QR kod bağlantısı verilmiştir.)</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="21"></location>
@@ -697,7 +697,7 @@ Progress: %5%</source>
     <message>
       <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="95"></location>
       <source>&lt;font color="#EEAAAA"&gt;Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option starts the printer with no modifications to the built-in firmware. If your printer performs a firmware upgrade in this mode, X1Plus will likely be uninstalled; if you want to run X1Plus afterwards, you will need to rerun the X1Plus installation process. If prompted to install upgrades, you should answer "no" if you want to keep your X1Plus installation.&lt;/font&gt;&lt;br&gt;&lt;br&gt;Use this mode with extreme caution.</source>
-      <translation>&lt;font color="#EEAAAA"&gt;Yerleşik ürün yazılımından başlamak, X1Plus veya yazıcınızla ilgili sorunları teşhis etmek için yararlı olabilir. Bu seçenek, yazıcıyı yerleşik ürün yazılımında hiçbir değişiklik yapmadan başlatır. Yazıcınız bu modda bir ürün yazılımı yükseltmesi gerçekleştirirse, X1Plus muhtemelen kaldırılacaktır; daha sonra X1Plus'ı çalıştırmak isterseniz, X1Plus yükleme işlemini yeniden çalıştırmanız gerekecektir. Yükseltmeleri yüklemeniz istenirse, X1Plus yüklemenizi korumak istiyorsanız "hayır" yanıtını vermelisiniz.&lt;/font&gt;&lt;br&gt;&lt;br&gt;Bu modu çok dikkatli kullanın.</translation>
+      <translation>&lt;font color="#EEAAAA"&gt;Yerleşik ürün yazılımından başlamak, X1Plus veya yazıcınızla ilgili sorunları teşhis etmek için yararlı olabilir. Bu seçenek, yazıcıyı yerleşik ürün yazılımında hiçbir değişiklik yapmadan başlatır. Yazıcınız bu mod da bir ürün yazılımı yükseltmesi gerçekleştirirse, X1Plus muhtemelen kaldırılacaktır; daha sonra X1Plus'ı çalıştırmak isterseniz, X1Plus yükleme işlemini yeniden çalıştırmanız gerekecektir. Yükseltmeleri yüklemeniz istenirse, X1Plus yüklemenizi korumak istiyorsanız "hayır" yanıtını vermelisiniz.&lt;/font&gt;&lt;br&gt;&lt;br&gt;Bu modu çok dikkatli kullanın.</translation>
     </message>
     <message>
       <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="99"></location>
@@ -2037,7 +2037,7 @@ Fabrika ayarlarını geri yüklemeden önce lütfen sıcak yatağı merkezi konu
     </message>
     <message>
       <source>Please export log to SD card and create a ticket on the official website（www.bambulab.com）to report your problem.</source>
-      <translation>Lütfen log dosyasını SD karta aktarın ve sorununuzu bildirmek için resmi web sitesinde (www.bambulab.com) bir talep oluşturun.</translation>
+      <translation>Lütfen log dosyasını SD karta aktarın ve sorununuzu bildirmek için resmi web sitesinde（www.bambulab.com）bir talep oluşturun.</translation>
     </message>
     <message>
       <source>If a lot of ABS materials have been used in past printing, please scan the QR code to get the maintenance guide and clean the carbon rods according to the guide.</source>
@@ -2190,7 +2190,7 @@ Fabrika ayarlarını geri yüklemeden önce lütfen sıcak yatağı merkezi konu
     </message>
     <message>
       <source>Push new filament into the extruder</source>
-      <translation>Yeni filament'i ekstrudere itin</translation>
+      <translation>Yeni filamenti ekstrudere itin</translation>
     </message>
     <message>
       <source>Heat the nozzle (${heaters.hotend.currentTemp.toFixed()}℃ → ${heaters.hotend.targetTemp}℃)</source>
@@ -2202,11 +2202,11 @@ Fabrika ayarlarını geri yüklemeden önce lütfen sıcak yatağı merkezi konu
     </message>
     <message>
       <source>Purge old filament</source>
-      <translation>Eski filament'i temizleyin</translation>
+      <translation>Eski filamenti temizleyin</translation>
     </message>
     <message>
       <source>Cut filament</source>
-      <translation>Filament'i kes</translation>
+      <translation>Filamenti kes</translation>
     </message>
     <message>
       <source>Load timeout.</source>
@@ -2226,7 +2226,7 @@ Fabrika ayarlarını geri yüklemeden önce lütfen sıcak yatağı merkezi konu
     </message>
     <message>
       <source>Cannot read filament info: the filament is loaded to the tool head, please unload the filament and try again.</source>
-      <translation>Filament bilgisi okunamıyor: Filament alet başlığına yüklendi, lütfen filament'i çıkarın ve tekrar deneyin.</translation>
+      <translation>Filament bilgisi okunamıyor: Filament alet başlığına yüklendi, lütfen filamenti çıkarın ve tekrar deneyin.</translation>
     </message>
     <message>
       <source>Filament not ready.</source>
@@ -2365,7 +2365,7 @@ Fabrika ayarlarını geri yüklemeden önce lütfen sıcak yatağı merkezi konu
     </message>
     <message>
       <source>Are you sure to clear the filament information.</source>
-      <translation>Filament bilgisini temizlemek istediğinizden emin misiniz?</translation>
+      <translation>Filament bilgisini temizlemek istediğinizden emin misiniz.</translation>
     </message>
   </context>
   <context>
@@ -2373,7 +2373,7 @@ Fabrika ayarlarını geri yüklemeden önce lütfen sıcak yatağı merkezi konu
     <message>
       <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="47"></location>
       <source>Filament type is unknown which is required to perform this action. Do you want to edit target filament's informations.</source>
-      <translation>Filament türü bilinmiyor ve bu işlemi gerçekleştirmek için gereklidir. Hedef filamentin bilgilerini düzenlemek istiyor musunuz?</translation>
+      <translation>Filament türü bilinmiyor ve bu işlemi gerçekleştirmek için gereklidir. Hedef filament'in bilgilerini düzenlemek istiyor musunuz.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="107"></location>
@@ -2420,7 +2420,7 @@ tutucu</translation>
     <message>
       <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="419"></location>
       <source>Before loading, please make sure your filament is pushed into the toolhead.</source>
-      <translation>Yüklemeden önce, lütfen filamentinizin alet başlığına itildiğinden emin olun.</translation>
+      <translation>Yükleme yapmadan önce, filamentin takım kafasına itildiğinden emin olun.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="481"></location>
@@ -2477,8 +2477,8 @@ tutucu</translation>
     <message>
       <source>Tips：
 Click the pencil icon to edit your filament</source>
-      <translation>İpuçları:
-Filamentinizi düzenlemek için kalem simgesine tıklayın.</translation>
+      <translation>İpuçları：
+Filamentinizi düzenlemek için kalem simgesine tıklayın</translation>
     </message>
     <message>
       <source>Desiccant status</source>
@@ -2637,9 +2637,79 @@ Filamentinizi düzenlemek için kalem simgesine tıklayın.</translation>
       <translation>Aksesuarları değiştirdiyseniz, baskı kalitesini sağlamak için lütfen aşağıdaki ayarları aksesuarın gerçek durumuyla tutarlı olacak şekilde güncelleyin</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="505"></location>
-      <source>&lt;b&gt;You can change the behavior of the hardware buttons on the top of the printer.&lt;/b&gt;  A short press is less than 0.85 seconds, and a long press is anything longer than that.&lt;br&gt;&lt;br&gt;&lt;b&gt;Reboot&lt;/b&gt;: gracefully restarts Linux with 'reboot' command.&lt;br&gt;&lt;b&gt;Set temp&lt;/b&gt;: sets nozzle or bed target temperature.&lt;br&gt;&lt;b&gt;Pause print&lt;/b&gt;: pauses current print job.  (Original behavior for red button.)&lt;br&gt;&lt;b&gt;Abort print&lt;/b&gt;: cancels current print job.&lt;br&gt;&lt;b&gt;Sleep/wake&lt;/b&gt;: toggles display screen saver.  (Original behavior for black button.)&lt;br&gt;&lt;b&gt;Run macro&lt;/b&gt;: executes G-code or Python macro.</source>
-      <translation>&lt;b&gt;Yazıcının üstündeki donanım düğmelerinin davranışlarını değiştirebilirsiniz.&lt;/b&gt; Kısa basma 0,85 saniyeden az, uzun basma ise bundan daha uzun süredir.&lt;br&gt;&lt;br&gt;&lt;b&gt;Yeniden Başlat&lt;/b&gt;: 'yeniden başlat' komutu ile Linux'u normal bir şekilde yeniden başlatır.&lt;br&gt;&lt;b&gt;Sıcaklık ayarla&lt;/b&gt;: nozzle veya yatak hedef sıcaklığını ayarlar.&lt;br&gt;&lt;b&gt;Yazdırmayı duraklat&lt;/b&gt;: mevcut yazdırma işini duraklatır.  (Kırmızı düğme için orijinal davranış.)&lt;br&gt;&lt;b&gt;Yazdırmayı iptal et&lt;/b&gt;: mevcut yazdırma işini iptal eder.&lt;br&gt;&lt;b&gt;Uyku/uyanma&lt;/b&gt;: ekran koruyucusunu değiştirir.  (Siyah düğme için orijinal davranış.)&lt;br&gt;&lt;b&gt;Makro çalıştır&lt;/b&gt;: G kodu veya Python makrosu çalıştırır.</translation>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="519"></location>
+      <source>Tooltip: Re-mapping the hardware buttons</source>
+      <translation>Ekran ipucu: Donanım düğmelerini yeniden eşle</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="529"></location>
+      <source>Button Actions:</source>
+      <translation>Tuş Seçenekleri:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Sleep/wake</source>
+      <translation>Uyku/uyanma</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Toggles LCD screen (and lock screen if configured)</source>
+      <translation>LCD ekranını (ve yapılandırılmışsa kilit ekranını) açar kapatır</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Reboot</source>
+      <translation>Yeniden Başlat</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Restarts Linux with a shell command</source>
+      <translation>Bir kabuk komutuyla Linux'u yeniden başlatır</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pause print</source>
+      <translation>Yazdırmayı duraklat</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pauses current print job.</source>
+      <translation>Mevcut yazdırma işini duraklatır.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Abort print</source>
+      <translation>Yazdırmayı iptal et</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Aborts current print job.</source>
+      <translation>Mevcut yazdırma işini iptal eder.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>Ignore</source>
+      <translation>Yoksay</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>No action</source>
+      <translation>Eylem yok</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="551"></location>
+      <source>Button Press Gestures:</source>
+      <translation>Düğme Basma Hareketleri:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="556"></location>
+      <source>Short press: &lt; 0.85 seconds</source>
+      <translation>Kısa basma: &lt; 0,85 saniye</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="561"></location>
+      <source>Long press: &gt;= 0.85 seconds</source>
+      <translation>Uzun basma: &gt;= 0,85 saniye</translation>
     </message>
   </context>
   <context>
@@ -2688,7 +2758,7 @@ Filamentinizi düzenlemek için kalem simgesine tıklayın.</translation>
     </message>
     <message>
       <source>When you set the chamber temperature below 40℃, the chamber temperature control will not be activated. And the target chamber temperature will automatically be set to 0℃.</source>
-      <translation>Hazne sıcaklığını 40°C'nin altına ayarladığınızda, hazne sıcaklık kontrolü etkinleştirilmeyecektir. Ve hedef hazne sıcaklığı otomatik olarak 0°C'ye ayarlanacaktır.</translation>
+      <translation>Hazne sıcaklığını 40°C altına ayarladığınızda, hazne sıcaklık kontrolü etkinleştirilmeyecektir. Ve hedef hazne sıcaklığı otomatik olarak 0°C olarak ayarlanacaktır.</translation>
     </message>
   </context>
   <context>
@@ -2830,7 +2900,7 @@ Filamentinizi düzenlemek için kalem simgesine tıklayın.</translation>
     <message>
       <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="33"></location>
       <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
-      <translation>Yazıcınız %1 s saniye içinde SD karttan otomatik olarak önyükleme yapacaktır.</translation>
+      <translation>Yazıcınız %1 saniye içinde SD karttan otomatik olarak önyükleme yapacaktır.</translation>
     </message>
     <message>
       <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="35"></location>
@@ -4457,7 +4527,7 @@ Devam edelim mi?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/dialog/ReplaceFilament.qml" line="7"></location>
       <source></source>
-      <translation type="unfinished"></translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/dialog/ReplaceFilament.qml" line="7"></location>

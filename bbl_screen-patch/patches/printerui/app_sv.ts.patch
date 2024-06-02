@@ -5,10 +5,44 @@
      </message>
  </context>
 +<context>
-+  <name>BedLevelDiag</name>
++  <name>EmergencyConsole</name>
 +  <message>
-+    <source>Are you sure you want to remove the data entry from $1?</source>
-+    <translation>Är du säker på att du vill ta bort datainmatningen från $1?</translation>
++    <source>SSH to %1.</source>
++    <translation>SSH till %1.</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Connect a micro-USB cable to the AP board&lt;/b&gt; and use ADB to connect.</source>
++    <translation>&lt;b&gt;Anslut en mikro-USB-kabel till AP-kortet&lt;/b&gt; och använd ADB för att ansluta.</translation>
++  </message>
++  <message>
++    <source>Connect a UART to the AP board.</source>
++    <translation>Anslut en UART till AP-kortet.</translation>
++  </message>
++  <message>
++    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>Det är möjligt att göra permanenta, oåterkalleliga skador på din skrivare från en rotkonsol. Ange inte kommandon om du inte förstår vad du skriver.</translation>
++  </message>
++</context>
++<context>
++  <name>SelectX1pPage</name>
++  <message>
++    <source>Select a firmware bundle to install:</source>
++    <translation>Välj en firmware-bunt att installera:</translation>
++  </message>
++  <message>
++    <source>Are you sure you're ready to install the X1Plus custom firmware?&lt;br&gt;&lt;br&gt;While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.&lt;br&gt;&lt;br&gt;Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.</source>
++    <translation>Är du säker på att du'är redo att installera X1Plus anpassad firmware?&lt;br&gt;&lt;br&gt;Medan vi'har gjort vårt bästa för att göra X1Plus så säkert som möjligt, det finns alltid risker i samband med att ändra din skrivare. X1Plus levereras med INGEN GARANTI, EXPRESS ELLER IMPLIED, och genom att installera det, du accepterar att du och du ensam är ansvariga för risken för skador på din skrivare eller dess omgivning.&lt;br&gt;&lt;br&gt;När installationen påbörjas, rör don't din skrivare tills den är klar. Det kan ta upp till 10 minuter (eller längre, beroende på Internet-anslutning hastighet) att installera.</translation>
++  </message>
++  <message>
++    <source>Er, never mind</source>
++    <translation>Er, aldrig emot</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Tillbaka</translation>
 +  </message>
 +</context>
 +<context>
@@ -51,75 +85,65 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VersionDialog</name>
++  <name>MeshCalcs</name>
 +  <message>
-+    <source>Install %1</source>
-+    <translation>Installera %1</translation>
++    <source>Your hotbed appears to be flat and level.</source>
++    <translation>Din bädd verkar vara platt och nivå.</translation>
 +  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
 +  <message>
 +    <source>Return</source>
 +    <translation>Retur</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Serial number&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Serienummer&lt;/b&gt;: %1</translation>
++    <source>2 minutes</source>
++    <translation>2 minuter</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;maskinvarurevidering&lt;/b&gt;: %1</translation>
++    <source>5 minutes</source>
++    <translation>5 minuter</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Firmware version&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Firmware version&lt;/b&gt;: %1</translation>
++    <source>10 minutes</source>
++    <translation>10 minuter</translation>
 +  </message>
 +  <message>
-+    <source> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recommended: %1&lt;/i&gt;&lt;/font&gt;)</source>
-+    <translation> (&lt;font color='#ff6f00'&gt;&lt;i&gt;rekommenderas: %1&lt;/i&gt;&lt;/font&gt;)</translation>
++    <source>15 minutes</source>
++    <translation>15 minuter</translation>
 +  </message>
 +  <message>
-+    <source>This component has the recommended firmware version installed.</source>
-+    <translation>Denna komponent har den rekommenderade versionen av den inbyggda programvaran installerad.</translation>
++    <source>Time before display sleeps</source>
++    <translation>Tid innan skärmen sover</translation>
 +  </message>
 +  <message>
-+    <source>This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?</source>
-+    <translation>Denna komponent's version av den inbyggda programvaran matchar inte versionen av den inbyggda programvaran. Utskrifter kanske inte är tillförlitliga. Installera ny firmware nu?</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
-+    <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Beräknad bäddlutning (X-axel) är %2 mm över X-axeln, och %3 mm över Y-axeln; Efter spårning topp-till-topp-avvikelse är %4 mm.&lt;/font&gt;</translation>
++    <source>Lock screen mode</source>
++    <translation>Lås skärmläge</translation>
 +  </message>
 +  <message>
-+    <source>Bed mesh calibration: Toolhead is homing</source>
-+    <translation>Kalibrering av sängnät: Verktygshuvudet är hemmabruk</translation>
++    <source>Screen saver only</source>
++    <translation>Endast skärmsläckare</translation>
 +  </message>
 +  <message>
-+    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
-+Progress: %5%</source>
-+    <translation>Försedd punkt %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
-+Förlopp: %5%</translation>
++    <source>Swipe to unlock</source>
++    <translation>Svep för att låsa upp</translation>
 +  </message>
 +  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>Ett fel har inträffat och datainsamlingen har gått ut.</translation>
++    <source>Passcode: "%1"</source>
++    <translation>Lösenord: "%1"</translation>
 +  </message>
 +  <message>
-+    <source>Bed mesh calibration: internal state error, status = %1</source>
-+    <translation>Kalibrering av sängnät: internt tillståndsfel, status = %1</translation>
++    <source>Passcode is unset</source>
++    <translation>Lösenordet är inaktiverat</translation>
 +  </message>
 +  <message>
-+    <source>Run diagnostics</source>
-+    <translation>Kör diagnostik</translation>
++    <source>Change passcode</source>
++    <translation>Ändra lösenord</translation>
 +  </message>
 +  <message>
-+    <source>Tram bed</source>
-+    <translation>Spårvagn säng</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>Kalibreringshistorik</translation>
++    <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
++    <translation>Du kan lägga till anpassad text eller bakgrundsbild till låsskärmen genom att skapa en eller båda av följande filer på SD-kortet:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen xt&lt;br&gt;&lt;b&gt;bild&lt;/b&gt;: /x1plus/lockscreen.png</translation>
 +  </message>
 +</context>
 +<context>
@@ -186,37 +210,114 @@
 +  </message>
 +</context>
 +<context>
-+  <name>KexecDialog</name>
++  <name>GpioKeys</name>
 +  <message>
-+    <source>Start from SD card</source>
-+    <translation>Börja från SD-kort</translation>
++    <source>Sleep/wake</source>
++    <translation>Vila/vakna</translation>
 +  </message>
 +  <message>
-+    <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
-+    <translation>Din skrivare startar automatiskt från SD-kortet om %1 sekunder.</translation>
-+  </message>
-+  <message>
-+    <source>Your printer is rebooting into the OS on the inserted SD card.</source>
-+    <translation>Din skrivare startar om till OS på det infogade SD-kortet.</translation>
++    <source>Ignore</source>
++    <translation>Ignorera</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>EmergencyConsole</name>
++  <name>BedMesh</name>
 +  <message>
-+    <source>SSH to %1.</source>
-+    <translation>SSH till %1.</translation>
++    <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
++    <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Beräknad bäddlutning (X-axel) är %2 mm över X-axeln, och %3 mm över Y-axeln; Efter spårning topp-till-topp-avvikelse är %4 mm.&lt;/font&gt;</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Connect a micro-USB cable to the AP board&lt;/b&gt; and use ADB to connect.</source>
-+    <translation>&lt;b&gt;Anslut en mikro-USB-kabel till AP-kortet&lt;/b&gt; och använd ADB för att ansluta.</translation>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>Kalibrering av sängnät: Verktygshuvudet är hemmabruk</translation>
 +  </message>
 +  <message>
-+    <source>Connect a UART to the AP board.</source>
-+    <translation>Anslut en UART till AP-kortet.</translation>
++    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Progress: %5%</source>
++    <translation>Försedd punkt %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Förlopp: %5%</translation>
 +  </message>
 +  <message>
-+    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>Det är möjligt att göra permanenta, oåterkalleliga skador på din skrivare från en rotkonsol. Ange inte kommandon om du inte förstår vad du skriver.</translation>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Ett fel har inträffat och datainsamlingen har gått ut.</translation>
++  </message>
++  <message>
++    <source>Bed mesh calibration: internal state error, status = %1</source>
++    <translation>Kalibrering av sängnät: internt tillståndsfel, status = %1</translation>
++  </message>
++  <message>
++    <source>Run diagnostics</source>
++    <translation>Kör diagnostik</translation>
++  </message>
++  <message>
++    <source>Tram bed</source>
++    <translation>Spårvagn säng</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Kalibreringshistorik</translation>
++  </message>
++</context>
++<context>
++  <name>HardwarePage</name>
++  <message>
++    <source>Stainless steel</source>
++    <translation>Rostfritt stål</translation>
++  </message>
++  <message>
++    <source>Hardened steel</source>
++    <translation>Härdat stål</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>Inte installerad</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>Installerad</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>Tillbehör</translation>
++  </message>
++  <message>
++    <source>Auxiliary Part Cooling Fan</source>
++    <translation>Hjälpmedel del kylfläkt</translation>
++  </message>
++  <message>
++    <source>Interface</source>
++    <translation>Gränsgränssnitt</translation>
++  </message>
++  <message>
++    <source>Reset button mapping to default settings?</source>
++    <translation>Återställ knappmappning till standardinställningar?</translation>
++  </message>
++  <message>
++    <source>Buttons</source>
++    <translation>Knappar</translation>
++  </message>
++  <message>
++    <source>Short Press</source>
++    <translation>Kort tryck</translation>
++  </message>
++  <message>
++    <source>Long Press</source>
++    <translation>Långtryck</translation>
++  </message>
++  <message>
++    <source>Lights</source>
++    <translation>Lampor</translation>
++  </message>
++  <message>
++    <source>Backlight</source>
++    <translation>Bakgrundsbelysning</translation>
++  </message>
++  <message>
++    <source>Toolhead LED</source>
++    <translation>Verktygshuvud LED</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>Om du har ersatt tillbehören, uppdatera inställningarna nedan för att hålla den i överensstämmelse med det faktiska skicket på tillbehöret för att säkerställa utskriftskvaliteten</translation>
 +  </message>
 +</context>
 +<context>
@@ -295,6 +396,28 @@
 +  </message>
 +</context>
 +<context>
++  <name>KexecDialog</name>
++  <message>
++    <source>Start from SD card</source>
++    <translation>Börja från SD-kort</translation>
++  </message>
++  <message>
++    <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
++    <translation>Din skrivare startar automatiskt från SD-kortet om %1 sekunder.</translation>
++  </message>
++  <message>
++    <source>Your printer is rebooting into the OS on the inserted SD card.</source>
++    <translation>Din skrivare startar om till OS på det infogade SD-kortet.</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLock</name>
++  <message>
++    <source>This printer is locked.</source>
++    <translation>Denna skrivare är låst.</translation>
++  </message>
++</context>
++<context>
 +  <name>BedTramming</name>
 +  <message>
 +    <source>Step 1:</source>
@@ -360,104 +483,68 @@
 +  </message>
 +</context>
 +<context>
-+  <name>ConsolePage</name>
++  <name>BedLevelDiag</name>
 +  <message>
-+    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
-+    <translation>Detta gränssnitt låter dig skicka G-kod kommandon till skrivaren. Du kan ange kommandon med det virtuella tangentbordet, eller sätta ihop kommandon från genvägen längst ner på skärmen. Skrivaren's G-kod parser är något kräsen; här är några tips för hur man blidkar det: </translation>
-+  </message>
-+  <message>
-+    <source>WARNING: It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>VARNING: Det är möjligt att göra permanenta, oåterkalleliga skador på skrivaren från en rotkonsol. Ange inte kommandon om du inte förstår vad du skriver.</translation>
-+  </message>
-+  <message>
-+    <source>enter a G-code command</source>
-+    <translation>ange ett G-kod-kommando</translation>
-+  </message>
-+  <message>
-+    <source>Home</source>
-+    <translation>Hem</translation>
-+  </message>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorera</translation>
-+  </message>
-+  <message>
-+    <source>Close</source>
-+    <translation>Stäng</translation>
-+  </message>
-+  <message>
-+    <source>Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message.</source>
-+    <translation>Skrivaren är upptagen! Är du säker på att du vill publicera detta kommando? Tryck på ignorera för att dölja detta meddelande.</translation>
-+  </message>
-+  <message>
-+    <source>Export console log</source>
-+    <translation>Exportera konsollogg</translation>
++    <source>Are you sure you want to remove the data entry from $1?</source>
++    <translation>Är du säker på att du vill ta bort datainmatningen från $1?</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>ScreenLockPage</name>
++  <name>VersionDialog</name>
++  <message>
++    <source>Install %1</source>
++    <translation>Installera %1</translation>
++  </message>
 +  <message>
 +    <source>Return</source>
 +    <translation>Retur</translation>
 +  </message>
 +  <message>
-+    <source>2 minutes</source>
-+    <translation>2 minuter</translation>
++    <source>&lt;b&gt;Serial number&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Serienummer&lt;/b&gt;: %1</translation>
 +  </message>
 +  <message>
-+    <source>5 minutes</source>
-+    <translation>5 minuter</translation>
++    <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;maskinvarurevidering&lt;/b&gt;: %1</translation>
 +  </message>
 +  <message>
-+    <source>10 minutes</source>
-+    <translation>10 minuter</translation>
++    <source>&lt;b&gt;Firmware version&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Firmware version&lt;/b&gt;: %1</translation>
 +  </message>
 +  <message>
-+    <source>15 minutes</source>
-+    <translation>15 minuter</translation>
++    <source> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recommended: %1&lt;/i&gt;&lt;/font&gt;)</source>
++    <translation> (&lt;font color='#ff6f00'&gt;&lt;i&gt;rekommenderas: %1&lt;/i&gt;&lt;/font&gt;)</translation>
 +  </message>
 +  <message>
-+    <source>Time before display sleeps</source>
-+    <translation>Tid innan skärmen sover</translation>
++    <source>This component has the recommended firmware version installed.</source>
++    <translation>Denna komponent har den rekommenderade versionen av den inbyggda programvaran installerad.</translation>
 +  </message>
 +  <message>
-+    <source>Lock screen mode</source>
-+    <translation>Lås skärmläge</translation>
-+  </message>
-+  <message>
-+    <source>Screen saver only</source>
-+    <translation>Endast skärmsläckare</translation>
-+  </message>
-+  <message>
-+    <source>Swipe to unlock</source>
-+    <translation>Svep för att låsa upp</translation>
-+  </message>
-+  <message>
-+    <source>Passcode: "%1"</source>
-+    <translation>Lösenord: "%1"</translation>
-+  </message>
-+  <message>
-+    <source>Passcode is unset</source>
-+    <translation>Lösenordet är inaktiverat</translation>
-+  </message>
-+  <message>
-+    <source>Change passcode</source>
-+    <translation>Ändra lösenord</translation>
-+  </message>
-+  <message>
-+    <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
-+    <translation>Du kan lägga till anpassad text eller bakgrundsbild till låsskärmen genom att skapa en eller båda av följande filer på SD-kortet:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen xt&lt;br&gt;&lt;b&gt;bild&lt;/b&gt;: /x1plus/lockscreen.png</translation>
++    <source>This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?</source>
++    <translation>Denna komponent's version av den inbyggda programvaran matchar inte versionen av den inbyggda programvaran. Utskrifter kanske inte är tillförlitliga. Installera ny firmware nu?</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>GpioKeys</name>
++  <name>InstallingPage</name>
 +  <message>
-+    <source>Sleep/wake</source>
-+    <translation>Vila/vakna</translation>
++    <source>Installation complete!</source>
++    <translation>Installationen slutförd!</translation>
 +  </message>
 +  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorera</translation>
++    <source>Yes</source>
++    <translation>Ja</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>Nej</translation>
++  </message>
++  <message>
++    <source>Unpacking installer</source>
++    <translation>Packa upp installationsprogrammet</translation>
++  </message>
++  <message>
++    <source>Extracting %1 to internal storage.</source>
++    <translation>Extraherar %1 till intern lagring.</translation>
 +  </message>
 +</context>
 +<context>
@@ -507,51 +594,6 @@
 +  </message>
 +</context>
 +<context>
-+  <name>InstallingPage</name>
-+  <message>
-+    <source>Installation complete!</source>
-+    <translation>Installationen slutförd!</translation>
-+  </message>
-+  <message>
-+    <source>Yes</source>
-+    <translation>Ja</translation>
-+  </message>
-+  <message>
-+    <source>No</source>
-+    <translation>Nej</translation>
-+  </message>
-+  <message>
-+    <source>Unpacking installer</source>
-+    <translation>Packa upp installationsprogrammet</translation>
-+  </message>
-+  <message>
-+    <source>Extracting %1 to internal storage.</source>
-+    <translation>Extraherar %1 till intern lagring.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLock</name>
-+  <message>
-+    <source>This printer is locked.</source>
-+    <translation>Denna skrivare är låst.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>SelectX1pPage</name>
-+  <message>
-+    <source>Select a firmware bundle to install:</source>
-+    <translation>Välj en firmware-bunt att installera:</translation>
-+  </message>
-+  <message>
-+    <source>Are you sure you're ready to install the X1Plus custom firmware?&lt;br&gt;&lt;br&gt;While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.&lt;br&gt;&lt;br&gt;Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.</source>
-+    <translation>Är du säker på att du'är redo att installera X1Plus anpassad firmware?&lt;br&gt;&lt;br&gt;Medan vi'har gjort vårt bästa för att göra X1Plus så säkert som möjligt, det finns alltid risker i samband med att ändra din skrivare. X1Plus levereras med INGEN GARANTI, EXPRESS ELLER IMPLIED, och genom att installera det, du accepterar att du och du ensam är ansvariga för risken för skador på din skrivare eller dess omgivning.&lt;br&gt;&lt;br&gt;När installationen påbörjas, rör don't din skrivare tills den är klar. Det kan ta upp till 10 minuter (eller längre, beroende på Internet-anslutning hastighet) att installera.</translation>
-+  </message>
-+  <message>
-+    <source>Er, never mind</source>
-+    <translation>Er, aldrig emot</translation>
-+  </message>
-+</context>
-+<context>
 +  <name>LanAccessPage</name>
 +  <message>
 +    <source>Return</source>
@@ -559,80 +601,38 @@
 +  </message>
 +</context>
 +<context>
-+  <name>X1PlusOTADialog</name>
++  <name>ConsolePage</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Tillbaka</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>MeshCalcs</name>
-+  <message>
-+    <source>Your hotbed appears to be flat and level.</source>
-+    <translation>Din bädd verkar vara platt och nivå.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>HardwarePage</name>
-+  <message>
-+    <source>Stainless steel</source>
-+    <translation>Rostfritt stål</translation>
++    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
++    <translation>Detta gränssnitt låter dig skicka G-kod kommandon till skrivaren. Du kan ange kommandon med det virtuella tangentbordet, eller sätta ihop kommandon från genvägen längst ner på skärmen. Skrivaren's G-kod parser är något kräsen; här är några tips för hur man blidkar det: </translation>
 +  </message>
 +  <message>
-+    <source>Hardened steel</source>
-+    <translation>Härdat stål</translation>
++    <source>WARNING: It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>VARNING: Det är möjligt att göra permanenta, oåterkalleliga skador på skrivaren från en rotkonsol. Ange inte kommandon om du inte förstår vad du skriver.</translation>
 +  </message>
 +  <message>
-+    <source>Not installed</source>
-+    <translation>Inte installerad</translation>
++    <source>enter a G-code command</source>
++    <translation>ange ett G-kod-kommando</translation>
 +  </message>
 +  <message>
-+    <source>Installed</source>
-+    <translation>Installerad</translation>
++    <source>Home</source>
++    <translation>Hem</translation>
 +  </message>
 +  <message>
-+    <source>Accessories</source>
-+    <translation>Tillbehör</translation>
++    <source>Ignore</source>
++    <translation>Ignorera</translation>
 +  </message>
 +  <message>
-+    <source>Auxiliary Part Cooling Fan</source>
-+    <translation>Hjälpmedel del kylfläkt</translation>
++    <source>Close</source>
++    <translation>Stäng</translation>
 +  </message>
 +  <message>
-+    <source>Interface</source>
-+    <translation>Gränsgränssnitt</translation>
++    <source>Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message.</source>
++    <translation>Skrivaren är upptagen! Är du säker på att du vill publicera detta kommando? Tryck på ignorera för att dölja detta meddelande.</translation>
 +  </message>
 +  <message>
-+    <source>Reset button mapping to default settings?</source>
-+    <translation>Återställ knappmappning till standardinställningar?</translation>
-+  </message>
-+  <message>
-+    <source>Buttons</source>
-+    <translation>Knappar</translation>
-+  </message>
-+  <message>
-+    <source>Short Press</source>
-+    <translation>Kort tryck</translation>
-+  </message>
-+  <message>
-+    <source>Long Press</source>
-+    <translation>Långtryck</translation>
-+  </message>
-+  <message>
-+    <source>Lights</source>
-+    <translation>Lampor</translation>
-+  </message>
-+  <message>
-+    <source>Backlight</source>
-+    <translation>Bakgrundsbelysning</translation>
-+  </message>
-+  <message>
-+    <source>Toolhead LED</source>
-+    <translation>Verktygshuvud LED</translation>
-+  </message>
-+  <message>
-+    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
-+    <translation>Om du har ersatt tillbehören, uppdatera inställningarna nedan för att hålla den i överensstämmelse med det faktiska skicket på tillbehöret för att säkerställa utskriftskvaliteten</translation>
++    <source>Export console log</source>
++    <translation>Exportera konsollogg</translation>
 +  </message>
 +</context>
  </TS>

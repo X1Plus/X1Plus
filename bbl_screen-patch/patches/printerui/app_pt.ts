@@ -2472,7 +2472,7 @@ holder</source>
     </message>
     <message>
       <source>Note: When the lid is open or the desiccant pack is changed, it can take hours or a night to absorb the moisture. Low temperatures also slow down the process. During this time, the indicator may not represent the chamber accurately.</source>
-      <translation type="unfinished">Note: When the lid is open or the desiccant pack is changed, it can take hours or a night to absorb the moisture. Low temperatures also slow down the process. During this time, the indicator may not represent the chamber accurately.</translation>
+      <translation>Nota: Quando a tampa é aberta ou o pacote de dessecante é substituído, pode demorar horas ou uma noite a absorver a humidade. As temperaturas baixas também abrandam o processo. Durante este período, o indicador pode não representar a câmara com exatidão.</translation>
     </message>
     <message>
       <source>Tips：
@@ -2494,7 +2494,7 @@ Clique no ícone do lápis para editar seu filamento</translation>
     </message>
     <message>
       <source>Desiccant status lower than two bars indicates that desiccant can be inactive. Please change the desiccant.（Higher the better）</source>
-      <translation type="unfinished">Desiccant status lower than two bars indicates that desiccant can be inactive. Please change the desiccant.（Higher the better）</translation>
+      <translation>O estado do dessecante abaixo de duas linhas indica que o dessecante pode estar inativo. Por favor, substitua o dessecante. （Mais alto, melhor）</translation>
     </message>
   </context>
   <context>
@@ -2637,9 +2637,79 @@ Clique no ícone do lápis para editar seu filamento</translation>
       <translation>Se você tiver substituído os acessórios, por favor atualize as configurações abaixo para mantê-lo consistente com a condição real do acessório para garantir a qualidade da impressão</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="505"></location>
-      <source>&lt;b&gt;You can change the behavior of the hardware buttons on the top of the printer.&lt;/b&gt;  A short press is less than 0.85 seconds, and a long press is anything longer than that.&lt;br&gt;&lt;br&gt;&lt;b&gt;Reboot&lt;/b&gt;: gracefully restarts Linux with 'reboot' command.&lt;br&gt;&lt;b&gt;Set temp&lt;/b&gt;: sets nozzle or bed target temperature.&lt;br&gt;&lt;b&gt;Pause print&lt;/b&gt;: pauses current print job.  (Original behavior for red button.)&lt;br&gt;&lt;b&gt;Abort print&lt;/b&gt;: cancels current print job.&lt;br&gt;&lt;b&gt;Sleep/wake&lt;/b&gt;: toggles display screen saver.  (Original behavior for black button.)&lt;br&gt;&lt;b&gt;Run macro&lt;/b&gt;: executes G-code or Python macro.</source>
-      <translation type="unfinished">&lt;b&gt;You can change the behavior of the hardware buttons on the top of the printer.&lt;/b&gt;  A short press is less than 0.85 seconds, and a long press is anything longer than that.&lt;br&gt;&lt;br&gt;&lt;b&gt;Reboot&lt;/b&gt;: gracefully restarts Linux with 'reboot' command.&lt;br&gt;&lt;b&gt;Set temp&lt;/b&gt;: sets nozzle or bed target temperature.&lt;br&gt;&lt;b&gt;Pause print&lt;/b&gt;: pauses current print job.  (Original behavior for red button.)&lt;br&gt;&lt;b&gt;Abort print&lt;/b&gt;: cancels current print job.&lt;br&gt;&lt;b&gt;Sleep/wake&lt;/b&gt;: toggles display screen saver.  (Original behavior for black button.)&lt;br&gt;&lt;b&gt;Run macro&lt;/b&gt;: executes G-code or Python macro.</translation>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="519"></location>
+      <source>Tooltip: Re-mapping the hardware buttons</source>
+      <translation>Dica de ferramenta: Remapeamento dos botões do hardware</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="529"></location>
+      <source>Button Actions:</source>
+      <translation>Ações dos botões:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Sleep/wake</source>
+      <translation>Repousar/despertar</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Toggles LCD screen (and lock screen if configured)</source>
+      <translation>Alterna a ecrã LCD (e ecrã de bloqueio configurada)</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Reboot</source>
+      <translation>Reiniciar</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Restarts Linux with a shell command</source>
+      <translation>Reinicia o Linux com um comando shell</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pause print</source>
+      <translation>Pausar impressão</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pauses current print job.</source>
+      <translation>Pausa a atividade de impressão atual.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Abort print</source>
+      <translation>Parar a impressão</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Aborts current print job.</source>
+      <translation>Aborta a atividade de impressão atual.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>Ignore</source>
+      <translation>Ignorar</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>No action</source>
+      <translation>Nenhuma ação</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="551"></location>
+      <source>Button Press Gestures:</source>
+      <translation>Gestos de pressão de botões:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="556"></location>
+      <source>Short press: &lt; 0.85 seconds</source>
+      <translation>Pressão breve: &lt; 0.85 segundos</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="561"></location>
+      <source>Long press: &gt;= 0.85 seconds</source>
+      <translation>Pressão longa: &gt;= 0.85 segundos</translation>
     </message>
   </context>
   <context>
@@ -2668,7 +2738,7 @@ Clique no ícone do lápis para editar seu filamento</translation>
     <name>Heater</name>
     <message>
       <source>Low temperature filament (PLA\PETG\TPU) is loaded in the extruder. In order to avoid extruder clogging, it is not allowed to set the chamber temperature above 45°C.</source>
-      <translation type="unfinished">Low temperature filament (PLA\PETG\TPU) is loaded in the extruder. In order to avoid extruder clogging, it is not allowed to set the chamber temperature above 45°C.</translation>
+      <translation>O filamento de baixa temperatura (PLA\PETG\TPU) é carregado na extrusora. Para evitar o bloqueio da extrusora, não é permitido definir a temperatura da câmara acima de 45°C.</translation>
     </message>
     <message>
       <source>Not higher than %1℃</source>
@@ -3213,7 +3283,7 @@ O tipo de filamento não é compatível com o ficheiro de impressão, verifique 
     <message>
       <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="484"></location>
       <source>The nozzle diameter in sliced file is not consistent with the current nozzle setting. This file can't be printed.</source>
-      <translation type="unfinished">The nozzle diameter in sliced file is not consistent with the current nozzle setting. This file can't be printed.</translation>
+      <translation>O diâmetro do bico no ficheiro cortado não é consistente com a configuração atual do bico. Este ficheiro não pode ser impresso.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="743"></location>
@@ -3258,12 +3328,12 @@ O tipo de filamento não é compatível com o ficheiro de impressão, verifique 
     <message>
       <source>The bed temperature exceeds filament's vitrification temperature, which may cause nozzle clog.
 Please keep the front door of printer open or lower the bed temperature.</source>
-      <translation type="unfinished">The bed temperature exceeds filament's vitrification temperature, which may cause nozzle clog.
-Please keep the front door of printer open or lower the bed temperature.</translation>
+      <translation>A temperatura da cama excede a temperatura de vitrificação do filamento, o que pode provocar o bloqueio do bico.
+Manter a porta frontal da impressora aberta ou baixar a temperatura da cama.</translation>
     </message>
     <message>
       <source>There is an undefined filament to AMS slot mapping. Please insert a matching filament into the AMS or specify the mapping manually. Press 'Yes' to continue print without mapping.</source>
-      <translation type="unfinished">There is an undefined filament to AMS slot mapping. Please insert a matching filament into the AMS or specify the mapping manually. Press 'Yes' to continue print without mapping.</translation>
+      <translation>Existe um filamento não definido para o mapeamento da ranhura do AMS. Insira um filamento compatível no AMS ou defina o mapeamento manualmente. Clique em 'Sim' para continuar a imprimir sem mapeamento.</translation>
     </message>
   </context>
   <context>
@@ -3568,7 +3638,7 @@ Please keep the front door of printer open or lower the bed temperature.</transl
     </message>
     <message>
       <source>Detect the router network condition</source>
-      <translation>Identificar o estado da rede do router</translation>
+      <translation>Detetar condições da rede do roteador</translation>
     </message>
     <message>
       <source>Printer network failure</source>
@@ -3628,8 +3698,8 @@ Please keep the front door of printer open or lower the bed temperature.</transl
       <location filename="printer_ui/printerui/qml/dialog/NewVersionGuide.qml" line="45"></location>
       <source>
 We have greately improved the AI monitoring algorithms. Besides, we have added detection of void printing caused by objects falling down or extruder not extruding normally. It is recommended to enable the AI features of the printer.</source>
-      <translation type="unfinished">
-We have greately improved the AI monitoring algorithms. Besides, we have added detection of void printing caused by objects falling down or extruder not extruding normally. It is recommended to enable the AI features of the printer.</translation>
+      <translation>
+Melhorámos bastante os algoritmos de monitorização da AI. Também adicionámos a deteção de impressão no ar causada pela queda de objetos ou por uma extrusora que não faz a extrusão normalmente.</translation>
     </message>
   </context>
   <context>
@@ -3820,7 +3890,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>self-test</source>
-      <translation type="unfinished">self-test</translation>
+      <translation>autodiagnóstico</translation>
     </message>
     <message>
       <source>disable WiFi</source>
@@ -3884,7 +3954,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>The .gcode.3mf contains no G-code data. Please slice it with Bambu Studio and export a new .gcode.3mf file.</source>
-      <translation type="unfinished">The .gcode.3mf contains no G-code data. Please slice it with Bambu Studio and export a new .gcode.3mf file.</translation>
+      <translation>O .gcode.3mf não contém dados de código G. Por favor, corte o ficheiro em Bambu Studio e exporte um novo arquivo .gcode.3mf.</translation>
     </message>
     <message>
       <source>modify AMS settings</source>
@@ -3900,7 +3970,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>unload filament</source>
-      <translation type="unfinished">unload filament</translation>
+      <translation>descarregar filamento</translation>
     </message>
     <message>
       <source>ssid record WiFi</source>
@@ -3908,7 +3978,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>"%1" filament type not include in AMS</source>
-      <translation type="unfinished">"%1" filament type not include in AMS</translation>
+      <translation>"%1; TPU" não compatível com AMS</translation>
     </message>
   </context>
   <context>
@@ -3938,7 +4008,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>self-test</source>
-      <translation type="unfinished">self-test</translation>
+      <translation>autodiagnóstico</translation>
     </message>
     <message>
       <source>disable WiFi</source>
@@ -4002,7 +4072,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>The .gcode.3mf contains no G-code data. Please slice it with Bambu Studio and export a new .gcode.3mf file.</source>
-      <translation type="unfinished">The .gcode.3mf contains no G-code data. Please slice it with Bambu Studio and export a new .gcode.3mf file.</translation>
+      <translation>O .gcode.3mf não contém dados de código G. Por favor, corte o ficheiro em Bambu Studio e exporte um novo arquivo .gcode.3mf.</translation>
     </message>
     <message>
       <source>modify AMS settings</source>
@@ -4018,7 +4088,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>unload filament</source>
-      <translation type="unfinished">unload filament</translation>
+      <translation>descarregar filamento</translation>
     </message>
     <message>
       <source>ssid record WiFi</source>
@@ -4026,7 +4096,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>"%1" filament type not include in AMS</source>
-      <translation type="unfinished">"%1" filament type not include in AMS</translation>
+      <translation>"%1; TPU" não compatível com AMS</translation>
     </message>
   </context>
   <context>
@@ -4059,7 +4129,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     <message>
       <location filename="printer_ui/printerui/qml/printer/PrintOptionsPage.qml" line="131"></location>
       <source>The localization tag of build plate is detected, and printing is paused if the tag is not in predefined range.</source>
-      <translation type="unfinished">The localization tag of build plate is detected, and printing is paused if the tag is not in predefined range.</translation>
+      <translation>O marcador de localização da placa de construção é detectado e a impressão é pausada se o marcador não for encontrado.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/PrintOptionsPage.qml" line="152"></location>
@@ -4082,23 +4152,23 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>Stop printing when spaghetti is detected</source>
-      <translation type="unfinished">Stop printing when spaghetti is detected</translation>
+      <translation>Parar a impressão quando o espaguete é detectado</translation>
     </message>
     <message>
       <source>Door opening detection</source>
-      <translation type="unfinished">Door opening detection</translation>
+      <translation>Deteção de abertura de porta</translation>
     </message>
     <message>
       <source>Bypass detected faulty part</source>
-      <translation type="unfinished">Bypass detected faulty part</translation>
+      <translation>Evitar peças com defeito quando detetadas</translation>
     </message>
     <message>
       <source>Hot bed foreign body detection</source>
-      <translation type="unfinished">Hot bed foreign body detection</translation>
+      <translation>Deteção de objetos estranhos na placa de construção</translation>
     </message>
     <message>
       <source>Spaghetti Detection</source>
-      <translation type="unfinished">Spaghetti Detection</translation>
+      <translation>Deteção de espaguete</translation>
     </message>
     <message>
       <source>Inspection of faulty parts.</source>
@@ -4106,7 +4176,7 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
     <message>
       <source>Action when door open detected in printing is </source>
-      <translation type="unfinished">Action when door open detected in printing is </translation>
+      <translation>A ação quando a porta aberta detectada na impressão é </translation>
     </message>
   </context>
   <context>
@@ -4178,7 +4248,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Sport</source>
-      <translation type="unfinished">Sport</translation>
+      <translation>Desportivo</translation>
     </message>
     <message>
       <source>Heatbed preheating</source>
@@ -4190,7 +4260,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Calibrating Micro Lidar</source>
-      <translation type="unfinished">Calibrating Micro Lidar</translation>
+      <translation>Calibração do Micro Lidar</translation>
     </message>
     <message>
       <source>Waiting for slicing, %1 jobs before this</source>
@@ -4198,7 +4268,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Paused by the Gcode inserted by user</source>
-      <translation type="unfinished">Paused by the Gcode inserted by user</translation>
+      <translation>Pausa por código G introduzido pelo utilizador</translation>
     </message>
     <message>
       <source>Skip step pause</source>
@@ -4214,7 +4284,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Paused due to nozzle temperature malfunction</source>
-      <translation type="unfinished">Paused due to nozzle temperature malfunction</translation>
+      <translation>Pausa devido a uma falha na temperatura do bico</translation>
     </message>
     <message>
       <source>Takes about 15min</source>
@@ -4222,15 +4292,15 @@ Continuar?</translation>
     </message>
     <message>
       <source>Filament unloading</source>
-      <translation type="unfinished">Filament unloading</translation>
+      <translation>Carregamento de filamento</translation>
     </message>
     <message>
       <source>Changing filament</source>
-      <translation type="unfinished">Changing filament</translation>
+      <translation>Mudando filamento</translation>
     </message>
     <message>
       <source>Paused due to heat bed temperature malfunction</source>
-      <translation type="unfinished">Paused due to heat bed temperature malfunction</translation>
+      <translation>Pausa devido a uma falha na temperatura da cama</translation>
     </message>
     <message>
       <source>Cutter error pause</source>
@@ -4238,11 +4308,11 @@ Continuar?</translation>
     </message>
     <message>
       <source>Calibrating extrusion</source>
-      <translation type="unfinished">Calibrating extrusion</translation>
+      <translation>Calibrando extrusão</translation>
     </message>
     <message>
       <source>Calibrating the micro lida</source>
-      <translation type="unfinished">Calibrating the micro lida</translation>
+      <translation>Calibração do Micro Lidar</translation>
     </message>
     <message>
       <source>Silent</source>
@@ -4254,19 +4324,19 @@ Continuar?</translation>
     </message>
     <message>
       <source>Checking extruder temperature</source>
-      <translation type="unfinished">Checking extruder temperature</translation>
+      <translation>Verificação da temperatura da extrusora</translation>
     </message>
     <message>
       <source>Paused due to chamber temperature control error</source>
-      <translation type="unfinished">Paused due to chamber temperature control error</translation>
+      <translation>Pausa devido a erro no controlo da temperatura da câmara</translation>
     </message>
     <message>
       <source>Paused due to low speed of the heatbreak fan.</source>
-      <translation type="unfinished">Paused due to low speed of the heatbreak fan.</translation>
+      <translation>Pausa devido ao facto de a velocidade da ventoinha do hotend ser demasiado baixa.</translation>
     </message>
     <message>
       <source>Sweeping XY mech mode</source>
-      <translation type="unfinished">Sweeping XY mech mode</translation>
+      <translation>Modo XY mech varrimento</translation>
     </message>
     <message>
       <source>Motor noise calibration&lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;(Takes about 15min)&lt;<byte value="x8"></byte>r&gt;&lt;/font&gt;</source>
@@ -4282,7 +4352,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Nozzle filament covered detected pause</source>
-      <translation type="unfinished">Nozzle filament covered detected pause</translation>
+      <translation>Pausa porque o bico está coberto de filamentos</translation>
     </message>
     <message>
       <source>Printing</source>
@@ -4290,11 +4360,11 @@ Continuar?</translation>
     </message>
     <message>
       <source>Identifying build plate type</source>
-      <translation type="unfinished">Identifying build plate type</translation>
+      <translation>Identificação da tipa de placa de construção</translation>
     </message>
     <message>
       <source>Calibrating extrusion flow</source>
-      <translation type="unfinished">Calibrating extrusion flow</translation>
+      <translation>Calibração do fluxo de extrusão</translation>
     </message>
     <message>
       <source>Paused due to filament runout</source>
@@ -4302,7 +4372,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Slicing the model (%1%)</source>
-      <translation type="unfinished">Slicing the model (%1%)</translation>
+      <translation>Cortando o modelo (%1%)</translation>
     </message>
     <message>
       <source>Inspecting first layer</source>
@@ -4314,7 +4384,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Scanning bed surface</source>
-      <translation type="unfinished">Scanning bed surface</translation>
+      <translation>Examinando a superfície da cama</translation>
     </message>
     <message>
       <source>Standard</source>
@@ -4326,7 +4396,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Ludicrous</source>
-      <translation type="unfinished">Ludicrous</translation>
+      <translation>Ridículo</translation>
     </message>
     <message>
       <source>Pause due to the falling of the tool head's front cover</source>
@@ -4338,7 +4408,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Nozzle clog pause</source>
-      <translation type="unfinished">Nozzle clog pause</translation>
+      <translation>Pausa porque o bico está bloqueado</translation>
     </message>
     <message>
       <source>Downloading... (%1%)</source>
@@ -4358,11 +4428,11 @@ Continuar?</translation>
     </message>
     <message>
       <source>Paused by the user</source>
-      <translation type="unfinished">Paused by the user</translation>
+      <translation>Pausa do utilizador</translation>
     </message>
     <message>
       <source>Heating hotend</source>
-      <translation type="unfinished">Heating hotend</translation>
+      <translation>Aquecimento do hotend</translation>
     </message>
     <message>
       <source>Temperature/Axis</source>
@@ -4370,7 +4440,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Cleaning nozzle tip</source>
-      <translation type="unfinished">Cleaning nozzle tip</translation>
+      <translation>Limpeza da ponta do bico</translation>
     </message>
     <message>
       <source>Cooling chamber</source>
@@ -4419,7 +4489,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Rtsp service shutdown failed, please try again.</source>
-      <translation type="unfinished">Rtsp service shutdown failed, please try again.</translation>
+      <translation>O encerramento do serviço Rtsp falhou, por favor tente mais uma vez.</translation>
     </message>
   </context>
   <context>
@@ -4436,7 +4506,7 @@ Continuar?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/wizard/RegionPage.qml" line="31"></location>
       <source>Select the region where you are located (same as your account region).</source>
-      <translation type="unfinished">Select the region where you are located (same as your account region).</translation>
+      <translation>Selecione a região da sua localização (a mesma que a região da sua conta).</translation>
     </message>
   </context>
   <context>
@@ -4497,7 +4567,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Errors in the first layer scanning and AI monitoring.</source>
-      <translation type="unfinished">Errors in the first layer scanning and AI monitoring.</translation>
+      <translation>Falhas no rastreio da primeira camada e na monitorização da AI.</translation>
     </message>
     <message>
       <source>Purged filaments have piled up in excess chute.</source>
@@ -4529,7 +4599,7 @@ Continuar?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/dialog/ReportState.qml" line="60"></location>
       <source>Log uploading</source>
-      <translation type="unfinished">Log uploading</translation>
+      <translation>Enviar log</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/dialog/ReportState.qml" line="60"></location>
@@ -4799,7 +4869,7 @@ Continuar?</translation>
     <message>
       <location filename="kexec_ui/printerui/qml/dialog/Success.qml" line="62"></location>
       <source>&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</source>
-      <translation type="unfinished">&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</translation>
+      <translation>&lt;center&gt;&lt;b&gt;Sucesso!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus foi instalado com sucesso na sua impressora. Mantenha o cartão MicroSD inserido e reinicie a sua impressora para desfrutar do novo firmware personalizado!</translation>
     </message>
   </context>
   <context>
@@ -4845,7 +4915,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Download failed</source>
-      <translation type="unfinished">Download failed</translation>
+      <translation>Falha ao descarregar</translation>
     </message>
     <message>
       <source>Update failed</source>
@@ -4988,22 +5058,22 @@ Continuar?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="17"></location>
       <source>To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time.</source>
-      <translation type="unfinished">To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time.</translation>
+      <translation>Para instalar uma nova versão do firmware personalizado, copiar o novo ficheiro x1p para a raiz do cartão MicroSD, reinicializar a impressora e selecionar o instalador no momento do arranque.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="18"></location>
       <source>This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card.</source>
-      <translation type="unfinished">This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card.</translation>
+      <translation>Este firmware personalizado foi instalado sobre a versão errada do firmware de Bambu Lab.  A impressão pode não ser fiável.  Reinstale o firmware personalizado no cartão MicroSD.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="22"></location>
       <source>X1Plus Firmware</source>
-      <translation type="unfinished">X1Plus Firmware</translation>
+      <translation>Firmware do X1Plus</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="23"></location>
       <source>Bambu Lab base firmware</source>
-      <translation type="unfinished">Bambu Lab base firmware</translation>
+      <translation>Firmware Bambu Lab</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="28"></location>
@@ -5023,7 +5093,7 @@ Continuar?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="103"></location>
       <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
-      <translation type="unfinished">&lt;b&gt;Hardware revision&lt;/b&gt;: %1</translation>
+      <translation>Revisão de hardware &lt;b&gt;&lt;/b&gt;: %1</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionDialog.qml" line="113"></location>
@@ -5067,7 +5137,7 @@ Continuar?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="13"></location>
       <source>X1Plus version</source>
-      <translation type="unfinished">X1Plus version</translation>
+      <translation>Versão do X1Plus</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="14"></location>
@@ -5092,7 +5162,7 @@ Continuar?</translation>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="18"></location>
       <source>AMS hub</source>
-      <translation type="unfinished">AMS hub</translation>
+      <translation>Hub de AMS</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="19"></location>
@@ -5130,7 +5200,7 @@ Continuar?</translation>
     </message>
     <message>
       <source>Are you sure you want to update? This will take about 10 minutes. Do not turn off the power while the printer is updating.</source>
-      <translation type="unfinished">Are you sure you want to update? This will take about 10 minutes. Do not turn off the power while the printer is updating.</translation>
+      <translation>Tem a certeza de que deseja atualizar? Isto demorará cerca de 10 minutos. Não desligue a alimentação enquanto a impressora estiver a atualizar.</translation>
     </message>
     <message>
       <source>Please use the Bambu Handy APP to scan the code to view detailed update information.</source>
@@ -5176,9 +5246,9 @@ Continuar?</translation>
       <source>Sweeping %1
 %2 Hz: %3 dB
 Progress: %4%</source>
-      <translation type="unfinished">Sweeping %1
+      <translation>Varrimento %1
 %2 Hz: %3 dB
-Progress: %4%</translation>
+Progresso: %4%</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/VibrationComp.qml" line="81"></location>
@@ -5193,7 +5263,7 @@ Progress: %4%</translation>
     <message>
       <location filename="printer_ui/printerui/qml/printer/VibrationComp.qml" line="103"></location>
       <source>The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.&lt;br&gt;&lt;br&gt;All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.&lt;br&gt;&lt;br&gt;Run a sweep from this page to begin.</source>
-      <translation type="unfinished">The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.&lt;br&gt;&lt;br&gt;All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.&lt;br&gt;&lt;br&gt;Run a sweep from this page to begin.</translation>
+      <translation>A calibração de compensação de vibrações incorporada na impressora é utilizada para atenuar os artefatos pulsantes. Esta ferramenta permite-lhe executar varrimentos de calibração costumizados e visualizar os dados para diagnóstico; capta os dados de frequência não processados e os parâmetros de compensação finais calculados e aplicados pela impressora.&lt;br&gt;&lt;br&gt;Todas as impressoras têm uma curva de resposta de frequência distinta. As variações ao longo do tempo nesta curva de resposta podem muitas vezes ser causadas por vibrações do motor, mudanças na tensão da correia, ligação da cabeça da ferramenta ou outros factores. A utilização de dados de resposta de frequência pode ajudar a diagnosticar problemas da impressora e a identificar quando deve ser efectuada a manutenção da impressora.&lt;br&gt;&lt;br&gt;Execute uma varredura de frequência a partir desta página para começar.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/VibrationComp.qml" line="114"></location>
@@ -5238,7 +5308,7 @@ Progress: %4%</translation>
     <message>
       <location filename="printer_ui/printerui/qml/printer/VibrationComp.qml" line="371"></location>
       <source>&lt;br&gt;Run date: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</source>
-      <translation type="unfinished">&lt;br&gt;Run date: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</translation>
+      <translation>&lt;br&gt;Data de execução: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;Eixo X: ├_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt; Eixo Y: e_ n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</translation>
     </message>
   </context>
   <context>
@@ -5378,12 +5448,12 @@ Progress: %4%</translation>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="21"></location>
       <source>Download base firmware</source>
-      <translation type="unfinished">Download base firmware</translation>
+      <translation>Baixar firmware base</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="21"></location>
       <source>Download update</source>
-      <translation type="unfinished">Download update</translation>
+      <translation>Baixar atualização</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="30"></location>
@@ -5398,32 +5468,32 @@ Progress: %4%</translation>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="95"></location>
       <source>&lt;b&gt;Current X1Plus version&lt;/b&gt;: %1</source>
-      <translation type="unfinished">&lt;b&gt;Current X1Plus version&lt;/b&gt;: %1</translation>
+      <translation>&lt;b&gt;Versão atual do X1Plus&lt;/b&gt;: %1</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="103"></location>
       <source>Checking for X1Plus updates is enabled.</source>
-      <translation type="unfinished">Checking for X1Plus updates is enabled.</translation>
+      <translation>A verificação de actualizações do X1Plus está ativada.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="103"></location>
       <source>Checking for X1Plus updates is disabled.</source>
-      <translation type="unfinished">Checking for X1Plus updates is disabled.</translation>
+      <translation>A verificação de actualizações do X1Plus está desativada.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="130"></location>
       <source>&lt;i&gt;Checking for updates...&lt;/i&gt;</source>
-      <translation type="unfinished">&lt;i&gt;Checking for updates...&lt;/i&gt;</translation>
+      <translation>&lt;i&gt;Verificando atualizações...&lt;/i&gt;</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="138"></location>
       <source>&lt;b&gt;Last checked for updates&lt;/b&gt;: %1</source>
-      <translation type="unfinished">&lt;b&gt;Last checked for updates&lt;/b&gt;: %1</translation>
+      <translation>&lt;b&gt;Última verificação para atualizações&lt;/b&gt;: %1</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="176"></location>
       <source>&lt;i&gt;Most recent check for updates failed.  Check your network connection.&lt;/i&gt;</source>
-      <translation type="unfinished">&lt;i&gt;Most recent check for updates failed.  Check your network connection.&lt;/i&gt;</translation>
+      <translation>&lt;i&gt;A verificação mais recente de atualizações falhou. Verifique a conexão de rede.&lt;/i&gt;</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="187"></location>

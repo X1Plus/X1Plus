@@ -1,9 +1,23 @@
 --- printer_ui-orig/printerui/app_de.ts
 +++ printer_ui/printerui/app_de.ts
-@@ -3435,4 +3435,308 @@
+@@ -3435,4 +3435,312 @@
          <translation>Sind Sie sich sicher, dass sie diesen Druck abbrechen wollen?</translation>
      </message>
  </context>
++<context>
++  <name>EmergencyConsole</name>
++  <message>
++    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>Es ist möglich, Ihren Drucker unwiederbringlich und dauerhaft mit einer Root-Konsole zu beschädigen. Geben sie niemals etwas in eine Root-Konsole ein, wenn sie nicht genau wissen was sie machen.</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++</context>
 +<context>
 +  <name>UpgradeDialog</name>
 +  <message>
@@ -16,17 +30,10 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VersionDialog</name>
++  <name>ScreenLockPage</name>
 +  <message>
 +    <source>Return</source>
 +    <translation>Zurück</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Bed mesh calibration: Toolhead is homing</source>
-+    <translation>Höhenprofil Kalibrierung: Werkzeugkopf wird referenziert</translation>
 +  </message>
 +</context>
 +<context>
@@ -53,10 +60,60 @@
 +  </message>
 +</context>
 +<context>
-+  <name>EmergencyConsole</name>
++  <name>GpioKeys</name>
 +  <message>
-+    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>Es ist möglich, Ihren Drucker unwiederbringlich und dauerhaft mit einer Root-Konsole zu beschädigen. Geben sie niemals etwas in eine Root-Konsole ein, wenn sie nicht genau wissen was sie machen.</translation>
++    <source>Ignore</source>
++    <translation>Ignorieren</translation>
++  </message>
++</context>
++<context>
++  <name>BedMesh</name>
++  <message>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>Höhenprofil Kalibrierung: Werkzeugkopf wird referenziert</translation>
++  </message>
++</context>
++<context>
++  <name>HardwarePage</name>
++  <message>
++    <source>Stainless steel</source>
++    <translation>Edelstahl</translation>
++  </message>
++  <message>
++    <source>Hardened steel</source>
++    <translation>Gehärteter Stahl</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>Nicht installiert</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>Installiert</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>Zubehör</translation>
++  </message>
++  <message>
++    <source>Nozzle</source>
++    <translation>Düse</translation>
++  </message>
++  <message>
++    <source>Auxiliary Part Cooling Fan</source>
++    <translation>Hilfslüfter</translation>
++  </message>
++  <message>
++    <source>Lights</source>
++    <translation>Lampen</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>Wenn Sie das Zubehör ausgetauscht haben, aktualisieren Sie bitte die unteren Einstellungen, damit sie mit dem tatsächlichen Zustand des Zubehörs übereinstimmen und die Druckqualität gewährleistet ist.</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorieren</translation>
 +  </message>
 +</context>
 +<context>
@@ -110,68 +167,21 @@
 +  </message>
 +</context>
 +<context>
-+  <name>ConsolePage</name>
-+  <message>
-+    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
-+    <translation>Diese Schnittstelle elaubt es dir G-Code-Befehle an den Drucker zu senden. Sie können Befehle mit der virtuellen Tastatur eingeben oder Befehle aus den Vorgaben am unteren Rand des Bildschirms zusammenstellen. Der G-Code Parser des Druckers ist etwas pingelig; hier sind einige Tipps, wie man es formuliert: </translation>
-+  </message>
-+  <message>
-+    <source>M106: G-code command for fan control</source>
-+    <translation>M106: G-Code Befehl zur Lüftersteuerung</translation>
-+  </message>
-+  <message>
-+    <source>S255: parameter to set fan speed (0 to 255)</source>
-+    <translation>S255: Parameter zum Setzen der Lüftergeschwindigkeit (0 bis 255)</translation>
-+  </message>
-+  <message>
-+    <source>M106 P2 S255
-+G4 S5
-+M106 P2 S0</source>
-+    <translation>M106 P2 S255
-+G4 S5
-+M106 P2 S0</translation>
-+  </message>
-+  <message>
-+    <source>This interface allows you to run commands on your printer as root. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. Commands are executed synchronously, so long-running commands or commands that require user input may hang the UI; use caution! This is intended as a quick diagnostic tool, but for more intensive tasks, consider SSHing to the printer instead.</source>
-+    <translation>Mit dieser Schnittstelle können Sie Befehle auf Ihrem Drucker als root ausführen. Sie können Befehle mit der virtuellen Tastatur eingeben oder Befehle aus den Vorgaben am unteren Rand des Bildschirms zusammenstellen. Befehle werden synchron ausgeführt, so dass lange laufende Befehle oder Befehle, die Benutzereingaben erfordern, die UI aufhängen; Vorsicht! Dies ist als Schnelldiagnosewerkzeug gedacht, aber für intensivere Aufgaben sollten Sie stattdessen per SSH anmelden.</translation>
-+  </message>
-+  <message>
-+    <source>WARNING: It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>Warnung: Es ist möglich, Ihren Drucker unwiederbringlich und dauerhaft mit einer Root-Konsole zu beschädigen. Geben sie keine Befehle ein, wenn sie nicht genau wissen was sie machen.</translation>
-+  </message>
-+  <message>
-+    <source>enter a G-code command</source>
-+    <translation>gebe einen G-Code Befehl ein</translation>
-+  </message>
-+  <message>
-+    <source>enter a shell command to run as root</source>
-+    <translation>gib ein Kommmando ein, welches als root ausgeführt wird</translation>
-+  </message>
-+  <message>
-+    <source>Home</source>
-+    <translation>Start</translation>
-+  </message>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorieren</translation>
-+  </message>
-+  <message>
-+    <source>Close</source>
-+    <translation>Schließen</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
++  <name>VersionDialog</name>
 +  <message>
 +    <source>Return</source>
 +    <translation>Zurück</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>GpioKeys</name>
++  <name>InstallingPage</name>
 +  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorieren</translation>
++    <source>Yes</source>
++    <translation>Ja</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>Nein</translation>
 +  </message>
 +</context>
 +<context>
@@ -241,17 +251,6 @@
 +  </message>
 +</context>
 +<context>
-+  <name>InstallingPage</name>
-+  <message>
-+    <source>Yes</source>
-+    <translation>Ja</translation>
-+  </message>
-+  <message>
-+    <source>No</source>
-+    <translation>Nein</translation>
-+  </message>
-+</context>
-+<context>
 +  <name>LanAccessPage</name>
 +  <message>
 +    <source>Return</source>
@@ -263,49 +262,54 @@
 +  </message>
 +</context>
 +<context>
-+  <name>X1PlusOTADialog</name>
++  <name>ConsolePage</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>HardwarePage</name>
-+  <message>
-+    <source>Stainless steel</source>
-+    <translation>Edelstahl</translation>
++    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
++    <translation>Diese Schnittstelle elaubt es dir G-Code-Befehle an den Drucker zu senden. Sie können Befehle mit der virtuellen Tastatur eingeben oder Befehle aus den Vorgaben am unteren Rand des Bildschirms zusammenstellen. Der G-Code Parser des Druckers ist etwas pingelig; hier sind einige Tipps, wie man es formuliert: </translation>
 +  </message>
 +  <message>
-+    <source>Hardened steel</source>
-+    <translation>Gehärteter Stahl</translation>
++    <source>M106: G-code command for fan control</source>
++    <translation>M106: G-Code Befehl zur Lüftersteuerung</translation>
 +  </message>
 +  <message>
-+    <source>Not installed</source>
-+    <translation>Nicht installiert</translation>
++    <source>S255: parameter to set fan speed (0 to 255)</source>
++    <translation>S255: Parameter zum Setzen der Lüftergeschwindigkeit (0 bis 255)</translation>
 +  </message>
 +  <message>
-+    <source>Installed</source>
-+    <translation>Installiert</translation>
++    <source>M106 P2 S255
++G4 S5
++M106 P2 S0</source>
++    <translation>M106 P2 S255
++G4 S5
++M106 P2 S0</translation>
 +  </message>
 +  <message>
-+    <source>Accessories</source>
-+    <translation>Zubehör</translation>
++    <source>This interface allows you to run commands on your printer as root. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. Commands are executed synchronously, so long-running commands or commands that require user input may hang the UI; use caution! This is intended as a quick diagnostic tool, but for more intensive tasks, consider SSHing to the printer instead.</source>
++    <translation>Mit dieser Schnittstelle können Sie Befehle auf Ihrem Drucker als root ausführen. Sie können Befehle mit der virtuellen Tastatur eingeben oder Befehle aus den Vorgaben am unteren Rand des Bildschirms zusammenstellen. Befehle werden synchron ausgeführt, so dass lange laufende Befehle oder Befehle, die Benutzereingaben erfordern, die UI aufhängen; Vorsicht! Dies ist als Schnelldiagnosewerkzeug gedacht, aber für intensivere Aufgaben sollten Sie stattdessen per SSH anmelden.</translation>
 +  </message>
 +  <message>
-+    <source>Nozzle</source>
-+    <translation>Düse</translation>
++    <source>WARNING: It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>Warnung: Es ist möglich, Ihren Drucker unwiederbringlich und dauerhaft mit einer Root-Konsole zu beschädigen. Geben sie keine Befehle ein, wenn sie nicht genau wissen was sie machen.</translation>
 +  </message>
 +  <message>
-+    <source>Auxiliary Part Cooling Fan</source>
-+    <translation>Hilfslüfter</translation>
++    <source>enter a G-code command</source>
++    <translation>gebe einen G-Code Befehl ein</translation>
 +  </message>
 +  <message>
-+    <source>Lights</source>
-+    <translation>Lampen</translation>
++    <source>enter a shell command to run as root</source>
++    <translation>gib ein Kommmando ein, welches als root ausgeführt wird</translation>
 +  </message>
 +  <message>
-+    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
-+    <translation>Wenn Sie das Zubehör ausgetauscht haben, aktualisieren Sie bitte die unteren Einstellungen, damit sie mit dem tatsächlichen Zustand des Zubehörs übereinstimmen und die Druckqualität gewährleistet ist.</translation>
++    <source>Home</source>
++    <translation>Start</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorieren</translation>
++  </message>
++  <message>
++    <source>Close</source>
++    <translation>Schließen</translation>
 +  </message>
 +</context>
  </TS>

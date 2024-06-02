@@ -5,10 +5,10 @@
      </message>
  </context>
 +<context>
-+  <name>BedLevelDiag</name>
++  <name>X1PlusOTADialog</name>
 +  <message>
-+    <source>Bed Diagnostics</source>
-+    <translation>热床检测</translation>
++    <source>Return</source>
++    <translation>返回</translation>
 +  </message>
 +</context>
 +<context>
@@ -23,10 +23,24 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VersionDialog</name>
++  <name>ScreenLockPage</name>
 +  <message>
 +    <source>Return</source>
 +    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>VibrationComp</name>
++  <message>
++    <source>Calibration History</source>
++    <translation>校准记录</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
 +  </message>
 +</context>
 +<context>
@@ -53,10 +67,74 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VibrationComp</name>
++  <name>HardwarePage</name>
 +  <message>
-+    <source>Calibration History</source>
-+    <translation>校准记录</translation>
++    <source>Stainless steel</source>
++    <translation>不銹鋼</translation>
++  </message>
++  <message>
++    <source>Hardened steel</source>
++    <translation>硬化钢喷嘴</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>未安装</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>已安装</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>配件</translation>
++  </message>
++  <message>
++    <source>Nozzle</source>
++    <translation>喷嘴</translation>
++  </message>
++  <message>
++    <source>Auxiliary Part Cooling Fan</source>
++    <translation>辅助冷却风扇</translation>
++  </message>
++  <message>
++    <source>Interface</source>
++    <translation>控制设置</translation>
++  </message>
++  <message>
++    <source>Reset button mapping to default settings?</source>
++    <translation>重置按键映射到默认设置？</translation>
++  </message>
++  <message>
++    <source>Buttons</source>
++    <translation>按键</translation>
++  </message>
++  <message>
++    <source>Short Press</source>
++    <translation>短按</translation>
++  </message>
++  <message>
++    <source>Long Press</source>
++    <translation>长按</translation>
++  </message>
++  <message>
++    <source>Lights</source>
++    <translation>灯光</translation>
++  </message>
++  <message>
++    <source>Backlight</source>
++    <translation>箱内LED灯光</translation>
++  </message>
++  <message>
++    <source>Toolhead LED</source>
++    <translation>打印头LED</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>
++163/10000
++实时翻译
++划译
++如果您更换了配件，请更新以下设置，使其与配件的实际情况保持一致，以确保打印质量</translation>
 +  </message>
 +</context>
 +<context>
@@ -131,54 +209,28 @@
 +  </message>
 +</context>
 +<context>
-+  <name>ConsolePage</name>
++  <name>BedLevelDiag</name>
 +  <message>
-+    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
-+    <translation>此接口允许您向打印机发送G代码命令。您可以使用虚拟键盘输入命令，也可以从屏幕底部的快捷键栏将命令组合在一起。打印机's的G代码解析器有些挑剔；以下是一些如何安抚它的提示： </translation>
-+  </message>
-+  <message>
-+    <source>M106: G-code command for fan control</source>
-+    <translation>M106：风扇控制的G-代码命令</translation>
-+  </message>
-+  <message>
-+    <source>enter a G-code command</source>
-+    <translation>输入一个 G-code 命令</translation>
-+  </message>
-+  <message>
-+    <source>enter a shell command to run as root</source>
-+    <translation>输入 shell 命令以 root 身份运行</translation>
-+  </message>
-+  <message>
-+    <source>Home</source>
-+    <translation>回零</translation>
-+  </message>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>忽略</translation>
-+  </message>
-+  <message>
-+    <source>Close</source>
-+    <translation>關閉</translation>
-+  </message>
-+  <message>
-+    <source>&gt;Gcode command published to device
-+  </source>
-+    <translation>&gt;Gcode 命令已发送到设备
-+  </translation>
++    <source>Bed Diagnostics</source>
++    <translation>热床检测</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>ScreenLockPage</name>
++  <name>VersionDialog</name>
 +  <message>
 +    <source>Return</source>
 +    <translation>返回</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>GpioKeys</name>
++  <name>InstallingPage</name>
 +  <message>
-+    <source>Ignore</source>
-+    <translation>忽略</translation>
++    <source>Yes</source>
++    <translation>是</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>否</translation>
 +  </message>
 +</context>
 +<context>
@@ -217,17 +269,6 @@
 +  </message>
 +</context>
 +<context>
-+  <name>InstallingPage</name>
-+  <message>
-+    <source>Yes</source>
-+    <translation>是</translation>
-+  </message>
-+  <message>
-+    <source>No</source>
-+    <translation>否</translation>
-+  </message>
-+</context>
-+<context>
 +  <name>LanAccessPage</name>
 +  <message>
 +    <source>Return</source>
@@ -239,81 +280,40 @@
 +  </message>
 +</context>
 +<context>
-+  <name>X1PlusOTADialog</name>
++  <name>ConsolePage</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>HardwarePage</name>
-+  <message>
-+    <source>Stainless steel</source>
-+    <translation>不銹鋼</translation>
++    <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
++    <translation>此接口允许您向打印机发送G代码命令。您可以使用虚拟键盘输入命令，也可以从屏幕底部的快捷键栏将命令组合在一起。打印机's的G代码解析器有些挑剔；以下是一些如何安抚它的提示： </translation>
 +  </message>
 +  <message>
-+    <source>Hardened steel</source>
-+    <translation>硬化钢喷嘴</translation>
++    <source>M106: G-code command for fan control</source>
++    <translation>M106：风扇控制的G-代码命令</translation>
 +  </message>
 +  <message>
-+    <source>Not installed</source>
-+    <translation>未安装</translation>
++    <source>enter a G-code command</source>
++    <translation>输入一个 G-code 命令</translation>
 +  </message>
 +  <message>
-+    <source>Installed</source>
-+    <translation>已安装</translation>
++    <source>enter a shell command to run as root</source>
++    <translation>输入 shell 命令以 root 身份运行</translation>
 +  </message>
 +  <message>
-+    <source>Accessories</source>
-+    <translation>配件</translation>
++    <source>Home</source>
++    <translation>回零</translation>
 +  </message>
 +  <message>
-+    <source>Nozzle</source>
-+    <translation>喷嘴</translation>
++    <source>Ignore</source>
++    <translation>忽略</translation>
 +  </message>
 +  <message>
-+    <source>Auxiliary Part Cooling Fan</source>
-+    <translation>辅助冷却风扇</translation>
++    <source>Close</source>
++    <translation>關閉</translation>
 +  </message>
 +  <message>
-+    <source>Interface</source>
-+    <translation>控制设置</translation>
-+  </message>
-+  <message>
-+    <source>Reset button mapping to default settings?</source>
-+    <translation>重置按键映射到默认设置？</translation>
-+  </message>
-+  <message>
-+    <source>Buttons</source>
-+    <translation>按键</translation>
-+  </message>
-+  <message>
-+    <source>Short Press</source>
-+    <translation>短按</translation>
-+  </message>
-+  <message>
-+    <source>Long Press</source>
-+    <translation>长按</translation>
-+  </message>
-+  <message>
-+    <source>Lights</source>
-+    <translation>灯光</translation>
-+  </message>
-+  <message>
-+    <source>Backlight</source>
-+    <translation>箱内LED灯光</translation>
-+  </message>
-+  <message>
-+    <source>Toolhead LED</source>
-+    <translation>打印头LED</translation>
-+  </message>
-+  <message>
-+    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
-+    <translation>
-+163/10000
-+实时翻译
-+划译
-+如果您更换了配件，请更新以下设置，使其与配件的实际情况保持一致，以确保打印质量</translation>
++    <source>&gt;Gcode command published to device
++  </source>
++    <translation>&gt;Gcode 命令已发送到设备
++  </translation>
 +  </message>
 +</context>
  </TS>
