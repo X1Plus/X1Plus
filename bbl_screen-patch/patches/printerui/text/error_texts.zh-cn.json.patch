@@ -1,0 +1,23 @@
+--- printer_ui-orig/printerui/text/error_texts.zh-cn.json
++++ printer_ui/printerui/text/error_texts.zh-cn.json
+@@ -1,5 +1,4 @@
+ {
+-    "ver": 202311241930,
+     "zh-cn": [
+         {
+             "ecode": "03004005",
+@@ -1044,6 +1043,11 @@
+         {
+             "ecode": "05004008",
+             "intro": "启动打印失败，请重启机器并重新发送打印。"
++        },
++        {
++            "ecode": "05004031",
++            "intro": "设备发现绑定执行中，屏幕无法展现二维码。可等待局域网绑定结束，或Hand APP/Studio中止绑定，重试扫描屏幕二维码绑定。"
+         }
+-    ]
+-}
++    ],
++    "ver": 202406020147
++}
+\ No newline at end of file

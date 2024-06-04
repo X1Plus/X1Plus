@@ -1,0 +1,21 @@
+--- printer_ui-orig/printerui/text/hms_texts.fr.json
++++ printer_ui/printerui/text/hms_texts.fr.json
+@@ -2879,7 +2879,15 @@
+         {
+             "ecode": "0700210000020003",
+             "intro": "Le filament d'AMS1 slot2 peut être cassé dans le tube PTFE."
++        },
++        {
++            "ecode": "1200250000020001",
++            "intro": "Le filament n'a pas été extrudé, l'extrudeur est peut-être obstrué."
++        },
++        {
++            "ecode": "1200240000020001",
++            "intro": "Le filament est peut-être cassé dans l'extrudeur."
+         }
+     ],
+-    "ver": 202309261840
+-}
++    "ver": 202406020147
++}
+\ No newline at end of file

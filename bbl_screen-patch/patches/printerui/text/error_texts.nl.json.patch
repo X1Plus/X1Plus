@@ -1,0 +1,21 @@
+--- printer_ui-orig/printerui/text/error_texts.nl.json
++++ printer_ui/printerui/text/error_texts.nl.json
+@@ -955,7 +955,15 @@
+         {
+             "ecode": "03004005",
+             "intro": "De ventilatorsnelheid van de heatbreak is abnormaal."
++        },
++        {
++            "ecode": "05004012",
++            "intro": "De deur lijkt open te staan, dus het printen werd gepauzeerd."
++        },
++        {
++            "ecode": "05008036",
++            "intro": "Het gesegmenteerde bestand is niet consistent met het huidige printermodel. Doorgaan?"
+         }
+     ],
+-    "ver": 202309261900
+-}
++    "ver": 202406020147
++}
+\ No newline at end of file
