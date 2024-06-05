@@ -55,56 +55,56 @@
              "intro": "Die Medienübertragung hat einen Fehler."
 +        },
 +        {
-+            "ecode": "1200250000020001",
-+            "intro": "Konnte kein Filament drucken. Der Extruder ist möglicherweise verstopft."
-+        },
-+        {
-+            "ecode": "1000010000020001",
-+            "intro": "Die Bauplattentemperatur ist höher als die Verglasungstemperatur des Filaments. Bitte drucken sie mit offener Bauraumtür um eine Verstopfung der Düse zu vermeiden."
-+        },
-+        {
-+            "ecode": "030092000001000A",
-+            "intro": "Die Temperatur der Bauraumheizung 2 ist abnormal. Die AC-Platine ist möglicherweise kaputt."
-+        },
-+        {
-+            "ecode": "030001000001000A",
-+            "intro": "Die Bauplattentemperaturregelung ist abnormal, die AC-Platine ist möglicherweise kaputt."
-+        },
-+        {
-+            "ecode": "03001B0000010003",
-+            "intro": "Der Bauplattenbeschleunigungssensor erkennt eine unerwartete dauerhafte Beschleunigung. Der Sensor hängt, oder der Analog-Eingang ist kaputt."
-+        },
-+        {
 +            "ecode": "03001B0000010001",
 +            "intro": "Das Signal des Bauplattenbeschleunigungssensors ist schwach. Der Sensor ist möglicherweise abgefallen oder beschädigt."
-+        },
-+        {
-+            "ecode": "1000010000020002",
-+            "intro": "Die Düsenhärte die für dieses Filament benötigt wird, ist höher als die standard Düsenhärte des Druckers. Bitte wechseln sie die Düse oder das Filament aus, da ansonsten die Düse übermäßig abgenutzt oder beschädigt werden kann."
-+        },
-+        {
-+            "ecode": "0500040000030009",
-+            "intro": "Die Bauplattentemperatur ist höher als die Vergalsungstemperatur des Filamentes, was zu einer Verstopfung der Düse führen kann. Bitte halten sie die Bauraumtür offen. Die Türsensoren wurden bereits temporär deaktiviert."
 +        },
 +        {
 +            "ecode": "1200240000020001",
 +            "intro": "Das Filament ist möglicherweise im Werkzeugkopf gebrochen."
 +        },
 +        {
-+            "ecode": "03001B0000010002",
-+            "intro": "Es wurde eine externe Störung des Bauplattenbeschleunigungssensors erkannt. Das Signalkabel des Sensors ist eventuell nicht befestigt."
++            "ecode": "030001000001000A",
++            "intro": "Die Bauplattentemperaturregelung ist abnormal, die AC-Platine ist möglicherweise kaputt."
 +        },
 +        {
 +            "ecode": "1000010000020003",
 +            "intro": "Die Zeitrafferaufnahme kann die Druckqualität beeinflussen. Bitte bestätigen Sie das sie aktiviert werden soll."
 +        },
 +        {
++            "ecode": "0500040000030009",
++            "intro": "Die Bauplattentemperatur ist höher als die Vergalsungstemperatur des Filamentes, was zu einer Verstopfung der Düse führen kann. Bitte halten sie die Bauraumtür offen. Die Türsensoren wurden bereits temporär deaktiviert."
++        },
++        {
++            "ecode": "1000010000020001",
++            "intro": "Die Bauplattentemperatur ist höher als die Verglasungstemperatur des Filaments. Bitte drucken sie mit offener Bauraumtür um eine Verstopfung der Düse zu vermeiden."
++        },
++        {
 +            "ecode": "030091000001000A",
 +            "intro": "Die Temperatur der Bauraumheizung 1 ist abnormal. Die AC-Platine ist möglicherweise kaputt."
++        },
++        {
++            "ecode": "1000010000020002",
++            "intro": "Die Düsenhärte die für dieses Filament benötigt wird, ist höher als die standard Düsenhärte des Druckers. Bitte wechseln sie die Düse oder das Filament aus, da ansonsten die Düse übermäßig abgenutzt oder beschädigt werden kann."
++        },
++        {
++            "ecode": "03001B0000010002",
++            "intro": "Es wurde eine externe Störung des Bauplattenbeschleunigungssensors erkannt. Das Signalkabel des Sensors ist eventuell nicht befestigt."
++        },
++        {
++            "ecode": "030092000001000A",
++            "intro": "Die Temperatur der Bauraumheizung 2 ist abnormal. Die AC-Platine ist möglicherweise kaputt."
++        },
++        {
++            "ecode": "1200250000020001",
++            "intro": "Konnte kein Filament drucken. Der Extruder ist möglicherweise verstopft."
++        },
++        {
++            "ecode": "03001B0000010003",
++            "intro": "Der Bauplattenbeschleunigungssensor erkennt eine unerwartete dauerhafte Beschleunigung. Der Sensor hängt, oder der Analog-Eingang ist kaputt."
          }
      ],
 -    "ver": 202311071450
 -}
-+    "ver": 202404110606
++    "ver": 202406020147
 +}
 \ No newline at end of file
