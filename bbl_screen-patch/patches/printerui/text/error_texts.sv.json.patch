@@ -1,0 +1,21 @@
+--- printer_ui-orig/printerui/text/error_texts.sv.json
++++ printer_ui/printerui/text/error_texts.sv.json
+@@ -1023,7 +1023,15 @@
+         {
+             "ecode": "0C00C004",
+             "intro": "Möjligt spaghetti fenomen upptäcktes."
++        },
++        {
++            "ecode": "0300400F",
++            "intro": "Ingen byggplatta är placerad."
++        },
++        {
++            "ecode": "05004031",
++            "intro": "Bindning av enhetsidentifiering pågår och QR-koden kan inte visas på skärmen. Du kan vänta tills bindningen är klar eller avbryta bindningsprocessen för enhetsidentifiering i APP/Studio och försöka skanna QR-koden på skärmen igen för bindning."
+         }
+     ],
+-    "ver": 202311071410
+-}
++    "ver": 202406020147
++}
+\ No newline at end of file
