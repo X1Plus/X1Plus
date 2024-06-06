@@ -9,8 +9,7 @@ parser = argparse.ArgumentParser(prog='x1plus', description='Command-line manage
 subparsers = parser.add_subparsers(title = 'commands', required = True)
 
 ota.add_subparser(subparsers)
-
-settings_parser = subparsers.add_parser('settings', help="view or change X1Plus settings")
+settings.add_subparser(subparsers)
 
 args = parser.parse_args()
 args.func(args)
