@@ -16,7 +16,7 @@
      property var build: DeviceManager.build
      property var storage: DeviceManager.storage
 +    property var isShield: DeviceManager.getSetting("cfw_shield", false)
-+    property bool wifiDriver: false
++    property bool legacyWifiDriver: false
 +
 +    function setShield(shield) {
 +        isShield = shield;
@@ -30,7 +30,7 @@
 +        }
 +    }
 +    Component.onCompleted: {
-+        wifiDriver = X1Plus.Settings.get("boot.wifi_driver.bcmdhd", false)
++        legacyWifiDriver = X1Plus.Settings.get("boot.wifi_driver.bcmdhd", false)
 +    }
 +    
 +    Timer {
@@ -151,30 +151,30 @@
 +            function onClicked() { pageStack.push("DeviceInfo.qml") }
 +        }
 +        
-+        DeviceInfoItem { title: qsTr("Wifi Driver"); value: (wifiDriver) ? qsTr("Legacy Wi-Fi Driver") : qsTr("X1Plus Wi-Fi Driver")
++        DeviceInfoItem { title: qsTr("WiFi Driver"); value: (legacyWifiDriver) ? qsTr("Legacy WiFi Driver") : qsTr("X1Plus WiFi Driver")
 +            function onClicked() { toggleWifiDriver() }
 +        }
 +    }
 +    function toggleWifiDriver(){
 +        var wifiDlgConfirm = function() {
-+            wifiDriver = !wifiDriver
-+            X1Plus.Settings.put("boot.wifi_driver.bcmdhd", wifiDriver);
++            legacyWifiDriver = !legacyWifiDriver
++            X1Plus.Settings.put("boot.wifi_driver.bcmdhd", legacyWifiDriver);
 +            dialogStack.popupDialog("TextConfirm", {
 +                                name: "Reboot",
-+                                text: qsTr("Your changes will only take effect after rebooting X1Plus. Would you like to reboot now?"),
++                                text: qsTr("Your changes will take effect after X1Plus reboots. Would you like to reboot now?"),
 +                                titles: [qsTr("No"), qsTr("Reboot Now")],
 +                                defaultButton: TextConfirm.NO, /* default = reboot now  */
 +                                onYes: X1PlusNative.system(`reboot`)
                               })
          }
 +        
-+        var wifiDlg = wifiDriver ? qsTr("X1Plus is currently configured to load Legacy (OEM) Wi-Fi drivers. Would you like to use the default X1Plus Wi-Fi drivers instead?") : qsTr("X1Plus is currently configured to load the default Wi-Fi drivers. Would you like to use the Legacy (OEM) Wi-Fi drivers instead?")
++        var wifiDlg = legacyWifiDriver ? qsTr("X1Plus is currently configured to load Legacy (OEM) WiFi drivers. Would you like to use the default X1Plus WiFi drivers instead?") : qsTr("X1Plus is currently configured to load the default WiFi drivers. Would you like to use the Legacy (OEM) WiFi drivers instead?")
          dialogStack.popupDialog("TextConfirm", {
 -                             name: "Format storage",
 -                             text: qsTr("Data cannot be recovered after formatting the SD Card. Are you sure you want to format?"),
 -                             titles: [qsTr("Format"), qsTr("Cancel")],
 -                             onYes: format
-+                                        name: "Wi-Fi Driver",
++                                        name: "WiFi Driver",
 +                                        text: wifiDlg,
 +                                        titles: [qsTr("Cancel"), qsTr("Yes")],
 +                                        defaultButton: TextConfirm.YES,
