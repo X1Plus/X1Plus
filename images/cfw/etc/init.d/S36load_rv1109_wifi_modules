@@ -77,7 +77,7 @@ case "$1" in
 
 		echo 1 > /sys/class/rfkill/rfkill1/state
 
-		if x1p_get_setting boot.wifi_driver bcmdhd; then
+		if x1p_get_setting boot.wifi_driver.bcmdhd; then
 			for i in cfg80211 mac80211 rk_wifi_config bcmdhd; do
 				printf "load wifi module $i: "
 				insmod /system/lib/modules/bcmdhd/$i.ko
