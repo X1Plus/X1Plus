@@ -23,20 +23,29 @@ def put(key, value):
 
 ###
 
-import json, sys
-
-def _cmd_show(args):
-    settings = get_settings()
-    for k,v in sorted(settings.items()):
-        print(f"{k}: {json.dumps(v)}")
+import json, sys, pathlib
 
 def _cmd_get(args):
     rv = 0
-    if len(args.keys) == 0:
-        _cmd_show(args)
-        return
     settings = get_settings()
+    if len(args.keys) == 0:
+        settings = get_settings()
+        for k,v in sorted(settings.items()):
+            print(f"{k}: {json.dumps(v)}")
+        return
+
     for key in args.keys:
+        if '*' in key:
+            didmatch = False
+            for k,v in sorted(settings.items()):
+                if pathlib.PurePath(k).match(key):
+                    didmatch = True
+                    print(f"{k}: {json.dumps(v)}")
+            if not didmatch:
+                print(f"key {key} had no matches!", file=sys.stderr)
+                rv = 1
+            continue
+
         if key not in settings:
             print(f"key {key} is not set!", file=sys.stderr)
             rv = 1
@@ -102,12 +111,9 @@ def add_subparser(subparsers):
     parser = subparsers.add_parser('settings', help="manage X1Plus settings")
     settings_subparsers = parser.add_subparsers(title = 'subcommands', required = True)
 
-    get_parser = settings_subparsers.add_parser('get', help='print one or more X1Plus settings')
+    get_parser = settings_subparsers.add_parser('get', help='print one or more X1Plus settings', aliases=['show'])
     get_parser.add_argument('keys', action="store", nargs="*", help="zero or more setting keys to look up; if not specified, prints all settings")
     get_parser.set_defaults(func=_cmd_get)
-    
-    show_parser = settings_subparsers.add_parser('show', help='display all X1Plus settings')
-    show_parser.set_defaults(func=_cmd_show)
     
     # XXX: should there be a 'known' option that shows all known settings?
     
