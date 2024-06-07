@@ -2,18 +2,15 @@ import os
 import re
 import time
 import json
-import sys
-import signal
 import threading
 import subprocess
 
-# Patterns for log parsing
 lock_pattern = re.compile(r'\[MCU\]\[BMC\]owner=1 lock! \[Free\]')
 unlock_pattern = re.compile(r'\[MCU\]\[BMC\]owner=1 unlock!')
-timestamp_pattern = re.compile(r'^\w{3} \d{2} \d{2}:\d{2}:\d{2}')
+timestamp_pattern = re.compile(r'^\w{3} +\d{1,2} \d{2}:\d{2}:\d{2}')
 info_forward_pattern = re.compile(r'info forward\[\d+\]: ')
-valid_line_pattern = re.compile(r'^\w{3} \d{2} \d{2}:\d{2}:\d{2} info forward\[\d+\]: \[(MCU\]\[BMC|gparser)\]')
-log_path = "/mnt/sdcard/log/syslog.log" if os.path.exists("/tmp/.syslog_to_sd") and os.path.exists("/mnt/sdcard/log/") else "/tmp/syslog.log"
+valid_line_pattern = re.compile(r'.*info forward\[\d+\]: \[(MCU\]\[BMC|gparser)\]')
+
 
 class TailLog:
     def __init__(self, filepath, seek_end=True, interval=1.0):
@@ -23,7 +20,6 @@ class TailLog:
         self.seek_end = seek_end
         self.buf = ""
         self.interval = interval
-        self.running = True
         self._open_file()
 
     def _open_file(self):
@@ -31,10 +27,6 @@ class TailLog:
         self.ino = os.fstat(self.fd.fileno()).st_ino
         if self.seek_end:
             self.fd.seek(0, os.SEEK_END)
-
-    def stop(self):
-        self.running = False
-        self.fd.close()
 
     def readline(self):
         if os.stat(self.filepath).st_ino != self.ino:
@@ -46,19 +38,21 @@ class TailLog:
         if self.seek_end:
             self.buf = ""
             self.seek_end = False
-        
+
         if "\n" not in self.buf:
             return None
         line, self.buf = self.buf.split("\n", 1)
         return line
-    
+
     def lines(self):
-        while self.running:
+        while True:
             line = self.readline()
             if not line:
                 time.sleep(self.interval)
             else:
                 yield line
+
+log_path = "/mnt/sdcard/log/syslog.log" if os.path.exists("/tmp/.syslog_to_sd") and os.path.exists("/mnt/sdcard/log/") else "/tmp/syslog.log"
 
 def send_gcode(gcode_line):
     json_payload = {
@@ -69,59 +63,61 @@ def send_gcode(gcode_line):
         }
     }
     mqtt_pub(json.dumps(json_payload))
+    time.sleep(1)
 
 def mqtt_pub(message):
     command = f"source /usr/bin/mqtt_access.sh; mqtt_pub '{message}'"
-    subprocess.run(command, shell=True, check=True, executable='/bin/bash',
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-def log_monitor(tail_syslog):
-    capturing = False
-    captured_lines = []
     try:
-        for line in tail_syslog.lines():
-            if lock_pattern.search(line):
-                capturing = True
-                captured_lines = []
-                continue
+        subprocess.run(command, shell=True, check=True, executable='/bin/bash',
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        
+    except subprocess.CalledProcessError as e:
+        print(f"error {e}")
 
-            if capturing:
-                if unlock_pattern.search(line):
-                    capturing = False
-                    output = ''.join(captured_lines).strip()
-                    captured_lines = []
-                    continue
+def log_monitor(tail_log):
+	capturing = False
+	captured_lines = []
+	try:
+		for line in tail_log.lines():
+			if lock_pattern.search(line):
+				capturing = True
+				captured_lines = []
+				continue
+	
+			if capturing:
+				if unlock_pattern.search(line):
+					capturing = False
+					output = ''.join(captured_lines).strip()
+					captured_lines = []
+					continue
+	
+				if valid_line_pattern.match(line):
+					line = timestamp_pattern.sub('', line)
+					line = info_forward_pattern.sub('', line)
+					print(line.replace("[MCU][BMC]","<br />"))
+					captured_lines.append(line)
+	except Exception as e:
+		print(f"Failed to monitor log file: {e}")
 
-                if valid_line_pattern.match(line):
-                    line = timestamp_pattern.sub('', line)
-                    line = info_forward_pattern.sub('', line)
-                    print(line.replace("[MCU][BMC]","<br />"))
-                    captured_lines.append(line)
-    except Exception as e:
-        print(f"Failed to monitor log file: {e}")
-
-def user_interaction():
-    gcode_input = input("<div><font color='#CACACA'>enter gcode</font>")
-    send_gcode(gcode_input)
-    time.sleep(2)
-
-def signal_handler(sig, frame):
-    print("Exiting...")
-    tail_syslog.stop()
-    sys.exit(0)
+def gcode_prompt():
+	while True:
+		try:
+			time.sleep(2)
+			gcode_input = input("<div><font color='#CACACA'>enter a gcode command</font><div>")
+			send_gcode(gcode_input)
+			
+		except EOFError:
+			break
 
 def main():
-	global tail_syslog
-	tail_syslog = TailLog(log_path)
-	
-	signal.signal(signal.SIGINT, signal_handler)
-	signal.signal(signal.SIGTERM, signal_handler)
-	log_thread = threading.Thread(target=log_monitor, args=(tail_syslog,))
-	log_thread.daemon = True
-	log_thread.start()
-	
-	while True:
-		user_interaction()
+    tail_syslog = TailLog(log_path)
+    log_thread = threading.Thread(target=log_monitor, args=(tail_syslog,), daemon=True)
+    log_thread.start()
+    p_thread = threading.Thread(target=gcode_prompt, daemon=True)
+    p_thread.start()
+    log_thread.join()
+    p_thread.join()
+
 
 if __name__ == "__main__":
     main()
