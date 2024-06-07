@@ -103,7 +103,7 @@ def gcode_prompt():
 	while True:
 		try:
 			time.sleep(2)
-			gcode_input = input("<div><font color='#CACACA'>enter a gcode command</font><div>")
+			gcode_input = input("<div><font color='#CACACA'>enter gcode</font><div>")
 			send_gcode(gcode_input)
 			
 		except EOFError:
