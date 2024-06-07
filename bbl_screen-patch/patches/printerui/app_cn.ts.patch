@@ -1,42 +1,77 @@
 --- printer_ui-orig/printerui/app_cn.ts
 +++ printer_ui/printerui/app_cn.ts
-@@ -3431,4 +3431,228 @@
+@@ -3431,4 +3431,316 @@
          <translation>请确认是否取消本次打印？</translation>
      </message>
  </context>
 +<context>
-+  <name>BootOptionsPage</name>
++  <name>X1PlusOTADialog</name>
 +  <message>
-+    <source>Start X1Plus from SD card</source>
-+    <translation>从 SD 卡启动 X1Plus</translation>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
 +  </message>
 +  <message>
-+    <source>Reset X1Plus settings</source>
-+    <translation>重置 X1Plus 设置</translation>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>VibrationComp</name>
++  <message>
++    <source>Calibration History</source>
++    <translation>校准记录</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
++  </message>
++</context>
++<context>
++  <name>BedMesh</name>
++  <message>
++    <source>Rerun diagnostics</source>
++    <translation>重新检测</translation>
 +  </message>
 +  <message>
-+    <source>Emergency recovery console</source>
-+    <translation>紧急恢复控制台</translation>
++    <source>Bed Diagnostics</source>
++    <translation>热床检测</translation>
 +  </message>
 +  <message>
-+    <source>&lt;font color="#EEAAAA"&gt;Start built-in firmware with updater disabled&lt;/font&gt;</source>
-+    <translation>&lt;font color="#EEAAAA"&gt;启动内置固件，并禁用更新&lt;/font&gt;</translation>
++    <source>Run diagnostics</source>
++    <translation>运行检测</translation>
 +  </message>
 +  <message>
-+    <source>&lt;font color="#FF7777"&gt;Start built-in firmware unmodified&lt;/font&gt;</source>
-+    <translation>&lt;font color="#FF7777"&gt;启动未经修改的内置固件&lt;/font&gt;</translation>
++    <source>Calibration History</source>
++    <translation>校准记录</translation>
 +  </message>
 +  <message>
-+    <source>X1Plus startup options</source>
-+    <translation>X1Plus 启动选项</translation>
-+  </message>
-+  <message>
-+    <source>Use these tools to upgrade or repair the X1Plus firmware on your printer.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.&lt;/b&gt;&lt;/font&gt;</source>
-+    <translation>使用这些工具升级或修复打印机上的X1Plus固件。&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;使用设备上的固件启动可能会导致打印机无法访问自定义固件。只能在万不得已的情况下才这样做。&lt;/b&gt;&lt;/font&gt;</translation>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>这将清除所有保存的热床网格数据。您确定要继续吗？</translation>
 +  </message>
 +</context>
 +<context>
 +  <name>HardwarePage</name>
++  <message>
++    <source>Stainless steel</source>
++    <translation>不銹鋼</translation>
++  </message>
 +  <message>
 +    <source>Hardened steel</source>
 +    <translation>硬化钢喷嘴</translation>
@@ -103,6 +138,41 @@
 +  </message>
 +</context>
 +<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>Printer serial number: </source>
++    <translation>打印机序列号： </translation>
++  </message>
++  <message>
++    <source>Total print time: </source>
++    <translation>打印时长： </translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>重置</translation>
++  </message>
++  <message>
++    <source>Bed mesh calibrated: </source>
++    <translation>热床平面校准： </translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibrated: </source>
++    <translation>振动补偿校准： </translation>
++  </message>
++  <message>
++    <source>AMS total length: </source>
++    <translation>AMS 总长度： </translation>
++  </message>
++  <message>
++    <source>AMS total print time: </source>
++    <translation>AMS 总打印时间： </translation>
++  </message>
++</context>
++<context>
 +  <name>BedTramming</name>
 +  <message>
 +    <source>Step 1:</source>
@@ -139,33 +209,74 @@
 +  </message>
 +</context>
 +<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Rerun diagnostics</source>
-+    <translation>重新检测</translation>
-+  </message>
-+  <message>
-+    <source>Bed Diagnostics</source>
-+    <translation>热床检测</translation>
-+  </message>
-+  <message>
-+    <source>Run diagnostics</source>
-+    <translation>运行检测</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>校准记录</translation>
-+  </message>
-+  <message>
-+    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
-+    <translation>这将清除所有保存的热床网格数据。您确定要继续吗？</translation>
-+  </message>
-+</context>
-+<context>
 +  <name>BedLevelDiag</name>
 +  <message>
 +    <source>Bed Diagnostics</source>
 +    <translation>热床检测</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>InstallingPage</name>
++  <message>
++    <source>Yes</source>
++    <translation>是</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>否</translation>
++  </message>
++</context>
++<context>
++  <name>BootOptionsPage</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
++  </message>
++  <message>
++    <source>Start X1Plus from SD card</source>
++    <translation>从 SD 卡启动 X1Plus</translation>
++  </message>
++  <message>
++    <source>Reset X1Plus settings</source>
++    <translation>重置 X1Plus 设置</translation>
++  </message>
++  <message>
++    <source>Emergency recovery console</source>
++    <translation>紧急恢复控制台</translation>
++  </message>
++  <message>
++    <source>&lt;font color="#EEAAAA"&gt;Start built-in firmware with updater disabled&lt;/font&gt;</source>
++    <translation>&lt;font color="#EEAAAA"&gt;启动内置固件，并禁用更新&lt;/font&gt;</translation>
++  </message>
++  <message>
++    <source>&lt;font color="#FF7777"&gt;Start built-in firmware unmodified&lt;/font&gt;</source>
++    <translation>&lt;font color="#FF7777"&gt;启动未经修改的内置固件&lt;/font&gt;</translation>
++  </message>
++  <message>
++    <source>X1Plus startup options</source>
++    <translation>X1Plus 启动选项</translation>
++  </message>
++  <message>
++    <source>Use these tools to upgrade or repair the X1Plus firmware on your printer.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.&lt;/b&gt;&lt;/font&gt;</source>
++    <translation>使用这些工具升级或修复打印机上的X1Plus固件。&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;使用设备上的固件启动可能会导致打印机无法访问自定义固件。只能在万不得已的情况下才这样做。&lt;/b&gt;&lt;/font&gt;</translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>Root password: </source>
++    <translation>Root 密码: </translation>
 +  </message>
 +</context>
 +<context>
@@ -187,45 +298,22 @@
 +    <translation>输入 shell 命令以 root 身份运行</translation>
 +  </message>
 +  <message>
-+    <source>Printer is running! Cannot execute gcode now</source>
-+    <translation>打印机正在运行！现在无法执行 gcode</translation>
++    <source>Home</source>
++    <translation>回零</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
++  </message>
++  <message>
++    <source>Close</source>
++    <translation>關閉</translation>
 +  </message>
 +  <message>
 +    <source>&gt;Gcode command published to device
 +  </source>
 +    <translation>&gt;Gcode 命令已发送到设备
 +  </translation>
-+  </message>
-+</context>
-+<context>
-+  <name>DeviceInfo</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+  <message>
-+    <source>Printer serial number: </source>
-+    <translation>打印机序列号： </translation>
-+  </message>
-+  <message>
-+    <source>Total print time: </source>
-+    <translation>打印时长： </translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibrated: </source>
-+    <translation>热床平面校准： </translation>
-+  </message>
-+  <message>
-+    <source>Vibration compensation calibrated: </source>
-+    <translation>振动补偿校准： </translation>
-+  </message>
-+  <message>
-+    <source>AMS total length: </source>
-+    <translation>AMS 总长度： </translation>
-+  </message>
-+  <message>
-+    <source>AMS total print time: </source>
-+    <translation>AMS 总打印时间： </translation>
 +  </message>
 +</context>
  </TS>

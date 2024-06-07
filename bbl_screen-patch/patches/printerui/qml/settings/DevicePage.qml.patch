@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/DevicePage.qml
 +++ printer_ui/printerui/qml/settings/DevicePage.qml
-@@ -3,14 +3,46 @@
+@@ -3,14 +3,48 @@
  import QtQml 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -16,7 +16,9 @@
      property var build: DeviceManager.build
      property var storage: DeviceManager.storage
 +    property var isShield: DeviceManager.getSetting("cfw_shield", false)
-+    property var changeName:""
++    property bool legacyWifiDriver: X1Plus.Settings.get("boot.wifi_driver.bcmdhd", false)
++    property bool wifiPendingReboot: false
++
 +    function setShield(shield) {
 +        isShield = shield;
 +        DeviceManager.putSetting("cfw_shield", isShield);
@@ -47,7 +49,7 @@
  
      onVisibleChanged: {
          DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
-@@ -22,6 +54,7 @@
+@@ -22,6 +56,7 @@
  
      property var infoItems: SimpleItemModel {
          DeviceInfoItem { title: qsTr("Device"); value: build.name
@@ -55,7 +57,7 @@
          }
          DeviceInfoItem { title: qsTr("Language"); value: DeviceManager.languageTitle
              function onClicked() {
-@@ -31,8 +64,8 @@
+@@ -31,8 +66,8 @@
                  choisePad.choiseCallback = function(c) { DeviceManager.languageTitle = c }
                  choisePad.popupFor()
              } }
@@ -66,7 +68,7 @@
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +89,70 @@
+@@ -56,79 +91,99 @@
                  }
                  choisePad.popupFor()
              } }
@@ -143,10 +145,38 @@
 -                                     // return !DeviceManager.storage.internal
 -                                     return !DeviceManager.formattingSDCard
 -                                 })
--                             })
 +        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
 +            function onClicked() { pageStack.push("DeviceInfo.qml") }
++        }
++        
++        DeviceInfoItem { title: qsTr("WiFi driver"); value: ((legacyWifiDriver) ? qsTr("Legacy") : qsTr("X1Plus")) + (wifiPendingReboot ? qsTr(" (reboot needed)") : "")
++            function onClicked() { toggleWifiDriver() }
++        }
++    }
++    function toggleWifiDriver(){
++        var wifiDlgConfirm = function() {
++            legacyWifiDriver = !legacyWifiDriver
++            X1Plus.Settings.put("boot.wifi_driver.bcmdhd", legacyWifiDriver);
++            dialogStack.popupDialog("TextConfirm", {
++                                name: "Reboot",
++                                text: qsTr("WiFi driver changes will take effect after X1Plus reboots. Would you like to reboot now?"),
++                                titles: [qsTr("No") /* YES */, qsTr("Reboot Now") /* NO */],
++                                defaultButton: TextConfirm.NO, /* default = reboot now  */
++                                onNo: () => X1PlusNative.system(`sync; reboot`)
+                              })
++            wifiPendingReboot = true;
          }
++        
++        var wifiDlg = legacyWifiDriver ?
++                        qsTr("X1Plus is currently configured to load legacy (OEM) WiFi driver. Would you like to use the default X1Plus WiFi driver instead?") :
++                        qsTr("X1Plus is currently configured to load the default X1Plus WiFi driver. Would you like to use the legacy (OEM) WiFi driver instead? (This is not typically necessary.)")
++        dialogStack.popupDialog("TextConfirm", {
++                                        name: "WiFi Driver",
++                                        text: wifiDlg,
++                                        titles: [qsTr("Cancel") /* YES */, qsTr("Yes") /* NO */],
++                                        defaultButton: TextConfirm.YES,
++                                        onNo: wifiDlgConfirm 
++                                    })
 +    }
 +
 +    function triggerName() {
@@ -201,14 +231,14 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,30 +197,36 @@
+@@ -173,30 +228,36 @@
                                          onYes: restore
                                      })
          }
 -    }
 +    }*/
- 
 +
+ 
 +    
      MarginPanel {
          id: ctrlPanel
@@ -248,7 +278,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  color: Colors.gray_200
                  font: Fonts.body_40
-@@ -206,6 +236,7 @@
+@@ -206,6 +267,7 @@
              ZText {
                  id: sdSpace
                  anchors.top: sdName.bottom
@@ -256,7 +286,7 @@
                  anchors.horizontalCenter: sdName.horizontalCenter
                  color: Colors.font2
                  font: Fonts.body_24
-@@ -215,12 +246,12 @@
+@@ -215,12 +277,12 @@
  
              ZProgressBar {
                  id: sdProgressBar
@@ -272,7 +302,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,25 +260,73 @@
+@@ -229,25 +291,73 @@
          }
  
          MarginPanel {
@@ -290,11 +320,21 @@
 +            anchors.left: sdIdStorage.left
 +            color: Colors.gray_600
 +            radius: 15
-+            marginColor: "transparent"
+             marginColor: "transparent"
+-            leftRadiusOff: true
+-            color: formatBtn.color
 +            visible: false
-+
+ 
+-            ZButton {
+-                id: formatBtn
 +            Loader {
-+                anchors.fill: parent
+                 anchors.fill: parent
+-                type: ZButtonAppearance.Tertiary
+-                backgroundColor: StateColors.get("gray_600_pressed")
+-                textColor: StateColors.get("gray_300")
+-                text: qsTr("Format")
+-                onClicked: {
+-                    formatStorage()
 +                property var text1: [qsTr("Video"), qsTr("Resolution"), "720p", "1080p"]
 +                property var check: RecordManager.isVideoOn
 +                property var check2: RecordManager.resolution == "720p"
@@ -326,21 +366,11 @@
 +            anchors.left: sdIdStorage.left
 +            color: Colors.gray_600
 +            radius: 15
-             marginColor: "transparent"
--            leftRadiusOff: true
--            color: formatBtn.color
++            marginColor: "transparent"
 +            visible: false
- 
--            ZButton {
--                id: formatBtn
++
 +            Loader {
-                 anchors.fill: parent
--                type: ZButtonAppearance.Tertiary
--                backgroundColor: StateColors.get("gray_600_pressed")
--                textColor: StateColors.get("gray_300")
--                text: qsTr("Format")
--                onClicked: {
--                    formatStorage()
++                anchors.fill: parent
 +                property var text1: [qsTr("Timelapse"), qsTr("Resolution"), "720p", "1080p"]
 +                property var check: RecordManager.isTimelapseOn
 +                property var check2: RecordManager.resolution == "720p"
@@ -362,7 +392,7 @@
                  }
              }
          }
-@@ -255,7 +334,7 @@
+@@ -255,7 +365,7 @@
          MarginPanel {
              id: lanOnly
              width: 426
@@ -371,7 +401,7 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -266,30 +345,45 @@
+@@ -266,30 +376,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -431,7 +461,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -297,103 +391,48 @@
+@@ -297,103 +422,48 @@
                                                                  text: qsTr("Do you need to open LAN Mode Liveview?"),
                                                                  defaultButton: 0,
                                                                  onYes: function() {
@@ -561,7 +591,7 @@
              }
          }
      }
-@@ -404,7 +443,9 @@
+@@ -404,7 +474,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -572,7 +602,24 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -581,6 +622,114 @@
+@@ -418,6 +490,8 @@
+             delegate: infoComp
+         }
+ 
++        /* uncomment this if there is more to page through!
++        
+         SimplePager {
+             visible: infoList
+             anchors.right: parent.right
+@@ -428,6 +502,7 @@
+             btnType: ZButtonAppearance.Secondary
+             onStepTo: infoList.contentY = position
+         }
++        */
+     }
+ 
+     PopupPad {
+@@ -581,6 +656,114 @@
  
      }
  
@@ -687,7 +734,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +756,41 @@
+@@ -607,4 +790,41 @@
              }
          }
      }

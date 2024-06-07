@@ -1,5 +1,20 @@
 <TS language="ru" sourcelanguage="en" version="2.1">
   <context>
+    <name></name>
+    <message>
+      <source>CertificateConfirm2Page.Connecting...</source>
+      <translation type="unfinished">CertificateConfirm2Page.Connecting...</translation>
+    </message>
+    <message>
+      <source>CertificateConfirm2Page.Certificate connect timeout!</source>
+      <translation type="unfinished">CertificateConfirm2Page.Certificate connect timeout!</translation>
+    </message>
+    <message>
+      <source>CertificateConfirm2Page.Connect to Network</source>
+      <translation type="unfinished">CertificateConfirm2Page.Connect to Network</translation>
+    </message>
+  </context>
+  <context>
     <name>AMSSettingPage</name>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSSettingPage.qml" line="13"></location>
@@ -45,7 +60,7 @@ The reading process will roll filament spools.</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSSettingPage.qml" line="34"></location>
       <source>The AMS will measure the spool's remaining capacity after the filament infomation is updated. During printing, remaining capacity will be updated automatically.</source>
-      <translation>AMS измерит оставшуюся емкость катушки' после обновления информации о филаменте. Во время печати оставшаяся емкость будет обновляться автоматически.</translation>
+      <translation>AMS измерит оставшуюся емкость катушки после обновления информации о филаменте. Во время печати оставшаяся емкость будет обновляться автоматически.</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/AMSSettingPage.qml" line="37"></location>
@@ -253,147 +268,156 @@ The reading process will roll filament spools.</source>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="115"></location>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="191"></location>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="292"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="201"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="302"></location>
       <source>Region: </source>
       <translation>Регион: </translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="126"></location>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="202"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="212"></location>
       <source>Edit</source>
       <translation>Редактировать</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="158"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="168"></location>
       <source>Click "Back" to set network now or "skip" to login in later.</source>
       <translation>Нажмите «Назад», чтобы установить сеть сейчас или «пропустить», чтобы войти позже.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="158"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="168"></location>
       <source>QR Code Refrehing…</source>
       <translation>Обновление QR-кода…</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="171"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="181"></location>
       <source>Please ensure network is connected.</source>
       <translation>Пожалуйста, убедитесь, что сеть подключена.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="226"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="236"></location>
       <source>Network unavailable, please setup network first.</source>
       <translation>Сеть недоступна, сначала настройте сеть.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="237"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="247"></location>
       <source>Scan the QR code to log into the printer</source>
       <translation>Отсканируйте QR-код, чтобы войти в систему принтера</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="252"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="262"></location>
       <source>On the Bambu Handy app, tap "Devices" &gt; "+" &gt; "[—]" and scan the QR code</source>
       <translation>В ручном приложении Bambu нажмите "Устройства" &gt; "+" &gt; "[—]" и отсканируйте QR-код</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="268"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="278"></location>
       <source>Logging in, please wait.</source>
       <translation>Вход в аккаунт, пожалуйста, подождите.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="309"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="319"></location>
       <source>The machine region must be consistent with the user account region. If you need to make changes, please log out of your current account first.</source>
       <translation>Регион машины должен соответствовать региону учетной записи пользователя. Если необходимо внести изменения, пожалуйста, сначала выйдите из текущей учетной записи.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="375"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="385"></location>
       <source>Login successful</source>
       <translation>Вход в систему прошел успешно</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="376"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="386"></location>
       <source>You have </source>
       <translation>У тебя есть </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="379"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="389"></location>
       <source>fans and</source>
       <translation>вентиляторы и</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="382"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="392"></location>
       <source>followers.</source>
       <translation>подписчики.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="391"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="401"></location>
       <source>Log out</source>
       <translation>Выйти</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="400"></location>
+      <location filename="printer_ui/printerui/qml/settings/AccountPage.qml" line="410"></location>
       <source>Are you sure to logout? If you logout from device, you will not be able to receive print task from Bambu Studio or Bambu Handy.</source>
       <translation>Вы уверены, что хотите выйти? Если вы выйдете из устройства, вы не сможете получить задачу для печати от Bambu Studio или Bambu Handy.</translation>
+    </message>
+    <message>
+      <source>Remainder: </source>
+      <translation type="unfinished">Remainder: </translation>
     </message>
   </context>
   <context>
     <name>AdjustPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="180"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="201"></location>
       <source>Bed</source>
       <translation>Стол</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="238"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="263"></location>
       <source>Extruder</source>
       <translation>Выдавить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="313"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="351"></location>
       <source>Unload</source>
       <translation>Выгрузить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="329"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="367"></location>
       <source>Manual axis movement during printing is not allowed.</source>
       <translation>Ручное перемещение оси во время печати не допускается.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="422"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="460"></location>
       <source>Printing speed</source>
       <translation>Скорость печать</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="771"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="818"></location>
       <source>ON</source>
       <translation>Включено</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="771"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="818"></location>
       <source>OFF</source>
       <translation>Выключено</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="867"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="921"></location>
       <source>Home</source>
       <translation>Главная</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="867"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="921"></location>
       <source>Close</source>
       <translation>Закрыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="868"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="921"></location>
+      <source>Ignore</source>
+      <translation>Игнор</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="922"></location>
       <source>Before any movement, please home all axes to find the boundary of build volume.</source>
       <translation>Перед любым перемещением, пожалуйста, переместите все оси, чтобы найти границу объема сборки.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="885"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="940"></location>
       <source>Please heat the nozzle to above 170 ℃.</source>
       <translation>Пожалуйста, нагрейте сопло до температуры выше 170 ℃.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="886"></location>
+      <location filename="printer_ui/printerui/qml/printer/AdjustPage.qml" line="941"></location>
       <source>Don't show again.</source>
       <translation>Больше' не показывать.</translation>
     </message>
@@ -424,6 +448,14 @@ The reading process will roll filament spools.</source>
       <location filename="printer_ui/printerui/qml/main/AssistantPage.qml" line="25"></location>
       <source>AP</source>
       <translation>АР</translation>
+    </message>
+    <message>
+      <source>AMS</source>
+      <translation type="unfinished">AMS</translation>
+    </message>
+    <message>
+      <source>Device self-test</source>
+      <translation>Самотестирование устройства</translation>
     </message>
   </context>
   <context>
@@ -535,81 +567,81 @@ Progress: %5%</source>
   <context>
     <name>BedTramming</name>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="19"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="20"></location>
       <source>Step 1:</source>
       <translation>Шаг 1:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="19"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="20"></location>
       <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
       <translation>Установить параметры стола к базовой линии, как описано в "Подготовка уровня стола" в Лаборатории Бамбу. (QR-код указан в нижней части этого текста.)</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="20"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="21"></location>
       <source>Step 2:</source>
       <translation>Шаг 2:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="20"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="21"></location>
       <source>Tap the "Prepare" button below to home the bed.</source>
       <translation>Нажмите кнопку "Подготовить" ниже, чтобы довести стол.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="21"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="22"></location>
       <source>Step 3:</source>
       <translation>Шаг 3:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="21"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="22"></location>
       <source>Tap the "1" button to move the nozzle to the front left position.  Adjust the front left bed adjustment screw until the nozzle just barely touches the bed.</source>
       <translation>Нажмите "1" для перемещения сопла на левую переднюю сторону. Регулируйте стол до тех пор, пока сопло едва не коснется его.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="22"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="23"></location>
       <source>Step 4:</source>
       <translation>Шаг 4:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="22"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="23"></location>
       <source>Adjust the front right and rear positions by tapping their corresponding button and adjusting their corresponding screws.</source>
       <translation>Регулируйте позиции спереди и сзади, нажав соответствующую кнопку и настроив соответствующие винты.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="23"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="24"></location>
       <source>Step 5:</source>
       <translation>Шаг 5:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="23"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="24"></location>
       <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
       <translation>Проверьте каждую позицию по порядку, повторяя все три до тех пор, пока не потребуется дальнейшая корректировка.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="48"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="49"></location>
       <source>Bed Tramming</source>
       <translation>Калибровка/Адаптация</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="123"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="124"></location>
       <source>Prepare</source>
       <translation>Подготовка</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="191"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="193"></location>
       <source>Rear
    2</source>
       <translation>Задний
    2</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="208"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="211"></location>
       <source>Front L
      1</source>
       <translation>Передняя L
      1</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="224"></location>
+      <location filename="printer_ui/printerui/qml/printer/BedTramming.qml" line="228"></location>
       <source>Front R
      3</source>
       <translation>Передняя R
@@ -624,92 +656,97 @@ Progress: %5%</source>
       <translation>Отмена</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="38"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="42"></location>
       <source>Resetting X1Plus settings can help to recover from modified X1Plus installations.  </source>
       <translation>Сброс настроек X1Plus может помочь восстановить измененные установки X1Plus.  </translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="39"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="43"></location>
       <source>It will also reset the lock screen passcode, root password, and ssh keys.  (This process takes a few minutes.)</source>
       <translation>Это также сбросит код доступа к экрану блокировки, пароль root и ssh-ключи.  (Этот процесс занимает несколько минут.)</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="65"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="69"></location>
       <source>Wipe writable partition</source>
       <translation>Стереть раздел, доступный для записи</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="69"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="73"></location>
       <source>The emergency recovery console will connect the printer to its default WiFi network and start a temporary SSH server as root. It will also spawn a root console on the AP board's UART port and USB port.</source>
       <translation>The emergency recovery console will connect the printer to its default WiFi network and start a temporary SSH server as root. It will also spawn a root console on the AP board's UART port and USB port.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="69"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="73"></location>
       <source>It is possible to unrecoverably and permanently damage your printer with a root console. Never type something into a root console unless you understand what you're typing.</source>
       <translation>Возможно навсегда повредить принтер с помощью консоли root. Никогда не вводите что-нибудь в корневую консоль, если вы не понимаете, что вы'вводите повторно.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="73"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="77"></location>
       <source>I'll be careful, I promise</source>
       <translation>Я'буду осторожен, обещаю</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="78"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="82"></location>
       <source>Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option attempts to enter LAN mode before starting, and disables the printer's internal upgrade service; you can use this option to help avoid inadvertent erasure of your X1Plus installation.</source>
       <translation>Начиная со встроенной прошивки может быть полезной для диагностики проблем с X1Plus или с вашим принтером. Эта опция пытается войти в режим LAN перед запуском и отключает принтер'с службой внутреннего обновления; вы можете использовать эту опцию, чтобы избежать случайного стирания вашей установки X1Plus.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="78"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="82"></location>
       <source>&lt;font color="#EEAAAA"&gt;Use this mode with caution.&lt;/font&gt;</source>
       <translation>&lt;font color="#EEAAAA"&gt;Используйте этот режим с осторожностью.&lt;/font&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="91"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="95"></location>
       <source>&lt;font color="#EEAAAA"&gt;Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option starts the printer with no modifications to the built-in firmware. If your printer performs a firmware upgrade in this mode, X1Plus will likely be uninstalled; if you want to run X1Plus afterwards, you will need to rerun the X1Plus installation process. If prompted to install upgrades, you should answer "no" if you want to keep your X1Plus installation.&lt;/font&gt;&lt;br&gt;&lt;br&gt;Use this mode with extreme caution.</source>
       <translation>&lt;font color="#EEAAAA"&gt;Начиная со встроенной прошивки может быть полезно для диагностики проблем с X1Plus или с принтером. Эта опция запускает принтер без изменений встроенной прошивки. Если принтер выполнит обновление прошивки в этом режиме, то X1Plus скорее всего будет удален;, если вы хотите запустить X1Plus после этого вам потребуется перезапустить процесс установки X1Plus. Если вам предложено установить обновления, вы должны ответить "нет", если вы хотите сохранить установку X1Plus.&lt;/font&gt;&lt;br&gt;&lt;br&gt;Используйте этот режим с крайней осторожностью.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="95"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="99"></location>
       <source>Fingers are crossed</source>
       <translation>Пальцы скрещены</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="107"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="111"></location>
       <source>Start X1Plus from SD card</source>
       <translation>Запустите X1Plus с SD-карты</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="108"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="112"></location>
       <source>&lt;b&gt;Start X1Plus installer&lt;/b&gt;</source>
       <translation>&lt;b&gt;Запустить инсталлятор X1Plus&lt;/b&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="109"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="113"></location>
       <source>Reset X1Plus settings</source>
       <translation>Сбросить настройки X1Plus</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="110"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="114"></location>
+      <source>Start X1Plus in debug mode</source>
+      <translation type="unfinished">Start X1Plus in debug mode</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="115"></location>
       <source>Emergency recovery console</source>
       <translation>Консоль аварийного восстановления</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="111"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="116"></location>
       <source>&lt;font color="#EEAAAA"&gt;Start built-in firmware with updater disabled&lt;/font&gt;</source>
       <translation>&lt;font color="#EEAAAA"&gt;Запуск встроенного микропрограммного обеспечения с отключенным средством обновления&lt;/font&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="112"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="117"></location>
       <source>&lt;font color="#FF7777"&gt;Start built-in firmware unmodified&lt;/font&gt;</source>
       <translation>&lt;font color="#FF7777"&gt;Запустить встроенную прошивку без изменений&lt;/font&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="124"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="129"></location>
       <source>X1Plus startup options</source>
       <translation>Параметры запуска X1Plus</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="165"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="170"></location>
       <source>Use these tools to upgrade or repair the X1Plus firmware on your printer.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.&lt;/b&gt;&lt;/font&gt;</source>
       <translation>Используйте эти инструменты для обновления или ремонта прошивки X1Plus на принтере.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Запуск с помощью прошивки на устройстве может привести к потере доступа к кастомной прошивке. Сделать это только в крайнем случае.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
@@ -788,7 +825,7 @@ Progress: %5%</source>
     <message>
       <location filename="printer_ui/printerui/qml/printer/CalibrationPage.qml" line="13"></location>
       <source>Bed leveling</source>
-      <translation>Уровень стола</translation>
+      <translation>Калибровка стола</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/printer/CalibrationPage.qml" line="14"></location>
@@ -835,9 +872,32 @@ Progress: %5%</source>
       <source>At least one item needs to be selected for calibration.</source>
       <translation>Для калибровки необходимо выбрать хотя бы один элемент.</translation>
     </message>
+    <message>
+      <source>The calibration program detects the status of your device automatically to minimize deviation. It keeps the device performing optimally.</source>
+      <translation type="unfinished">The calibration program detects the status of your device automatically to minimize deviation. It keeps the device performing optimally.</translation>
+    </message>
+    <message>
+      <source>Calibration program</source>
+      <translation type="unfinished">Calibration program</translation>
+    </message>
+  </context>
+  <context>
+    <name>CameraModule</name>
+    <message>
+      <source>The rtsp service failed to start. Please try again.</source>
+      <translation>Не удалось запустить службу rtsp. Пожалуйста, попробуйте еще раз.</translation>
+    </message>
+    <message>
+      <source>Rtsp service shutdown failed, please try again.</source>
+      <translation>Не удалось выключить службу Rtsp, попробуйте еще раз.</translation>
+    </message>
   </context>
   <context>
     <name>CarbonFunction</name>
+    <message>
+      <source>Later</source>
+      <translation>Позже</translation>
+    </message>
     <message>
       <location filename="printer_ui/printerui/qml/settings/CarbonFunction.qml" line="17"></location>
       <source>ABS and ASA produce VOCs duiring printing, VOCs may attach to the carbon rods. Printing these materials for a long time will cause abnormal X-axis resistance. Please check if the carbon rods need to be cleaned.</source>
@@ -859,19 +919,12 @@ Progress: %5%</source>
       <translation>Игнорировать</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/CarbonFunction.qml" line="41"></location>
-      <source>We added Motor Noise Cancellation to our latest firmware. Run a calibration process to enable this new feature! (Calibration might take 15 minutes. )</source>
-      <translation>Мы добавили шумоподавление двигателя в нашу последнюю прошивку. Запустите процесс калибровки, чтобы включить эту новую функцию! (Калибровка может занять 15 минут.)</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/settings/CarbonFunction.qml" line="44"></location>
-      <source>Later</source>
-      <translation>Позже</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/settings/CarbonFunction.qml" line="44"></location>
       <source>Try it Now</source>
       <translation>Попробовать сейчас</translation>
+    </message>
+    <message>
+      <source>We added Motor Noise Cancellation to our latest firmware. Run a calibration process to enable this new feature! (Calibration might take 15 minutes. )</source>
+      <translation>Мы добавили шумоподавление двигателя в нашу последнюю прошивку. Запустите процесс калибровки, чтобы включить эту новую функцию! (Калибровка может занять 15 минут.)</translation>
     </message>
   </context>
   <context>
@@ -1038,52 +1091,52 @@ Progress: %5%</source>
       <translation>Подключиться к сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="62"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="63"></location>
       <source>WLAN</source>
       <translation>WLAN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="62"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="63"></location>
       <source>(Only for 2.4G)</source>
       <translation>(Только для 2.4G)</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="109"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="110"></location>
       <source>Add Others Networks</source>
       <translation>Добавить другие сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="128"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="129"></location>
       <source>Close</source>
       <translation>Закрыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="128"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="129"></location>
       <source>Forget</source>
       <translation>Забыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="128"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="129"></location>
       <source>Connect</source>
       <translation>Подключить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="209"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="210"></location>
       <source>Wired Network</source>
       <translation>Проводная сеть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="228"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="229"></location>
       <source>Connected</source>
       <translation>Подключиться</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="228"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="229"></location>
       <source>Plug in the ethernet cable to connect</source>
       <translation>Подключите кабель Ethernet для подключения</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="266"></location>
+      <location filename="printer_ui/printerui/qml/wizard/ConnectPage.qml" line="267"></location>
       <source>Network daughter board not installed</source>
       <translation>Сетевая дочерняя плата не установлена</translation>
     </message>
@@ -1091,39 +1144,39 @@ Progress: %5%</source>
   <context>
     <name>ConsolePage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="146"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="244"></location>
       <source>This interface allows you to send G-code commands to the printer. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate it: </source>
       <translation>Этот интерфейс позволяет отправлять команды G-code принтеру. Вы можете вводить команды с помощью виртуальной клавиатуры или объединять команды из панели ярлыков в нижней части экрана. Парсер G-code'принтер G-code несколько выбран; вот несколько советов по его размещению: </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="151"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="248"></location>
       <source>Commands are case sensitive; the first character of a command is always a capital letter, followed by a number. For example, to set the aux fan to full speed, use M106 P2 S255:</source>
       <translation>Команды чувствительны к регистру; первый символ команды - это всегда заглавная буква, за которой следует число. Например, для установки вентилятора aux на полную скорость, используйте M106 P2 S255:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="154"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="250"></location>
       <source>M106: G-code command for fan control</source>
       <translation>M106: G-code команда для управления вентилятором</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="155"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="251"></location>
       <source>P2: parameter to select which fan (aux = 2)</source>
       <translation>P2: параметр, который выбирает вентилятор (aux = 2)</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="156"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="252"></location>
       <source>S255: parameter to set fan speed (0 to 255)</source>
       <translation>S255: параметр для установки скорости вентилятора (0 - 255)</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="158"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="253"></location>
       <source>For multi-line commands, each G-code command must be separated by the newline escape sequence, 
 . For example:</source>
       <translation>Для многострочных команд, каждая команда G-code должна быть разделена последовательностью запуска новой строки, 
 . Например:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="161"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="255"></location>
       <source>M106 P2 S255
 G4 S5
 M106 P2 S0</source>
@@ -1132,59 +1185,74 @@ G4 S5
 M106 P2 S0</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="163"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="256"></location>
       <source>Aux fan to 255 -&gt; Wait 5 sec -&gt; Aux fan to 0</source>
       <translation>Дополнительный вентилятор 255 -&gt; Подождите 5 сек -&gt; Aux вентилятор к 0</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="164"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="257"></location>
       <source>This interface allows you to run commands on your printer as root. You can enter commands with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen. Commands are executed synchronously, so long-running commands or commands that require user input may hang the UI; use caution! This is intended as a quick diagnostic tool, but for more intensive tasks, consider SSHing to the printer instead.</source>
       <translation>Этот интерфейс позволяет запускать команды на принтере с правами суперпользователя. Вы можете вводить команды с помощью виртуальной клавиатуры или объединять команды из панели ярлыков в нижней части экрана. Команды выполняются синхронно, так что длительные команды или команды, требующие ввода пользователя, могут повесить пользовательский интерфейс; будьте осторожны! Он предназначен для быстрой диагностики, но для более интенсивных задач вместо этого рассмотрим SSHing к принтеру.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="170"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="262"></location>
       <source>WARNING: It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
       <translation>ПРЕДУПРЕЖДЕНИЕ: С помощью консоли root можно нанести непоправимый ущерб вашему принтеру. Не вводите команды, если вы не понимаете, что печатаете.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="376"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="474"></location>
       <source>enter a G-code command</source>
       <translation>введите команду G-code</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="377"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="475"></location>
       <source>enter a shell command to run as root</source>
       <translation>введите команду оболочки, чтобы запустить как root</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="428"></location>
-      <source>Printer is running! Cannot execute gcode now</source>
-      <translation>Принтер запущен! Не удается выполнить gcode сейчас</translation>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="505"></location>
+      <source>Home</source>
+      <translation>Главная</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="435"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="505"></location>
+      <source>Ignore</source>
+      <translation>Игнор</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="505"></location>
+      <source>Close</source>
+      <translation>Закрыть</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="506"></location>
+      <source>Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message.</source>
+      <translation type="unfinished">Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="517"></location>
       <source>&gt;Gcode command published to device
   </source>
       <translation>&gt;Команда Gcode опубликована на устройстве
   </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="472"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="547"></location>
       <source>Export console log</source>
       <translation>Экспорт журнала консоли</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="472"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="547"></location>
       <source>Export Gcode macro</source>
       <translation>Экспорт макроса Gcode</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="475"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="550"></location>
       <source>Export console output to a log file?</source>
       <translation>Экспортировать вывод консоли в лог файл?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="491"></location>
+      <location filename="printer_ui/printerui/qml/settings/ConsolePage.qml" line="566"></location>
       <source>Save console output to:</source>
       <translation>Сохраните вывод консоли в:</translation>
     </message>
@@ -1202,6 +1270,96 @@ M106 P2 S0</translation>
     <message>
       <source>Aux. Cooling</source>
       <translation>Вспом.</translation>
+    </message>
+  </context>
+  <context>
+    <name>Customized</name>
+    <message>
+      <source>Failed to start SSH service, please restart the device and reset password.</source>
+      <translation type="unfinished">Failed to start SSH service, please restart the device and reset password.</translation>
+    </message>
+    <message>
+      <source>Unlock information verification failed, please try again.</source>
+      <translation type="unfinished">Unlock information verification failed, please try again.</translation>
+    </message>
+    <message>
+      <source>If you need to repair and upgrade, please perform repair and upgrade first.</source>
+      <translation type="unfinished">If you need to repair and upgrade, please perform repair and upgrade first.</translation>
+    </message>
+    <message>
+      <source>Network connection failed, please check the network and try again.</source>
+      <translation type="unfinished">Network connection failed, please check the network and try again.</translation>
+    </message>
+    <message>
+      <source>Unlock Failed: Your Bambu Lab account is not in Customized Firmware Plan. Please log in to the account when you joined the plan or scan the QR code to join the plan.</source>
+      <translation type="unfinished">Unlock Failed: Your Bambu Lab account is not in Customized Firmware Plan. Please log in to the account when you joined the plan or scan the QR code to join the plan.</translation>
+    </message>
+    <message>
+      <source>Failed to obtain unlock status, please try again.</source>
+      <translation type="unfinished">Failed to obtain unlock status, please try again.</translation>
+    </message>
+    <message>
+      <source>Failed to obtain unlock request information, please try again.</source>
+      <translation type="unfinished">Failed to obtain unlock request information, please try again.</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomizedFirmwarePlanPage</name>
+    <message>
+      <source>You won't be able to see this password again if you close this page.</source>
+      <translation type="unfinished">You won't be able to see this password again if you close this page.</translation>
+    </message>
+    <message>
+      <source>Go to Login</source>
+      <translation type="unfinished">Go to Login</translation>
+    </message>
+    <message>
+      <source>Reset Password</source>
+      <translation type="unfinished">Reset Password</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Отмена</translation>
+    </message>
+    <message>
+      <source>Your firmware is unlocked</source>
+      <translation type="unfinished">Your firmware is unlocked</translation>
+    </message>
+    <message>
+      <source>Initial SSH Password: </source>
+      <translation type="unfinished">Initial SSH Password: </translation>
+    </message>
+    <message>
+      <source>Resetting the initial password may overwrite the current password.</source>
+      <translation type="unfinished">Resetting the initial password may overwrite the current password.</translation>
+    </message>
+    <message>
+      <source>Welcome to Customized Firmware Plan.</source>
+      <translation type="unfinished">Welcome to Customized Firmware Plan.</translation>
+    </message>
+    <message>
+      <source>Your initial password is hidden. You may reset the initial password if needed.</source>
+      <translation type="unfinished">Your initial password is hidden. You may reset the initial password if needed.</translation>
+    </message>
+    <message>
+      <source>Device unlocking in progress, please wait.</source>
+      <translation type="unfinished">Device unlocking in progress, please wait.</translation>
+    </message>
+    <message>
+      <source>Please log in to the account to unlock Firmware R.</source>
+      <translation type="unfinished">Please log in to the account to unlock Firmware R.</translation>
+    </message>
+    <message>
+      <source>Reset Default Password</source>
+      <translation type="unfinished">Reset Default Password</translation>
+    </message>
+    <message>
+      <source>Unlock Firmware R</source>
+      <translation type="unfinished">Unlock Firmware R</translation>
+    </message>
+    <message>
+      <source>Customized Firmware Plan</source>
+      <translation type="unfinished">Customized Firmware Plan</translation>
     </message>
   </context>
   <context>
@@ -1325,23 +1483,23 @@ M106 P2 S0</translation>
   <context>
     <name>DeviceInfoPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="34"></location>
+      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="35"></location>
       <source>The printer has been used for %1 hours</source>
       <translation>Принтер был использован в течение %1 часов</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="43"></location>
+      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="44"></location>
       <source>Return</source>
       <translation>Вернуться</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="147"></location>
-      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="164"></location>
+      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="148"></location>
+      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="165"></location>
       <source>SN: </source>
       <translation>SN: </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="193"></location>
+      <location filename="printer_ui/printerui/qml/settings/DeviceInfoPage.qml" line="194"></location>
       <source>User Improvement Policy</source>
       <translation>Политика улучшения</translation>
     </message>
@@ -1424,162 +1582,167 @@ M106 P2 S0</translation>
   <context>
     <name>DevicePage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="55"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="56"></location>
       <source>Device</source>
       <translation>Устройство</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="58"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="59"></location>
       <source>Language</source>
       <translation>Язык</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="66"></location>
-      <source>Firmware Version</source>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="67"></location>
+      <source>Firmware version</source>
       <translation>Версия прошивки</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="70"></location>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="264"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="71"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="276"></location>
       <source>Video</source>
       <translation>Видео</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="72"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="73"></location>
       <source>OFF</source>
       <translation>Выключено</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="91"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
       <source>2min</source>
       <translation>2 мин</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="91"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
       <source>5min</source>
       <translation>5 мин</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="91"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
       <source>10min</source>
       <translation>10 мин</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="91"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
       <source>15min</source>
       <translation>15 мин</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="91"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
       <source>Screen lock</source>
       <translation>Блокировка экрана</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="95"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <source>screen saver</source>
+      <translation type="unfinished">screen saver</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <source>swipe to unlock</source>
+      <translation type="unfinished">swipe to unlock</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <source>passcode</source>
+      <translation>пароль</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="97"></location>
+      <source>LAN access</source>
+      <translation type="unfinished">LAN access</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="103"></location>
+      <source>Off</source>
+      <translation type="unfinished">Off</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="107"></location>
       <source>Device info</source>
       <translation>Сведения об устройстве</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="103"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="115"></location>
       <source>To change the name of your device, please use the slicer or the Bambu app.</source>
       <translation>Чтобы изменить имя вашего устройства, используйте слайсер или приложение Bambu.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="221"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="233"></location>
       <source>SD card</source>
       <translation>SD-карта</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="232"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="244"></location>
       <source>Format required</source>
       <translation>Требуется формат</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="232"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="244"></location>
       <source>No SD card</source>
       <translation>Нет SD карты</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="264"></location>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="300"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="276"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="312"></location>
       <source>Resolution</source>
       <translation>Разрешение</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="277"></location>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="313"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="289"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="325"></location>
       <source>Unable to open without SD card.</source>
       <translation>Не удается открыть без SD-карты.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="300"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="312"></location>
       <source>Timelapse</source>
       <translation>Интервальная съемка</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="341"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="353"></location>
       <source>Network</source>
       <translation>Сеть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="370"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="382"></location>
       <source>Enabling LAN mode will disconnect all Bambu Studio and Bambu Handy connected to the device. Do you want to continue?</source>
       <translation>Включение режима LAN отключит все Bambu Studio и Bambu Handy, подключенные к устройству. Вы хотите продолжить?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="379"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="391"></location>
       <source>Do you need to open LAN Mode Liveview?</source>
       <translation>Вам нужно открыть режим локальной сети Live view?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="397"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="408"></location>
       <source>X1Plus Shield Mode is an enhancement to LAN mode that uses iptables to block outbound connections from the printer.  You will still be able to connect to the printer via FTP and MQTT, but the printer will not be able to download toolhead firmware.  Enabling shield mode requires restarting your printer.  Enable now?</source>
       <translation>Режим щита X1Plus - это усовершенствованный режим LAN, который использует iptables для блокировки исходящих соединений с принтера. Вы все еще сможете подключиться к принтеру через FTP и MQTT, но принтер не сможет загрузить прошивку панели инструментов. Включение режима щита требует перезапуска принтера. Включить сейчас?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="399"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="410"></location>
       <source>Enable shield and restart</source>
       <translation>Активировать щит и перезапустить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="399"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="410"></location>
       <source>Enable LAN mode only</source>
       <translation>Включить только режим LAN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="423"></location>
-      <source>LAN Only Liveview</source>
-      <translation>Только для LiveView</translation>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="435"></location>
+      <source>The Access Code has moved to the "LAN access" menu, at right.</source>
+      <translation type="unfinished">The Access Code has moved to the "LAN access" menu, at right.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="446"></location>
-      <source>Access Code: </source>
-      <translation>Код доступа: </translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="501"></location>
-      <source>Enable SSH Server</source>
-      <translation>Включить SSH сервер</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="537"></location>
-      <source>Root password: </source>
-      <translation>Root Пароль </translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="537"></location>
-      <source>[not yet set]</source>
-      <translation>[еще не установлено]</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="893"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="741"></location>
       <source>This action will stop the current recording and start a new one with the target resolution.
 Are you sure you want to change the video resolution?</source>
       <translation>Это действие остановит текущую запись и начнёт новую с конечным разрешением.
 Вы уверены, что хотите изменить разрешение видео?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="944"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="792"></location>
       <source>Please use the Bambu Handy APP to scan the code to view RTSP setvice details.</source>
       <translation>Пожалуйста, используйте Bambu Handy APP для сканирования кода для просмотра информации RTSP setvice деталей.</translation>
     </message>
@@ -1596,6 +1759,14 @@ Please move the hot bed to the central position before restoring the factory set
     <message>
       <source>Auto-Sleep</source>
       <translation>Автоматический режим сна</translation>
+    </message>
+    <message>
+      <source>Customized Firmware Plan →</source>
+      <translation type="unfinished">Customized Firmware Plan →</translation>
+    </message>
+    <message>
+      <source>Access Code: </source>
+      <translation>Код доступа: </translation>
     </message>
     <message>
       <source>Exporting system log...</source>
@@ -1630,6 +1801,10 @@ Please move the hot bed to the central position before restoring the factory set
       <translation>Версия встроенного По является ненормальной. Требуется восстановление и обновление, в противном случае печать не может быть запущена. Вы хотите обновить сейчас?</translation>
     </message>
     <message>
+      <source>LAN Only Liveview</source>
+      <translation>Только для LiveView</translation>
+    </message>
+    <message>
       <source>Restoring factory settings is not supported during printing.</source>
       <translation>Восстановление заводских настроек во время печати не поддерживается.</translation>
     </message>
@@ -1642,8 +1817,28 @@ Please move the hot bed to the central position before restoring the factory set
       <translation>Форматирование...</translation>
     </message>
     <message>
+      <source>Firmware Version</source>
+      <translation>Версия прошивки</translation>
+    </message>
+    <message>
+      <source>Device Name</source>
+      <translation type="unfinished">Device Name</translation>
+    </message>
+    <message>
       <source>Are you sure to restore factory settings?</source>
       <translation>Вы уверены, что хотите восстановить заводские настройки?</translation>
+    </message>
+    <message>
+      <source>Model Name</source>
+      <translation type="unfinished">Model Name</translation>
+    </message>
+    <message>
+      <source>Non-Encrypt</source>
+      <translation type="unfinished">Non-Encrypt</translation>
+    </message>
+    <message>
+      <source>Encrypt</source>
+      <translation type="unfinished">Encrypt</translation>
     </message>
     <message>
       <source>Restoring factory settings...</source>
@@ -1845,6 +2040,10 @@ Please move the hot bed to the central position before restoring the factory set
       <source>Please export log to SD card and create a ticket on the official website（www.bambulab.com）to report your problem.</source>
       <translation>Пожалуйста, экспортируйте журнал на SD-карту и создайте тикет на официальном сайте (www.bambulab.com)для сообщения о вашей проблеме.</translation>
     </message>
+    <message>
+      <source>If a lot of ABS materials have been used in past printing, please scan the QR code to get the maintenance guide and clean the carbon rods according to the guide.</source>
+      <translation type="unfinished">If a lot of ABS materials have been used in past printing, please scan the QR code to get the maintenance guide and clean the carbon rods according to the guide.</translation>
+    </message>
   </context>
   <context>
     <name>ExperiencePage</name>
@@ -2038,218 +2237,264 @@ Please move the hot bed to the central position before restoring the factory set
   <context>
     <name>FilamentPad</name>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="108"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="101"></location>
       <source>Filament</source>
       <translation>Филамент</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="117"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="110"></location>
       <source>Manufacturer</source>
       <translation>Производитель</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="134"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="127"></location>
       <source>Material</source>
       <translation>Материал</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="162"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="179"></location>
       <source>SN</source>
       <translation>SN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="176"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="193"></location>
       <source>Color</source>
       <translation>Цвет</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="233"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="250"></location>
       <source>Temperature Type</source>
       <translation>Тип температуры</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="242"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="259"></location>
       <source>Choose temperature type</source>
       <translation>Выберите тип температуры</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="258"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="275"></location>
       <source>Nozzle Temperature</source>
       <translation>Температура сопла</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="274"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="291"></location>
       <source>Maximum</source>
       <translation>Максимум</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="274"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="291"></location>
       <source>Minimum</source>
       <translation>Минимум</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="341"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="358"></location>
       <source>Dynamic Presure Control</source>
       <translation>Динамический контроль давления</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="350"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="367"></location>
       <source>None</source>
       <translation>Отсутствует</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="400"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="417"></location>
       <source>Reset</source>
       <translation>Сброс</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="421"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="438"></location>
       <source>Confirm</source>
       <translation>Подтвердить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="442"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="459"></location>
       <source>You need to select the material type and color first.</source>
       <translation>Сначала выберите тип материала и цвет.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="454"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="471"></location>
       <source>"%1" is not supported by AMS.</source>
       <translation>"%1" не поддерживает AMS.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="463"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="480"></location>
       <source>"%1" filaments are hard brittle. It's easy to break or get stuck in AMS, please use with caution.</source>
       <translation>"%1" филамент твердый и хрупкий. Его' легко сломать или они застрянет в AMS, пожалуйста, используйте с осторожностью.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="464"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="481"></location>
       <source>Damp "%1" will become flexible and get stuck inside AMS, please take care to dry it before use.</source>
       <translation>Damp "%1" станет гибким и застрявшим в AMS, постарайтесь высушить его перед использованием.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="497"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="514"></location>
       <source>Close</source>
       <translation>Закрыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="497"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="514"></location>
       <source>Return</source>
       <translation>Вернуться</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="523"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="540"></location>
       <source>Information about Bamub Filament is stored in RFID and is read-only</source>
       <translation>Информация о Bamub Filament хранится в RFID и только для чтения</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="524"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="541"></location>
       <source>Setting AMS slot information during printing is not supported</source>
       <translation>Установка информации о слоте AMS во время печати не поддерживается</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="570"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="587"></location>
       <source>More</source>
       <translation>Подробнее</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="645"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPad.qml" line="662"></location>
       <source>Other Colors</source>
       <translation>Другие настройки цвета</translation>
+    </message>
+    <message>
+      <source>Brand Name</source>
+      <translation type="unfinished">Brand Name</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Отмена</translation>
+    </message>
+    <message>
+      <source>Are you sure to clear the filament information.</source>
+      <translation type="unfinished">Are you sure to clear the filament information.</translation>
     </message>
   </context>
   <context>
     <name>FilamentPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="29"></location>
-      <source>Cabin humidity</source>
-      <translation>Влажность в принтере</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="30"></location>
-      <source>Green represents that AMS humidity is normal, orange and red represent that humidity is too high.（Lower the better）</source>
-      <translation>Зеленый цвет означает, что влажность AMS нормальная, оранжевый и красный — что влажность слишком высокая. (Чем меньше, тем лучше)</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="31"></location>
-      <source>Desiccant status</source>
-      <translation>Состояние осушителя</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="32"></location>
-      <source>Desiccant status lower than two bars indicates that desiccant can be inactive. Please change the desiccant.（Higher the better）</source>
-      <translation>Статус осушителя ниже двух полос указывает на то, что осушитель может быть неактивен. Пожалуйста, замените осушитель.(Чем выше, тем лучше)</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="33"></location>
-      <source>Note: When the lid is open or the desiccant pack is changed, it can take hours or a night to absorb the moisture. Low temperatures also slow down the process. During this time, the indicator may not represent the chamber accurately.</source>
-      <translation>Примечание: При открытой крышке или замене упаковки осушителя для впитывания влаги могут потребоваться часы или ночь. Низкие температуры также замедляют процесс. В течение этого времени индикатор может неточно отображать.</translation>
-    </message>
-    <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="52"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="47"></location>
       <source>Filament type is unknown which is required to perform this action. Do you want to edit target filament's informations.</source>
       <translation>Неизвестен тип филамента, который требуется для выполнения этого действия. Вы хотите отредактировать информацию' о целевом филаменте.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="112"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="107"></location>
       <source>Spool
 holder</source>
       <translation>Держатель катушки</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="334"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="332"></location>
       <source>Auto Refill</source>
       <translation>Авто. пополнение</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="349"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="347"></location>
       <source>Load</source>
       <translation>Загрузить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="376"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="374"></location>
       <source>Unload</source>
       <translation>Выгрузить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="408"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="406"></location>
       <source>To unload</source>
       <translation>Для выгрузки</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="408"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="406"></location>
       <source>To load</source>
       <translation>К загрузке</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="409"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="407"></location>
       <source>Tips</source>
       <translation>Подсказки</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="420"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="418"></location>
       <source>Choose an AMS slot then press Load or Unload to automatically load or unload filament.</source>
       <translation>Выберите слот AMS, затем нажмите Загрузить или Разгрузить для автоматической загрузки или выгрузки филамента.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="421"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="419"></location>
       <source>Before loading, please make sure your filament is pushed into the toolhead.</source>
       <translation>Перед загрузкой, пожалуйста, убедитесь, что ваш филамент вставлен в печатную голову.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="483"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="481"></location>
       <source>Guide</source>
       <translation>Руководство</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="501"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="499"></location>
       <source>Retry</source>
       <translation>Повтор</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="657"></location>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="652"></location>
       <source>Empty</source>
       <translation>Пустой</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="896"></location>
+      <source>Current Cabin humidity</source>
+      <translation type="unfinished">Current Cabin humidity</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="914"></location>
+      <source>Your desiccant may be invalid.</source>
+      <translation type="unfinished">Your desiccant may be invalid.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="942"></location>
+      <source>DRY</source>
+      <translation type="unfinished">DRY</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="951"></location>
+      <source>WET</source>
+      <translation type="unfinished">WET</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/printer/FilamentPage.qml" line="965"></location>
+      <source>Please change the desiccant when it is too wet. The indicator may not represent accurately in following cases：when the lid is open or the desiccant pack is changed, it take hours to absorb the moisture; low temperatures also slow down the process.</source>
+      <translation type="unfinished">Please change the desiccant when it is too wet. The indicator may not represent accurately in following cases：when the lid is open or the desiccant pack is changed, it take hours to absorb the moisture; low temperatures also slow down the process.</translation>
+    </message>
+    <message>
+      <source>Green represents that AMS humidity is normal, orange and red represent that humidity is too high.（Lower the better）</source>
+      <translation>Зеленый цвет означает, что влажность AMS нормальная, оранжевый и красный — что влажность слишком высокая. (Чем меньше, тем лучше)</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Сброс</translation>
+    </message>
+    <message>
+      <source>Note: When the lid is open or the desiccant pack is changed, it can take hours or a night to absorb the moisture. Low temperatures also slow down the process. During this time, the indicator may not represent the chamber accurately.</source>
+      <translation>Примечание: При открытой крышке или замене упаковки осушителя для впитывания влаги могут потребоваться часы или ночь. Низкие температуры также замедляют процесс. В течение этого времени индикатор может неточно отображать.</translation>
+    </message>
+    <message>
+      <source>Tips：
+Click the pencil icon to edit your filament</source>
+      <translation type="unfinished">Tips：
+Click the pencil icon to edit your filament</translation>
+    </message>
+    <message>
+      <source>Desiccant status</source>
+      <translation>Состояние осушителя</translation>
+    </message>
+    <message>
+      <source>AMS Setting</source>
+      <translation type="unfinished">AMS Setting</translation>
+    </message>
+    <message>
+      <source>Cabin humidity</source>
+      <translation>Влажность в принтере</translation>
+    </message>
+    <message>
+      <source>Desiccant status lower than two bars indicates that desiccant can be inactive. Please change the desiccant.（Higher the better）</source>
+      <translation>Статус осушителя ниже двух полос указывает на то, что осушитель может быть неактивен. Пожалуйста, замените осушитель.(Чем выше, тем лучше)</translation>
     </message>
   </context>
   <context>
@@ -2275,6 +2520,10 @@ holder</source>
       <location filename="printer_ui/printerui/qml/settings/ForceRegionPage.qml" line="81"></location>
       <source>The region should be the same as your account region.</source>
       <translation>Регион должен совпадать с регионом вашего аккаунта.</translation>
+    </message>
+    <message>
+      <source>Account change cannot be used in the selected region. Please select again.</source>
+      <translation type="unfinished">Account change cannot be used in the selected region. Please select again.</translation>
     </message>
   </context>
   <context>
@@ -2388,9 +2637,79 @@ holder</source>
       <translation>Если вы заменили принадлежности, пожалуйста, обновите настройки, чтобы соответствовать фактическому состоянию аксессуара, чтобы обеспечить качество печати</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="505"></location>
-      <source>&lt;b&gt;You can change the behavior of the hardware buttons on the top of the printer.&lt;/b&gt;  A short press is less than 0.85 seconds, and a long press is anything longer than that.&lt;br&gt;&lt;br&gt;&lt;b&gt;Reboot&lt;/b&gt;: gracefully restarts Linux with 'reboot' command.&lt;br&gt;&lt;b&gt;Set temp&lt;/b&gt;: sets nozzle or bed target temperature.&lt;br&gt;&lt;b&gt;Pause print&lt;/b&gt;: pauses current print job.  (Original behavior for red button.)&lt;br&gt;&lt;b&gt;Abort print&lt;/b&gt;: cancels current print job.&lt;br&gt;&lt;b&gt;Sleep/wake&lt;/b&gt;: toggles display screen saver.  (Original behavior for black button.)&lt;br&gt;&lt;b&gt;Run macro&lt;/b&gt;: executes G-code or Python macro.</source>
-      <translation>&lt;b&gt;Вы можете изменить поведение аппаратных кнопок в верхней части принтера.&lt;/b&gt; Короткое нажатие занимает менее 0,85 секунды, а длительное нажатие — более длительное.&lt;br&gt;&lt;br&gt;&lt;b&gt;Перезагрузка&lt;/b&gt;: корректно перезапускает Linux с помощью 'reboot' команда.&lt;br&gt;&lt;b&gt;Установить температуру&lt;/b&gt;: устанавливает целевую температуру сопла или стола.&lt;br&gt;&lt;b&gt;Приостановить печать&lt;/b&gt;: приостанавливает текущее задание печати. (Исходное поведение красной кнопки.)&lt;br&gt;&lt;b&gt;Прервать печать&lt;/b&gt;: отменяет текущее задание печати.&lt;br&gt;&lt;b&gt;Сон/Пробуждение&lt;/b&gt;: включает заставку экрана. (Исходное поведение черной кнопки.)&lt;br&gt;&lt;b&gt;Выполнить макрос&lt;/b&gt;: выполняет G-код или макрос Python.</translation>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="519"></location>
+      <source>Tooltip: Re-mapping the hardware buttons</source>
+      <translation type="unfinished">Tooltip: Re-mapping the hardware buttons</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="529"></location>
+      <source>Button Actions:</source>
+      <translation type="unfinished">Button Actions:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Sleep/wake</source>
+      <translation>Сон/пробуждение</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="535"></location>
+      <source>Toggles LCD screen (and lock screen if configured)</source>
+      <translation type="unfinished">Toggles LCD screen (and lock screen if configured)</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Reboot</source>
+      <translation>Перезагрузка</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="536"></location>
+      <source>Restarts Linux with a shell command</source>
+      <translation type="unfinished">Restarts Linux with a shell command</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pause print</source>
+      <translation>Приостановить печать</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="537"></location>
+      <source>Pauses current print job.</source>
+      <translation type="unfinished">Pauses current print job.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Abort print</source>
+      <translation>Прервать печать</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="538"></location>
+      <source>Aborts current print job.</source>
+      <translation type="unfinished">Aborts current print job.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>Ignore</source>
+      <translation>Игнор</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="539"></location>
+      <source>No action</source>
+      <translation type="unfinished">No action</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="551"></location>
+      <source>Button Press Gestures:</source>
+      <translation type="unfinished">Button Press Gestures:</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="556"></location>
+      <source>Short press: &lt; 0.85 seconds</source>
+      <translation type="unfinished">Short press: &lt; 0.85 seconds</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/HardwarePage.qml" line="561"></location>
+      <source>Long press: &gt;= 0.85 seconds</source>
+      <translation type="unfinished">Long press: &gt;= 0.85 seconds</translation>
     </message>
   </context>
   <context>
@@ -2445,54 +2764,58 @@ holder</source>
   <context>
     <name>Home2Page</name>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="108"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="111"></location>
       <source>Slice queuing %1/%2</source>
       <translation>Очередь фрагментов %1/%2</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="117"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="120"></location>
       <source>Waiting for %1 minutes</source>
       <translation>Ожидание %1 минут</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="129"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="132"></location>
       <source>Download</source>
       <translation>Загрузить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="129"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="132"></location>
       <source>Slicering </source>
       <translation>Нарезка </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="211"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="214"></location>
       <source>Skipping objects is not supported for this printing.</source>
       <translation>Пропуск объектов не поддерживается для этой печати.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="241"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="244"></location>
       <source>Pause</source>
       <translation>Пауза</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="241"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="244"></location>
       <source>Resume</source>
       <translation>Возобновить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="268"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="271"></location>
       <source>Stop</source>
       <translation>Стоп</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="273"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="276"></location>
       <source>Are you sure you want to cancel this print?</source>
       <translation>Вы уверены, что хотите отменить эту печать?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="338"></location>
+      <location filename="printer_ui/printerui/qml/main/Home2Page.qml" line="350"></location>
       <source>Preparing to print</source>
       <translation>Подготовка к печати</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Отмена</translation>
     </message>
   </context>
   <context>
@@ -2516,37 +2839,42 @@ holder</source>
   <context>
     <name>InstallingPage</name>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="44"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="45"></location>
       <source>Installation complete!</source>
       <translation>Установка завершена!</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="57"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="58"></location>
       <source>Yes</source>
       <translation>Да</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="57"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="58"></location>
       <source>No</source>
       <translation>Нет</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="107"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="108"></location>
+      <source>Firmware bundle failed to extract (is the file corrupt?).  Redownload the X1P file and copy it to your SD card again, then retry installation.</source>
+      <translation type="unfinished">Firmware bundle failed to extract (is the file corrupt?).  Redownload the X1P file and copy it to your SD card again, then retry installation.</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="118"></location>
       <source>Unpacking installer</source>
       <translation>Распаковка инсталлятора</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="108"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="119"></location>
       <source>Extracting %1 to internal storage.</source>
       <translation>Извлечение %1 во внутреннее хранилище.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="129"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="140"></location>
       <source>X1Plus custom firmware installation</source>
       <translation>Установка кастомной прошивки X1Plus</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="170"></location>
+      <location filename="kexec_ui/printerui/qml/InstallingPage.qml" line="196"></location>
       <source>&lt;b&gt;Welcome to X1Plus!&lt;/b&gt;&lt;br&gt;&lt;br&gt;The X1Plus custom firmware is being installed on your SD card.  This process could take up to 10 minutes.  Try to avoid powering your printer off.</source>
       <translation>&lt;b&gt;Добро пожаловать в X1Plus!&lt;/b&gt;&lt;br&gt;&lt;br&gt;кастомная прошивка X1Plus установлена на SD-карте. Этот процесс может занять до 10 минут. Попробуйте избежать отключения принтера.</translation>
     </message>
@@ -2554,39 +2882,133 @@ holder</source>
   <context>
     <name>KexecDialog</name>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="22"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="26"></location>
       <source>Start from SD card</source>
       <translation>Запуск с SD-карты</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="28"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="27"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="41"></location>
       <source>Startup options...</source>
       <translation>Варианты запуска...</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="73"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="30"></location>
       <source>Bootable SD card detected.</source>
       <translation>Обнаружена загрузочная SD-карта.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="74"></location>
-      <source>No bootable SD card detected.</source>
-      <translation>Загрузочная SD-карта не обнаружена.</translation>
-    </message>
-    <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="89"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="33"></location>
       <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
       <translation>Ваш принтер будет автоматически загружен с SD-карты через %1 секунд.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="90"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="35"></location>
       <source>Your printer is rebooting into the OS on the inserted SD card.</source>
       <translation>Ваш принтер перезагружается в операционную систему на вставленной SD-карте.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="91"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="40"></location>
+      <source>Install update</source>
+      <translation type="unfinished">Install update</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="43"></location>
+      <source>X1Plus update ready to install.</source>
+      <translation type="unfinished">X1Plus update ready to install.</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="46"></location>
+      <source>Automatically installing X1Plus version %1 in %2 seconds. To cancel or skip installation, use the startup options menu.</source>
+      <translation type="unfinished">Automatically installing X1Plus version %1 in %2 seconds. To cancel or skip installation, use the startup options menu.</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="48"></location>
+      <source>Starting installation of X1Plus version %1.</source>
+      <translation type="unfinished">Starting installation of X1Plus version %1.</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="108"></location>
+      <source>No bootable SD card detected.</source>
+      <translation>Загрузочная SD-карта не обнаружена.</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/dialog/KexecDialog.qml" line="123"></location>
       <source>Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.</source>
       <translation>Вставьте загрузочную SD-карту и перезагрузите принтер или воспользуйтесь меню параметров запуска, чтобы восстановить установку X1 Plus.</translation>
+    </message>
+  </context>
+  <context>
+    <name>LanAccessPage</name>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="59"></location>
+      <source>Return</source>
+      <translation>Вернуться</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="98"></location>
+      <source>X1Plus allows you to connect to your printer over your local network, not only using the slicer.  For your security, only enable services that you plan to use.</source>
+      <translation type="unfinished">X1Plus allows you to connect to your printer over your local network, not only using the slicer.  For your security, only enable services that you plan to use.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="124"></location>
+      <source>LAN access code</source>
+      <translation type="unfinished">LAN access code</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="203"></location>
+      <source>RTSP server (LAN-only live view) is enabled.</source>
+      <translation type="unfinished">RTSP server (LAN-only live view) is enabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="203"></location>
+      <source>RTSP server (LAN-only live view) is disabled.</source>
+      <translation type="unfinished">RTSP server (LAN-only live view) is disabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="232"></location>
+      <source>VNC server (remote desktop) is enabled.</source>
+      <translation type="unfinished">VNC server (remote desktop) is enabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="232"></location>
+      <source>VNC server (remote desktop) is disabled.</source>
+      <translation type="unfinished">VNC server (remote desktop) is disabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="249"></location>
+      <source>The VNC password is set to the LAN access code.</source>
+      <translation type="unfinished">The VNC password is set to the LAN access code.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="250"></location>
+      <source>The VNC password is disabled.  Be careful!</source>
+      <translation type="unfinished">The VNC password is disabled.  Be careful!</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="251"></location>
+      <source>The VNC password has been customized through the X1Plus command-line, and is not shown here.</source>
+      <translation type="unfinished">The VNC password has been customized through the X1Plus command-line, and is not shown here.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="271"></location>
+      <source>SSH server (remote command line) is enabled.</source>
+      <translation type="unfinished">SSH server (remote command line) is enabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="271"></location>
+      <source>SSH server (remote command line) is disabled.</source>
+      <translation type="unfinished">SSH server (remote command line) is disabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="293"></location>
+      <source>Root password: </source>
+      <translation>Root Пароль </translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/LanAccessPage.qml" line="293"></location>
+      <source>[not yet set]</source>
+      <translation>[еще не установлено]</translation>
     </message>
   </context>
   <context>
@@ -2694,6 +3116,10 @@ holder</source>
     <message>
       <source>Accessories</source>
       <translation>Аксессуары</translation>
+    </message>
+    <message>
+      <source>Maintenance</source>
+      <translation>Обслуживание</translation>
     </message>
     <message>
       <source>Auxiliary Part Cooling Fan</source>
@@ -2808,96 +3234,106 @@ holder</source>
       <translation>В AMS неизвестный тип филамента. Пожалуйста, проверьте или измените характеристики вручную. Нажмите 'Yes', чтобы продолжить печать без изменений.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="362"></location>
-      <source>There is an undefined filament to AMS slot mapping. Please insert a matching filament into the AMS or specify the mapping manually. Press 'Yes' to continue print without mapping.</source>
-      <translation>Для картографирования AMS слотов неопределённый филамент. Вставьте соответствующий филамент в AMS или укажите ее вручную. Нажмите 'Yes', чтобы продолжить печать без сбоев.</translation>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="363"></location>
+      <source>There is an filament not matched. Please match every filament in sliced file with the actual filament.</source>
+      <translation type="unfinished">There is an filament not matched. Please match every filament in sliced file with the actual filament.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="378"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="379"></location>
       <source>"TPU" filament type not include in AMS.</source>
       <translation>"TPU" тип нити накала не включен в AMS.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="393"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="394"></location>
       <source>Bambu PET-CF/PA6-CF is not supported by AMS.</source>
       <translation>Bambu PET-CF/PA6-CF не поддерживается AMS.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="408"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="409"></location>
       <source>Damp "PVA" will become flexible and get stuck inside AMS, please take care to dry it before use.</source>
       <translation>Damp "%1" станет гибким и застрявшим в AMS, постарайтесь высушить его перед использованием.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="423"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="424"></location>
       <source>"CF" filaments are hard and brittle. It's easy to break or get stuck in AMS, please use with caution.</source>
       <translation>Филамент""CF"" твердые и хрупкие. Их' легко сломать или они застревают в AMS, пожалуйста, используйте с осторожностью.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="444"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="445"></location>
       <source>Printing can’t be started.
 The filament type are not compatible with printing file, please check and restart the printing</source>
       <translation>Невозможно начать печать.
 Тип филамента несовместим с файлом печати, проверьте и перезапустите печать</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="449"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="450"></location>
       <source>The filament type  is unknown, please make sure it is compatible with printing settings.</source>
       <translation>Тип филамента неизвестен. Убедитесь, что он совместим с настройками печати.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="463"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="464"></location>
       <source>Your sliced file is not consistent with the current printer model. Continue?</source>
       <translation>Ваш нарезанный файл не соответствует текущей модели принтера. Продолжить?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="469"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="470"></location>
       <source>Your sliced file is not compatible with current printer model. This file can't be printed.</source>
       <translation>Ваш нарезаный файл не совместим с текущей моделью принтера. Этот файл может't быть напечатан.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="483"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="484"></location>
       <source>The nozzle diameter in sliced file is not consistent with the current nozzle setting. This file can't be printed.</source>
       <translation>Диаметр сопла в нарезанном файле не соответствует текущей настройке сопла. Этот файл ' не может быть распечатан.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="738"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="743"></location>
       <source>Enabled AMS</source>
       <translation>Включить AMS</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="739"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="744"></location>
       <source>Print with filaments in the AMS</source>
       <translation>Печатать с филаментами в AMS</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="743"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="748"></location>
       <source>Disable AMS</source>
       <translation>Отключить AMS</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="744"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="749"></location>
       <source>Print with the filament mounted on the back of chassis</source>
       <translation>Печатайте с помощью филамента, установленного на задней панели корпуса</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="833"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="838"></location>
       <source>Filament used in this print job</source>
       <translation>Филамент, используемый в этом задании на печать</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="837"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="842"></location>
       <source>AMS slot used for this filament</source>
       <translation>AMS слот, используемый для этого филамента</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="866"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="871"></location>
       <source>Config which AMS slot should be used for a filament used in the print job</source>
       <translation>Настройте, какой слот AMS следует использовать для филамента, используемого в задании печати</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="942"></location>
+      <location filename="printer_ui/printerui/qml/models/ModelDetailPage.qml" line="947"></location>
       <source>Click to select AMS slot manually</source>
       <translation>Нажмите, чтобы выбрать слот AMS вручную</translation>
+    </message>
+    <message>
+      <source>The bed temperature exceeds filament's vitrification temperature, which may cause nozzle clog.
+Please keep the front door of printer open or lower the bed temperature.</source>
+      <translation type="unfinished">The bed temperature exceeds filament's vitrification temperature, which may cause nozzle clog.
+Please keep the front door of printer open or lower the bed temperature.</translation>
+    </message>
+    <message>
+      <source>There is an undefined filament to AMS slot mapping. Please insert a matching filament into the AMS or specify the mapping manually. Press 'Yes' to continue print without mapping.</source>
+      <translation>Для картографирования AMS слотов неопределённый филамент. Вставьте соответствующий филамент в AMS или укажите ее вручную. Нажмите 'Yes', чтобы продолжить печать без сбоев.</translation>
     </message>
   </context>
   <context>
@@ -3045,109 +3481,141 @@ The filament type are not compatible with printing file, please check and restar
   <context>
     <name>NetworkPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="55"></location>
+      <source>OK</source>
+      <translation>Да</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="56"></location>
       <source>WLAN</source>
       <translation>WLAN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="65"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="66"></location>
       <source>(Only for 2.4G)</source>
       <translation>(Только для 2.4G)</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="100"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="101"></location>
       <source>Current network</source>
       <translation>Текущая сеть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="149"></location>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="580"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="150"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="581"></location>
       <source>Close</source>
       <translation>Закрыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="149"></location>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="580"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="150"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="581"></location>
       <source>Forget</source>
       <translation>Забыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="171"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="172"></location>
       <source>Switch wifi</source>
       <translation>Переключить WiFi</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="203"></location>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="464"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="204"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="465"></location>
       <source>IP:</source>
       <translation>IP-адрес:</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="203"></location>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="464"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="204"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="465"></location>
       <source>Network unavaliabe</source>
       <translation>Сеть недоступна</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="258"></location>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="519"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="259"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="520"></location>
       <source>Test network</source>
       <translation>Диагностика сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="280"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="281"></location>
       <source>Install Certificates</source>
       <translation>Установка сертификата</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="316"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="317"></location>
       <source>Other networks </source>
       <translation>Другие сети </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="366"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="367"></location>
       <source>Wired Network</source>
       <translation>Проводная сеть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="393"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="394"></location>
       <source>Connected</source>
       <translation>Подключиться</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="393"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="394"></location>
       <source>No Internet</source>
       <translation>Нет интернета</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="393"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="394"></location>
       <source>Cable not connected</source>
       <translation>Кабель не подключен</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="433"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="434"></location>
       <source>Enable authentication</source>
       <translation>Включить аутентификацию</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="436"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="437"></location>
       <source>IEEE802.1X Authentication</source>
       <translation>Аутентификация IEEE802.1X</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="545"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="546"></location>
       <source>Network daughter board not installed</source>
       <translation>Сетевая дочерняя плата не установлена</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="563"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="564"></location>
       <source>Add Others Networks</source>
       <translation>Добавить другие сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="580"></location>
+      <location filename="printer_ui/printerui/qml/settings/NetworkPage.qml" line="581"></location>
       <source>Connect</source>
       <translation>Подключить</translation>
+    </message>
+    <message>
+      <source>You may need to start the rtsp service. Do you want to redirect to the page?</source>
+      <translation type="unfinished">You may need to start the rtsp service. Do you want to redirect to the page?</translation>
+    </message>
+    <message>
+      <source>Access Code: </source>
+      <translation>Код доступа: </translation>
+    </message>
+    <message>
+      <source>LAN Only</source>
+      <translation>Только по локальной сети</translation>
+    </message>
+    <message>
+      <source>Bluetooth:</source>
+      <translation type="unfinished">Bluetooth:</translation>
+    </message>
+    <message>
+      <source>My networks</source>
+      <translation>Мои сети</translation>
+    </message>
+    <message>
+      <source>Switch to others</source>
+      <translation type="unfinished">Switch to others</translation>
+    </message>
+    <message>
+      <source>Enabling LAN Only mode will disconnect all Bambu Studio and Bambu Handy connected to the device. Do you want to continue?</source>
+      <translation>Включение режима только по локальной сети приведет к отключению всех Bambu Studio и Bambu Handy, подключенных к устройству. Вы хотите продолжить?</translation>
     </message>
   </context>
   <context>
@@ -3377,6 +3845,18 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
       <source>Did you encounter any problems?</source>
       <translation>Вы столкнулись с проблемами?</translation>
     </message>
+    <message>
+      <source>Issues in this print job</source>
+      <translation>Замечания в этом печатном задании</translation>
+    </message>
+    <message>
+      <source>Report</source>
+      <translation>Отчет</translation>
+    </message>
+    <message>
+      <source>Success</source>
+      <translation type="unfinished">Success</translation>
+    </message>
   </context>
   <context>
     <name>PrintListener</name>
@@ -3391,6 +3871,10 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     <message>
       <source>set print speed</source>
       <translation>установка скорости печати</translation>
+    </message>
+    <message>
+      <source>Failed to obtain cloud custom material information.</source>
+      <translation type="unfinished">Failed to obtain cloud custom material information.</translation>
     </message>
     <message>
       <source>resume print</source>
@@ -3505,6 +3989,117 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
     </message>
   </context>
   <context>
+    <name>PrintModule</name>
+    <message>
+      <source>set print speed</source>
+      <translation>установка скорости печати</translation>
+    </message>
+    <message>
+      <source>resume print</source>
+      <translation>возобновить печать</translation>
+    </message>
+    <message>
+      <source>enable WiFi</source>
+      <translation>включить Wi-Fi</translation>
+    </message>
+    <message>
+      <source>stop print</source>
+      <translation>остановить печать</translation>
+    </message>
+    <message>
+      <source>self-test</source>
+      <translation>самопроверка</translation>
+    </message>
+    <message>
+      <source>disable WiFi</source>
+      <translation>отключить Wi-Fi</translation>
+    </message>
+    <message>
+      <source>start print</source>
+      <translation>начать печать</translation>
+    </message>
+    <message>
+      <source>drying</source>
+      <translation>сушка</translation>
+    </message>
+    <message>
+      <source>pause print</source>
+      <translation>приостановить печать</translation>
+    </message>
+    <message>
+      <source>prepare</source>
+      <translation>подготовить</translation>
+    </message>
+    <message>
+      <source>Timeout to %1.</source>
+      <translation>Таймаут %1.</translation>
+    </message>
+    <message>
+      <source>write filament info into AMS</source>
+      <translation>записать информацию о филаменте в AMS</translation>
+    </message>
+    <message>
+      <source>update</source>
+      <translation>обновление</translation>
+    </message>
+    <message>
+      <source>clean WiFi</source>
+      <translation>чистый WiFi</translation>
+    </message>
+    <message>
+      <source>control AMS</source>
+      <translation>управление AMS</translation>
+    </message>
+    <message>
+      <source>calibration</source>
+      <translation>калибровка</translation>
+    </message>
+    <message>
+      <source>restore factory settings</source>
+      <translation>восстановить заводские настройки</translation>
+    </message>
+    <message>
+      <source>network mode LAN or Cloud</source>
+      <translation>сетевой режим LAN или Cloud</translation>
+    </message>
+    <message>
+      <source>Failed to %1.</source>
+      <translation>Не удалось %1.</translation>
+    </message>
+    <message>
+      <source>setup WiFi</source>
+      <translation>настройка WiFi</translation>
+    </message>
+    <message>
+      <source>The .gcode.3mf contains no G-code data. Please slice it with Bambu Studio and export a new .gcode.3mf file.</source>
+      <translation type="unfinished">The .gcode.3mf contains no G-code data. Please slice it with Bambu Studio and export a new .gcode.3mf file.</translation>
+    </message>
+    <message>
+      <source>modify AMS settings</source>
+      <translation>измените настройки AMS</translation>
+    </message>
+    <message>
+      <source>connect WiFi</source>
+      <translation>подключить Wi-Fi</translation>
+    </message>
+    <message>
+      <source>There is a print job running.</source>
+      <translation>Выполняется задание печати.</translation>
+    </message>
+    <message>
+      <source>unload filament</source>
+      <translation>выгрузите филамент</translation>
+    </message>
+    <message>
+      <source>ssid record WiFi</source>
+      <translation>запись ssid Wi-Fi</translation>
+    </message>
+    <message>
+      <source>"%1" filament type not include in AMS</source>
+      <translation>"%1" тип филамента не включен в AMS</translation>
+    </message>
+  </context>
+  <context>
     <name>PrintOptionsPage</name>
     <message>
       <location filename="printer_ui/printerui/qml/printer/PrintOptionsPage.qml" line="12"></location>
@@ -3551,6 +4146,38 @@ We have greately improved the AI monitoring algorithms. Besides, we have added d
       <source>Caching cloud print files to sdcard</source>
       <translation>Кэширование файлов из облака на SD-карту</translation>
     </message>
+    <message>
+      <source>Allow Skip Parts</source>
+      <translation type="unfinished">Allow Skip Parts</translation>
+    </message>
+    <message>
+      <source>Stop printing when spaghetti is detected</source>
+      <translation type="unfinished">Stop printing when spaghetti is detected</translation>
+    </message>
+    <message>
+      <source>Door opening detection</source>
+      <translation type="unfinished">Door opening detection</translation>
+    </message>
+    <message>
+      <source>Bypass detected faulty part</source>
+      <translation type="unfinished">Bypass detected faulty part</translation>
+    </message>
+    <message>
+      <source>Hot bed foreign body detection</source>
+      <translation type="unfinished">Hot bed foreign body detection</translation>
+    </message>
+    <message>
+      <source>Spaghetti Detection</source>
+      <translation type="unfinished">Spaghetti Detection</translation>
+    </message>
+    <message>
+      <source>Inspection of faulty parts.</source>
+      <translation type="unfinished">Inspection of faulty parts.</translation>
+    </message>
+    <message>
+      <source>Action when door open detected in printing is </source>
+      <translation type="unfinished">Action when door open detected in printing is </translation>
+    </message>
   </context>
   <context>
     <name>PrintSkipPage</name>
@@ -3594,6 +4221,18 @@ Continue?</source>
       <location filename="printer_ui/printerui/qml/printer/PrintSkipPage.qml" line="163"></location>
       <source>This action cannot be undone.</source>
       <translation>Это действие невозможно отменить.</translation>
+    </message>
+    <message>
+      <source>No objects were selected to skip.
+</source>
+      <translation type="unfinished">No objects were selected to skip.
+</translation>
+    </message>
+    <message>
+      <source>Do you want to skip the selected %1 objects?
+</source>
+      <translation type="unfinished">Do you want to skip the selected %1 objects?
+</translation>
     </message>
   </context>
   <context>
@@ -3810,6 +4449,10 @@ Continue?</source>
   <context>
     <name>PrinterPage</name>
     <message>
+      <source>AMS</source>
+      <translation type="unfinished">AMS</translation>
+    </message>
+    <message>
       <location filename="printer_ui/printerui/qml/main/PrinterPage.qml" line="11"></location>
       <source>Temperature/Axis</source>
       <translation>Температура/Ось</translation>
@@ -3850,6 +4493,10 @@ Continue?</source>
   </context>
   <context>
     <name>RegionPage</name>
+    <message>
+      <source>Next</source>
+      <translation>Далее</translation>
+    </message>
     <message>
       <location filename="printer_ui/printerui/qml/wizard/RegionPage.qml" line="11"></location>
       <source>Select Region</source>
@@ -3909,6 +4556,22 @@ Continue?</source>
       <source>Please scan the code with the Bambu Handy APP to see the possible causes and solutions of the problem.</source>
       <translation>Пожалуйста, отсканируйте код с помощью Bambu Handy APP, чтобы увидеть возможные причины и решения проблемы.</translation>
     </message>
+    <message>
+      <source>Spaghetti failure</source>
+      <translation>Сбой Спагетти</translation>
+    </message>
+    <message>
+      <source>First layer defect</source>
+      <translation>Дефект первого слоя</translation>
+    </message>
+    <message>
+      <source>Errors in the first layer scanning and AI monitoring.</source>
+      <translation type="unfinished">Errors in the first layer scanning and AI monitoring.</translation>
+    </message>
+    <message>
+      <source>Purged filaments have piled up in excess chute.</source>
+      <translation type="unfinished">Purged filaments have piled up in excess chute.</translation>
+    </message>
   </context>
   <context>
     <name>ReportState</name>
@@ -3951,17 +4614,17 @@ Continue?</source>
   <context>
     <name>ScreenLock</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLock.qml" line="113"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLock.qml" line="115"></location>
       <source>Enter passcode.</source>
       <translation>Введите пароль.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLock.qml" line="114"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLock.qml" line="116"></location>
       <source>Enter passcode: %1</source>
       <translation>Введите пароль: %1</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLock.qml" line="115"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLock.qml" line="117"></location>
       <source>This printer is locked.</source>
       <translation>Этот принтер заблокирован.</translation>
     </message>
@@ -3969,82 +4632,82 @@ Continue?</source>
   <context>
     <name>ScreenLockPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="60"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="57"></location>
       <source>Return</source>
       <translation>Вернуться</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="101"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="98"></location>
       <source>The screen lock is a low-security deterrence against casual passers-by, but it will not provide a strong defense against sophisticated attackers.&lt;br&gt;&lt;br&gt;If the printer is connected to a network, you will still be able to print over the network when the screen is locked.</source>
       <translation>Блокировка экрана является средством защиты от случайного нажатия, но она не обеспечит защиту.&lt;br&gt;&lt;br&gt;Если принтер подключен к сети, вы все еще сможете печатать по сети, когда экран заблокирован.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="109"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="106"></location>
       <source>2 minutes</source>
       <translation>2 минуты</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="109"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="106"></location>
       <source>5 minutes</source>
       <translation>5 минут</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="109"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="106"></location>
       <source>10 minutes</source>
       <translation>10 минуты</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="109"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="106"></location>
       <source>15 minutes</source>
       <translation>15 минут</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="130"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="127"></location>
       <source>Time before display sleeps</source>
       <translation>Время до перехода в сон</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="166"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="163"></location>
       <source>Lock screen mode</source>
       <translation>Блокировка экрана</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="179"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="176"></location>
       <source>Screen saver only</source>
       <translation>Только заставка</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="179"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="176"></location>
       <source>Swipe to unlock</source>
       <translation>Свайп</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="179"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="176"></location>
       <source>Passcode</source>
       <translation>Пароль</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="219"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="218"></location>
       <source>Passcode: "%1"</source>
       <translation>Пароль: "%1"</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="221"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="220"></location>
       <source>Passcode is unset</source>
       <translation>Пароль отключен</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="222"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="221"></location>
       <source>Passcode set to "%1"</source>
       <translation>Пароль установлен на "%1"</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="234"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="233"></location>
       <source>Change passcode</source>
       <translation>Изменить пароль</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="262"></location>
+      <location filename="printer_ui/printerui/qml/settings/ScreenLockPage.qml" line="261"></location>
       <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
       <translation>Вы можете добавить пользовательский текст или фоновое изображение на экран блокировки, создав файл на SD-карте:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Изображение&lt;/b&gt;: /x1plus/lockscreen.png</translation>
     </message>
@@ -4118,37 +4781,42 @@ Continue?</source>
   <context>
     <name>SettingListener</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="91"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="119"></location>
+      <source>A new version of X1Plus is available!&lt;br&gt;&lt;br&gt;Would you like to go to the update page?</source>
+      <translation type="unfinished">A new version of X1Plus is available!&lt;br&gt;&lt;br&gt;Would you like to go to the update page?</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="142"></location>
       <source>The firmware versions on the printer's peripheral boards do not match the recommended versions for this X1Plus installation.  Printing may not be reliable, and some features may not be available.&lt;br&gt;&lt;br&gt;Would you like to go to the update page?</source>
       <translation>Версия прошивки на принтере'с периферийными платами не соответствует рекомендуемым версиям для данной установки X1Plus. Печать может быть не надежной, и некоторые функции могут быть недоступны.&lt;br&gt;&lt;br&gt;Вы хотите перейти на страницу обновления?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="110"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="161"></location>
       <source>The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from "Settings &gt; General &gt; Version".</source>
       <translation>Версия прошивки является неправильной. Требуется восстановление и обновление или печать не может быть запущена. Вы также можете обновиться позже в "Settings &gt; General &gt; Version".</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="112"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="163"></location>
       <source>An important update was detected and needs to be run before printing can continue. Do you want to update now? You can also update later from "Settings &gt; General &gt; Version".</source>
       <translation>Были обнаружены важные обновления, которые должны быть запущены до того, как можно будет продолжить. Вы также можете обновиться позже в "Settings &gt; General &gt; Version".</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="113"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="164"></location>
       <source>A new firmware update has been detected. Would you like to go to the update page?</source>
       <translation>Обнаружено новое обновление прошивки. Хотите перейти на страницу обновления?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="256"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="307"></location>
       <source>It is detected that carbon rods may need to be cleaned. </source>
       <translation>Обнаружена необходимость очистки углеродистых стержней. </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="261"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="312"></location>
       <source>It is detected that the lead screws may need lubrication. </source>
       <translation>Обнаружено, что винтам может понадобиться смазка. </translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="265"></location>
+      <location filename="printer_ui/printerui/qml/settings/SettingListener.qml" line="316"></location>
       <source>Would you like to go to the maintenance page?</source>
       <translation>Вы хотите перейти на страницу обслуживания?</translation>
     </message>
@@ -4188,12 +4856,17 @@ Continue?</source>
   <context>
     <name>Success</name>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/Success.qml" line="15"></location>
-      <source>Reboot</source>
-      <translation>Перезагрузка</translation>
+      <location filename="kexec_ui/printerui/qml/dialog/Success.qml" line="46"></location>
+      <source>Rebooting...</source>
+      <translation type="unfinished">Rebooting...</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/dialog/Success.qml" line="39"></location>
+      <location filename="kexec_ui/printerui/qml/dialog/Success.qml" line="47"></location>
+      <source>Rebooting in %1 seconds</source>
+      <translation type="unfinished">Rebooting in %1 seconds</translation>
+    </message>
+    <message>
+      <location filename="kexec_ui/printerui/qml/dialog/Success.qml" line="62"></location>
       <source>&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</source>
       <translation>&lt;center&gt;&lt;b&gt;Успешно!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus успешно установлен на вашем принтере. Оставьте SD-карту и перезапустите принтер, чтобы наслаждаться новой кастомной прошивкой!</translation>
     </message>
@@ -4201,32 +4874,32 @@ Continue?</source>
   <context>
     <name>TextConfirm</name>
     <message>
-      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="16"></location>
-      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="19"></location>
+      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="17"></location>
+      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="20"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="16"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="19"></location>
       <source>Confirm</source>
       <translation>Подтвердить</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="17"></location>
       <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="18"></location>
+      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="19"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="17"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="18"></location>
       <source>No</source>
       <translation>Нет</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="17"></location>
       <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="18"></location>
+      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="19"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="17"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="18"></location>
       <source>Yes</source>
       <translation>Да</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="18"></location>
       <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="19"></location>
+      <location filename="printer_ui/printerui/qml/dialog/TextConfirm.qml" line="20"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="18"></location>
       <location filename="kexec_ui/printerui/qml/dialog/TextConfirm.qml" line="19"></location>
       <source>Cancel</source>
@@ -4259,19 +4932,23 @@ Continue?</source>
   <context>
     <name>UpdatingPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/UpdatingPage.qml" line="84"></location>
+      <location filename="printer_ui/printerui/qml/settings/UpdatingPage.qml" line="85"></location>
       <source>Please restart the printer and try to update again.</source>
       <translation>Пожалуйста, перезагрузите принтер и попробуйте обновить снова.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/UpdatingPage.qml" line="93"></location>
+      <location filename="printer_ui/printerui/qml/settings/UpdatingPage.qml" line="94"></location>
       <source>Back</source>
       <translation>Назад</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/UpdatingPage.qml" line="109"></location>
+      <location filename="printer_ui/printerui/qml/settings/UpdatingPage.qml" line="110"></location>
       <source>Retry</source>
       <translation>Повтор</translation>
+    </message>
+    <message>
+      <source>Please check the network and restart to try the update again.</source>
+      <translation type="unfinished">Please check the network and restart to try the update again.</translation>
     </message>
   </context>
   <context>
@@ -4453,6 +5130,10 @@ Continue?</source>
       <translation>Версия прошивки: </translation>
     </message>
     <message>
+      <source>Current Version</source>
+      <translation type="unfinished">Current Version</translation>
+    </message>
+    <message>
       <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="13"></location>
       <source>X1Plus version</source>
       <translation>Версия X1Plus</translation>
@@ -4503,12 +5184,12 @@ Continue?</source>
       <translation>АМС №4</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="62"></location>
+      <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="65"></location>
       <source>Firmware version</source>
       <translation>Версия прошивки</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="72"></location>
+      <location filename="printer_ui/printerui/qml/settings/VersionPage.qml" line="75"></location>
       <source>Return</source>
       <translation>Вернуться</translation>
     </message>
@@ -4523,6 +5204,10 @@ Continue?</source>
     <message>
       <source>Please use the Bambu Handy APP to scan the code to view detailed update information.</source>
       <translation>Используйте приложение Bambu Handy для сканирования кода и просмотра подробной информации об обновлении.</translation>
+    </message>
+    <message>
+      <source>Firmware Version</source>
+      <translation>Версия прошивки</translation>
     </message>
     <message>
       <source>Release_note</source>
@@ -4660,7 +5345,7 @@ Progress: %4%</source>
     <message>
       <location filename="printer_ui/printerui/qml/wizard/WelcomePage.qml" line="15"></location>
       <source>Welcome to your Bambu Lab printer!</source>
-      <translation>Добро пожаловать на ваш принтер Лаборатории Бамбу!</translation>
+      <translation>Добро пожаловать на ваш принтер Bambu Lab!</translation>
     </message>
     <message>
       <location filename="printer_ui/printerui/qml/wizard/WelcomePage.qml" line="21"></location>
@@ -4671,42 +5356,42 @@ Progress: %4%</source>
   <context>
     <name>WifiListPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="44"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="45"></location>
       <source>WLAN</source>
       <translation>WLAN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="44"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="45"></location>
       <source>(Only for 2.4G)</source>
       <translation>(Только для 2.4G)</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="71"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="72"></location>
       <source>Other networks</source>
       <translation>Другие сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="71"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="72"></location>
       <source>My networks</source>
       <translation>Мои сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="118"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="119"></location>
       <source>Add Others Networks</source>
       <translation>Добавить другие сети</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="135"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="136"></location>
       <source>Close</source>
       <translation>Закрыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="135"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="136"></location>
       <source>Forget</source>
       <translation>Забыть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="135"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiListPage.qml" line="136"></location>
       <source>Connect</source>
       <translation>Подключить</translation>
     </message>
@@ -4714,22 +5399,22 @@ Progress: %4%</source>
   <context>
     <name>WifiSetupPage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="84"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="85"></location>
       <source>Networks</source>
       <translation>Сеть</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="122"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="123"></location>
       <source>Password</source>
       <translation>Пароль</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="198"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="199"></location>
       <source>Join</source>
       <translation>Присоединиться</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="216"></location>
+      <location filename="printer_ui/printerui/qml/settings/WifiSetupPage.qml" line="217"></location>
       <source>Cancel</source>
       <translation>Отмена</translation>
     </message>
@@ -4755,6 +5440,109 @@ Progress: %4%</source>
       <location filename="printer_ui/printerui/qml/wizard/WizardPage.qml" line="117"></location>
       <source>Privacy policy</source>
       <translation>Политика конфиденциальности</translation>
+    </message>
+  </context>
+  <context>
+    <name>X1PlusOTADialog</name>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="21"></location>
+      <source>Download base firmware</source>
+      <translation type="unfinished">Download base firmware</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="21"></location>
+      <source>Download update</source>
+      <translation type="unfinished">Download update</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="30"></location>
+      <source>Install update</source>
+      <translation type="unfinished">Install update</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="42"></location>
+      <source>Return</source>
+      <translation>Вернуться</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="95"></location>
+      <source>&lt;b&gt;Current X1Plus version&lt;/b&gt;: %1</source>
+      <translation type="unfinished">&lt;b&gt;Current X1Plus version&lt;/b&gt;: %1</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="103"></location>
+      <source>Checking for X1Plus updates is enabled.</source>
+      <translation type="unfinished">Checking for X1Plus updates is enabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="103"></location>
+      <source>Checking for X1Plus updates is disabled.</source>
+      <translation type="unfinished">Checking for X1Plus updates is disabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="130"></location>
+      <source>&lt;i&gt;Checking for updates...&lt;/i&gt;</source>
+      <translation type="unfinished">&lt;i&gt;Checking for updates...&lt;/i&gt;</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="138"></location>
+      <source>&lt;b&gt;Last checked for updates&lt;/b&gt;: %1</source>
+      <translation type="unfinished">&lt;b&gt;Last checked for updates&lt;/b&gt;: %1</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="176"></location>
+      <source>&lt;i&gt;Most recent check for updates failed.  Check your network connection.&lt;/i&gt;</source>
+      <translation type="unfinished">&lt;i&gt;Most recent check for updates failed.  Check your network connection.&lt;/i&gt;</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="187"></location>
+      <source>You are running the newest version of X1Plus.</source>
+      <translation type="unfinished">You are running the newest version of X1Plus.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="197"></location>
+      <source>&lt;b&gt;New X1Plus version %1&lt;/b&gt; is available!</source>
+      <translation type="unfinished">&lt;b&gt;New X1Plus version %1&lt;/b&gt; is available!</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="208"></location>
+      <source>X1Plus update download in progress (%1).</source>
+      <translation type="unfinished">X1Plus update download in progress (%1).</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="210"></location>
+      <source>X1Plus update %1download complete%2.</source>
+      <translation type="unfinished">X1Plus update %1download complete%2.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="211"></location>
+      <source>X1Plus update has not been downloaded.</source>
+      <translation type="unfinished">X1Plus update has not been downloaded.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="220"></location>
+      <source>Base firmware download in progress (%1).</source>
+      <translation type="unfinished">Base firmware download in progress (%1).</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="222"></location>
+      <source>Base firmware %1download complete%2.</source>
+      <translation type="unfinished">Base firmware %1download complete%2.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="223"></location>
+      <source>Base firmware has not been downloaded, but downloading it from Bambu Lab servers is enabled.</source>
+      <translation type="unfinished">Base firmware has not been downloaded, but downloading it from Bambu Lab servers is enabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="224"></location>
+      <source>Base firmware has not been downloaded, and downloading it is disabled.</source>
+      <translation type="unfinished">Base firmware has not been downloaded, and downloading it is disabled.</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/X1PlusOTADialog.qml" line="243"></location>
+      <source>&lt;i&gt;Last download failed: %1&lt;/i&gt;</source>
+      <translation type="unfinished">&lt;i&gt;Last download failed: %1&lt;/i&gt;</translation>
     </message>
   </context>
   <context>
