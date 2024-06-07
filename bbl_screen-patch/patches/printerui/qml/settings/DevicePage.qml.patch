@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/DevicePage.qml
 +++ printer_ui/printerui/qml/settings/DevicePage.qml
-@@ -3,14 +3,47 @@
+@@ -3,14 +3,48 @@
  import QtQml 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -17,6 +17,7 @@
      property var storage: DeviceManager.storage
 +    property var isShield: DeviceManager.getSetting("cfw_shield", false)
 +    property bool legacyWifiDriver: X1Plus.Settings.get("boot.wifi_driver.bcmdhd", false)
++    property bool wifiPendingReboot: false
 +
 +    function setShield(shield) {
 +        isShield = shield;
@@ -48,7 +49,7 @@
  
      onVisibleChanged: {
          DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
-@@ -22,6 +55,7 @@
+@@ -22,6 +56,7 @@
  
      property var infoItems: SimpleItemModel {
          DeviceInfoItem { title: qsTr("Device"); value: build.name
@@ -56,7 +57,7 @@
          }
          DeviceInfoItem { title: qsTr("Language"); value: DeviceManager.languageTitle
              function onClicked() {
-@@ -31,8 +65,8 @@
+@@ -31,8 +66,8 @@
                  choisePad.choiseCallback = function(c) { DeviceManager.languageTitle = c }
                  choisePad.popupFor()
              } }
@@ -67,7 +68,7 @@
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +90,96 @@
+@@ -56,79 +91,99 @@
                  }
                  choisePad.popupFor()
              } }
@@ -148,7 +149,7 @@
 +            function onClicked() { pageStack.push("DeviceInfo.qml") }
 +        }
 +        
-+        DeviceInfoItem { title: qsTr("WiFi Driver"); value: (legacyWifiDriver) ? qsTr("Legacy WiFi Driver") : qsTr("X1Plus WiFi Driver")
++        DeviceInfoItem { title: qsTr("WiFi driver"); value: ((legacyWifiDriver) ? qsTr("Legacy") : qsTr("X1Plus")) + (wifiPendingReboot ? qsTr(" (reboot needed)") : "")
 +            function onClicked() { toggleWifiDriver() }
 +        }
 +    }
@@ -158,29 +159,32 @@
 +            X1Plus.Settings.put("boot.wifi_driver.bcmdhd", legacyWifiDriver);
 +            dialogStack.popupDialog("TextConfirm", {
 +                                name: "Reboot",
-+                                text: qsTr("Your changes will take effect after X1Plus reboots. Would you like to reboot now?"),
-+                                titles: [qsTr("No"), qsTr("Reboot Now")],
++                                text: qsTr("WiFi driver changes will take effect after X1Plus reboots. Would you like to reboot now?"),
++                                titles: [qsTr("No") /* YES */, qsTr("Reboot Now") /* NO */],
 +                                defaultButton: TextConfirm.NO, /* default = reboot now  */
-+                                onYes: X1PlusNative.system(`reboot`)
++                                onNo: () => X1PlusNative.system(`sync; reboot`)
                               })
++            wifiPendingReboot = true;
          }
 +        
-+        var wifiDlg = legacyWifiDriver ? qsTr("X1Plus is currently configured to load Legacy (OEM) WiFi drivers. Would you like to use the default X1Plus WiFi drivers instead?") : qsTr("X1Plus is currently configured to load the default WiFi drivers. Would you like to use the Legacy (OEM) WiFi drivers instead?")
-         dialogStack.popupDialog("TextConfirm", {
--                             name: "Format storage",
--                             text: qsTr("Data cannot be recovered after formatting the SD Card. Are you sure you want to format?"),
--                             titles: [qsTr("Format"), qsTr("Cancel")],
--                             onYes: format
++        var wifiDlg = legacyWifiDriver ?
++                        qsTr("X1Plus is currently configured to load legacy (OEM) WiFi driver. Would you like to use the default X1Plus WiFi driver instead?") :
++                        qsTr("X1Plus is currently configured to load the default X1Plus WiFi driver. Would you like to use the legacy (OEM) WiFi driver instead? (This is not typically necessary.)")
++        dialogStack.popupDialog("TextConfirm", {
 +                                        name: "WiFi Driver",
 +                                        text: wifiDlg,
-+                                        titles: [qsTr("Cancel"), qsTr("Yes")],
++                                        titles: [qsTr("Cancel") /* YES */, qsTr("Yes") /* NO */],
 +                                        defaultButton: TextConfirm.YES,
 +                                        onNo: wifiDlgConfirm 
 +                                    })
 +    }
 +
 +    function triggerName() {
-+        dialogStack.popupDialog("TextConfirm", {
+         dialogStack.popupDialog("TextConfirm", {
+-                             name: "Format storage",
+-                             text: qsTr("Data cannot be recovered after formatting the SD Card. Are you sure you want to format?"),
+-                             titles: [qsTr("Format"), qsTr("Cancel")],
+-                             onYes: format
 +                             name: "Device name",
 +                             text: qsTr("To change the name of your device, please use the slicer or the Bambu app."),
 +                             type: TextConfirm.CONFIRM
@@ -227,7 +231,7 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,30 +224,36 @@
+@@ -173,30 +228,36 @@
                                          onYes: restore
                                      })
          }
@@ -274,7 +278,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  color: Colors.gray_200
                  font: Fonts.body_40
-@@ -206,6 +263,7 @@
+@@ -206,6 +267,7 @@
              ZText {
                  id: sdSpace
                  anchors.top: sdName.bottom
@@ -282,7 +286,7 @@
                  anchors.horizontalCenter: sdName.horizontalCenter
                  color: Colors.font2
                  font: Fonts.body_24
-@@ -215,12 +273,12 @@
+@@ -215,12 +277,12 @@
  
              ZProgressBar {
                  id: sdProgressBar
@@ -298,7 +302,7 @@
                  anchors.horizontalCenter: parent.horizontalCenter
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,25 +287,73 @@
+@@ -229,25 +291,73 @@
          }
  
          MarginPanel {
@@ -388,7 +392,7 @@
                  }
              }
          }
-@@ -255,7 +361,7 @@
+@@ -255,7 +365,7 @@
          MarginPanel {
              id: lanOnly
              width: 426
@@ -397,7 +401,7 @@
              anchors.top: sdIdStorage.bottom
              anchors.topMargin: 16
              anchors.left: sdIdStorage.left
-@@ -266,30 +372,45 @@
+@@ -266,30 +376,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -457,7 +461,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -297,103 +418,48 @@
+@@ -297,103 +422,48 @@
                                                                  text: qsTr("Do you need to open LAN Mode Liveview?"),
                                                                  defaultButton: 0,
                                                                  onYes: function() {
@@ -587,7 +591,7 @@
              }
          }
      }
-@@ -404,7 +470,9 @@
+@@ -404,7 +474,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -598,7 +602,24 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -581,6 +649,114 @@
+@@ -418,6 +490,8 @@
+             delegate: infoComp
+         }
+ 
++        /* uncomment this if there is more to page through!
++        
+         SimplePager {
+             visible: infoList
+             anchors.right: parent.right
+@@ -428,6 +502,7 @@
+             btnType: ZButtonAppearance.Secondary
+             onStepTo: infoList.contentY = position
+         }
++        */
+     }
+ 
+     PopupPad {
+@@ -581,6 +656,114 @@
  
      }
  
@@ -713,7 +734,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +783,41 @@
+@@ -607,4 +790,41 @@
              }
          }
      }
