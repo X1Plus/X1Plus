@@ -31,7 +31,7 @@ class PolarPrintService:
         self.mac = ""
         self.pin = ""
         self.username = ""
-        self.server_url = "https://printer2.polar3d.com"
+        self.server_url = ""
         self.socket = None
         self.ip = ""
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
@@ -47,7 +47,6 @@ class PolarPrintService:
             # This means that .env file must formatted correctly, with var names
             # `username`, `pin`, and `server_url`.
             import inspect
-
             env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
             with open(os.path.join(env_dir, ".env")) as env:
                 for line in env:
@@ -72,10 +71,10 @@ class PolarPrintService:
 
     async def _make_request(self, which_request, data: Dict[str, str]) -> None:
         """Make a request to the server. Not currently in use. Delete?"""
-        if not self.socket:
+        if self.socket:
+            await self.socket.emit(which_request, data)
+        else:
             logger.error(f"{which_request} failed. Socket is closed.")
-            return
-        await self.socket.emit(which_request, data)
             # Log an error here. Find polite failure mode.
 
     def _on_connect(self):
@@ -97,7 +96,10 @@ class PolarPrintService:
             # The printer has been registered. Note that
             # we're now using the serial number assigned by the server.
             # First, encode challenge string with the private key.
-            logger.debug(f"_on_welcome Polar Cloud SN: {self.polar_sn}")
+            logger.debug(
+                f"_on_welcome printer SN: {serial_number()}\n"
+                f"        Polar Cloud SN: {self.polar_sn}"
+            )
             cipher_rsa = PKCS1_OAEP.new(self.private_key)
             encrypted = b64encode(cipher_rsa.encrypt(response["challenge"]))
             logger.debug(f"_on_welcome encrypted challenge: {encrypted}")
@@ -106,7 +108,7 @@ class PolarPrintService:
                 "signature": encrypted,  # BASE64 encoded string
                 "MAC": self.mac,
                 "protocol": "2.0",
-                "mfgSn": self.polar_sn,
+                "mfgSn": self.serial_number(),
             }
             """
             Note that the following optional fields might be used in future.
@@ -122,8 +124,8 @@ class PolarPrintService:
             # Send hello request.
             await self.socket.emit("hello", data)
         elif not self.polar_sn and not self.public_key:
-            # We need to get an RSA key pair before we can go further.
-            await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
+                # We need to get an RSA key pair before we can go further.
+                await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         # elif not self.polar_sn:
         #     # We already have a key: just register. Technically, there should be
         #     # no way to get here. Included for completion.
@@ -131,6 +133,7 @@ class PolarPrintService:
         #         "_on_welcome Somehow there are keys with no SN. Reregistering."
         #     )
         #     await self._register()
+
 
     def _on_hello_response(self, response, *args, **kwargs):
         if response["status"] == "SUCCESS":
@@ -148,7 +151,7 @@ class PolarPrintService:
             self.public_key = response["public"]
             self.private_key = response["private"]
             # We have keys, but still need to register. First disconnect.
-            logger.info("_on_keypair_response success. Disconnecting.")
+            logger.info("_on_keypair_response success.\nDisconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
             # After the next line it will send a `welcome`.
@@ -166,6 +169,8 @@ class PolarPrintService:
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
+            logger.debug(f"_on_register_response SN from Polar: {self.polar_sn} "
+                         f"SN from printer: {serial_number()}")
             self.polar_sn = response["serialNumber"]
             await self.polar_settings.put("polar_sn", response["serialNumber"])
 
@@ -181,10 +186,8 @@ class PolarPrintService:
             # "FORBIDDEN": There's an issue with the MAC address.
             if response["reason"].lower() == "forbidden":
                 # Todo: Must communicate with dbus to debug this!
-                logger.error(
-                    f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
-                    f"{self.mac}\n\n"
-                )
+                logger.error(f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
+                             f"{self.mac}\n\n")
                 exit()
 
     async def _register(self):
