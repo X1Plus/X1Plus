@@ -20,10 +20,10 @@ from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
 logger = logging.getLogger(__name__)
 
 
-class PolarPrint:
+class PolarPrintService:
     def __init__(self, settings):
-        self.polar_sn = ""
-        # VERY IMPORTANT!! The public and private keys MUST be moved to
+        self.polar_sn = 0
+        # Todo: VERY IMPORTANT!! The public and private keys MUST be moved to
         # non-volatile memory before release.
         self.public_key = ""
         self.private_key = ""
@@ -34,19 +34,19 @@ class PolarPrint:
         self.server_url = ""
         self.socket = None
         self.ip = ""
+        # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
         self.polar_settings = settings
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
         self.connected = False  # We might not need this, but here for now.
         if is_emulating():
-            import inspect
-
             # I need to use actual account creds to connect, so we're using .env
             # for testing, until there's an interface.
             # dotenv isn't installed, so just open the .env file and parse it.
             # This means that .env file must formatted correctly, with var names
             # `username`, `pin`, and `server_url`.
+            import inspect
             env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
             with open(os.path.join(env_dir, ".env")) as env:
                 for line in env:
@@ -56,6 +56,7 @@ class PolarPrint:
     async def begin(self):
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
+        self.set_interface()
         connect_task = asyncio.create_task(
             self.socket.connect(self.server_url, transports=["websocket"])
         )
@@ -85,28 +86,29 @@ class PolarPrint:
         Check to see if printer has already been registered. If it has, we can
         ignore this. Otherwise, must get a key pair, then call register.
         """
-        logger.debug(f"_on_welcome. challenge: {response['challenge']}")
+        logger.info("_on_welcome.")
+        logger.debug(f"challenge: {response['challenge']}")
+        logger.debug(f"Polar SN: {self.polar_sn}, Public key: {self.public_key[:10]}")
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
         if self.polar_sn and self.public_key:
             # The printer has been registered. Note that
             # we're now using the serial number assigned by the server.
-
             # First, encode challenge string with the private key.
             logger.debug(
-                f"_on_welcome printer SN: {serial_number()}"
-                f"Polar Cloud SN: {self.polar_sn}"
+                f"_on_welcome printer SN: {serial_number()}\n"
+                f"        Polar Cloud SN: {self.polar_sn}"
             )
             cipher_rsa = PKCS1_OAEP.new(self.private_key)
             encrypted = b64encode(cipher_rsa.encrypt(response["challenge"]))
-            logger.debug(f"_on_welcome encrypted: {encrypted}")
+            logger.debug(f"_on_welcome encrypted challenge: {encrypted}")
             data = {
                 "serialNumber": self.polar_sn,
                 "signature": encrypted,  # BASE64 encoded string
-                "MAC": get_MAC(),
+                "MAC": self.mac,
                 "protocol": "2.0",
-                "mfgSn": self.polar_sn,
+                "mfgSn": self.serial_number(),
             }
             """
             Note that the following optional fields might be used in future.
@@ -124,18 +126,18 @@ class PolarPrint:
         elif not self.polar_sn and not self.public_key:
                 # We need to get an RSA key pair before we can go further.
                 await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        elif not self.polar_sn:
-            # We already have a key: just register. Technically, there should be
-            # no way to get here. Included for completion.
-            logger.error(
-                "_on_welcome Somehow there are keys with no SN. Reregistering."
-            )
-            await self._register()
+        # elif not self.polar_sn:
+        #     # We already have a key: just register. Technically, there should be
+        #     # no way to get here. Included for completion.
+        #     logger.error(
+        #         "_on_welcome Somehow there are keys with no SN. Reregistering."
+        #     )
+        #     await self._register()
 
 
     def _on_hello_response(self, response, *args, **kwargs):
         if response["status"] == "SUCCESS":
-            logger.debug("On hello response success")
+            logger.info("_on_hello_response success")
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Deal with error here.
@@ -149,27 +151,44 @@ class PolarPrint:
             self.public_key = response["public"]
             self.private_key = response["private"]
             # We have keys, but still need to register. First disconnect.
+            logger.info("_on_keypair_response success.\nDisconnecting.")
+            # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
             # After the next line it will send a `welcome`.
+            logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
-            self._register()
+            await self._register()
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
+            # Todo: communicate with dbus to fix this!
             # Todo: deal with error using interface.
 
     async def _on_register_response(self, response, *args, **kwargs):
         """Get register response from status server and save serial number."""
         if response["status"] == "SUCCESS":
-            logger.debug("_on_register_response success.")
+            logger.info("_on_register_response success.")
+            logger.debug(f"Serial number: {response['serialNumber']}")
+            logger.debug(f"_on_register_response SN from Polar: {self.polar_sn} "
+                         f"SN from printer: {serial_number()}")
+            self.polar_sn = response["serialNumber"]
             await self.polar_settings.put("polar_sn", response["serialNumber"])
 
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
             # Todo: deal with various failure modes here. Most can be dealt
-            # with in interface. Modes are
-            # "SERVER_ERROR" | "MFG_MISSING" | "MFG_UNKNOWN" | "EMAIL_PIN_ERROR" |
-            # "FORBIDDEN" | "INVALID_KEY"
+            # with in interface. First three report as server erros? Modes are
+            # "SERVER_ERROR": Report this?
+            # "MFG_UNKNOWN": Again, should be impossible.
+            # "INVALID_KEY": Ask for new key. Maybe have a counter and fail after two?
+            # "MFG_MISSING": This should be impossible.
+            # "EMAIL_PIN_ERROR": Send it to the interface.
+            # "FORBIDDEN": There's an issue with the MAC address.
+            if response["reason"].lower() == "forbidden":
+                # Todo: Must communicate with dbus to debug this!
+                logger.error(f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
+                             f"{self.mac}\n\n")
+                exit()
 
     async def _register(self):
         """
@@ -180,7 +199,7 @@ class PolarPrint:
             sn = "123456789"
         else:
             sn = serial_number()
-        logger.debug(f"_on_welcome sending register. Public key: \n{self.public_key}")
+        logger.info("_register.")
         data = {
             "mfg": "bambu",
             "email": self.username,
@@ -193,8 +212,8 @@ class PolarPrint:
 
     async def _status(self):
         """
-        Should send several times a minute (4?). All fields but serialNumber and
-        status are optional.
+        Should send several times a minute (3? 4?). All fields but serialNumber
+        and status are optional.
         {
             "serialNumber": "string",
             "status": integer,
