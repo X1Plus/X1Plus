@@ -226,6 +226,8 @@ class OTAService(X1PlusDBusService):
         try:
             logger.debug(f"downloading {url} to {dest}")
             accum = hashlib.md5()
+            self.download_bytes = 0
+            self.download_bytes_total = -1
             with open(dest, 'wb') as f:
                 # Total timeout of 15 minutes per request means you need to
                 # sustain 100 kB/s from Bambu on a 90MB update.zip before we
