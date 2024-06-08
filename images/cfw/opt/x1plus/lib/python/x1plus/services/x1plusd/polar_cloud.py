@@ -47,6 +47,7 @@ class PolarPrintService:
             # This means that .env file must formatted correctly, with var names
             # `username`, `pin`, and `server_url`.
             import inspect
+
             env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
             with open(os.path.join(env_dir, ".env")) as env:
                 for line in env:
@@ -124,8 +125,8 @@ class PolarPrintService:
             # Send hello request.
             await self.socket.emit("hello", data)
         elif not self.polar_sn and not self.public_key:
-                # We need to get an RSA key pair before we can go further.
-                await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
+            # We need to get an RSA key pair before we can go further.
+            await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         # elif not self.polar_sn:
         #     # We already have a key: just register. Technically, there should be
         #     # no way to get here. Included for completion.
@@ -133,7 +134,6 @@ class PolarPrintService:
         #         "_on_welcome Somehow there are keys with no SN. Reregistering."
         #     )
         #     await self._register()
-
 
     def _on_hello_response(self, response, *args, **kwargs):
         if response["status"] == "SUCCESS":
@@ -169,8 +169,10 @@ class PolarPrintService:
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
-            logger.debug(f"_on_register_response SN from Polar: {self.polar_sn} "
-                         f"SN from printer: {serial_number()}")
+            logger.debug(
+                f"_on_register_response SN from Polar: {self.polar_sn} "
+                f"SN from printer: {serial_number()}"
+            )
             self.polar_sn = response["serialNumber"]
             await self.polar_settings.put("polar_sn", response["serialNumber"])
 
@@ -186,8 +188,10 @@ class PolarPrintService:
             # "FORBIDDEN": There's an issue with the MAC address.
             if response["reason"].lower() == "forbidden":
                 # Todo: Must communicate with dbus to debug this!
-                logger.error(f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
-                             f"{self.mac}\n\n")
+                logger.error(
+                    f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
+                    f"{self.mac}\n\n"
+                )
                 exit()
 
     async def _register(self):
