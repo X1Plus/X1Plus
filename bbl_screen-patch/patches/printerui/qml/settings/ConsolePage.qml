@@ -19,7 +19,6 @@ Item {
     property alias inputText: inputTextBox.text
     property bool printing: PrintManager.currentTask.stage >= PrintTask.WORKING
     property bool ignoreDialog: false
-    property var gcodeLibrary: X1Plus.GcodeGenerator
     property var gcodeCommand: [
         {
             "name": "Command<br>History",
@@ -70,7 +69,7 @@ Item {
             TextArea {
                 id: outputTextArea
                 width: 1130 - 56
-                textFormat: Qt.RichText //RichText is way too slow on the printer
+                textFormat: Qt.AutoText //RichText is way too slow on the printer
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
                 color: outputText.length == 0 ? Colors.gray_300 : Colors.gray_100
@@ -79,15 +78,15 @@ Item {
                       gcodeConsole ? qsTr("This interface allows you to send G-code commands to the printer. You can enter commands " +
                         "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
                         "the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate " +
-                        "it: ") + '<br><br>' +
+                        "it: ") + '\n\n' +
                     qsTr("Commands are case sensitive; the first character of a command is always a capital letter, " +
-                        "followed by a number. For example, to set the aux fan to full speed, use M106 P2 S255:") + '<br>' +
-                    space + qsTr("M106: G-code command for fan control") +'<br>' +
-                    space + qsTr("P2: parameter to select which fan (aux = 2)") +'<br>' +
-                    space + qsTr("S255: parameter to set fan speed (0 to 255)") + '<br><br>' +
+                        "followed by a number. For example, to set the aux fan to full speed, use M106 P2 S255:") + '\n' +
+                    space + qsTr("M106: G-code command for fan control") +'\n' +
+                    space + qsTr("P2: parameter to select which fan (aux = 2)") +'\n' +
+                    space + qsTr("S255: parameter to set fan speed (0 to 255)") + '\n\n' +
                     qsTr("For multi-line commands, each G-code command must be separated by the newline escape " +
-                        "sequence, \\n. For example:") +'<br>' +
-                    space + qsTr("M106 P2 S255\\nG4 S5") + '<br><br>' +
+                        "sequence, \\n. For example:") +'\n' +
+                    space + qsTr("M106 P2 S255\\nG4 S5") + '\n\n' +
                     space + qsTr("Aux fan to 255 -> Wait 5 sec")
                     : qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
                         "console. For any intensive tasks, consider SSHing to the printer instead ")
@@ -206,7 +205,7 @@ Item {
                                 }
                             }
                             onDoubleClicked:{
-                                console.log(";l");
+                                
                             }
                         }
                     }
@@ -274,10 +273,9 @@ Item {
             var inputCmd = str.replace(/\\n/g, '\n  ');
             inputCmd = str.trim();
             var rootStr = "<font color='#AAFF00'>[root@BL-P001]: </font>"
-            consoleComp.outputText += `${rootStr} ${inputCmd}<br>`
+            consoleComp.outputText += `<br>${rootStr} ${inputCmd}<br>`
 
             if (gcodeConsole) {
-                consoleComp.outputText = consoleComp.outputText.replace("enter gcode", '<br>');
                 gcodeProc.write(inputCmd + "\n");
                 cmdHistory[0].push(inputCmd);
                 idx = cmdHistory[0].length;
@@ -425,26 +423,23 @@ Item {
             property string output: ""
             property bool running: false
             onStarted: {
-                console.log("Running process");
                 running = true;
             }
             onFinished:{
-                console.log("Process finished with exit code:", exitCode, "and status:", exitStatus)
                 outputText += `Finished with exit code ${exitCode} and status ${exitStatus}<br>`
                 termScroll.scroll();
                 running = false;
             }
             onErrorOccurred: {
-                console.log("Error Ocuured: ", error)
                 consoleComp.outputText += `Error: ${error}<br>`;
                 termScroll.scroll();
                 running = false;
             }
             
             onReadyReadStandardOutput: {
-                output = shellProcess.readAll().toString().replace(/\n/g, '<br>')
+                output = "<br>" + shellProcess.readAll().toString().replace(/\n/g, '<br>')
                 output.replace('<br><br>','<br>');
-                consoleComp.outputText += `${output}`;
+                consoleComp.outputText += output;
                 termScroll.scroll();
             }
         }
@@ -456,11 +451,9 @@ Item {
                 running = true;
             }
             onFinished:{
-                console.log("Helper script: exit code:", exitCode, "and status:", exitStatus)
                 running = false;
             }
             onErrorOccurred: {
-                console.log("Helper script: error ", error)
                 running = false;
             }
             

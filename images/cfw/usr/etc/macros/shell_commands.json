@@ -4,68 +4,48 @@
     "action": "reboot"
   },
   {
-    "name": "awk",
-    "action": "awk"
+    "name": "restart<br>screen",
+    "action": "/etc/init.d/S99screen_service restart"
   },
   {
-    "name": "cat",
-    "action": "cat"
+    "name": "Get<br>setting",
+    "action": "python3 -m x1plus.client settings get vnc.password"
   },
   {
-    "name": "chmod",
-    "action": "chmod"
+    "name": "Get<br>settings",
+    "action": "python3 -m x1plus.client settings get *"
   },
   {
-    "name": "chown",
-    "action": "chown"
+    "name": "Set<br>setting",
+    "action": "python3 -m x1plus.client settings set vnc.password lol"
   },
   {
-    "name": "chroot",
-    "action": "chroot"
+    "name": "OTA<br>status",
+    "action": "python3 -m x1plus.client ota status"
   },
   {
-    "name": "python3",
+    "name": "Check<br>OTA",
+    "action": "python3 -m x1plus.client ota check"
+  },
+  {
+    "name": "Download<br>OTA",
+    "action": "python3 -m x1plus.client ota download"
+  },
+  {
+    "name": "Set OTA<br>URL",
+    "action": "python3 -m x1plus.client ota set-url http://"
+  },
+  {
+    "name": "python",
     "action": "python3"
   },
   {
-    "name": "wget",
-    "action": "wget"
-  },
-  {
-    "name": "curl",
-    "action": "curl"
-  },
-  {
-    "name": "mount",
-    "action": "mount"
-  },
-  {
-    "name": "remount",
-    "action": "remount"
-  },
-  {
-    "name": "bash -i",
-    "action": "bash-i"
-  },
-  {
-    "name": "cd",
-    "action": "cd"
+    "name": "remount<br>ro",
+    "action": "mount -o remount, rw /"
   },
   {
     "name": "ping",
-    "action": "ping"
-  },
-  {
-    "name": "echo",
-    "action": "echo"
-  },
-  {
-    "name": "grep",
-    "action": "grep"
-  },
-  {
-    "name": "head",
-    "action": "head"
+    "action": "ping 1.1.1.1"
   },
   {
     "name": "ifconfig",

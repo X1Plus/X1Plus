@@ -7,63 +7,73 @@ import subprocess
 
 lock_pattern = re.compile(r'\[MCU\]\[BMC\]owner=1 lock! \[Free\]')
 unlock_pattern = re.compile(r'\[MCU\]\[BMC\]owner=1 unlock!')
-timestamp_pattern = re.compile(r'^\w{3} +\d{1,2} \d{2}:\d{2}:\d{2}')
 info_forward_pattern = re.compile(r'info forward\[\d+\]: ')
+pattern_pattern = re.compile(r'\[gparser\]\[\d+\]')
+timestamp_pattern = re.compile(r'^\w{3} +\d{1,2} \d{2}:\d{2}:\d{2}')
 valid_line_pattern = re.compile(r'.*info forward\[\d+\]: \[(MCU\]\[BMC|gparser)\]')
 
 
+log_path = "/mnt/sdcard/log/syslog.log" if os.path.exists("/tmp/.syslog_to_sd") and os.path.exists("/mnt/sdcard/log/") else "/tmp/syslog.log"
 class TailLog:
-    def __init__(self, filepath, seek_end=True, interval=1.0):
+    def __init__(self, filepath):
         self.filepath = filepath
         self.fd = None
+        self.timeout = 5
+       	self.last_interaction_time = time.time()
         self.ino = None
-        self.seek_end = seek_end
-        self.buf = ""
-        self.interval = interval
-        self._open_file()
+        self.running = False
+        self.open_file()
 
-    def _open_file(self):
+    def open_file(self):
         self.fd = open(self.filepath, "r", encoding="utf-8", errors="replace")
         self.ino = os.fstat(self.fd.fileno()).st_ino
-        if self.seek_end:
-            self.fd.seek(0, os.SEEK_END)
+        self.fd.seek(0, os.SEEK_END) 
+        
+    def reset_timeout(self):
+        self.last_interaction_time = time.time()
+        
+    def tail(self, callback):
+        self.running = True
+        while self.running:
+            current_ino = os.fstat(self.fd.fileno()).st_ino
+            if current_ino != self.ino: 
+                self.fd.close()
+                self.open_file()
 
-    def readline(self):
-        if os.stat(self.filepath).st_ino != self.ino:
-            self.buf += self.fd.read() + "\n"
-            self.fd.close()
-            self._open_file()
-
-        self.buf += self.fd.read()
-        if self.seek_end:
-            self.buf = ""
-            self.seek_end = False
-
-        if "\n" not in self.buf:
-            return None
-        line, self.buf = self.buf.split("\n", 1)
-        return line
-
-    def lines(self):
-        while True:
-            line = self.readline()
-            if not line:
-                time.sleep(self.interval)
+            new_line = self.fd.readline()
+            if new_line:
+                callback(new_line)
+                if unlock_pattern.search(new_line):
+                    self.stop()
             else:
-                yield line
+                time.sleep(0.1)
 
-log_path = "/mnt/sdcard/log/syslog.log" if os.path.exists("/tmp/.syslog_to_sd") and os.path.exists("/mnt/sdcard/log/") else "/tmp/syslog.log"
+    def stop(self):
+        self.running = False
+        self.fd.close()
+capturing = False
+captured_lines = []
+def handle_log_output(line):
+    global capturing, captured_lines, tailing_thread
+    if lock_pattern.search(line):
+        capturing = True  # Start capturing log lines
+        captured_lines = []
+        return
 
-def send_gcode(gcode_line):
-    json_payload = {
-        "print": {
-            "command": "gcode_line",
-            "sequence_id": "2001",
-            "param": gcode_line
-        }
-    }
-    mqtt_pub(json.dumps(json_payload))
-    time.sleep(1)
+    if capturing:
+        if unlock_pattern.search(line):
+            output = ''.join(captured_lines).strip() 
+            capturing = False
+            captured_lines = []
+            tailing_thread.stop()
+            return
+
+        line = timestamp_pattern.sub('', line)
+        line = pattern_pattern.sub('<div>', line)
+        line = info_forward_pattern.sub('', line)
+        #line = "<font color='#FFF7CC'>" + line + "</font>"
+        print(line.replace("[MCU][BMC]", "<div>"), flush=True)
+
 
 def mqtt_pub(message):
     command = f"source /usr/bin/mqtt_access.sh; mqtt_pub '{message}'"
@@ -74,50 +84,23 @@ def mqtt_pub(message):
     except subprocess.CalledProcessError as e:
         print(f"error {e}")
 
-def log_monitor(tail_log):
-	capturing = False
-	captured_lines = []
-	try:
-		for line in tail_log.lines():
-			if lock_pattern.search(line):
-				capturing = True
-				captured_lines = []
-				continue
-	
-			if capturing:
-				if unlock_pattern.search(line):
-					capturing = False
-					output = ''.join(captured_lines).strip()
-					captured_lines = []
-					continue
-	
-				if valid_line_pattern.match(line):
-					line = timestamp_pattern.sub('', line)
-					line = info_forward_pattern.sub('', line)
-					print(line.replace("[MCU][BMC]","<br />"))
-					captured_lines.append(line)
-	except Exception as e:
-		print(f"Failed to monitor log file: {e}")
-
-def gcode_prompt():
-	while True:
-		try:
-			time.sleep(2)
-			gcode_input = input("<div><font color='#CACACA'>enter gcode</font><div>")
-			send_gcode(gcode_input)
-			
-		except EOFError:
-			break
+def send_gcode(gcode_line, seq_id):
+    json_payload = {
+        "print": {
+            "command": "gcode_line",
+            "sequence_id": seq_id,
+            "param": gcode_line
+        }
+    }
+    mqtt_pub(json.dumps(json_payload))
+    global tailing_thread
+    tailing_thread = TailLog(log_path)
+    threading.Thread(target=tailing_thread.tail, args=(handle_log_output,)).start()
 
 def main():
-    tail_syslog = TailLog(log_path)
-    log_thread = threading.Thread(target=log_monitor, args=(tail_syslog,), daemon=True)
-    log_thread.start()
-    p_thread = threading.Thread(target=gcode_prompt, daemon=True)
-    p_thread.start()
-    log_thread.join()
-    p_thread.join()
-
-
+	while True:
+		gcode_input = input("\n")
+		send_gcode(gcode_input,"0")
+	
 if __name__ == "__main__":
     main()
