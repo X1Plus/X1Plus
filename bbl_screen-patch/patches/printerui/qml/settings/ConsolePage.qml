@@ -284,7 +284,7 @@ Item {
                 if (commandParts.length > 0) {
                     let command = commandParts[0]
                     let args = commandParts.slice(1)
-                    shellProcess.start(command,args)
+                    shellProcess.start("bash", ["-c", inputCmd]);
                     cmdHistory[1].push(inputCmd);
                     idx = cmdHistory[1].length;
                 }

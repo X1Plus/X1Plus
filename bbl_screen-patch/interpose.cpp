@@ -735,6 +735,7 @@ class X1PlusProcess : public QProcess
 public:
     explicit X1PlusProcess(QObject* parent = nullptr) : QProcess(parent) {
         setProcessChannelMode(QProcess::MergedChannels);
+        setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     }
 
     Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList(), bool waitForCompletion = false, int timeout = 30000) {
@@ -744,7 +745,7 @@ public:
         }
         QProcess::start(program, args);
         if (waitForCompletion) {
-            waitForFinished(5); 
+            waitForFinished(timeout); 
         }
     }
     Q_INVOKABLE QByteArray readAll() { return QProcess::readAll(); }

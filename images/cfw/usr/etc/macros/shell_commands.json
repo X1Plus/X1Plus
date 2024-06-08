@@ -9,31 +9,31 @@
   },
   {
     "name": "Get<br>setting",
-    "action": "python3 -m x1plus.client settings get vnc.password"
+    "action": "x1plus settings get vnc.password"
   },
   {
     "name": "Get<br>settings",
-    "action": "python3 -m x1plus.client settings get *"
+    "action": "x1plus settings get *"
   },
   {
     "name": "Set<br>setting",
-    "action": "python3 -m x1plus.client settings set vnc.password lol"
+    "action": "x1plus settings set vnc.password lol"
   },
   {
     "name": "OTA<br>status",
-    "action": "python3 -m x1plus.client ota status"
+    "action": "x1plus ota status"
   },
   {
     "name": "Check<br>OTA",
-    "action": "python3 -m x1plus.client ota check"
+    "action": "x1plus ota check"
   },
   {
     "name": "Download<br>OTA",
-    "action": "python3 -m x1plus.client ota download"
+    "action": "x1plus ota download"
   },
   {
     "name": "Set OTA<br>URL",
-    "action": "python3 -m x1plus.client ota set-url http://"
+    "action": "x1plus ota set-url http://"
   },
   {
     "name": "python",
