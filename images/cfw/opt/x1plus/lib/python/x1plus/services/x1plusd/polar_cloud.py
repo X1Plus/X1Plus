@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class PolarPrintService:
     def __init__(self, settings):
-        self.polar_sn = 0
+        self.polar_sn = ""
         self.connected = False
         self.mac = ""
         self.pin = ""
@@ -95,7 +95,7 @@ class PolarPrintService:
                 "signature": encrypted,  # BASE64 encoded string
                 "MAC": self.mac,
                 "protocol": "2.0",
-                "mfgSn": self.serial_number(),
+                "mfgSn": self.polar_sn,
             }
             """
             Note that the following optional fields might be used in future.
@@ -155,13 +155,7 @@ class PolarPrintService:
         if response["status"] == "SUCCESS":
             self.polar_sn = response["serialNumber"]
             # await self.polar_settings.put("polar.polar_sn", response["serialNumber"])
-            logger.info("_on_register_response success.")
-            logger.debug(f"Serial number: {response['serialNumber']}")
-            logger.debug(
-                f"_on_register_response SN from Polar: {self.polar_sn} "
-                f"SN from printer: {serial_number()}"
-            )
-            # await self.polar_settings.put("polar.polar_sn", response["serialNumber"])
+            logger.info(f"_on_register_response success. Serial number: {response['serialNumber']}")
 
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
