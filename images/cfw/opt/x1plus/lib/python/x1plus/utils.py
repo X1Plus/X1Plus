@@ -25,7 +25,9 @@ def get_MAC() -> str:
     # Get the device id of the currently-active network device.
     devices = subprocess.Popen(["ip", "link"], stdout=subprocess.PIPE)
     # The active device _should_ be broadcasting.
-    active = subprocess.run(["grep", "BROADCAST"], stdin=devices.stdout, capture_output=True)
+    active = subprocess.run(
+        ["grep", "BROADCAST"], stdin=devices.stdout, capture_output=True
+    )
     identifier = active.stdout.decode().split(":")[1].strip()
     device = subprocess.Popen(["ip", "a", "s", identifier], stdout=subprocess.PIPE)
     # Should be "ether" even if it's a wireless device.
