@@ -78,4 +78,6 @@ function awaken() {
     _migrate("cfw_lockscreen_image", "lockscreen.image");
     _migrate("cfw_home_image", "homescreen.image");
     _migrate("cfw_print_image", "homescreen.image.printing");
+    _migrate("cfw_rootpw", "ssh.root_password");
+    _migrate("cfw_sshd", "ssh.enabled");
 }
