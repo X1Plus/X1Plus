@@ -63,7 +63,7 @@ function awaken() {
             _settingChanged(k, arg[k]);
         }
     });
-    _settings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "GetSettings")();
+    _settings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "GetSettings")() || {};
     _PutSettings = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/settings", "x1plus.settings", "PutSettings");
     
     for (const k in _settings) {
