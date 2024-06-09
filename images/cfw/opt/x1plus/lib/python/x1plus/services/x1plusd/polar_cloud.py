@@ -97,10 +97,7 @@ class PolarPrintService:
             # The printer has been registered. Note that
             # we're now using the serial number assigned by the server.
             # First, encode challenge string with the private key.
-            logger.debug(
-                f"_on_welcome printer SN: {serial_number()}\n"
-                f"        Polar Cloud SN: {self.polar_sn}"
-            )
+            logger.debug(f"_on_welcome Polar Cloud SN: {self.polar_sn}")
             cipher_rsa = PKCS1_OAEP.new(self.private_key)
             encrypted = b64encode(cipher_rsa.encrypt(response["challenge"]))
             logger.debug(f"_on_welcome encrypted challenge: {encrypted}")
@@ -109,7 +106,7 @@ class PolarPrintService:
                 "signature": encrypted,  # BASE64 encoded string
                 "MAC": self.mac,
                 "protocol": "2.0",
-                "mfgSn": self.serial_number(),
+                "mfgSn": self.polar_sn,
             }
             """
             Note that the following optional fields might be used in future.
@@ -151,7 +148,7 @@ class PolarPrintService:
             self.public_key = response["public"]
             self.private_key = response["private"]
             # We have keys, but still need to register. First disconnect.
-            logger.info("_on_keypair_response success.\nDisconnecting.")
+            logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
             # After the next line it will send a `welcome`.
@@ -169,10 +166,6 @@ class PolarPrintService:
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
-            logger.debug(
-                f"_on_register_response SN from Polar: {self.polar_sn} "
-                f"SN from printer: {serial_number()}"
-            )
             self.polar_sn = response["serialNumber"]
             await self.polar_settings.put("polar_sn", response["serialNumber"])
 
