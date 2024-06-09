@@ -23,17 +23,12 @@ logger = logging.getLogger(__name__)
 class PolarPrintService:
     def __init__(self, settings):
         self.polar_sn = 0
-        # Todo: VERY IMPORTANT!! The public and private keys MUST be moved to
-        # non-volatile memory before release.
-        self.public_key = ""
-        self.private_key = ""
         self.connected = False
         self.mac = ""
         self.pin = ""
         self.username = ""
         self.server_url = ""
         self.socket = None
-        self.ip = ""
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
         self.polar_settings = settings
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
@@ -57,14 +52,14 @@ class PolarPrintService:
     async def begin(self):
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
-        self.set_interface()
+        self.mac = get_MAC()
+        await self.polar_settings.put("polar.mac", get_MAC())
         connect_task = asyncio.create_task(
             self.socket.connect(self.server_url, transports=["websocket"])
         )
         await connect_task
 
         # Assign socket callbacks
-        self.socket.on("connect", self._on_connect)
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
@@ -78,30 +73,21 @@ class PolarPrintService:
         await self.socket.emit(which_request, data)
             # Log an error here. Find polite failure mode.
 
-    def _on_connect(self):
-        """Do I need this?"""
-        self.connected = True
-
     async def _on_welcome(self, response, *args, **kwargs):
         """
         Check to see if printer has already been registered. If it has, we can
         ignore this. Otherwise, must get a key pair, then call register.
         """
-        logger.info("_on_welcome.")
+        logger.info(f"_on_welcome.")
         logger.debug(f"challenge: {response['challenge']}")
-        logger.debug(f"Polar SN: {self.polar_sn}, Public key: {self.public_key[:10]}")
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
-        if self.polar_sn and self.public_key:
+        if self.polar_sn and self.polar_settings.get("polar.public_key", None):
             # The printer has been registered. Note that
             # we're now using the serial number assigned by the server.
             # First, encode challenge string with the private key.
-            logger.debug(
-                f"_on_welcome printer SN: {serial_number()}\n"
-                f"        Polar Cloud SN: {self.polar_sn}"
-            )
-            cipher_rsa = PKCS1_OAEP.new(self.private_key)
+            cipher_rsa = PKCS1_OAEP.new(self.polar_settings.get("polar.private_key", ""))
             encrypted = b64encode(cipher_rsa.encrypt(response["challenge"]))
             logger.debug(f"_on_welcome encrypted challenge: {encrypted}")
             data = {
@@ -124,16 +110,16 @@ class PolarPrintService:
 
             # Send hello request.
             await self.socket.emit("hello", data)
-        elif not self.polar_sn and not self.public_key:
+        elif not self.polar_sn and not self.polar_settings.get("polar.public_key", None):
             # We need to get an RSA key pair before we can go further.
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        # elif not self.polar_sn:
-        #     # We already have a key: just register. Technically, there should be
-        #     # no way to get here. Included for completion.
-        #     logger.error(
-        #         "_on_welcome Somehow there are keys with no SN. Reregistering."
-        #     )
-        #     await self._register()
+        elif not self.polar_sn:
+            # We already have a key: just register. Technically, there should be
+            # no way to get here. Included for completion.
+            logger.error(
+                "_on_welcome Somehow there are keys with no SN. Reregistering."
+            )
+            await self._register()
 
     def _on_hello_response(self, response, *args, **kwargs):
         if response["status"] == "SUCCESS":
@@ -148,8 +134,8 @@ class PolarPrintService:
         out to interface for new email or pin.
         """
         if response["status"] == "SUCCESS":
-            self.public_key = response["public"]
-            self.private_key = response["private"]
+            await self.polar_settings.put("polar.public_key", response["public"])
+            await self.polar_settings.put("polar.private_key", response["private"])
             # We have keys, but still need to register. First disconnect.
             logger.info("_on_keypair_response success.\nDisconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
@@ -167,14 +153,15 @@ class PolarPrintService:
     async def _on_register_response(self, response, *args, **kwargs):
         """Get register response from status server and save serial number."""
         if response["status"] == "SUCCESS":
+            self.polar_sn = response["serialNumber"]
+            # await self.polar_settings.put("polar.polar_sn", response["serialNumber"])
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
             logger.debug(
                 f"_on_register_response SN from Polar: {self.polar_sn} "
                 f"SN from printer: {serial_number()}"
             )
-            self.polar_sn = response["serialNumber"]
-            await self.polar_settings.put("polar_sn", response["serialNumber"])
+            # await self.polar_settings.put("polar.polar_sn", response["serialNumber"])
 
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
@@ -189,7 +176,7 @@ class PolarPrintService:
             if response["reason"].lower() == "forbidden":
                 # Todo: Must communicate with dbus to debug this!
                 logger.error(
-                    f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
+                    f"Forbidden. Duplicate MAC! Terminating.\n   MAC: "
                     f"{self.mac}\n\n"
                 )
                 exit()
@@ -208,7 +195,7 @@ class PolarPrintService:
             "mfg": "bambu",
             "email": self.username,
             "pin": self.pin,
-            "publicKey": self.public_key,
+            "publicKey": self.polar_settings.get("polar.public_key", ""),
             "mfgSn": sn,
             "myInfo": {"MAC": self.mac},
         }
@@ -267,8 +254,3 @@ class PolarPrintService:
         if not self.pin:
             # Get it from the interface.
             pass
-
-    def set_interface(self):
-        """Get IP and MAC addresses and store them in self.settings."""
-        self.mac = get_MAC()
-        self.ip = get_IP()
