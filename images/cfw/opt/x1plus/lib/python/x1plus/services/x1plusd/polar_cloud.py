@@ -24,24 +24,27 @@ class PolarPrintService:
     def __init__(self, settings):
         self.polar_sn = ""
         self.connected = False
+        """
+        The MAC is stored here, but on restart will always generated dynamically
+        in an attempt to discourage movement of SD cards.
+        """
         self.mac = ""
-        self.pin = ""
-        self.username = ""
-        self.server_url = "" # This will be used for sending camera images.
+        self.pin = "" # Once the interface is working this will move to settings.
+        self.username = "" # Once the interface is working this will move to settings.
+        self.server_url = "https://printer2.polar3d.com"
         self.socket = None
-        self.ip = ""
+        self.ip = "" # This will be used for sending camera images.
         self.polar_settings = settings
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
         # self.polar_settings.on("polarprint.enabled", self._startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
-        self.connected = False  # We might not need this, but here for now.
         if is_emulating():
             # I need to use actual account creds to connect, so we're using .env
             # for testing, until there's an interface.
             # dotenv isn't installed, so just open the .env file and parse it.
             # This means that .env file must formatted correctly, with var names
-            # `username`, `pin`, and `server_url`.
+            # `username` and `pin`.
             import inspect
 
             env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -50,10 +53,11 @@ class PolarPrintService:
                     k, v = line.split("=")
                     setattr(self, k, v.strip())
 
-    async def begin(self):
+    async def begin(self) -> None:
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
+        self.get_creds()
         connect_task = asyncio.create_task(
             self.socket.connect(self.server_url, transports=["websocket"])
         )
@@ -66,19 +70,7 @@ class PolarPrintService:
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
 
-    async def _make_request(self, which_request, data: Dict[str, str]) -> None:
-        """Make a request to the server. Not currently in use. Delete?"""
-        if not self.socket:
-            logger.error(f"{which_request} failed. Socket is closed.")
-            return
-        await self.socket.emit(which_request, data)
-        # Log an error here. Find polite failure mode.
-
-    def _on_connect(self):
-        """Do I need this?"""
-        self.connected = True
-
-    async def _on_welcome(self, response, *args, **kwargs):
+    async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
         Check to see if printer has already been registered. If it has, we can
         ignore this. Otherwise, must get a key pair, then call register.
@@ -130,14 +122,14 @@ class PolarPrintService:
             )
             await self._register()
 
-    def _on_hello_response(self, response, *args, **kwargs):
+    def _on_hello_response(self, response, *args, **kwargs) -> None:
         if response["status"] == "SUCCESS":
             logger.info("_on_hello_response success")
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Deal with error here.
 
-    async def _on_keypair_response(self, response, *args, **kwargs):
+    async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
         Request a keypair from the server. On success register. On failure kick
         out to interface for new email or pin.
@@ -159,7 +151,7 @@ class PolarPrintService:
             # Todo: communicate with dbus to fix this!
             # Todo: deal with error using interface.
 
-    async def _on_register_response(self, response, *args, **kwargs):
+    async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
         Get register response from status server and save serial number.
         At the end of this fn printer will be ready to receive print calls.
@@ -188,7 +180,7 @@ class PolarPrintService:
                 )
                 exit()
 
-    async def _register(self):
+    async def _register(self) -> None:
         """
         Send register request. Note this can only be called after a keypair
         has been received and stored.
@@ -208,7 +200,7 @@ class PolarPrintService:
         }
         await self.socket.emit("register", data)
 
-    async def _status(self):
+    async def _status(self) -> None:
         """
         Should send several times a minute (3? 4?). All fields but serialNumber
         and status are optional.
@@ -256,13 +248,21 @@ class PolarPrintService:
         """
         pass
 
-    def get_pin(self):
-        """If PIN is not set, open Polar Cloud interface window and get PIN."""
-        if not self.pin:
+    def get_creds(self) -> None:
+        """
+        If PIN and username are not set, open Polar Cloud interface window and
+        get them.
+        """
+        if not self.polar_settings.get("polar.pin", ""):
             # Get it from the interface.
             pass
+        if not self.polar_settings.get("polar.username", ""):
+            pass
 
-    def set_interface(self):
-        """Get IP and MAC addresses and store them in self.settings."""
+    def set_interface(self) -> None:
+        """
+        Get IP and MAC addresses and store them in self.settings. This is
+        intentionally dynamic as a security measure.
+        """
         self.mac = get_MAC()
         self.ip = get_IP()

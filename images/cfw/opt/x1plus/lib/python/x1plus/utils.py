@@ -19,11 +19,21 @@ def serial_number():
 
 
 def get_MAC() -> str:
-    """Return the MAC address of the printer."""
+    """Return the MAC address of the wireless interface."""
     if is_emulating():
         return "CC:BD:D3:00:3B:D5"
-    # Get the device id of the currently-active network device.
-    devices = subprocess.Popen(["ip", "link"], stdout=subprocess.PIPE)
+    # Get a list of all interface
+    interfaces = subprocess.Popen(["ip", "link"], capture_output=True)
+    devices = interfaces.split("\n")
+    for i in range(0, len(devices), 2):
+        if "wlan" in devices[i] or "wlo" in devices[i]:
+            # I /think/ Debian consistently uses wlan. Better safe.
+            # MAC address is in next line.
+            identifier = devices[i + 1].strip()
+            break
+    return = identifier.split(" ")[1]
+
+
     # The active device _should_ be broadcasting.
     active = subprocess.run(
         ["grep", "BROADCAST"], stdin=devices.stdout, capture_output=True
