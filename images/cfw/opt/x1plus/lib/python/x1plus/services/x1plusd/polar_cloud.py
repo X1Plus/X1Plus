@@ -72,10 +72,10 @@ class PolarPrintService:
 
     async def _make_request(self, which_request, data: Dict[str, str]) -> None:
         """Make a request to the server. Not currently in use. Delete?"""
-        if self.socket:
-            await self.socket.emit(which_request, data)
-        else:
+        if not self.socket:
             logger.error(f"{which_request} failed. Socket is closed.")
+            return
+        await self.socket.emit(which_request, data)
             # Log an error here. Find polite failure mode.
 
     def _on_connect(self):
