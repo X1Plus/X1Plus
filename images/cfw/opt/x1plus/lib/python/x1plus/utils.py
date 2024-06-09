@@ -31,7 +31,7 @@ def get_MAC() -> str:
             # MAC address is in next line.
             identifier = devices[i + 1].strip()
             break
-    return = identifier.split(" ")[1]
+    return identifier.split(" ")[1]
 
 
     # The active device _should_ be broadcasting.

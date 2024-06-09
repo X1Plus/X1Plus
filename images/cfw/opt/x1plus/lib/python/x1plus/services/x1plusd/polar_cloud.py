@@ -62,9 +62,8 @@ class PolarPrintService:
             self.socket.connect(self.server_url, transports=["websocket"])
         )
         await connect_task
-
+        logger.info("begin")
         # Assign socket callbacks
-        self.socket.on("connect", self._on_connect)
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
