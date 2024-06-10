@@ -69,7 +69,7 @@ class OTAService(X1PlusDBusService):
         )
 
     def ota_enabled(self):
-        return bool(self.x1psettings.get("ota.enabled", True))
+        return bool(self.x1psettings.get("ota.enabled", true))
 
     async def task(self):
         # On startup run an update check to populate info
