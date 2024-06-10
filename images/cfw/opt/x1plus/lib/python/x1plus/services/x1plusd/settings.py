@@ -36,7 +36,7 @@ class SettingsService(X1PlusDBusService):
         "boot.dump_emmc": False,
         "boot.sdcard_syslog": False,
         "boot.perf_log": False,
-        "ota.enabled": False,
+        "ota.enabled": True,
     }
 
     def __init__(self, **kwargs):
