@@ -8,15 +8,15 @@
     "action": "/etc/init.d/S99screen_service restart"
   },
   {
-    "name": "Get<br>setting",
+    "name": "get<br>setting",
     "action": "x1plus settings get vnc.password"
   },
   {
-    "name": "Get<br>settings",
+    "name": "get all<br>settings",
     "action": "x1plus settings get *"
   },
   {
-    "name": "Set<br>setting",
+    "name": "set<br>setting",
     "action": "x1plus settings set vnc.password lol"
   },
   {
@@ -24,15 +24,15 @@
     "action": "x1plus ota status"
   },
   {
-    "name": "Check<br>OTA",
+    "name": "check<br>OTA",
     "action": "x1plus ota check"
   },
   {
-    "name": "Download<br>OTA",
+    "name": "download<br>OTA",
     "action": "x1plus ota download"
   },
   {
-    "name": "Set OTA<br>URL",
+    "name": "set OTA<br>URL",
     "action": "x1plus ota set-url http://"
   },
   {
@@ -40,8 +40,8 @@
     "action": "python3"
   },
   {
-    "name": "remount<br>ro",
-    "action": "mount -o remount, rw /"
+    "name": "Print<br>speed<br>macro",
+    "action": "python3 -u /usr/etc/macros/speed_ramp.py -s 50 -r 100 "
   },
   {
     "name": "ping",
