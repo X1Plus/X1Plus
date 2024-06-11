@@ -11,7 +11,7 @@ Item {
     property alias name: textConfirm.objectName
     property var currentVersion: screenSaver.cfwVersions['cfw']['version']
     property var ota: X1Plus.OTA.status()
-    property var otaEnabled: !!X1Plus.Settings.get("ota.enabled", false)
+    property var otaEnabled: !!X1Plus.Settings.get("ota.enabled", true)
     property var downloadBaseFirmware: true /* wire up to switch */
     property var otaBusy: ota.status != 'IDLE' && ota.status != 'DISABLED'
     property var progressString: `${(ota.download.bytes / 1048576).toFixed(2)} MB / ${(ota.download.bytes_total / 1048576).toFixed(2)} MB`
