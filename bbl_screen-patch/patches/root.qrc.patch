@@ -83,7 +83,7 @@
  <file>printerui/qml/printer/AMSUseBootPage.qml</file>
  <file>printerui/qml/printer/AdjustPage.qml</file>
  <file>printerui/qml/printer/AutoRefillPage.qml</file>
-@@ -197,19 +240,25 @@
+@@ -197,19 +238,26 @@
  <file>printerui/qml/printer/PrintSkipPage.qml</file>
  <file>printerui/qml/printer/Sector.qml</file>
  <file>printerui/qml/printer/SelfTestPage.qml</file>
