@@ -1,0 +1,17 @@
+--- printer_ui-orig/printerui/text/hms_texts.nl.json
++++ printer_ui/printerui/text/hms_texts.nl.json
+@@ -2879,7 +2879,11 @@
+         {
+             "ecode": "050003000002000C",
+             "intro": "Draadloze hardwarefout: schakel wifi uit/in of start de printer opnieuw op."
++        },
++        {
++            "ecode": "1200240000020001",
++            "intro": "Het filament is mogelijk gebroken in de kop van het gereedschap."
+         }
+     ],
+-    "ver": 202309261840
+-}
++    "ver": 202406020147
++}
+\ No newline at end of file

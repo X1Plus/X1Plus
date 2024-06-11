@@ -1,0 +1,21 @@
+--- printer_ui-orig/printerui/text/error_texts.fr.json
++++ printer_ui/printerui/text/error_texts.fr.json
+@@ -947,7 +947,15 @@
+         {
+             "ecode": "07028005",
+             "intro": "Impossible d'alimenter le filament en dehors de l'AMS. Veuillez nettoyer la pointe du filament et vérifier si la bobine est coincée. Après le dépannage, cliquez sur le bouton Réessayer."
++        },
++        {
++            "ecode": "05004012",
++            "intro": "La porte semble ouverte, l'impression a donc été interrompue."
++        },
++        {
++            "ecode": "05008036",
++            "intro": "Votre fichier d'impression n'est pas compatible avec le modèle d'imprimante actuel. Continuer ?"
+         }
+     ],
+-    "ver": 202309261900
+-}
++    "ver": 202406020147
++}
+\ No newline at end of file
