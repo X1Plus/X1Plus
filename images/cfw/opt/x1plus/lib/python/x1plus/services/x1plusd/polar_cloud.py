@@ -31,7 +31,7 @@ class PolarPrintService:
         self.mac = ""
         self.pin = ""
         self.username = ""
-        self.server_url = ""
+        self.server_url = "https://printer2.polar3d.com"
         self.socket = None
         self.ip = ""
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
