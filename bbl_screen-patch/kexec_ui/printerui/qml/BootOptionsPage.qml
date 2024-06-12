@@ -57,12 +57,18 @@ Rectangle {
                           
                           X1PlusNative.saveFile(X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/screen/printer.json", JSON.stringify(j, null, 4));
                           
-                          let ext4_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/rw.ext4";
-                          X1PlusNative.system(`rm -f ${ext4_path} && truncate -s ${1024*1024*1024} ${ext4_path} && mkfs.ext4 -F ${ext4_path}`);
                           let hostkey_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/sshd/*";
                           X1PlusNative.system(`rm -f ${hostkey_path}`);
-                          let sdcard_logs_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/printers/${DeviceManager.build.seriaNO}/logs/*";
+                          let sdcard_logs_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + `/sdcard/x1plus/printers/${DeviceManager.build.seriaNO}/logs/*`;
                           X1PlusNative.system(`rm -f ${sdcard_logs_path}`);
+                          let sdcard_jsons_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + `/sdcard/x1plus/printers/${DeviceManager.build.seriaNO}/*.json`;
+                          X1PlusNative.system(`rm -f ${sdcard_jsons_path}`);
+                          let sdcard_images_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + `/sdcard/x1plus/printers/${DeviceManager.build.seriaNO}/images/*`;
+                          X1PlusNative.system(`rm -f ${sdcard_images_path}`);
+
+                          let ext4_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/rw.ext4";
+                          X1PlusNative.system(`rm -f ${ext4_path} && truncate -s ${1024*1024*1024} ${ext4_path} && mkfs.ext4 -F ${ext4_path}`);
+
                           X1PlusNative.system(`sync`);
                           
                           dialogStack.pop();
