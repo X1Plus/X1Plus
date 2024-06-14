@@ -33,17 +33,14 @@ Item {
     height: parent.height
     anchors.fill: parent
     property alias speed: dial.value
-    property bool ramping: false
-    property int mode: 0 
     property var targetSpeed:100
     property var currentSpeed: PrintManager.currentTask.printSpeed
     property var speedLabel:  (Math.abs(currentSpeed-targetSpeed) > 0) ? `${targetSpeed} / ${currentSpeed}%` : `${currentSpeed}%`
-    property var layerNum: PrintManager.currentTask.layerNum
-    property var totalLayerNum: PrintManager.currentTask.totalLayerNum
+    property bool printIdle: (X1Plus.emulating)? false : PrintManager.currentTask.stage < PrintTask.WORKING
     property var target: parent.target
+    property var gcode: X1Plus.GcodeGenerator
     property alias stepSize: dial.stepSize
     property var stepSizes: [2, 10]
-    
     property var nearestLevel: function(val) { 
         var closestIndex = 0; 
         var minDiff = Math.abs(val - speedValues[0]);
@@ -54,11 +51,14 @@ Item {
                 closestIndex = i;
             }
         }
-        return closestIndex; 
+        return 3 - closestIndex; 
     }
-
+    function speed_fraction(speed){
+        return gcode.speed_interpolation.speed_fraction(speed)
+    }
     onTargetChanged:{
         if (target != null){
+            dial.value = currentSpeed;
             dialCanvas.requestPaint();
             curValArc.requestPaint();
         }
@@ -102,9 +102,10 @@ Item {
             onClicked: {
                 customSpeed = false;
                 X1Plus.Settings.put("printerui.speedadjust", customSpeed);
-                let equivLevel = 3 - nearestLevel(currentSpeed);
-                stepBar.step = equivLevel
-                PrintManager.currentTask.printSpeedMode = equivLevel
+                /*  set the stepbar's value to the nearest OEM speed profile */
+                let equivLevel = nearestLevel(currentSpeed);
+                stepBar.step = equivLevel;
+                PrintManager.currentTask.printSpeedMode = equivLevel;
             }
             onEntered: parent.opacity = 0.8
             onExited: parent.opacity = 1.0
@@ -134,8 +135,8 @@ Item {
         }
         Dial {
             id: dial
-            width: 270
-            height: 270
+            width: 300
+            height: width
             from: 30
             stepSize:2
             to:180
@@ -146,21 +147,26 @@ Item {
                 curValArc.requestPaint();
             }
             onValueChanged: {
-                if (dial.value < 30) {
-                    dial.value = 30;
-                } else {
-                    dial.value = 30 + stepSize * Math.round((dial.value - 30) / stepSize);
-                }
                 targetSpeed = dial.value;
                 curValArc.requestPaint();
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: {
-                    mouse.accepted = true;
+                acceptedButtons: Qt.AllButtons 
+
+                onPressed:{
                     updateDialValue(mouse.x, mouse.y);
                 }
-                
+                onReleased:{
+                    try {
+                        let remainTime = (X1Plus.emulating) ? 10080 : PrintManager.currentTask.remainTime
+                        let target = (printIdle) ? 0 : remainTime*currentSpeed/dial.value;
+                        timeRemaining.text = (target > 0) ? qsTr("Estimate:") + "\n" + Printer.durationString(target) : "";
+                        
+                    } catch (e) {
+                        console.log("SpeedAdjust - error calculating time estimate. ", e)
+                    }
+                }
                 onPositionChanged: {
                     updateDialValue(mouse.x, mouse.y);
                 }
@@ -169,30 +175,22 @@ Item {
                     var dy = mouseY - dial.height / 2;
                     var angle = Math.atan2(dy, dx) * 180 / Math.PI;
                     angle = (angle + 360) % 360;
-                    dial.value = mapAngleToValue(angle);
+                    var value = mapAngleToValue(angle);
+                    dial.value = value;
                 }
                 function mapAngleToValue(angle) {
                     var startAngle = 130;
                     var sweepAngle = 280;
-                    if (angle < startAngle){
-                        if (Math.abs(dial.value - stepSize) > 100) angle += 360;
-                    }
-                    
-                    if (angle > startAngle+sweepAngle) return dial.to; 
-                    var relativeAngle = angle - startAngle;
-                    if (relativeAngle > sweepAngle) {
-                        relativeAngle = sweepAngle; 
-                    }
-                    var p = relativeAngle / sweepAngle;
-                    var value = dial.from + p * (dial.to - dial.from);
-                    return value;
+                    angle = (angle - startAngle + 360) % 360;
+                    if (angle > sweepAngle + 30) return dial.from;
+                    var value = dial.from + (angle / sweepAngle) * (dial.to - dial.from);
+                    return Math.round(value / dial.stepSize) * dial.stepSize;
                 }
-                
             }
             background: Rectangle {
                 id: dialBackground
-                implicitWidth: 270
-                implicitHeight: 270
+                implicitWidth: dial.width
+                implicitHeight: height
                 width:implicitWidth
                 height:implicitHeight
                 color: "#2F302F"
@@ -246,7 +244,7 @@ Item {
                             var currentValue = dial.from + i;
 
                             ctx.strokeStyle =  "#6B6B6A";
-                            ctx.lineWidth = 2;
+                            ctx.lineWidth = 3;
                             ctx.stroke();
                             
                             if (i % 10 === 0) {
@@ -282,7 +280,8 @@ Item {
             }  
     
             Text {
-                text: qsTr(`%1%\n${speedStr[nearestLevel(targetSpeed)]}`).arg(Math.round(dial.value))
+                id: valueText
+                text: Math.round(dial.value) + "%\n" + PrintManager.currentTask.printSpeedModeStrings[nearestLevel(targetSpeed)]
                 color: "white"
                 font.pixelSize: 36
                 horizontalAlignment: Text.AlignHCenter
@@ -293,19 +292,27 @@ Item {
         
         Text { 
             id: txtParams //displays the parameters that will be applied
-            property var speedParams: X1Plus.GcodeGenerator.speed_interpolation
+            property var speedParams: gcode.speed_interpolation
             text:qsTr("Acceleration:\n%1\nFeed rate:\n%2\nTime:\n%3")
-                .arg(speedParams.acceleration_magnitude(speedParams.speed_fraction(dial.value)).toFixed(2))
+                .arg(speedParams.acceleration_magnitude(speed_fraction(dial.value)).toFixed(2))
                 .arg(speedParams.feed_rate(dial.value).toFixed(2))
-                .arg(speedParams.speed_fraction(dial.value).toFixed(1)) 
+                .arg(speed_fraction(dial.value).toFixed(1)) 
             color: "white"
             font.pixelSize: 18
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 20
-            
+            horizontalAlignment: Text.AlignHCenter    
         }
-        
+        Text { 
+            id: timeRemaining
+            color: "white"
+            font.pixelSize: 24
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: dial.left
+            anchors.rightMargin: 10
+            horizontalAlignment: Text.AlignHCenter    
+        }
        
         Item {
             id: buttonsContainer
@@ -318,16 +325,16 @@ Item {
             Row {
                 spacing: 15 
                 anchors.horizontalCenter: parent.horizontalCenter      
-                visible:true       
+                   
                 Rectangle {
                     id: rampButton
-                    width: 145+70
-                    height: 125
-                    color: (ramping) ? "#2F302F": Colors.gray_600
-                    radius: 25
+                    width: 215
+                    color: Colors.gray_600
+                    height: 115
+                    radius: width/8
                     
                     Text {
-                        text: "Step size\n±" + stepSize + "%"
+                        text: qsTr("Step size") + "\n±" + stepSize + "%"
                         anchors.centerIn: parent
                         color: "white"
                         font.pixelSize: 30
@@ -354,10 +361,10 @@ Item {
                 }
                 Rectangle {
                     id: applyButton
-                    width: 145+70
-                    height: 125
+                    width: rampButton.width
+                    height: rampButton.height
                     color: Colors.gray_600
-                    radius: 25
+                    radius: width/8
 
                     Text {
                         text: qsTr("Apply")
@@ -369,8 +376,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            let gcode = X1Plus.GcodeGenerator.printSpeed(targetSpeed)
-                            X1Plus.sendGcode(gcode);
+                            X1Plus.sendGcode(gcode.printSpeed(targetSpeed));
                             parent.parent.parent.parent.parent.parent.target = null;
                         }
                     }
