@@ -49,6 +49,8 @@ die() {
 	mount /dev/mmcblk0p13 /userdata
 	dmesg > /userdata/log/x1plus-boot-debug.log
 	fdisk -l /dev/mmcblk2 >> /userdata/log/x1plus-boot-debug.log
+	umount /userdata
+	sync
 	echo "critical step failed; dropping you into a shell"
 	exec sh
 }
