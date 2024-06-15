@@ -43,6 +43,9 @@ echo "init params $*"
 
 die() {
 	echo "X1Plus startup failed. initramfs shell is available on UART at 1500000 baud." > /dev/tty0
+	echo "Dumping debug to /userdata/log/x1plus-boot-debug.log" > /dev/tty0
+	dmesg > /userdata/log/x1plus-boot-debug.log
+	fdisk -l /dev/mmcblk2 >> /userdata/log/x1plus-boot-debug.log
 	echo "critical step failed; dropping you into a shell"
 	exec sh
 }
