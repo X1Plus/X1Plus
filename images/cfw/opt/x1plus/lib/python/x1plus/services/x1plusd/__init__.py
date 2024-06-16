@@ -18,6 +18,9 @@ async def main():
     settings = SettingsService(router=router)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
+
+    asyncio.create_task(settings.task())
+    asyncio.create_task(ota.task())
     if settings.get("polar_cloud", True):
         from .polar_cloud import PolarPrintService
         polar_cloud = PolarPrintService(settings=settings)
