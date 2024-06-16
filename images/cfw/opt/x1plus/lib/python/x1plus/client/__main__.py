@@ -1,6 +1,5 @@
 import argparse
-from . import ota, settings
-
+from . import ota, settings, mqtt
 """
 Basic command-line X1Plus management tool.
 """
@@ -10,6 +9,7 @@ subparsers = parser.add_subparsers(title = 'commands', required = True)
 
 ota.add_subparser(subparsers)
 settings.add_subparser(subparsers)
+mqtt.add_subparser(subparsers)
 
 args = parser.parse_args()
 args.func(args)
