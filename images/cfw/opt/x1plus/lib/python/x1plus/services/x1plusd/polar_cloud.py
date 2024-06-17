@@ -112,13 +112,13 @@ class PolarPrintService:
         ):
             # We need to get an RSA key pair before we can go further.
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        elif not self.polar_sn:
-            # We already have a key: just register. Technically, there should be
-            # no way to get here. Included for completion.
-            logger.error(
-                "_on_welcome Somehow there are keys with no SN. Reregistering."
-            )
-            await self._register()
+        # elif not self.polar_sn:
+        #     # We already have a key: just register. Technically, there should be
+        #     # no way to get here. Included for completion.
+        #     logger.error(
+        #         "_on_welcome Somehow there are keys with no SN. Reregistering."
+        #     )
+        #     await self._register()
 
     def _on_hello_response(self, response, *args, **kwargs) -> None:
         if response["status"] == "SUCCESS":
