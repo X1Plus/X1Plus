@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 
 class PolarPrintService:
     def __init__(self, settings):
-        self.polar_sn = ""
-        self.connected = False
         """
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
@@ -39,19 +37,7 @@ class PolarPrintService:
         # self.polar_settings.on("polarprint.enabled", self._startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
-        if is_emulating():
-            # I need to use actual account creds to connect, so we're using .env
-            # for testing, until there's an interface.
-            # dotenv isn't installed, so just open the .env file and parse it.
-            # This means that .env file must formatted correctly, with var names
-            # `username` and `pin`.
-            import inspect
 
-            env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-            with open(os.path.join(env_dir, ".env")) as env:
-                for line in env:
-                    k, v = line.split("=")
-                    setattr(self, k, v.strip())
 
     async def begin(self) -> None:
         """Create Socket.IO client and connect to server."""
@@ -74,51 +60,53 @@ class PolarPrintService:
         ignore this. Otherwise, must get a key pair, then call register.
         """
         logger.info("_on_welcome.")
-        logger.debug(f"challenge: {response['challenge']}")
+        logger.info(f"challenge: {response['challenge']}")
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
-        if self.polar_sn and self.polar_settings.get("polar.public_key", None):
-            # The printer has been registered. Note that
-            # we're now using the serial number assigned by the server.
+        if self.polar_settings.get("polar.sn", "") and self.polar_settings.get("polar.private_key", ""):
+            logger.debug(f"Polar SN: {self.polar_settings.get('polar.sn', '')}")
+            logger.debug(f"Public Key: {self.polar_settings.get('polar.private_key', '')} {bool(self.polar_settings.get('polar.private_key', ''))}")
+            logger.debug(f"challenge: {response['challenge']}")
+            # The printer has been registered.
             # First, encode challenge string with the private key.
-            logger.debug(
-                f"_on_welcome Polar SN: {self.polar_sn}, "
-                "Public key: {bool(self.polar_settings.get('polar.public_key', None))}"
-            )
-            cipher_rsa = PKCS1_OAEP.new(self.private_key)
+            cipher_rsa = PKCS1_OAEP.new(self.polar_settings.get('polar.private_key', ''))
             encrypted = b64encode(cipher_rsa.encrypt(response["challenge"]))
-            logger.debug(f"_on_welcome encrypted challenge: {encrypted}")
-            data = {
-                "serialNumber": self.polar_sn,
-                "signature": encrypted,  # BASE64 encoded string
-                "MAC": self.mac,
-                "protocol": "2.0",
-                "mfgSn": self.polar_sn,
-            }
-            """
-            Note that the following optional fields might be used in future.
-            "printerMake": "printer make",                     // string, optional
-            "version": "currently installed software version", // string, optional
-            "localIP": "printer's local IP address",           // string, optional
-            "rotateImg": 0 | 1,                                // integer, optional
-            "transformImg": 0 - 7,                             // integer, optional
-            "camOff": 0 | 1,                                   // integer, optional
-            "camUrl": "URL for printer's live camera feed"     // string, optional
-            """
-            await self.socket.emit("hello", data)
-        elif not self.polar_sn and not self.polar_settings.get(
-            "polar.public_key", None
+            # logger.info(f"_on_welcome encrypted challenge: {encrypted}")
+            # data = {
+            #     "serialNumber": self.polar_settings.get("polar.sn", ""),
+            #     "signature": encrypted,  # BASE64 encoded string
+            #     "MAC": self.mac,
+            #     "protocol": "2.0",
+            #     "mfgSn": self.serial_number(),
+            # }
+            # """
+            # Note that the following optional fields might be used in future.
+            # "printerMake": "printer make",                     // string, optional
+            # "version": "currently installed software version", // string, optional
+            # "localIP": "printer's local IP address",           // string, optional
+            # "rotateImg": 0 | 1,                                // integer, optional
+            # "transformImg": 0 - 7,                             // integer, optional
+            # "camOff": 0 | 1,                                   // integer, optional
+            # "camUrl": "URL for printer's live camera feed"     // string, optional
+            # """
+            # await self.socket.emit("hello", data)
+        elif not self.polar_settings.get("polar.sn", "") and not self.polar_settings.get(
+            "polar.public_key", ""
         ):
             # We need to get an RSA key pair before we can go further.
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        # elif not self.polar_sn:
-        #     # We already have a key: just register. Technically, there should be
-        #     # no way to get here. Included for completion.
-        #     logger.error(
-        #         "_on_welcome Somehow there are keys with no SN. Reregistering."
-        #     )
-        #     await self._register()
+        elif not self.polar_settings.get("polar.sn", ""):
+            # We already have a key: just register.
+            logger.info(
+                f"_on_welcome Registering."
+            )
+            await self._register()
+        else:
+            # It's not possible to have a serial number and no key, so this
+            # would be a real problem.
+            logger.error("Somehow have an SN and no key.")
+            exit()
 
     def _on_hello_response(self, response, *args, **kwargs) -> None:
         if response["status"] == "SUCCESS":
@@ -133,16 +121,15 @@ class PolarPrintService:
         out to interface for new email or pin.
         """
         if response["status"] == "SUCCESS":
-            await self.polar_setting.put("polar.public_key", response["public"])
+            await self.polar_settings.put("polar.public_key", response["public"])
             await self.polar_settings.put("polar.private_key", response["private"])
             # We have keys, but still need to register. First disconnect.
             logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
-            # After the next line the server will respond with `welcome`.
+            # After the next request the server will respond with `welcome`.
             logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
-            await self._register()
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
@@ -157,8 +144,8 @@ class PolarPrintService:
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
-            self.polar_sn = response["serialNumber"]
-            # await self.polar_settings.put("polar_sn", response["serialNumber"])
+            await self.polar_settings.put("polar.sn", response["serialNumber"])
+            logger.info("Polar Cloud connected.")
 
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
@@ -242,16 +229,32 @@ class PolarPrintService:
         """
         pass
 
+
     def get_creds(self) -> None:
         """
         If PIN and username are not set, open Polar Cloud interface window and
         get them.
         """
-        if not self.polar_settings.get("polar.pin", ""):
-            # Get it from the interface.
-            pass
-        if not self.polar_settings.get("polar.username", ""):
-            pass
+        if is_emulating():
+            # I need to use actual account creds to connect, so we're using .env
+            # for testing, until there's an interface.
+            # dotenv isn't installed, so just open the .env file and parse it.
+            # This means that .env file must formatted correctly, with var names
+            # `username` and `pin`.
+            import inspect
+
+            env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
+            with open(os.path.join(env_dir, ".env")) as env:
+                for line in env:
+                    k, v = line.split("=")
+                    setattr(self, k, v.strip())
+        else:
+            if not self.polar_settings.get("polar.pin", ""):
+                # Get it from the interface.
+                pass
+            if not self.polar_settings.get("polar.username", ""):
+                # Get it from the interface.
+                pass
 
     def set_interface(self) -> None:
         """
@@ -262,7 +265,10 @@ class PolarPrintService:
         self.ip = get_IP()
 
     def serial_number(self) -> str:
-        """Return the printer's serial number. If emulating, random string."""
+        """
+        Return the Bambu serial number—NOT the Polar Cloud SN. If emulating,
+        random string.
+        """
         if is_emulating:
             return "123456789"
         else:

@@ -22,27 +22,9 @@ def get_MAC() -> str:
     """Return the MAC address of the wireless interface."""
     if is_emulating():
         return "CC:BD:D3:00:3B:D5"
-    # Get a list of all interface
-    interfaces = subprocess.Popen(["ip", "link"], capture_output=True)
-    devices = interfaces.split("\n")
-    for i in range(0, len(devices), 2):
-        if "wlan" in devices[i] or "wlo" in devices[i]:
-            # I /think/ Debian consistently uses wlan. Better safe.
-            # MAC address is in next line.
-            identifier = devices[i + 1].strip()
-            break
-    return identifier.split(" ")[1]
-
-
-    # The active device _should_ be broadcasting.
-    active = subprocess.run(
-        ["grep", "BROADCAST"], stdin=devices.stdout, capture_output=True
-    )
-    identifier = active.stdout.decode().split(":")[1].strip()
-    device = subprocess.Popen(["ip", "a", "s", identifier], stdout=subprocess.PIPE)
-    # Should be "ether" even if it's a wireless device.
-    ether = subprocess.run(["grep", "ether"], stdin=device.stdout, capture_output=True)
-    return ether.stdout.decode().strip().split(" ")[1]
+    with open(f'/sys/class/net/wlan0/address', 'r') as file:
+        mac_address = file.read().strip()
+    return mac_address
 
 
 def get_IP() -> str:
