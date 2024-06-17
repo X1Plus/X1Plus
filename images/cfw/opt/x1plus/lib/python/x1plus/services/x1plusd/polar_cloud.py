@@ -183,17 +183,13 @@ class PolarPrintService:
         Send register request. Note this can only be called after a keypair
         has been received and stored.
         """
-        if is_emulating:
-            sn = "123456789"
-        else:
-            sn = serial_number()
         logger.info("_register.")
         data = {
             "mfg": "bambu",
             "email": self.username,
             "pin": self.pin,
             "publicKey": self.polar_settings.get("polar.public_key"),
-            "mfgSn": sn,
+            "mfgSn": self.serial_number(),
             "myInfo": {"MAC": self.mac},
         }
         await self.socket.emit("register", data)
@@ -264,3 +260,10 @@ class PolarPrintService:
         """
         self.mac = get_MAC()
         self.ip = get_IP()
+
+    def serial_number(self) -> str:
+        """Return the printer's serial number. If emulating, random string."""
+        if is_emulating:
+            return "123456789"
+        else:
+            return serial_number()
