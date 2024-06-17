@@ -2,6 +2,7 @@
 __pycache__
 localconfig.mk
 installer/info.json
+bbl_screen-patch/interpose.moc.h
 
 # Build artifacts
 *.x1p

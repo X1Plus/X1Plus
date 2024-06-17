@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import UIBase 1.0
 import Printer 1.0
+import "../X1Plus.js" as X1Plus
 
 import "qrc:/uibase/qml/widgets"
 import ".."
@@ -9,11 +10,7 @@ import "../printer"
 
 Item {
     id: top
-    property var passcode: DeviceManager.getSetting("cfw_passcode", "")
-    Binding on passcode {
-        value: numberPad.number
-        when: numberPad.target == top
-    }
+    property var passcode: X1Plus.Settings.get("lockscreen.passcode", "")
 
     MarginPanel {
         id: title
@@ -177,13 +174,15 @@ Item {
             backgroundColor: Colors.gray_500
             width: 300
             model: [qsTr("Screen saver only"), qsTr("Swipe to unlock"), qsTr("Passcode")]
-            currentIndex: DeviceManager.getSetting("cfw_locktype", 0)
-            onCurrentIndexChanged: {
-                DeviceManager.putSetting("cfw_locktype", currentIndex);
+            currentIndex: X1Plus.Settings.get("lockscreen.mode", 0)
+            Binding on currentIndex {
+                value: X1Plus.Settings.get("lockscreen.mode", 0)
+            }
+            onChoiseTapped: {
+                X1Plus.Settings.put("lockscreen.mode", currentIndex);
                 const c = DeviceManager.power.mode; /* sort of janky mechanism to trigger the binding on the parent screen to reload */
                 DeviceManager.power.mode = 3 - c;
                 DeviceManager.power.mode = c;
-                screenLock.refreshSettings();
             }
         }
         
@@ -216,7 +215,7 @@ Item {
             font: Fonts.body_30
             color: passcode == "" && choiceMode.currentIndex == 2 && numberPad.target != top ? "#FF8080" : Colors.gray_100
             text: numberPad.target == top 
-                ? qsTr('Passcode: "%1"').arg(passcode)
+                ? qsTr('Passcode: "%1"').arg(numberPad.number)
                 : (passcode == "" 
                     ? qsTr("Passcode is unset") 
                     : qsTr('Passcode set to "%1"').arg(passcode))
@@ -271,11 +270,8 @@ Item {
             anchors.bottom: parent.bottom
             focusItem: focus
             onFinished: {
-                if (cancel) {
-                    passcode = DeviceManager.getSetting("cfw_passcode", "")
-                } else {
-                    DeviceManager.putSetting("cfw_passcode", number);
-                    screenLock.refreshSettings();
+                if (!cancel) {
+                    X1Plus.Settings.put("lockscreen.passcode", number);
                 }
             }
         }

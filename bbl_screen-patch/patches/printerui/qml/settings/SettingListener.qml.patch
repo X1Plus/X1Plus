@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,12 +1,49 @@
+@@ -1,12 +1,80 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -12,6 +12,29 @@
  
  Rectangle {
  
++    /* CFW: VNC */
++    
++    /* This is a weird place for this -- not in X1Plus.js -- because it
++     * depends on the binding behavior.  At some point there should be an
++     * X1Plus.Settings.on() that can be called from X1Plus.js, but today is
++     * not that day.  */
++    property var vncEnabled: X1Plus.Settings.get("vnc.enabled", false)
++    property var vncPassword: X1Plus.Settings.get("vnc.password", NetworkManager.lanAccessToken)
++
++    onVncEnabledChanged: {
++        console.log(`X1Plus: VNC is ${vncEnabled?'en':'dis'}abled`);
++        X1Plus._X1PlusNative.vncEnable(!!vncEnabled);
++    }
++    onVncPasswordChanged: {
++        if (vncPassword == "") {
++            console.log("X1Plus: VNC password is disabled entirely!");
++            X1Plus._X1PlusNative.vncPassword(0, "");
++        } else {
++            console.log("X1Plus: VNC password is set");
++            X1Plus._X1PlusNative.vncPassword(1, vncPassword);
++        }
++    }
++
 +    /* CFW: updater */
 +    
 +    property var cfwVersions: ({})
@@ -31,26 +54,34 @@
 +    function cfwOnCompleted() {
 +        X1Plus.DDS.requestVersions();
 +
-+        let contents = X1Plus.loadJson("/opt/cfwversions.json");
-+        if (contents) {
-+            cfwVersions = contents;
-+        }
-+        
 +        // Later, we might want to take other interesting things out of
 +        // info.json, like the build date and release notes -- or even
 +        // render like a QR code for each version or something.  But for
 +        // now, we just transplant in the cfwVersion.
-+        contents = X1Plus.loadJson("/opt/info.json");
-+        if (contents && cfwVersions) {
-+            cfwVersions['cfw']['version'] = contents['cfwVersion'];
++        var contents = X1Plus.loadJson("/opt/x1plus/etc/version.json");
++        if (contents) {
++            var otamodules = contents['base']['modules'];
++            otamodules['cfw']['version'] = contents['cfwVersion'];
++            otamodules['ota']['version'] = contents['base']['version'];
++            otamodules['rv1126']['version'] = contents['base']['ap'];
++            cfwVersions = otamodules;
 +        }
-+
++    }
++    
++    property var newX1pOtaAvailable: X1Plus.OTA.status()['ota_available']
++    property var newX1pOtaDidKvetch: false
++    property var newX1pOtaShouldKvetch: newX1pOtaAvailable && !newX1pOtaDidKvetch
++    onNewX1pOtaShouldKvetch: {
++        if (!updater.hasPendingNotify)
++            return
++        if (printIdle)
++            popupUpdate();
 +    }
 +
      /* Updater */
  
      id: settingListener
-@@ -18,22 +55,57 @@
+@@ -18,22 +86,77 @@
  
      property var updatePage
      property bool versionNotify
@@ -78,9 +109,29 @@
  
      function popupUpdate() {
 -        if (!printIdle || !updater.hasPendingNotify || versionNotify)
-+        if (!printIdle || (!updater.hasPendingNotify && !fwShouldKvetch) || versionNotify)
++        if (!printIdle || (!updater.hasPendingNotify && !fwShouldKvetch && !newX1pOtaShouldKvetch) || versionNotify)
              return
          updater.clearPendingNotify()
++
++        if (newX1pOtaShouldKvetch) {
++            newX1pOtaDidKvetch = true;
++            
++            versionNotify = true;
++            dialogStack.popupDialog(
++                "TextConfirm", {
++                    name: "X1Plus OTA notify",
++                    type: TextConfirm.YES_NO,
++                    text: qsTr("A new version of X1Plus is available!<br><br>Would you like to go to the update page?"),
++                    callback: function(index) {
++                        if (index === TextConfirm.CONFIRM) {
++                            screen.jumpTo("Settings/Device")
++                            pageStack.push("VersionPage.qml")
++                        }
++                        versionNotify = false;
++                    }
++                });
++            return;
++        }
 +        
 +        /* CFW should pop up the gentle warning. */
 +        if (fwShouldKvetch && !(updater.consistency || updater.forceUpgrade)) {
@@ -114,7 +165,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +125,8 @@
+@@ -53,12 +176,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -129,7 +180,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +166,7 @@
+@@ -98,6 +217,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -137,7 +188,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +234,7 @@
+@@ -165,7 +285,7 @@
              blackColor = !blackColor
          }
      }
@@ -146,7 +197,17 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -219,14 +288,14 @@
+@@ -206,7 +326,8 @@
+                             if(index === TextConfirm.YES) {
+                                 screen.jumpTo("Settings/Maintenance")
+                             }
+-                        }
++                        },
++                        image: "../../icon/joel.png"
+                     })
+     }
+ 
+@@ -219,14 +340,14 @@
              }
          }
      }

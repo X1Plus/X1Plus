@@ -1,0 +1,27 @@
+--- printer_ui-orig/printerui/text/error_texts.zh-tw.json
++++ printer_ui/printerui/text/error_texts.zh-tw.json
+@@ -1,5 +1,4 @@
+ {
+-    "ver": 202311242020,
+     "zh-tw": [
+         {
+             "ecode": "03004005",
+@@ -1040,6 +1039,15 @@
+         {
+             "ecode": "0C008009",
+             "intro": "未檢測到打印板定位標識。"
++        },
++        {
++            "ecode": "05004012",
++            "intro": "檢測到門已打開，暫停打印。"
++        },
++        {
++            "ecode": "05004031",
++            "intro": "设备发现绑定执行中，屏幕无法展现二维码。可等待局域网绑定结束，或Hand APP/Studio中止绑定，重试扫描屏幕二维码绑定。"
+         }
+-    ]
+-}
++    ],
++    "ver": 202406020147
++}
+\ No newline at end of file

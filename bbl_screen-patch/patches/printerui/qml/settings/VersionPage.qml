@@ -12,7 +12,7 @@ Item {
     property var mapping: ([
         { "friendly": QT_TR_NOOP("X1Plus version"), "cfw": "cfw", "icon": "../../icon/components/cfw.png" },
         { "friendly": QT_TR_NOOP("Base firmware version"), "cfw": "ota", "icon": "../../icon/components/mainfw.png" },
-        { "friendly": QT_TR_NOOP("AP board"), "bambu": "rv1126", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
+        { "friendly": QT_TR_NOOP("AP board"), "bambu": "ap", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
         { "friendly": QT_TR_NOOP("MC board"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
         { "friendly": QT_TR_NOOP("Toolhead"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
         { "friendly": QT_TR_NOOP("AMS hub"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
@@ -114,7 +114,8 @@ Item {
             property var mappedData: (modelData.bambu === undefined ?
                                         {"sw_ver": cfwVersion.version, "sn": "", "hw_ver": "" } :
                                         modules.find(el => modelData.bambu == el.name))
-            property var needsUpdate: (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+            property var needsUpdate: (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version) ||
+                                      (modelData.cfw == 'cfw' && X1Plus.OTA.status()['ota_available'])
             width: ListView.view.width
             height: 81
             color: modelData.onClicked === undefined ? "transparent" : backColor.color
@@ -198,7 +199,11 @@ Item {
             TapHandler {
                 onTapped: {
                     console.log(modelData.bambu);
-                    dialogStack.popupDialog('../settings/VersionDialog', { modelData: modelData, mappedData: mappedData, cfwVersion: cfwVersion });
+                    if (modelData.cfw == 'cfw') {
+                        dialogStack.popupDialog('../settings/X1PlusOTADialog', {});
+                    } else {
+                        dialogStack.popupDialog('../settings/VersionDialog', { modelData: modelData, mappedData: mappedData, cfwVersion: cfwVersion });
+                    }
                 }
             }
 

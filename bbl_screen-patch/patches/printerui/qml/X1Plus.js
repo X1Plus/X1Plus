@@ -10,6 +10,9 @@
 .import "./x1plus/BedMeshCalibration.js" as X1PlusBedMeshCalibration
 .import "./x1plus/ShaperCalibration.js" as X1PlusShaperCalibration
 .import "./x1plus/DBus.js" as X1PlusDBus
+.import "./x1plus/Settings.js" as X1PlusSettings
+.import "./x1plus/TempGraph.js" as X1PlusTempGraph
+.import "./x1plus/OTA.js" as X1PlusOTA
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -51,6 +54,12 @@ X1Plus.GpioKeys = X1PlusGpioKeys;
 var GpioKeys  = X1PlusGpioKeys;
 X1Plus.DBus = X1PlusDBus;
 var DBus = X1PlusDBus;
+X1Plus.Settings = X1PlusSettings;
+var Settings = X1PlusSettings;
+X1Plus.TempGraph = X1PlusTempGraph;
+var TempGraph = X1PlusTempGraph;
+X1Plus.OTA = X1PlusOTA;
+var OTA = X1PlusOTA;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -58,6 +67,9 @@ BedMeshCalibration.X1Plus = X1Plus;
 ShaperCalibration.X1Plus = X1Plus;
 GpioKeys.X1Plus = X1Plus;
 DBus.X1Plus = X1Plus;
+Settings.X1Plus = X1Plus;
+TempGraph.X1Plus = X1Plus;
+OTA.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -143,9 +155,13 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	X1Plus.PrintTask = PrintTask = _PrintTask;
 	X1Plus.printerConfigDir = printerConfigDir = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
 	_X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + printerConfigDir);
+	Settings.awaken();
+	OTA.awaken();
 	BedMeshCalibration.awaken();
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();
+	TempGraph.awaken();
+	console.log("X1Plus.js is awake");
 }
 
 X1Plus.DBus.registerMethod("ping", (param) => {

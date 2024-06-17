@@ -7,7 +7,7 @@
 -    dots: [false, (updater.hasNewVersion || updater.consistency), false, maintain.carbon || maintain.screws]
 -    pages: [
 -        { name: "Account", title: qsTr("Account") },
-+    dots: (NetworkManager.isLanOnly ? [] : [false]).concat([updater.hasNewVersion || updater.consistency, false, maintain.carbon || maintain.screws, false])
++    dots: (NetworkManager.isLanOnly ? [] : [false]).concat([screenSaver.newX1pOtaAvailable || updater.hasNewVersion || updater.consistency, false, maintain.carbon || maintain.screws, false])
 +    pages: (NetworkManager.isLanOnly ? [] : [ { name: "Account", title: qsTr("Account") } ]).concat([
          { name: "Device", title: qsTr("General") },
 +        //{ name: "X1PLogs", title: qsTr("Logs") },

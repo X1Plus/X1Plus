@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/main/HomePage.qml
 +++ printer_ui/printerui/qml/main/HomePage.qml
-@@ -2,17 +2,25 @@
+@@ -2,17 +2,26 @@
  import QtQuick.Controls 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -17,17 +17,23 @@
                                   ? WebContents.carouselImages2 : WebContents.carouselImages1
 -    property var defaultImage: DeviceManager.getSystemSetting("device/images_path")
 +    property var serialNo: DeviceManager.build.seriaNO
-+    property var home_png: DeviceManager.getSetting("cfw_home_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
-+    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
++    property var home_png: X1Plus.Settings.get("homescreen.image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/home.png`)
++    property var print_png: X1Plus.Settings.get("homescreen.image.printing", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
 +    property var img_print: X1Plus.fileExists(print_png) ? "file://"+print_png: "qrc:/printerui/image/exhibition1.png"
 +    property var img_home: X1Plus.fileExists(home_png) ? "file://"+home_png: "qrc:/printerui/image/exhibition.png" 
++    property var is_showing_graph: X1Plus.Settings.get("homescreen.graph.enabled", false)
      EventTrack.pageName: "Home"
 +    
 +    
  
      MarginPanel {
          id: showPanel
-@@ -30,8 +38,8 @@
+@@ -26,17 +35,23 @@
+         bottomMargin: 24
+ 
+         ZCarouselView {
++            visible: !is_showing_graph
+             anchors.fill: parent
              interval: 10000
              orientation: hmsPanel.visible ? Qt.Vertical : Qt.Horizontal
              model: carouselImages.length === 0
@@ -38,3 +44,13 @@
                     : carouselImages.map(function(i) { return i.imageUrl })
              onModelChanged: {
                  console.log("HomePage ZCarouselView image model: ", model)
+             }
+         }
++
++        TempGraph {
++            visible: is_showing_graph
++            anchors.fill: parent
++        }
+     }
+ 
+     PrintPanel {

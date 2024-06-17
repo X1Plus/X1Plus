@@ -2,7 +2,7 @@
 
 start() {
 	printf "Starting syslog shim service: "
-	start-stop-daemon -S -m -b -p /var/run/syslog_shim_service.pid --exec /opt/python/bin/python3 -- /opt/syslog_shim.py
+	start-stop-daemon -S -m -b -p /var/run/syslog_shim_service.pid --exec /opt/python/bin/python3 -- -m x1plus.services.syslog_shim
 }
 stop() {
 	printf "Stopping syslog shim service: "

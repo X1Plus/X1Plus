@@ -1,0 +1,260 @@
+--- printer_ui-orig/printerui/app_fr.ts
++++ printer_ui/printerui/app_fr.ts
+@@ -3432,4 +3432,256 @@
+         <translation>Voulez-vous vraiment annuler cette tâche ?</translation>
+     </message>
+ </context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>Annuler</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>VibrationComp</name>
++  <message>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Une erreur est survenue et la collecte des données a expiré.</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Historique de calibration</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorer</translation>
++  </message>
++</context>
++<context>
++  <name>BedMesh</name>
++  <message>
++    <source>Rerun diagnostics</source>
++    <translation>Réitérer la procédure de diagnostic</translation>
++  </message>
++  <message>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>Calibration du niveau de lit: la tête d'outil prends sa référence</translation>
++  </message>
++  <message>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Une erreur est survenue et la collecte des données a expiré.</translation>
++  </message>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>Diagnostic du lit</translation>
++  </message>
++  <message>
++    <source>Run diagnostics</source>
++    <translation>Lancer les diagnostics</translation>
++  </message>
++  <message>
++    <source>Tram bed</source>
++    <translation>Cadrer le lit</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Historique de calibration</translation>
++  </message>
++  <message>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>Cela effacera toutes les données de mise à niveau de lit enregistrées. Êtes-vous sûr de vouloir continuer ?</translation>
++  </message>
++</context>
++<context>
++  <name>HardwarePage</name>
++  <message>
++    <source>Stainless steel</source>
++    <translation>Acier inoxydable</translation>
++  </message>
++  <message>
++    <source>Hardened steel</source>
++    <translation>Acier trempé</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>Pas installé</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>Installé</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>Accessoires</translation>
++  </message>
++  <message>
++    <source>Nozzle</source>
++    <translation>Buse</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>Si vous avez remplacé des accessoires, veuillez mettre à jour les paramètres ci-dessous pour qu'ils correspondent à l'état réel de l'accessoire afin de garantir la qualité d'impression.</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorer</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>réinitialiser</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>Étape 1:</translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>Étape 2:</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>Étape 3:</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>Étape 4:</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>Étape 5:</translation>
++  </message>
++  <message>
++    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
++    <translation>Contrôler chaque position dans l'ordre, répéter les trois jusqu'à ce qu'aucun ajustement supplémentaire ne soit nécessaire.</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>Préparer</translation>
++  </message>
++  <message>
++    <source>Rear
++   2</source>
++    <translation>Arrière
++   2</translation>
++  </message>
++</context>
++<context>
++  <name>BedLevelDiag</name>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>Diagnostic du lit</translation>
++  </message>
++  <message>
++    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
++    <translation>&lt;font size='3' color='#AEAEAE'&gt;Ces données de calibration ont été collectées le %1, avec une température de lit de %2.&lt;br&gt;&lt;br&amp;gt Inclinaison du lit de %3 sur l'axe X, et de %4 sur l'axe 
++ Y. Le lit avait une déviation entre pics et creux de %5, et la déformation restante après avoir parfaitement ajusté le lit serait de %6.&lt;br&gt;&lt;br&gt;</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>InstallingPage</name>
++  <message>
++    <source>Yes</source>
++    <translation>Oui</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>Non</translation>
++  </message>
++</context>
++<context>
++  <name>BootOptionsPage</name>
++  <message>
++    <source>Cancel</source>
++    <translation>Annuler</translation>
++  </message>
++  <message>
++    <source>It is possible to unrecoverably and permanently damage your printer with a root console. Never type something into a root console unless you understand what you're typing.</source>
++    <translation>Il y a un risque d'endommager votre imprimante de façon irrécupérable et permanente avec la console administrateur. Ne tapez jamais quelque chose dans une console administrateur à moins que vous ne compreniez parfaitement ce que vous tapez.</translation>
++  </message>
++  <message>
++    <source>I'll be careful, I promise</source>
++    <translation>Je vais faire attention, je le promets</translation>
++  </message>
++  <message>
++    <source>&lt;font color="#EEAAAA"&gt;Use this mode with caution.&lt;/font&gt;</source>
++    <translation>&lt;font color="#EEAAAA"&gt;Utilisez ce mode avec prudence.&lt;/font&gt;</translation>
++  </message>
++  <message>
++    <source>Fingers are crossed</source>
++    <translation>On croise les doigts</translation>
++  </message>
++  <message>
++    <source>Start X1Plus from SD card</source>
++    <translation>Lancer X1Plus à partir de la carte SD</translation>
++  </message>
++  <message>
++    <source>Reset X1Plus settings</source>
++    <translation>Réinitialiser les paramètres X1Plus</translation>
++  </message>
++  <message>
++    <source>Emergency recovery console</source>
++    <translation>Console de récupération d'urgence</translation>
++  </message>
++  <message>
++    <source>X1Plus startup options</source>
++    <translation>Options de démarrage X1Plus</translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>ConsolePage</name>
++  <message>
++    <source>Home</source>
++    <translation>Maison</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorer</translation>
++  </message>
++  <message>
++    <source>Close</source>
++    <translation>Fermer</translation>
++  </message>
++</context>
+ </TS>
+\ No newline at end of file

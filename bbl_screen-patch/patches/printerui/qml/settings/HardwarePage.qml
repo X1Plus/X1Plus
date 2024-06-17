@@ -495,20 +495,71 @@ Rectangle {
 
         contentComponent: Rectangle {
             radius: 15
+            width: parent.width
+            height: parent.height
             color: Colors.gray_600
-            Text {
-                width: 670
-                wrapMode: Text.WordWrap
-                anchors.centerIn: parent
-                font: Fonts.body_24
-                color: Colors.gray_200
-                text: qsTr("<b>You can change the behavior of the hardware buttons on the top of the printer.</b>  A short press is less than 0.85 seconds, and a long press is anything longer than that.<br><br>" +
-                           "<b>Reboot</b>: gracefully restarts Linux with 'reboot' command.<br>" +
-                           "<b>Set temp</b>: sets nozzle or bed target temperature.<br>" + 
-                           "<b>Pause print</b>: pauses current print job.  (Original behavior for red button.)<br>" + 
-                           "<b>Abort print</b>: cancels current print job.<br>" +
-                           "<b>Sleep/wake</b>: toggles display screen saver.  (Original behavior for black button.)<br>" +
-                           "<b>Run macro</b>: executes G-code or Python macro.")
+            
+            Column {
+                width: parent.width
+                height: parent.height
+                anchors.top: parent.top
+                anchors.topMargin: 45
+                anchors.left: parent.left
+                anchors.leftMargin: 50
+                anchors.right: parent.right
+                anchors.rightMargin: 50
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 50
+                spacing: 20
+
+                Text {
+                    font: Fonts.body_30
+                    color: Colors.gray_200
+                    wrapMode: Text.WordWrap
+                    text: qsTr("Tooltip: Re-mapping the hardware buttons") 
+                }
+                Rectangle {
+                    width: parent.width - 100
+                    height: 1
+                    color: Colors.gray_200
+                }
+                Text {
+                    font: Fonts.body_24
+                    color: Colors.gray_200
+                    text: qsTr("Button Actions:")
+                }
+                ListView {
+                    width: parent.width - 40
+                    height: 160
+                    model: ListModel { //Note for when we refactor Gpiokeys - these strings should be stored in Gpiokeys.js
+                        ListElement { label: qsTr("Sleep/wake"); description: qsTr("Toggles LCD screen (and lock screen if configured)") }
+                        ListElement { label: qsTr("Reboot"); description: qsTr("Restarts Linux with a shell command") }
+                        ListElement { label: qsTr("Pause print"); description: qsTr("Pauses current print job.") } 
+                        ListElement { label: qsTr("Abort print"); description: qsTr("Aborts current print job.") }
+                        ListElement { label: qsTr("Ignore"); description: qsTr("No action") }
+                    }
+                    delegate: Text {
+                        font: Fonts.body_22
+                        color: Colors.gray_300
+                        text: "<b>" + label + "</b>: " + description
+                        wrapMode: Text.WordWrap
+                    }
+                }
+                Text {
+                    font: Fonts.body_24
+                    color: Colors.gray_200
+                    text: qsTr("Button Press Gestures:")
+                }
+                Text {
+                    font: Fonts.body_22
+                    color: Colors.gray_300
+                    text: qsTr("Short press: < 0.85 seconds")
+                }
+                Text {
+                    font: Fonts.body_22
+                    color: Colors.gray_300
+                    text: qsTr("Long press: >= 0.85 seconds")
+                }
             }
         }
     }

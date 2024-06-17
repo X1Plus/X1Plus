@@ -1,0 +1,27 @@
+--- printer_ui-orig/printerui/text/hms_texts.zh-tw.json
++++ printer_ui/printerui/text/hms_texts.zh-tw.json
+@@ -1,5 +1,4 @@
+ {
+-    "ver": 202311242020,
+     "zh-tw": [
+         {
+             "ecode": "0300170000010001",
+@@ -3008,6 +3007,15 @@
+         {
+             "ecode": "0701210000020005",
+             "intro": "AMS2 料槽2料線用完，沖刷舊料異常，請檢查料線是否卡在工具頭。"
++        },
++        {
++            "ecode": "1200250000020001",
++            "intro": "料線擠出異常，可能存在堵頭。"
++        },
++        {
++            "ecode": "1200240000020001",
++            "intro": "料線可能斷在工具頭里。"
+         }
+-    ]
+-}
++    ],
++    "ver": 202406020147
++}
+\ No newline at end of file

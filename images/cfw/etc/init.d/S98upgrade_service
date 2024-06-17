@@ -3,7 +3,7 @@
 start() {
     if [ ! -f /userdata/upgrade_not_boot ]; then
         printf "Starting upgrade service: "
-        export LD_PRELOAD=/opt/uncurl.so
+        export LD_PRELOAD=/opt/x1plus/lib/uncurl.so
         start-stop-daemon -S -m -b -p /var/run/upgrade_service.pid \
             --exec /usr/bin/upgrade \
         [ $? = 0 ] && echo "OK" || echo "FAIL"

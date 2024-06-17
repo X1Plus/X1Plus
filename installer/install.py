@@ -23,15 +23,15 @@ from zipfile import *
 import ext4
 import tempfile
 import shutil
-import urllib.request
 import dds
+import requests
 import json
 import select
 import time
 import filecmp
 import glob
-import subprocess
 import re
+import subprocess
 
 # XXX: have config for filesystem size
 installer_path = os.path.dirname(__file__) # will get cleaned out on boot
@@ -52,8 +52,9 @@ latest_safe_bblap = "00.00.30.73" # Firmware R - "1.06.06.58" aka 1.07.02.00+R
 
 dds_rx_queue = dds.subscribe("device/request/upgrade")
 dds_tx_pub = dds.publisher("device/report/upgrade")
+
 print("waiting for DDS to spin up...")
-time.sleep(1)
+time.sleep(3)
 print("ok, that oughta be good enough")
 def report_progress(what):
     print(f"[...] {what}")
@@ -265,40 +266,71 @@ if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"
 
 report_success()
 
+
+def download_firmware(update_url, dest_path):
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    report_interim_progress("Connecting...")
+    success = False
+    retry = 1
+    while success == False and retry < 20:
+        try:
+            if os.system("ping -c 3 -W 1000 8.8.8.8") != 0:
+                report_interim_progress("Network is unreachable. Please check your WiFi connection.")
+                os.system("/userdata/x1plus/debug_wifi.sh")
+                time.sleep(5)
+            resp = requests.get(update_url, headers={'User-Agent': f'X1Plus/{cfw_version}'}, stream=True, verify="/etc/ssl/certs/", timeout=30)
+            resp.raise_for_status()
+        except (requests.Timeout, requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+            report_interim_progress(f"{e.__class__.__name__}: {e} ... retry {retry}")
+            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
+            retry += 1
+        except Exception as e:
+            report_interim_progress(f"An error occurred: {e} ... retry {retry}")
+            time.sleep( pow( 2, retry ) if retry < 4 else 16 )
+            retry += 1
+        else:
+            try:
+                totlen = int(resp.headers.get('content-length', 0))
+                curlen = 0
+                with open(dest_path, "wb") as f:
+                    for buf in resp.iter_content(chunk_size=131072):
+                        if not buf:
+                            break
+                        f.write(buf)
+                        curlen += len(buf)
+                        curlen_mb = round(int(curlen) / 1024 / 1024, 2)
+                        totlen_mb = round(int(totlen) / 1024 / 1024, 2)
+                        report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)")
+                if curlen == totlen:
+                    success = True
+                else:
+                    report_interim_progress(f"Error - downloaded {curlen} bytes, expected {totlen} ... retry {retry}")
+                    time.sleep( pow( 2, retry ) if retry < 4 else 16 )
+                    retry += 1
+            except Exception as e:
+                report_interim_progress(f"An error occurred: {e} ... retry {retry}")
+                time.sleep( pow( 2, retry ) if retry < 4 else 16 )
+                retry += 1
+    return success
+
 # see if we already have a repacked base filesystem
 basefw_squashfs_path = f"{boot_path}/images/{basefw_squashfs}"
 if not exists_with_md5(basefw_squashfs_path, basefw_squashfs_md5):
-    # maybe we can at least skip downloading it?
     basefw_update_path = f"{boot_path}/firmware/{basefw_update}"
     if not exists_with_md5(basefw_update_path, basefw_update_md5):
         report_progress("Downloading base firmware")
         if not ask_permission(f"Base firmware does not exist on the SD card: {basefw_update}<br><br>Download it from Bambu Lab servers?"):
             report_failure(f"Base firmware {basefw_update} does not exist on the SD card.  Place it in {boot_path}/firmware and try again.")
-        try:
-            os.makedirs(os.path.dirname(basefw_update_path), exist_ok = True)
-            report_interim_progress("Connecting...")
-            with urllib.request.urlopen(basefw_update_url, capath="/etc/ssl/certs") as resp, \
-                 open(basefw_update_path, "wb") as f:
-                totlen = resp.getheader('content-length')
-                curlen = 0
-                while True:
-                    buf = resp.read(131072)
-                    if not buf:
-                        break
-                    f.write(buf)
-                    curlen += len(buf)
-                    curlen_mb = round(int(curlen) / 1024 / 1024, 2)
-                    totlen_mb = round(int(totlen) / 1024 / 1024, 2)
-                    report_interim_progress(f"Downloading... ({curlen_mb:.2f} / {totlen_mb:.2f} MB)") 
+        if download_firmware(basefw_update_url, basefw_update_path):
             report_interim_progress("Verifying download...")
-        except Exception as e:
-            report_failure(f"Download failed.", e)
-        if not exists_with_md5(basefw_update_path, basefw_update_md5):
-            report_failure("Checksum on downloaded file failed.")
-        report_success()
-    
-    report_progress("Uncompressing base firmware")
+            if not exists_with_md5(basefw_update_path, basefw_update_md5):
+                report_failure("Checksum on downloaded file failed.")
+            else:
+                report_success()
+        else:
+            report_failure(f"Download failed.")
 
+    report_progress("Uncompressing base firmware")
     report_interim_progress("<i>This bit takes a while.</i>")
     print("decrypting")
     # decrypt the update.zip.sig
@@ -435,7 +467,7 @@ try:
     if os.system(f"{installer_path}/xdelta3 -f -d -s {installer_path}/bbl_screen.orig {installer_path}/bbl_screen.xdelta {installer_path}/printer_ui.so") != 0:
         report_failure("Failed to patch binaries from base filesystem.")
     with open(f"{installer_path}/printer_ui.pack", "w") as f:
-        f.write(f"file /opt/printer_ui.so 755 0 0 printer_ui.so")
+        f.write(f"file /opt/x1plus/lib/printer_ui.so 755 0 0 printer_ui.so")
     if os.system(f"{installer_path}/gensquashfs -d mtime=${basefw_mtime} -c xz -X dictsize=8192,level=0 -F \"{installer_path}/printer_ui.pack\" -D \"{installer_path}\" -f {boot_path}/images/{bbl_screen_squashfs}") != 0:
         raise RuntimeError("failed to invoke gensquashfs")
 except Exception as e:

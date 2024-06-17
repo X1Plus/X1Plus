@@ -76,7 +76,14 @@ function proxyFunction(busName, objName, interface, method) {
         _proxies[busName][objName] = _DBusListener.createProxy(busName, objName);
     }
     return (j) => {
+        if (j === undefined)
+            j = null;
         var s = _proxies[busName][objName].callMethod(interface, method, JSON.stringify(j));
-        return JSON.parse(s);
+        try {
+            return JSON.parse(s);
+        } catch (e) {
+            console.log(`DBus method invocation (${objName} ${interface}.${method}) failed: ${s}`);
+            return null;
+        }
     };
 }

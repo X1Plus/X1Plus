@@ -62,7 +62,7 @@ def add(path, name):
     tf.add(path, arcname=name)
 
 # scripts from this directory
-for f in ["dds.py", "ext4.py", "info.json", "install.py", "install.sh"]:
+for f in ["dds.py", "debug_wifi.sh", "ext4.py", "info.json", "install.py", "install.sh"]:
     add(f"{ROOTPATH}/installer/{f}", f)
 
 # CFW base image

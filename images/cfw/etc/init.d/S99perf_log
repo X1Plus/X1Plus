@@ -1,11 +1,11 @@
 #!/bin/sh
 
-DEVICE_SN=$(cat /proc/cmdline | xargs -n1 | grep "bbl_serial=" | sed "s|bbl_serial=||")
+. /opt/x1plus/libexec/functions.sh
 
 start() {
-	if [ -f /mnt/sdcard/x1plus/printers/$DEVICE_SN/perf_log ] ; then
+	if x1p_get_setting boot.perf_log perf_log; then
 		printf "Starting perf_log"
-		start-stop-daemon -S -m -b -p /var/run/perf_log.pid --exec /opt/perf_log.sh
+		start-stop-daemon -S -m -b -p /var/run/perf_log.pid --exec /opt/x1plus/bin/perf_log.sh
 	else
 		printf "perf_log disabled. Skipping start."
 	fi

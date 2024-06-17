@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <QtCore/QObject>
 #include <QtCore/QSettings>
+#include <QtCore/QProcess>
+#include <QtCore/QVariantList>
 #include <QtQml/qqml.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
@@ -256,6 +258,26 @@ eject:
             unlink(tempFile.c_str());
         }
     }
+    
+    Q_INVOKABLE void vncEnable(int enabled) {
+#ifdef HAS_VNC
+        void x1plus_vnc_enable(bool enabled);
+        x1plus_vnc_enable(enabled);
+#endif
+    }
+    
+    Q_INVOKABLE void vncPassword(int hasPassword, QString password) {
+#ifdef HAS_VNC
+        void x1plus_vnc_set_password(const char *pw);
+        std::string password_str = password.toStdString();
+        if (hasPassword) {
+            x1plus_vnc_set_password(password_str.c_str() /* strdup()'ed internally */);
+        } else {
+            x1plus_vnc_set_password(NULL);
+        }
+#endif
+    }
+
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
 private:
     static const int minBacklightValue = 50;
@@ -558,6 +580,7 @@ namespace BDbus {
     };
     
     class Error {
+        char buf[256]; /* I have no idea how big this thing actually is */
     public:
         Error();
         ~Error();
@@ -705,6 +728,44 @@ SWIZZLE(void, _ZN5BDbus4NodeC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESa
 
 #endif
 
+/* QProcess class for running shell from QML a bit more reliably */
+class X1PlusProcess : public QProcess
+{
+    Q_OBJECT
+public:
+    explicit X1PlusProcess(QObject* parent = nullptr) : QProcess(parent) {
+        setProcessChannelMode(QProcess::MergedChannels);
+    }
+
+    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList()) {
+        QStringList args;
+        for (const auto& arg : arguments) {
+            args << arg.toString();
+        }
+        QProcess::start(program, args);
+    }
+
+    Q_INVOKABLE QByteArray readAll() { return QProcess::readAll(); }
+    Q_INVOKABLE QByteArray readLine() { return QProcess::readLine(); }
+
+    /* Write to an active process */
+    Q_INVOKABLE qint64 write( const QString& data ){
+        return QProcess::write( qPrintable( data ) );
+    }
+    
+    Q_INVOKABLE void terminate() {
+        if (state() == QProcess::Running) {
+            QProcess::terminate();
+            if (!waitForFinished(3000)) {
+                QProcess::kill();
+            }
+        }
+    }  
+
+private:
+    Q_DISABLE_COPY(X1PlusProcess);
+};
+
 /*** Tricks to override the backlight.  See X1PlusNative.updateBacklight above. ***/
 
 FILE *backlight_fp = NULL;
@@ -776,16 +837,6 @@ SWIZZLE(void *, _ZN7QObjectC2EPS_, void *p1, void *p2)
 
 static QMap<QByteArray, QString> *langmap;
 
-SWIZZLE(void *, _Z12bbl_get_propNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_bb, void *a, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s1, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > *s2, bool b1, bool b2)
-    if (lang_init == 3 && *s1 == "device/model_int") {
-        printf("LANG INTERPOSE: found init for DeviceManager\n");
-        void **DeviceManager = (void **)last_qobject;
-        langmap = (QMap<QByteArray, QString> *) (DeviceManager + 9);
-        lang_init++;
-    }
-    return next(a, s1, s2, b1, b2);
-}
-
 SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
     if (s && strcmp(s, "en") == 0) {
         if (lang_init == 0) {
@@ -801,27 +852,30 @@ SWIZZLE(void *, _ZN10QByteArrayC1EPKci, void *qba, const char *s, int n)
                 lang_init = -1;
             }
         } else if (lang_init == 3) {
-            printf("LANG INTERPOSE: saw en for round 1 language default initializer\n");
+            printf("LANG INTERPOSE: saw en for round 1 language default initializer, qByteArray at %p, lr = %p\n", qba, __builtin_return_address(0));
+            langmap = (QMap <QByteArray, QString>*)(((void **)qba) - 1);
             lang_init++;
         } else if (lang_init == 4) {
-            printf("LANG INTERPOSE: saw en for round 2 map initializer\n");
+            printf("LANG INTERPOSE: saw en for round 2 map initializer, lr = %p\n", __builtin_return_address(0));
             lang_init++;
             if (*(void **)langmap != &QMapDataBase::shared_null) {
                 printf("LANG INTERPOSE: this bbl_screen does NOT look like the memory mapping we expect... not injecting languages into this version of bbl_screen\n");
                 lang_init = -1;
             }
         } else {
-            printf("LANG INTERPOSE: saw en fly by again... but after lang init?\n");
+            printf("LANG INTERPOSE: saw en fly by again... but after lang init?, lr = %p\n", __builtin_return_address(0));
         }
     } else if (s && strcmp(s, "sv") == 0) {
         if (lang_init == 2 || lang_init == 5) {
             printf("LANG INTERPOSE: DeviceManager's maps are probably ready, let's do it. langmap = %p, contents are now ", langmap);
             // Add new languages here:
             (*langmap)["ru"] = "Русский";
+            (*langmap)["tr"] = "Türkçe";
+            (*langmap)["pt"] = "Português";
             qDebug() << *langmap;
             lang_init++;
         } else {
-            printf("LANG INTERPOSE: saw sv fly by again... but after lang init?\n");
+            printf("LANG INTERPOSE: saw sv fly by again... but after lang init?, lr = %p\n", __builtin_return_address(0));
         }
     }
 
@@ -849,7 +903,7 @@ SWIZZLE(void, _Z21qRegisterResourceDataiPKhS0_S0_, int version, unsigned char co
     next(version, tree, name, data);
 } 
 
-SWIZZLE(int, ioctl, int fd, unsigned long req, void *p)
+SWIZZLE(int, ioctl, int fd, unsigned long int req, void *p)
     if (req == SIOCGIWMODE) {
         struct iwreq *wrq = (struct iwreq *)p;
         wrq->u.mode = IW_MODE_INFRA;
@@ -889,6 +943,7 @@ extern "C" void __attribute__ ((constructor)) init() {
         needs_emulation_workarounds = 1;
     setenv("QML_XHR_ALLOW_FILE_READ", "1", 1); // Tell QML that it's ok to let us read files from inside XHR land.
     setenv("QML_XHR_ALLOW_FILE_WRITE", "1", 1); // Tell QML that it's ok to let us write files from inside XHR land.
+    qmlRegisterType<X1PlusProcess>("X1PlusProcess", 1, 0, "X1PlusProcess");
     qmlRegisterSingletonType("X1PlusNative", 1, 0, "X1PlusNative", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QJSValue {
         Q_UNUSED(engine)
 

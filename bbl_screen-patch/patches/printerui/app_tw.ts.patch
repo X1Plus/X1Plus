@@ -1,0 +1,140 @@
+--- printer_ui-orig/printerui/app_tw.ts
++++ printer_ui/printerui/app_tw.ts
+@@ -3429,4 +3429,136 @@
+         <translation>请確認是否取消本次列印？</translation>
+     </message>
+ </context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
++  </message>
++</context>
++<context>
++  <name>HardwarePage</name>
++  <message>
++    <source>Stainless steel</source>
++    <translation>不锈钢</translation>
++  </message>
++  <message>
++    <source>Hardened steel</source>
++    <translation>硬化钢</translation>
++  </message>
++  <message>
++    <source>Not installed</source>
++    <translation>未安装</translation>
++  </message>
++  <message>
++    <source>Installed</source>
++    <translation>已安装</translation>
++  </message>
++  <message>
++    <source>Accessories</source>
++    <translation>配件</translation>
++  </message>
++  <message>
++    <source>Nozzle</source>
++    <translation>喷嘴</translation>
++  </message>
++  <message>
++    <source>Auxiliary Part Cooling Fan</source>
++    <translation>辅助部件冷却风扇</translation>
++  </message>
++  <message>
++    <source>If you have replaced the accessories, please update the settings below to keep it consistent with the actual condition of the accessory to ensure the print quality</source>
++    <translation>如果您更换过配件，请更新如下设置保持和配件实际情况一致，以保证打印质量。</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>重置</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Prepare</source>
++    <translation>准备</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>InstallingPage</name>
++  <message>
++    <source>Yes</source>
++    <translation>是</translation>
++  </message>
++  <message>
++    <source>No</source>
++    <translation>否</translation>
++  </message>
++</context>
++<context>
++  <name>BootOptionsPage</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>ConsolePage</name>
++  <message>
++    <source>Home</source>
++    <translation>回零</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
++  </message>
++  <message>
++    <source>Close</source>
++    <translation>关闭</translation>
++  </message>
++</context>
+ </TS>
+\ No newline at end of file

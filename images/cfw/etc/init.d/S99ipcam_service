@@ -8,7 +8,7 @@ start() {
 	echo 3 > /proc/mpp_service/vepu/session_buffers
 	echo 3 > /proc/mpp_service/vdpu/session_buffers
 
-	export LD_PRELOAD=/opt/workaround_ifaddrs.so
+	export LD_PRELOAD=/opt/x1plus/lib/workaround_ifaddrs.so
 	start-stop-daemon -S -m -b -p /var/run/ipcam.pid \
 		--exec /usr/bin/ipcam \
 	[ $? = 0 ] && echo "OK" || echo "FAIL"

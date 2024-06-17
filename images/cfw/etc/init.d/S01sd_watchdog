@@ -2,7 +2,7 @@
 
 start() {
 	printf "Starting sd_watchdog"
-	start-stop-daemon -S -m -b -p /var/run/sd_watchdog.pid --exec /opt/sd_watchdog
+	start-stop-daemon -S -m -b -p /var/run/sd_watchdog.pid --exec x1plus.services.sd_watchdog
 }
 stop() {
 	printf "Stopping sd_watchdog"

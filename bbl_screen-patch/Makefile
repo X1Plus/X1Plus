@@ -4,9 +4,9 @@ FIRMWARE ?= $(shell jq -r .base.ap ../installer/info.json)
 QT5_INCL_PATH ?= /usr/include/x86_64-linux-gnu/qt5/
 TOOLCHAIN ?= arm-linux-gnueabihf-
 TARGET_CC ?= $(TOOLCHAIN)gcc
-LDFLAGS = -shared -ldl #-nolibc # Guh.  Otherwise we end up linking against libc and getting a versioned symbol of dlsym...
-CXXFLAGS = -fPIC -std=c++11
-CFLAGS = -fPIC
+LDFLAGS = -shared -ldl
+CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
+CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
 MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so
 
 .DELETE_ON_ERROR:
@@ -67,8 +67,8 @@ base.ts: printer_ui.so kexec_ui.so
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
 	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
 
-printer_ui.so: printer_ui.ui.o interpose.cpp interpose.moc.h
-	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS
+printer_ui.so: printer_ui.ui.o interpose.cpp interpose_vnc.cpp interpose.moc.h
+	$(TARGET_CC) -o $@ $< interpose.cpp interpose_vnc.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH) -DHAS_DBUS -DHAS_VNC ../prebuilt/libvncserver.so.1
 
 %.moc.h: %.cpp
 	moc -I $(QT5_INCL_PATH) $< -o $@

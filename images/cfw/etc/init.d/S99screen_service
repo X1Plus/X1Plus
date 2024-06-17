@@ -5,9 +5,9 @@ QTCACHE=/.cache/QtProject/bbl_screen
 start() {
     printf "Starting screen service: "
     source /usr/bin/screen_start.sh
-    [[ $QTCACHE -ot /opt/bbl_screen_patch ]] && rm -rf $QTCACHE
+    [[ $QTCACHE -ot /opt/x1plus/bin/bbl_screen_patch ]] && rm -rf $QTCACHE
     start-stop-daemon -S -m -b -p /var/run/screen_service.pid \
-        --exec /opt/bbl_screen_patch \
+        --exec /opt/x1plus/bin/bbl_screen_patch \
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 

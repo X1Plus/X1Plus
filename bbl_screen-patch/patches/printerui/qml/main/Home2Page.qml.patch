@@ -15,17 +15,18 @@
  import "qrc:/uibase/qml/widgets"
  
  Item {
-@@ -17,6 +20,9 @@
+@@ -17,6 +20,10 @@
      property var carouselImages: WebContents.carouselImages2
      property var defaultImage: DeviceManager.getSystemSetting("device/images_path")
      property bool printPrepare: task.state < PrintTask.RUNNING && task.state > PrintTask.IDLE
 +    property var serialNo: DeviceManager.build.seriaNO
-+    property var print_png: DeviceManager.getSetting("cfw_print_image", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
++    property var print_png: X1Plus.Settings.get("homescreen.image.printing", `/mnt/sdcard/x1plus/printers/${serialNo}/images/printing.png`)
 +    property var img_print: X1Plus.fileExists(print_png) ? "file://" + print_png: "qrc:/printerui/image/exhibition1.png"
++    property var is_showing_graph: X1Plus.Settings.get("homescreen.graph.enabled", false)
      property var stateIcons: {
          var icons = []
          if (RecordManager.isTimelapseOn) {
-@@ -297,7 +303,8 @@
+@@ -297,20 +304,27 @@
          topMargin: statusPanel.topMargin
          bottomMargin: statusPanel.bottomMargin
          color: hmsItem.visible ? Colors.gray_700: Colors.gray_600
@@ -35,12 +36,24 @@
          ZCarouselView {
              anchors.fill: parent
              anchors.margins: 10
-@@ -305,7 +312,7 @@
+             interval: 10000
              orientation: Qt.Vertical
-             visible: !hmsItem.visible && !printStep.visible
+-            visible: !hmsItem.visible && !printStep.visible
++            visible: !hmsItem.visible && !printStep.visible && !is_showing_graph
              model: carouselImages.length === 0
 -                   ? [ "file:" + defaultImage + "exhibition1.png" ]
 +                   ? [ img_print ]
                     : carouselImages.map(function(i) { return i.imageUrl })
              onModelChanged: {
                  console.log("Home2Page ZCarouselView image model: ", model)
+             }
+         }
++        
++        TempGraph {
++            visible: is_showing_graph
++            anchors.fill: parent
++            anchors.margins: 10
++        }
+ 
+         Item {
+             id: printStep

@@ -26,4 +26,7 @@ vsftpd                      /etc/init.d/S85vsftpd start
 /usr/sbin/mosquitto         /etc/init.d/S81mosquitto start
 /usr/bin/netService         /etc/init.d/S91netService start
 /usr/bin/bbl_storage        /etc/init.d/S81bbl_storage start
-/opt/sd_watchdog            /etc/init.d/S01sd_watchdog start
+x1plus.services.sd_watchdog /etc/init.d/S01sd_watchdog start
+x1plus.services.gpiokeys    /etc/init.d/S82gpiokeys start
+x1plus.services.x1plusd.__main__ /etc/init.d/S72x1plusd start
+x1plus.services.syslog_shim /etc/init.d/S93syslog_shim start

@@ -1,0 +1,736 @@
+--- printer_ui-orig/printerui/text/hms_texts.es.json
++++ printer_ui/printerui/text/hms_texts.es.json
+@@ -178,7 +178,7 @@
+         },
+         {
+             "ecode": "0701300000020002",
+-            "intro": "La etiqueta RFID de AMS2 Ranura1 está dañada o no se puede identificar su contenido."
++            "intro": "La etiqueta RFID de AMS2 Slot1 está dañada o no se puede identificar su contenido."
+         },
+         {
+             "ecode": "0701310000020002",
+@@ -370,7 +370,7 @@
+         },
+         {
+             "ecode": "12FF200000020006",
+-            "intro": "No se pudo extruir el filamento, el extrusor puede estar obstruido."
++            "intro": "No se extruye el filamento, y es posible que el extrusor esté obstruido."
+         },
+         {
+             "ecode": "1203210000030002",
+@@ -542,7 +542,7 @@
+         },
+         {
+             "ecode": "1201300000030003",
+-            "intro": "El RFID de la ranura 1 del AMS 2 no se puede leer debido a un error estructural"
++            "intro": "El RFID de la ranura 1 del AMS 2 no se puede leer debido a un error estructural."
+         },
+         {
+             "ecode": "1202300000030003",
+@@ -1094,23 +1094,23 @@
+         },
+         {
+             "ecode": "1200100000010001",
+-            "intro": "El motor de la ranura 1 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
++            "intro": "El motor de la ranura 1 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
+         },
+         {
+             "ecode": "1201100000010001",
+-            "intro": "El motor de la ranura 1 del AMS 2 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
++            "intro": "El motor de la ranura 1 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
+         },
+         {
+             "ecode": "1202100000010001",
+-            "intro": "El motor de la ranura 1 del AMS 3 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
++            "intro": "El motor de la ranura 1 del AMS3 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
+         },
+         {
+             "ecode": "1203100000010001",
+-            "intro": "El motor de la ranura 1 del AMS 4 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
++            "intro": "El motor de la ranura 1 del AMS4 ha patinado. La rueda de extrusión puede estar funcionando mal o el filamento puede ser demasiado delgado."
+         },
+         {
+             "ecode": "1200110000010001",
+-            "intro": "El la ranura 2 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "La ranura 2 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "1201110000010001",
+@@ -1118,7 +1118,7 @@
+         },
+         {
+             "ecode": "1202110000010001",
+-            "intro": "El la ranura 2 del AMS 3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "La ranura 2 del AMS 3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "1203110000010001",
+@@ -1126,7 +1126,7 @@
+         },
+         {
+             "ecode": "1200120000010001",
+-            "intro": "El la ranura 3 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "La ranura 3 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "1201120000010001",
+@@ -1142,7 +1142,7 @@
+         },
+         {
+             "ecode": "1200130000010001",
+-            "intro": "El la ranura 3 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "La ranura 3 del AMS 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "1201130000010001",
+@@ -1158,7 +1158,7 @@
+         },
+         {
+             "ecode": "1200100000020002",
+-            "intro": "El motor de la ranura 1 del AMS 1 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 1 del AMS 1 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "1201100000020002",
+@@ -1170,7 +1170,7 @@
+         },
+         {
+             "ecode": "1203100000020002",
+-            "intro": "El motor de la ranura 1 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 1 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "1200110000020002",
+@@ -1186,7 +1186,7 @@
+         },
+         {
+             "ecode": "1203110000020002",
+-            "intro": "El motor de la ranura 2 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 2 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "1200120000020002",
+@@ -1202,7 +1202,7 @@
+         },
+         {
+             "ecode": "1203120000020002",
+-            "intro": "El motor de la ranura 3 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 3 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "1200130000020002",
+@@ -1218,7 +1218,7 @@
+         },
+         {
+             "ecode": "1203130000020002",
+-            "intro": "El motor de la ranura 4 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 4 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "1200100000010003",
+@@ -1234,7 +1234,7 @@
+         },
+         {
+             "ecode": "1203100000010003",
+-            "intro": "El control de par del motor de la ranura 1 del AMS4 no funciona correctamente. El sensor puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 1 del AMS4 no funciona correctamente. El sensor puede estar defectuoso."
+         },
+         {
+             "ecode": "1200110000010003",
+@@ -1342,67 +1342,67 @@
+         },
+         {
+             "ecode": "0700200000020002",
+-            "intro": "La ranura 1 del AMS 1 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 1 del AMS 1 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0700210000020002",
+-            "intro": "La ranura 2 del AMS 1 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 2 del AMS 1 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0700220000020002",
+-            "intro": "La ranura 3 del AMS 1 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 3 del AMS 1 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0700230000020002",
+-            "intro": "La ranura 4 del AMS 1 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 4 del AMS 1 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0701200000020002",
+-            "intro": "La ranura 1 del AMS 2 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 1 del AMS 2 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0701210000020002",
+-            "intro": "La ranura 2 del AMS 2 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 2 del AMS 2 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0701220000020002",
+-            "intro": "La ranura 3 del AMS 2 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 3 del AMS 2 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0701230000020002",
+-            "intro": "La ranura 4 del AMS 2 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 4 del AMS 2 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0702200000020002",
+-            "intro": "La ranura 1 del AMS 3 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 1 del AMS 3 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0702210000020002",
+-            "intro": "La ranura 2 del AMS 3 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 2 del AMS 3 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0702220000020002",
+-            "intro": "La ranura 3 del AMS 3 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 3 del AMS 3 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0702230000020002",
+-            "intro": "La ranura 4 del AMS 3 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 4 del AMS 3 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0703200000020002",
+-            "intro": "La ranura 1 del AMS 4 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 1 del AMS 4 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0703210000020002",
+-            "intro": "La ranura 2 del AMS 4 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 2 del AMS 4 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0703220000020002",
+-            "intro": "La ranura 3 del AMS 4 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 3 del AMS 4 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0703230000020002",
+-            "intro": "La ranura 4 del AMS 4 esta vacia, porfavor carga un nuevo filamento."
++            "intro": "La ranura 4 del AMS 4 está vacía; por favor, cargue un nuevo filamento."
+         },
+         {
+             "ecode": "0500030000010021",
+@@ -1422,7 +1422,7 @@
+         },
+         {
+             "ecode": "0500040000030008",
+-            "intro": "Se ha detectado que la puerta esta abierta."
++            "intro": "Se ha detectado que la puerta está abierta."
+         },
+         {
+             "ecode": "0500030000020020",
+@@ -1786,7 +1786,7 @@
+         },
+         {
+             "ecode": "0300410000010001",
+-            "intro": "El voltage del sistema es inestable, lo que activa la función de protección contra fallos de alimentación."
++            "intro": "El voltaje del sistema es inestable, lo que activa la función de protección contra fallos de alimentación."
+         },
+         {
+             "ecode": "0700400000020004",
+@@ -1938,7 +1938,7 @@
+         },
+         {
+             "ecode": "03000A0000010002",
+-            "intro": "La señal del sensor de fuerza de la plataforma de impresión es débil. El sensor d puede estar roto o tener una mala conexión."
++            "intro": "La señal del sensor de fuerza de la plataforma de impresión es débil. El sensor de fuerza puede estar roto o tener una mala conexión."
+         },
+         {
+             "ecode": "03000A0000010003",
+@@ -1990,7 +1990,7 @@
+         },
+         {
+             "ecode": "03000D000001000B",
+-            "intro": "El motor del eje Z parece atascado cuando se mueve hacia arriba, por favor, compruebe si hay alguna suciedad en las bariilas del eje Z o en las ruedas de la correa dentada Z."
++            "intro": "El motor del eje Z parece atascado cuando se mueve hacia arriba, por favor, compruebe si hay alguna suciedad en las varillas del eje Z o en las ruedas de la correa dentada Z."
+         },
+         {
+             "ecode": "0500010000020002",
+@@ -1998,11 +1998,11 @@
+         },
+         {
+             "ecode": "0500010000030005",
+-            "intro": "Error en la tarjeta SD: por favor, formatéela o sustitúyala."
++            "intro": "Error en la tarjeta MicroSD: por favor, formatéela o sustitúyala."
+         },
+         {
+             "ecode": "0500010000030006",
+-            "intro": "Tarjeta SD sin formatear: por favor, formatéela."
++            "intro": "Tarjeta MicroSD sin formatear: por favor, formatéela."
+         },
+         {
+             "ecode": "0500020000020001",
+@@ -2038,7 +2038,7 @@
+         },
+         {
+             "ecode": "050003000002000C",
+-            "intro": "fallo con la funcion de conexión inalambrica: por favor, apague/encienda la funcionalidad de WiFi o reinicie el dispositivo."
++            "intro": "Fallo con la función de conexión inalámbrica: por favor, apague/encienda la funcionalidad de WiFi o reinicie el dispositivo."
+         },
+         {
+             "ecode": "0700200000020001",
+@@ -2098,51 +2098,51 @@
+         },
+         {
+             "ecode": "0703010000010001",
+-            "intro": "El AMS4 ha patinado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
++            "intro": "El motor de asistencia de la AMS4 ha patinado. Puede que la rueda de extrusión esté desgastada o que el filamento sea demasiado fino."
+         },
+         {
+             "ecode": "0703010000010003",
+-            "intro": "El AMS4 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
++            "intro": "El control de par del motor de asistencia AMS4 funciona mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0703010000010004",
+-            "intro": "El AMS4 está funcionando mal. El sensor de velocidad puede estar defectuoso."
++            "intro": "El control de velocidad del motor de asistencia AMS4 funciona mal. El sensor de velocidad puede estar defectuoso."
+         },
+         {
+             "ecode": "0703010000020002",
+-            "intro": "El AMS4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de asistencia AMS4 está sobrecargado. El filamento puede estar enmarañado o atascado."
+         },
+         {
+             "ecode": "0703020000010001",
+-            "intro": "AMS4 Error de velocidad y longitud del filamento: La odometría del filamento puede ser defectuosa."
++            "intro": "Error de velocidad y longitud del filamento del AMS 4: La odometría del filamento puede ser defectuosa."
+         },
+         {
+             "ecode": "0703100000010001",
+-            "intro": "El AMS4 de la ranura1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 1 del AMS 4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0703100000010003",
+-            "intro": "El control de par del motor AMS4 slot1 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 1 del AMS 4 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0703100000020002",
+-            "intro": "El AMS4 slot1 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 1 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0703110000010001",
+-            "intro": "El AMS4 de la ranura2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 2 del AMS 4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0703110000010003",
+-            "intro": "El control de par del motor AMS4 slot2 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 2 del AMS 4 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0703110000020002",
+-            "intro": "El AMS4 slot2 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 2 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0703120000010001",
+-            "intro": "El AMS4 de la ranura3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 3 del AMS 4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0703120000010003",
+@@ -2150,23 +2150,23 @@
+         },
+         {
+             "ecode": "0703120000020002",
+-            "intro": "El AMS4 slot3 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 3 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0703130000010001",
+-            "intro": "El AMS4 de la ranura4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 4 del AMS 4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0703130000010003",
+-            "intro": "El control de par del motor AMS4 slot4 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 4 del AMS 4 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0703130000020002",
+-            "intro": "El AMS4 slot4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 4 del AMS 4 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0703300000010001",
+-            "intro": "La placa RFID entre AMS4 slot1 & slot2 tiene un error."
++            "intro": "La placa RFID entre la Ranura 1 y la Ranura 2 del AMS4 tiene un error."
+         },
+         {
+             "ecode": "0703300000010004",
+@@ -2178,7 +2178,7 @@
+         },
+         {
+             "ecode": "0703310000010001",
+-            "intro": "La placa RFID entre AMS4 slot3 & slot4 tiene un error."
++            "intro": "La placa RFID entre la ranura 3 y la ranura 4 del AMS4 tiene un error."
+         },
+         {
+             "ecode": "0703310000010004",
+@@ -2282,7 +2282,7 @@
+         },
+         {
+             "ecode": "0C0003000003000E",
+-            "intro": "Parece que tu impresora está imprimiendo sin extruir."
++            "intro": "Parece que tu impresora imprime sin extruir."
+         },
+         {
+             "ecode": "0C0003000003000F",
+@@ -2378,7 +2378,7 @@
+         },
+         {
+             "ecode": "0700310000010001",
+-            "intro": "La placa RFID entre AMS1 slot3 & slot4 tiene un error."
++            "intro": "La placa RFID entre la ranura 3 y la ranura 4 del AMS1 tiene un error."
+         },
+         {
+             "ecode": "0700310000010004",
+@@ -2418,75 +2418,75 @@
+         },
+         {
+             "ecode": "0701010000010001",
+-            "intro": "El AMS2 ha patinado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
++            "intro": "El motor de asistencia del AMS2 está sobrecargado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701010000010003",
+-            "intro": "El AMS2 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
++            "intro": "El motor de asistencia del AMS2 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
+         },
+         {
+             "ecode": "0701010000010004",
+-            "intro": "El AMS2 está funcionando mal. El sensor de velocidad puede estar defectuoso."
++            "intro": "El motor de asistencia del AMS2 está funcionando mal. El sensor de velocidad puede estar defectuoso."
+         },
+         {
+             "ecode": "0701010000020002",
+-            "intro": "El AMS2 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de asistencia del AMS2 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0701020000010001",
+-            "intro": "AMS2 Error de velocidad y longitud del filamento: La odometría del filamento puede ser defectuosa."
++            "intro": "Error de velocidad y longitud del filamento del AMS2: La odometría del filamento puede ser defectuosa."
+         },
+         {
+             "ecode": "0701100000010001",
+-            "intro": "El AMS2 de la ranura1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 1 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701100000010003",
+-            "intro": "El control de par del motor AMS2 slot1 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El motor de la ranura 1 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701100000020002",
+-            "intro": "El AMS2 slot1 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "La ranura 1 del AMS2 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0701110000010001",
+-            "intro": "El AMS2 de la ranura2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 2 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701110000010003",
+-            "intro": "El control de par del motor AMS2 slot2 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El motor de la ranura 2 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701110000020002",
+-            "intro": "El AMS2 slot2 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 2 del AMS2 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0701120000010001",
+-            "intro": "El AMS2 de la ranura3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 3 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701120000010003",
+-            "intro": "El control de par del motor AMS2 slot3 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El motor de la ranura 3 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701120000020002",
+-            "intro": "El AMS2 slot3 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "La ranura 3 del AMS2 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0701130000010001",
+-            "intro": "El AMS2 de la ranura4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 4 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701130000010003",
+-            "intro": "El control de par del motor AMS2 slot4 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El motor de la ranura 4 del AMS2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0701130000020002",
+-            "intro": "El AMS2 slot4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "La ranura 4 del AMS2 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0701300000010001",
+-            "intro": "La placa RFID entre AMS2 slot1 & slot2 tiene un error."
++            "intro": "La placa RFID entre la ranura 1 y la ranura 2 del AMS2 tiene un error."
+         },
+         {
+             "ecode": "0701300000010004",
+@@ -2498,7 +2498,7 @@
+         },
+         {
+             "ecode": "0701310000010001",
+-            "intro": "La placa RFID entre AMS2 slot3 & slot4 tiene un error."
++            "intro": "La placa RFID entre la ranura 3 y la ranura 4 del AMS2 tiene un error."
+         },
+         {
+             "ecode": "0701310000010004",
+@@ -2514,75 +2514,75 @@
+         },
+         {
+             "ecode": "0702010000010001",
+-            "intro": "El AMS3 ha patinado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
++            "intro": "El motor de asistencia del AMS3 está sobrecargado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0702010000010003",
+-            "intro": "El AMS3 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
++            "intro": "El motor de asistencia del AMS3 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
+         },
+         {
+             "ecode": "0702010000010004",
+-            "intro": "El AMS3 está funcionando mal. El sensor de velocidad puede estar defectuoso."
++            "intro": "El motor de asistencia del AMS3 está funcionando mal. El sensor de velocidad puede estar defectuoso."
+         },
+         {
+             "ecode": "0702010000020002",
+-            "intro": "El AMS3 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de asistencia del AMS3 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0702020000010001",
+-            "intro": "AMS3 Error de velocidad y longitud del filamento: La odometría del filamento puede ser defectuosa."
++            "intro": "Error de velocidad y longitud del filamento del AMS3: La odometría del filamento puede ser defectuosa."
+         },
+         {
+             "ecode": "0702100000010001",
+-            "intro": "El AMS3 de la ranura1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 1 del AMS 3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0702100000010003",
+-            "intro": "El control de par del motor AMS3 slot1 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El motor de la ranura 1 del AMS3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0702100000020002",
+-            "intro": "El AMS3 slot1 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 1 del AMS 3 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0702110000010001",
+-            "intro": "El AMS3 de la ranura2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 2 del AMS3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0702110000010003",
+-            "intro": "El control de par del motor AMS3 slot2 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 2 del AMS 3 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0702110000020002",
+-            "intro": "El AMS3 slot2 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 2 del AMS3 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0702120000010001",
+-            "intro": "El AMS3 de la ranura3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El AMS3 de la ranura 3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0702120000010003",
+-            "intro": "El control de par del motor AMS3 slot3 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 3 de AMS 3 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0702120000020002",
+-            "intro": "El AMS3 slot3 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 3 de AMS 3 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0702130000010001",
+-            "intro": "El AMS3 de la ranura4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 4 de AMS 3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0702130000010003",
+-            "intro": "El control de par del motor AMS3 slot4 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de ranura 4 de AMS 3 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0702130000020002",
+-            "intro": "El AMS3 slot4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 4 de AMS 3 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0702300000010001",
+-            "intro": "La placa RFID entre AMS3 slot1 & slot2 tiene un error."
++            "intro": "La placa RFID entre la Ranura 1 y la Ranura 2 del AMS3 tiene un error."
+         },
+         {
+             "ecode": "0702300000010004",
+@@ -2594,7 +2594,7 @@
+         },
+         {
+             "ecode": "0702310000010001",
+-            "intro": "La placa RFID entre AMS3 slot3 & slot4 tiene un error."
++            "intro": "La placa RFID entre la Ranura 3 y la Ranura 4 del AMS 3 tiene un error."
+         },
+         {
+             "ecode": "0702310000010004",
+@@ -2622,7 +2622,7 @@
+         },
+         {
+             "ecode": "0300010000010007",
+-            "intro": "La temperatura de la cama calienteo es anormal; el sensor puede tener un circuito abierto."
++            "intro": "La temperatura del calentador es anormal; el sensor puede tener un circuito abierto."
+         },
+         {
+             "ecode": "0300020000010001",
+@@ -2742,11 +2742,11 @@
+         },
+         {
+             "ecode": "0500010000030004",
+-            "intro": "No hay suficiente espacio en la tarjeta SD."
++            "intro": "No hay suficiente espacio en la tarjeta MicroSD."
+         },
+         {
+             "ecode": "0500020000020007",
+-            "intro": "Fallo en el inicio de sesión del servicio visualizacion en vivo."
++            "intro": "Fallo en el inicio de sesión del servicio visualización en vivo."
+         },
+         {
+             "ecode": "0500030000010002",
+@@ -2810,72 +2810,84 @@
+         },
+         {
+             "ecode": "0700010000010001",
+-            "intro": "El AMS1 ha patinado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
++            "intro": "El motor de asistencia del AMS1 está sobrecargado. La rueda de extrusión puede estar desgastada o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0700010000010003",
+-            "intro": "El AMS1 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
++            "intro": "El motor de asistencia del AMS1 está funcionando mal. Es posible que el sensor de corriente esté defectuoso."
+         },
+         {
+             "ecode": "0700010000010004",
+-            "intro": "El AMS1 está funcionando mal. El sensor de velocidad puede estar defectuoso."
++            "intro": "El motor de asistencia del AMS1 está funcionando mal. El sensor de velocidad puede estar defectuoso."
+         },
+         {
+             "ecode": "0700010000020002",
+-            "intro": "El AMS1 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de asistencia del AMS1 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0700020000010001",
+-            "intro": "AMS1 Error de velocidad y longitud del filamento: La odometría del filamento puede ser defectuosa."
++            "intro": "Error de velocidad y longitud del filamento del AMS1: La odometría del filamento puede ser defectuosa."
+         },
+         {
+             "ecode": "0700100000010001",
+-            "intro": "El AMS1 de la ranura1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El AMS1 de la ranura 1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0700100000010003",
+-            "intro": "El control de par del motor AMS1 slot1 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El motor de la ranura 1 del AMS1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0700100000020002",
+-            "intro": "El AMS1 slot1 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "La ranura 1 del AMS1 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0700110000010001",
+-            "intro": "El AMS1 de la ranura2 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 2 del AMS1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0700110000010003",
+-            "intro": "El control de par del motor AMS1 slot2 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 2 del AMS1 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0700110000020002",
+-            "intro": "El AMS1 slot2 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 2 del AMS1 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0700120000010001",
+-            "intro": "El AMS1 de la ranura3 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 3 del AMS1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0700120000010003",
+-            "intro": "El control de par del motor AMS1 slot3 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 3 del AMS1 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0700120000020002",
+-            "intro": "El AMS1 slot3 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 3 del AMS1 está sobrecargado. El filamento puede estar enredado o atascado."
+         },
+         {
+             "ecode": "0700130000010001",
+-            "intro": "El AMS1 de la ranura4 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
++            "intro": "El motor de la ranura 4 del AMS1 ha patinado. La rueda de extrusión puede estar funcionando mal, o el filamento puede ser demasiado fino."
+         },
+         {
+             "ecode": "0700130000010003",
+-            "intro": "El control de par del motor AMS1 slot4 está funcionando mal. El sensor de corriente puede estar defectuoso."
++            "intro": "El control de par del motor de la ranura 4 del AMS1 está funcionando mal. El sensor de corriente puede estar defectuoso."
+         },
+         {
+             "ecode": "0700130000020002",
+-            "intro": "El AMS1 slot4 está sobrecargado. El filamento puede estar enredado o atascado."
++            "intro": "El motor de la ranura 4 del AMS1 está sobrecargado. El filamento puede estar enredado o atascado."
++        },
++        {
++            "ecode": "030001000001000A",
++            "intro": "El controlador de temperatura de la cama es anormal, la placa de AC puede estar rota."
++        },
++        {
++            "ecode": "1200250000020001",
++            "intro": "No se extruye el filamento, y es posible que el extrusor esté obstruido."
++        },
++        {
++            "ecode": "1200240000020001",
++            "intro": "Es posible que el filamento del cabezal esté roto."
+         }
+     ],
+-    "ver": 202309261840
+-}
++    "ver": 202406020147
++}
+\ No newline at end of file

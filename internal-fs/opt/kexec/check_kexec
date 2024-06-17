@@ -16,18 +16,46 @@ else
     BBL_SN=$(bbl_3dpsn 2> /dev/null)
 fi
 
+# Set quickboot var
+QUICKBOOT_FLAG="false"
+if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
+    # Rely on settings.json if we can, default to false
+    QUICKBOOT_FLAG=$(/opt/kexec/jq ".\"boot.quick_boot\" // false" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json)
+elif [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/quick-boot ]; then
+    # fallback to legacy flagfile check
+    QUICKBOOT_FLAG="true"
+fi
+
+# Also check, and get/clear our OTA filename flag for auto install
+if [ -f /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json ]; then
+    OTA_FILENAME=$(/opt/kexec/jq -r ".\"ota.filename\" // null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json)
+    # Did we have something set?
+    if [ "${OTA_FILENAME}" != "null" ]; then
+        if [ -f /mnt/sdcard/${OTA_FILENAME} ]; then
+            export X1P_OTA=${OTA_FILENAME}
+            QUICKBOOT_FLAG="false" # Back to false, so we make it to installer if we are re-installing a matching named build
+        fi
+        # Always clear the flag no matter what if it wasn't null, we have to do this ourselves as we don't have dbus
+        # for x1plusd as we are NOT in x1plus yet! Also, we need to do this atomically, so it has to be on the same FS.
+        /opt/kexec/jq ".\"ota.filename\" = null" /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json > /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json.kexectmp
+        sync # Ensure our changed file is saved
+        mv /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json.kexectmp /mnt/sdcard/x1plus/printers/${BBL_SN}/settings.json
+        sync # Ensure the file mv is commited to disk
+    fi
+fi
+
 # Is our quick boot flag set?
-if [ -f /mnt/sdcard/x1plus/printers/$BBL_SN/quick-boot ]; then
+if [ "${QUICKBOOT_FLAG}" == "true" ]; then
     # Before we do, are there any NEW x1p files?!
-    QUICK_BOOT=0 # Default to enable
+    NO_NEW_X1P=0 # Default to enable quick boot (0)
     for x1p in $(ls -1 /mnt/sdcard/*.x1p | sed -e 's|/mnt/sdcard/||g' | sed -e 's|.x1p||g'); do
         # Doesn't exist, bomb out
         if [ ! -d "/mnt/sdcard/x1plus/kernel/${x1p}" ]; then
-            QUICK_BOOT=1 # Disable
+            NO_NEW_X1P=1 # Disable
         fi
     done
     # If we are good to go, quick boot.
-    if [ "${QUICK_BOOT}" -eq "0" ]; then
+    if [ "${NO_NEW_X1P}" -eq "0" ]; then
         echo "Skipping UI and booting into CFW via kexec!"
         /opt/kexec/boot
         exit 0 # We won't make it here but whatever
