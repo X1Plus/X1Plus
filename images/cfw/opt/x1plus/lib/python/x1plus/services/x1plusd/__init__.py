@@ -7,6 +7,7 @@ from .dbus import *
 from .settings import SettingsService
 from .ota import OTAService
 from .sshd import SSHService
+from .i2c import I2cService
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ async def main():
     settings = SettingsService(router=router)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
+    i2c = I2cService(router=router, settings=settings)
 
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
@@ -25,5 +27,6 @@ async def main():
         from .polar_cloud import PolarPrintService
         polar_cloud = PolarPrintService(settings=settings)
         asyncio.create_task(polar_cloud.begin())
+    asyncio.create_task(i2c.task())
 
     logger.info("x1plusd is running")

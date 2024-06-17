@@ -1,6 +1,14 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -16,7 +16,9 @@
+@@ -6,6 +6,7 @@
+ 
+ import ".."
+ import "qrc:/uibase/qml/widgets"
++import "../X1Plus.js" as X1Plus
+ 
+ Item {
+ 
+@@ -16,7 +17,9 @@
      property var extruders: hasExtruderList ? extruderList.extruders : []
      property var currentExtruder: hasExtruderList ? extruderList.currentExtruder : null
      property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
@@ -11,7 +19,44 @@
      property var speedAdjust: QtObject {
          property string name: "speed"
          property int currentTemp: PrintManager.currentTask.printSpeed
-@@ -153,18 +155,32 @@
+@@ -25,11 +28,36 @@
+         property string errorMsg
+         property bool visible: true
+     }
++    
++    property var i2cTemp: { "t": 0, "rh": 0 }
++    
++    property var i2cKnob: QtObject {
++        property string name: "i2c"
++        property string text: `${i2cTemp.t.toFixed(2)}°C, ${i2cTemp.rh.toFixed(2)}% RH`
++        property int targetTemp: 0
++        property bool visible: true
++        property bool targetEditable: false
++        property string errorMsg
++    }
++
++    property var getSht41: X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/i2c", "x1plus.i2c", "GetSht41")
++
++    Timer {
++        id: myTime
++        interval: 2500
++        repeat: true
++        running: visible
++        onTriggered: {
++            i2cTemp = getSht41();
++        }
++    }
++
+ 
+     property var tempModel: [
+ //        heaters.hotend,
+         heaters.heatbed,
+         heaters.chamber,
++        i2cKnob,
+         speedAdjust
+     ].filter(h=>h.visible);
+ 
+@@ -153,18 +181,32 @@
                  model: xyAsixModel
                  delegate: axisComp
              }
@@ -52,7 +97,7 @@
                  }
              }
          }
-@@ -210,7 +226,7 @@
+@@ -210,7 +252,7 @@
                      }
  
                      onClicked: {
@@ -61,7 +106,34 @@
                              limitFrame()
                          }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-@@ -828,7 +844,7 @@
+@@ -499,7 +541,7 @@
+     }
+ 
+     Component {
+-        id: tempComp
++        id: tempComp	
+ 
+         ZButton {
+             id: tempItem
+@@ -512,7 +554,7 @@
+             textSize: 36
+             checked: ListView.isCurrentItem
+             icon: "../../icon/heater_" + modelData.name + ".svg"
+-            text: modelData.currentTemp.toFixed(0)
++            text: modelData.name == "i2c" ? modelData.text : modelData.currentTemp.toFixed(0)
+ 
+             EventTrack.itemName: "tempAndSpeed_" + modelData.name
+ 
+@@ -554,7 +596,7 @@
+                 anchors.verticalCenter: parent.verticalCenter
+                 font: Fonts.body_28
+                 color: Colors.gray_300
+-                visible: index < (tmpModelArray.length - 1) || !speedPad.target
++                visible: (index < (tmpModelArray.length - 1) || !speedPad.target) && modelData.name != "i2c"
+                 text: index < (tmpModelArray.length - 1) ? "°C" : "%"
+             }
+ 
+@@ -828,7 +870,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -70,7 +142,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +862,7 @@
+@@ -846,7 +888,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -79,7 +151,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +917,13 @@
+@@ -901,11 +943,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",
