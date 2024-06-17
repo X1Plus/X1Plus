@@ -47,7 +47,7 @@ basefw_mtime = INFO["base"]["mtime"]
 cfw_version = INFO["cfwVersion"]
 cfw_squashfs = f"{cfw_version}.squashfs"
 demand_free_space = fs_size + 1 * 1024 * 1024 * 1024
-# latest_safe_bblap = "00.00.28.55" # 1.07.02.00
+oldest_safe_bblap = "00.00.28.55" # 1.07.02.00 - anything older is not guaranteed to have a safe RPMB migration
 latest_safe_bblap = "00.00.30.73" # Firmware R - "1.06.06.58" aka 1.07.02.00+R
 
 dds_rx_queue = dds.subscribe("device/request/upgrade")
@@ -260,6 +260,13 @@ if not os.path.isfile(backup_path):
 
 # validate that we're on a machine that has a supported device tree
 report_progress("Checking system compatibility")
+
+with open("/etc/bblap/Version", "r") as apvf:
+    apv = apvf.read().strip()
+    if apv > latest_safe_bblap:
+        report_failure(f"Installed firmware version {apv} is too new for this version of X1Plus.")
+    if apv < oldest_safe_bblap:
+        report_failure(f"Installed firmware version {apv} is too old for this version of X1Plus.  You must upgrade to the Official Rootable Firmware to install this version of X1Plus.")
 
 if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"):
     report_failure("This custom firmware image does not support this printer's hardware version.")
