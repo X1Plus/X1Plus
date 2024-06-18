@@ -31,7 +31,8 @@ class PolarPrintService:
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
         self.pin = ""
-        self.username = ""
+        self.username = "" # This is here only for emulation mode when reading from .env.
+        # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
         self.ip = ""  # This will be used for sending camera images.
@@ -45,7 +46,7 @@ class PolarPrintService:
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
-        self.get_creds()
+        await self.get_creds()
         connect_task = asyncio.create_task(
             self.socket.connect(self.server_url, transports=["websocket"])
         )
@@ -55,6 +56,7 @@ class PolarPrintService:
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
+        self.socket.on("delete", self._on_delete)
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
@@ -65,7 +67,6 @@ class PolarPrintService:
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
-        # await self.polar_settings.put("polar.sn", "")
         if self.polar_settings.get("polar.sn", "") and self.polar_settings.get(
             "polar.private_key", ""
         ):
@@ -181,7 +182,7 @@ class PolarPrintService:
         logger.info("_register.")
         data = {
             "mfg": "bambu",
-            "email": self.username,
+            "email": self.polar_settings.get("polar.username"),
             "pin": self.pin,
             "publicKey": self.polar_settings.get("polar.public_key"),
             "mfgSn": self.serial_number(),
@@ -237,10 +238,29 @@ class PolarPrintService:
         """
         pass
 
-    def get_creds(self) -> None:
+    async def _on_delete(self, response, *args, **kwargs) -> None:
+        """
+        Printer has been deleted from Polar Cloud. Remove all identifying information
+        from card. The current print should finish. Disconnect socket so that
+        username and PIN don't keep being requested and printer doesn't reregister.
+        """
+        if response["serialNumber"] == self.polar_settings.get("polar.sn"):
+            self.polar_settings.put("polar.sn", "")
+            self.polar_settings.put("polar.username", "")
+            self.polar_settings.put("polar.public_key", "")
+            self.polar_settings.put("polar.private_key", "")
+            self.pin = ""
+            self.mac = ""
+            self.username = ""
+            # Todo: stop status() here?
+            self.socket.disconnect()
+
+    async def get_creds(self) -> None:
         """
         If PIN and username are not set, open Polar Cloud interface window and
         get them.
+
+        Todo: This works only during emulation.
         """
         if is_emulating():
             # I need to use actual account creds to connect, so we're using .env
@@ -255,11 +275,12 @@ class PolarPrintService:
                 for line in env:
                     k, v = line.split("=")
                     setattr(self, k, v.strip())
+            await self.polar_settings.put("polar.username", self.username)
         else:
             if not self.pin:
                 # Get it from the interface.
                 pass
-            if not self.username:
+            if not self.polar_settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
 
