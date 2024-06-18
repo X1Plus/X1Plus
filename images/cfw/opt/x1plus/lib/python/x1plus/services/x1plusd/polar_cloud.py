@@ -31,7 +31,9 @@ class PolarPrintService:
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
         self.pin = ""
-        self.username = "" # This is here only for emulation mode when reading from .env.
+        self.username = (
+            ""  # This is here only for emulation mode when reading from .env.
+        )
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
@@ -73,27 +75,27 @@ class PolarPrintService:
             logger.debug(f"challenge: {response['challenge']}")
             # The printer has been registered.
             # First, encode challenge string with the private key.
-            private_key = self.polar_settings.get('polar.private_key').encode("utf-8")
+            private_key = self.polar_settings.get("polar.private_key").encode("utf-8")
             rsa_key = RSA.import_key(private_key)
-            hashed_challenge = SHA256.new(response['challenge'].encode("utf-8"))
+            hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
             key = pkcs1_15.new(rsa_key)
             data = {
                 "serialNumber": self.polar_settings.get("polar.sn", ""),
-                "signature": b64encode(key.sign(hashed_challenge)).decode('utf-8'),
+                "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
                 "mfgSn": self.serial_number(),
             }
-            # """
-            # Note that the following optional fields might be used in future.
-            # "printerMake": "printer make",                     // string, optional
-            # "version": "currently installed software version", // string, optional
-            # "localIP": "printer's local IP address",           // string, optional
-            # "rotateImg": 0 | 1,                                // integer, optional
-            # "transformImg": 0 - 7,                             // integer, optional
-            # "camOff": 0 | 1,                                   // integer, optional
-            # "camUrl": "URL for printer's live camera feed"     // string, optional
-            # """
+            """
+            Note that the following optional fields might be used in future.
+            "printerMake": "printer make",                     // string, optional
+            "version": "currently installed software version", // string, optional
+            "localIP": "printer's local IP address",           // string, optional
+            "rotateImg": 0 | 1,                                // integer, optional
+            "transformImg": 0 - 7,                             // integer, optional
+            "camOff": 0 | 1,                                   // integer, optional
+            "camUrl": "URL for printer's live camera feed"     // string, optional
+            """
             await self.socket.emit("hello", data)
         elif not self.polar_settings.get(
             "polar.sn", ""
@@ -122,7 +124,7 @@ class PolarPrintService:
             logger.info("Polar Cloud connected.")
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
-            # Send error to screen.
+            # Send error to interface.
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
@@ -148,7 +150,7 @@ class PolarPrintService:
     async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
         Get register response from status server and save serial number.
-        At the end of this fn printer will be ready to receive print calls.
+        When this fn is finished printer will be ready to receive print calls.
         """
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
