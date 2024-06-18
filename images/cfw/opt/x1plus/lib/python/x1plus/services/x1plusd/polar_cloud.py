@@ -31,9 +31,8 @@ class PolarPrintService:
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
         self.pin = ""
-        self.username = (
-            ""  # This is here only for emulation mode when reading from .env.
-        )
+        # username is here only for emulation mode when reading from .env.
+        self.username = ""
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
