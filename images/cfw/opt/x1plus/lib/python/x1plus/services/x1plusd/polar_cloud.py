@@ -97,6 +97,81 @@ class PolarPrintService:
         #     )
         #     await self._register()
 
+    async def _on_keypair_response(self, response, *args, **kwargs):
+        """
+        Request a keypair from the server. On success register. On failure kick
+        out to interface for new email or pin.
+        """
+        if response["status"] == "SUCCESS":
+            self.public_key = response["public"]
+            self.private_key = response["private"]
+            # We have keys, but still need to register. First disconnect.
+            logger.info("_on_keypair_response success. Disconnecting.")
+            # Todo: I'm not creating a race condition with the next three fn calls, am I?
+            await self.socket.disconnect()
+            # After the next line it will send a `welcome`.
+            logger.info("Reconnecting.")
+            await self.socket.connect(self.server_url, transports=["websocket"])
+            await self._register()
+        else:
+            # We have an error.
+            logger.error(f"_on_keypair_response failure: {response['message']}")
+            # Todo: communicate with dbus to fix this!
+            # Todo: deal with error using interface.
+
+    async def _on_register_response(self, response, *args, **kwargs):
+        """Get register response from status server and save serial number."""
+        if response["status"] == "SUCCESS":
+            logger.info("_on_register_response success.")
+            logger.debug(f"Serial number: {response['serialNumber']}")
+            self.polar_sn = response["serialNumber"]
+            await self.polar_settings.put("polar_sn", response["serialNumber"])
+
+        else:
+            logger.error(f"_on_register_response failure: {response['reason']}")
+            # Todo: deal with various failure modes here. Most can be dealt
+            # with in interface. First three report as server erros? Modes are
+            # "SERVER_ERROR": Report this?
+            # "MFG_UNKNOWN": Again, should be impossible.
+            # "INVALID_KEY": Ask for new key. Maybe have a counter and fail after two?
+            # "MFG_MISSING": This should be impossible.
+            # "EMAIL_PIN_ERROR": Send it to the interface.
+            # "FORBIDDEN": There's an issue with the MAC address.
+            if response["reason"].lower() == "forbidden":
+                # Todo: Must communicate with dbus to debug this!
+                logger.error(
+                    f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
+                    f"{self.mac}\n\n"
+                )
+                exit()
+
+    async def _register(self):
+        """
+        Send register request. Note this can only be called after a keypair
+        has been received and stored.
+        """
+        if is_emulating:
+            sn = "123456789"
+        else:
+            sn = serial_number()
+        logger.info("_register.")
+        data = {
+            "mfg": "bambu",
+            "email": self.username,
+            "pin": self.pin,
+            "publicKey": self.public_key,
+            "mfgSn": sn,
+            "myInfo": {"MAC": self.mac},
+        }
+        await self.socket.emit("register", data)
+
+    def _on_hello_response(self, response, *args, **kwargs):
+        if response["status"] == "SUCCESS":
+            logger.info("_on_hello_response success")
+        else:
+            logger.error(f"_on_hello_response failure: {response['message']}")
+            # Deal with error here.
+
     def set_interface(self):
         """Get IP and MAC addresses and store them in self.settings."""
         self.mac = get_MAC()
