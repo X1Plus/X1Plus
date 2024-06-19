@@ -43,6 +43,8 @@ class PolarPrintService:
         )
         await connect_task
         self.socket.on("welcome", self._on_welcome)
+        self.socket.on("keyPair", self._on_keypair_response)
+        self.socket.on("helloResponse", self._on_hello_response)
 
 
     async def _on_welcome(self, response, *args, **kwargs):
@@ -96,6 +98,13 @@ class PolarPrintService:
         #         "_on_welcome Somehow there are keys with no SN. Reregistering."
         #     )
         #     await self._register()
+
+    def _on_hello_response(self, response, *args, **kwargs):
+        if response["status"] == "SUCCESS":
+            logger.info("_on_hello_response success")
+        else:
+            logger.error(f"_on_hello_response failure: {response['message']}")
+            # Deal with error here.
 
     async def _on_keypair_response(self, response, *args, **kwargs):
         """
