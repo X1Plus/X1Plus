@@ -4,6 +4,7 @@ Module to allow printing using Polar Cloud service.
 
 import asyncio
 import logging
+import os
 import socketio
 
 import x1plus
@@ -38,13 +39,17 @@ class PolarPrintService:
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
+        await self.get_creds()
         connect_task = asyncio.create_task(
             self.socket.connect(self.server_url, transports=["websocket"])
         )
         await connect_task
-        self.socket.on("welcome", self._on_welcome)
+        # Assign socket callbacks.
+        self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
+        self.socket.on("welcome", self._on_welcome)
+
 
 
     async def _on_welcome(self, response, *args, **kwargs):
@@ -181,6 +186,34 @@ class PolarPrintService:
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Deal with error here.
+
+    async def get_creds(self) -> None:
+        """
+        If PIN and username are not set, open Polar Cloud interface window and
+        get them.
+
+        Todo: This works only during emulation.
+        """
+        if is_emulating():
+            # I need to use actual account creds to connect, so we're using .env
+            # for testing, until there's an interface.
+            # dotenv isn't installed, so just open the .env file and parse it.
+            # This means that .env file must formatted correctly, with var names
+            # `username` and `pin`.
+            import inspect
+
+            env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
+            with open(os.path.join(env_dir, ".env")) as env:
+                for line in env:
+                    k, v = line.split("=")
+                    setattr(self, k, v.strip())
+        else:
+            if not self.pin:
+                # Get it from the interface.
+                pass
+            if not self.polar_settings.get("polar.username", ""):
+                # Get it from the interface.
+                pass
 
     def set_interface(self):
         """Get IP and MAC addresses and store them in self.settings."""
