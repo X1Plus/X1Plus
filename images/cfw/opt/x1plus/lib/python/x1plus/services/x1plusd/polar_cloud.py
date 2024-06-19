@@ -49,7 +49,7 @@ class PolarPrintService:
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
-
+        self.socket.on("delete", self._on_delete)
 
 
     async def _on_welcome(self, response, *args, **kwargs):
@@ -58,6 +58,10 @@ class PolarPrintService:
         ignore this. Otherwise, must get a key pair, then call register.
         """
         logger.info("_on_welcome.")
+        logger.debug(f"challenge: {response['challenge']}")
+        logger.debug(
+            f"Polar SN: {self.polar_sn}, Public key exists: {bool(self.public_key)}"
+        )
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
@@ -127,7 +131,6 @@ class PolarPrintService:
             # After the next line it will send a `welcome`.
             logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
-            await self._register()
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
@@ -180,12 +183,77 @@ class PolarPrintService:
         }
         await self.socket.emit("register", data)
 
+    async def _status(self) -> None:
+        """
+        Should send several times a minute (3? 4?). All fields but serialNumber
+        and status are optional.
+        {
+            "serialNumber": "string",
+            "status": integer,
+            "progress": "string",
+            "progressDetail": "string",
+            "estimatedTime": integer,
+            "filamentUsed": integer,
+            "startTime": "string",
+            "printSeconds": integer,
+            "bytesRead": integer,
+            "fileSize": integer,
+            "tool0": floating-point,
+            "tool1": floating-point,
+            "bed": floating-point,
+            "chamber": floating-point,
+            "targetTool0": floating-point,
+            "targetTool1": floating-point,
+            "targetBed": floating-point,
+            "targetChamber": floating-point,
+            "door": integer,
+            "jobId": "string",
+            "file": "string",
+            "config": "string"
+        }
+        Possible status codes are:
+        0     Ready; printer is idle and ready to print
+        1     Serial; printer is printing a local print over its serial connection
+        2     Preparing; printer is preparing a cloud print (e.g., slicing)
+        3     Printing; printer is printing a cloud print
+        4     Paused; printer has paused a print
+        5     Postprocessing; printer is performing post-printing operations
+        6     Canceling; printer is canceling a print from the cloud
+        7     Complete; printer has completed a print job from the cloud
+        8     Updating; printer is updating its software
+        9     Cold pause; printer is in a "cold pause" state
+        10     Changing filament; printer is in a "change filament" state
+        11     TCP/IP; printer is printing a local print over a TCP/IP connection
+        12     Error; printer is in an error state
+        13     Disconnected; controller's USB is disconnected from the printer
+        14     Door open; unable to start or resume a print
+        15     Clear build plate; unable to start a new print
+        """
+        pass
+
     def _on_hello_response(self, response, *args, **kwargs):
         if response["status"] == "SUCCESS":
             logger.info("_on_hello_response success")
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Deal with error here.
+
+    async def _on_delete(self, response, *args, **kwargs) -> None:
+        """
+        Printer has been deleted from Polar Cloud. Remove all identifying information
+        from card. The current print should finish. Disconnect socket so that
+        username and PIN don't keep being requested and printer doesn't reregister.
+        """
+        if response["serialNumber"] == self.polar_settings.get("polar.sn"):
+            self.polar_settings.put("polar.sn", "")
+            self.polar_settings.put("polar.username", "")
+            self.polar_settings.put("polar.public_key", "")
+            self.polar_settings.put("polar.private_key", "")
+            self.pin = ""
+            self.mac = ""
+            self.username = ""
+            # Todo: stop status() here?
+            self.socket.disconnect()
 
     async def get_creds(self) -> None:
         """
