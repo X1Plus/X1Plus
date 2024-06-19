@@ -16,6 +16,7 @@
 <file>printerui/qml/dialog/Success.qml</file>
 <file>printerui/qml/dialog/TextConfirm.qml</file>
 <file>printerui/qml/dialog/DialogButtonItem.qml</file>
+<file>printerui/qml/WifiStatus.qml</file>
 <file>printerui/qml/Dialog.qml</file>
 <file>printerui/qml/Choise.qml</file>
 <file>printerui/qml/Screen.qml</file>

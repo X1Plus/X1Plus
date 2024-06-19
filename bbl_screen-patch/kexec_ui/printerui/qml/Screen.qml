@@ -33,7 +33,30 @@ Rectangle {
     height: 720
     color: Colors.gray_500
     
+    WifiStatus {
+        id: _wifiStatus
+    }  
+    
+    Text {
+        id: wifiLevelTxt
+        z: 1
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: 25
+        anchors.rightMargin: 60
+        width: 100
+        height: 50
+        color: "white"
+        font: Fonts.body_28
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        Binding on text {
+            value: _wifiStatus.formattedOutput
+        }
+    }
+    
     Component.onCompleted: {
+        _wifiStatus.run("wifi_signal"); //check if LAN mode is enabled
         if (X1PlusNative.getenv("KEXEC_LAUNCH_INSTALLER") != "")
             dialogStack.push("SelectX1pPage.qml", { noBackButton: true } );
         else
