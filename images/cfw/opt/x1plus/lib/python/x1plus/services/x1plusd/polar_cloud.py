@@ -2,7 +2,9 @@
 Module to allow printing using Polar Cloud service.
 """
 
+import asyncio
 import logging
+import socketio
 
 import x1plus
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
@@ -32,3 +34,10 @@ class PolarPrintService:
         self.connected = False  # We might not need this, but here for now.
 
 
+    async def begin(self):
+        """Create Socket.IO client and connect to server."""
+        self.socket = socketio.AsyncClient()
+        connect_task = asyncio.create_task(
+            self.socket.connect(self.server_url, transports=["websocket"])
+        )
+        await connect_task
