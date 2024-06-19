@@ -64,16 +64,19 @@ class PolarPrintService:
             # The printer has been registered. Note that
             # we're now using the serial number assigned by the server.
             # First, encode challenge string with the private key.
-            logger.debug(f"_on_welcome Polar Cloud SN: {self.polar_sn}")
-            cipher_rsa = PKCS1_OAEP.new(self.private_key)
-            encrypted = b64encode(cipher_rsa.encrypt(response["challenge"]))
-            logger.debug(f"_on_welcome encrypted challenge: {encrypted}")
+            logger.debug(f"challenge: {response['challenge']}")
+            # The printer has been registered.
+            # First, encode challenge string with the private key.
+            private_key = self.polar_settings.get("polar.private_key").encode("utf-8")
+            rsa_key = RSA.import_key(private_key)
+            hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
+            key = pkcs1_15.new(rsa_key)
             data = {
-                "serialNumber": self.polar_sn,
-                "signature": encrypted,  # BASE64 encoded string
+                "serialNumber": self.polar_settings.get("polar.sn", ""),
+                "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
-                "mfgSn": self.polar_sn,
+                "mfgSn": self.serial_number(),
             }
             """
             Note that the following optional fields might be used in future.
