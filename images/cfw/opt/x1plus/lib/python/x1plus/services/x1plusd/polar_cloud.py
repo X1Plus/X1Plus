@@ -53,10 +53,6 @@ class PolarPrintService:
         ignore this. Otherwise, must get a key pair, then call register.
         """
         logger.info("_on_welcome.")
-        logger.debug(f"challenge: {response['challenge']}")
-        logger.debug(
-            f"Polar SN: {self.polar_sn}, Public key exists: {bool(self.public_key)}"
-        )
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
@@ -67,12 +63,12 @@ class PolarPrintService:
             logger.debug(f"challenge: {response['challenge']}")
             # The printer has been registered.
             # First, encode challenge string with the private key.
-            private_key = self.polar_settings.get("polar.private_key").encode("utf-8")
+            private_key = self.private_key.encode("utf-8")
             rsa_key = RSA.import_key(private_key)
             hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
             key = pkcs1_15.new(rsa_key)
             data = {
-                "serialNumber": self.polar_settings.get("polar.sn", ""),
+                "serialNumber": self.polar_sn,
                 "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
@@ -88,19 +84,21 @@ class PolarPrintService:
             "camOff": 0 | 1,                                   // integer, optional
             "camUrl": "URL for printer's live camera feed"     // string, optional
             """
-
-            # Send hello request.
             await self.socket.emit("hello", data)
         elif not self.polar_sn and not self.public_key:
             # We need to get an RSA key pair before we can go further.
+            # Todo: This needs to be moved locally rather than being remote, so
+            # private key isn't transmitted.
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        # elif not self.polar_sn:
-        #     # We already have a key: just register. Technically, there should be
-        #     # no way to get here. Included for completion.
-        #     logger.error(
-        #         "_on_welcome Somehow there are keys with no SN. Reregistering."
-        #     )
-        #     await self._register()
+        elif not self.polar_sn:
+            # We already have a key: just register.
+            logger.info(f"_on_welcome Registering.")
+            await self._register()
+        else:
+            # It's not possible to have a serial number and no key, so this
+            # would be a real problem.
+            logger.error("Somehow have an SN and no key.")
+            exit()
 
     def _on_hello_response(self, response, *args, **kwargs):
         if response["status"] == "SUCCESS":
