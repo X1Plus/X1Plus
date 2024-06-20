@@ -10,7 +10,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from base64 import b64encode
 
 import x1plus
-from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
+from x1plus.utils import get_MAC, serial_number, is_emulating
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class PolarPrintService:
         self.username = ""
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
-        self.ip = ""
+        # self.ip = ""
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
         self.polar_settings = settings
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
@@ -284,4 +284,4 @@ class PolarPrintService:
     def set_interface(self):
         """Get IP and MAC addresses and store them in self.settings."""
         self.mac = get_MAC()
-        self.ip = get_IP()
+        # self.ip = get_IP()
