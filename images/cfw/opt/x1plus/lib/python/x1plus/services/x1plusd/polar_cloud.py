@@ -4,7 +4,6 @@ Module to allow printing using Polar Cloud service.
 
 import asyncio
 import logging
-import os
 import socketio
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
@@ -43,10 +42,7 @@ class PolarPrintService:
         self.socket = socketio.AsyncClient()
         self.set_interface()
         await self.get_creds()
-        connect_task = asyncio.create_task(
-            self.socket.connect(self.server_url, transports=["websocket"])
-        )
-        await connect_task
+        await self.socket.connect(self.server_url, transports=["websocket"])
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -270,10 +266,10 @@ class PolarPrintService:
             # dotenv isn't installed, so just open the .env file and parse it.
             # This means that .env file must formatted correctly, with var names
             # `username` and `pin`.
-            import inspect
+            from pathlib import Path
 
-            env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-            with open(os.path.join(env_dir, ".env")) as env:
+            env_dir = Path(__file__).resolve()
+            with open(env_dir.parents[0] / ".env") as env:
                 for line in env:
                     k, v = line.split("=")
                     setattr(self, k, v.strip())
