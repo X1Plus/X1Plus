@@ -29,24 +29,81 @@ container.  If you're adventurous, you can probably build X1Plus on any old
 Linux machine (I do), but if you do that and it breaks, we really don't want
 to hear about it, so you really should just build it in Docker.  You'll need
 the filesystem decryption key from a live printer (running either X1Plus or
-the Official Rootable Firmware) in order to build X1Plus; try something
-like:
+the Official Rootable Firmware) in order to build X1Plus.
+
+
+Note that if you're on Windows you'd need to install Windows Subsystem for Linux:
+
+```
+wsl --install
+wsl -d Ubuntu
+```
+
+First, copy the getkey bin over to the printer:
+
+```
+scp scripts/getkey root@<printer’s IP>:/tmp
+```
+
+Now retrieve the key:
+
+```
+ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
+```
+
+Clone down the X1Plus repo and build the Docker image from the Dockerfile in 
+`scripts/docker`:
 
 ```
 $ git clone ...
 $ cd X1Plus
 $ docker build -t x1plusbuild scripts/docker/
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global --add safe.directory /work'
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make scripts
-$ scp scripts/getkey root@bambu:/tmp
-$ ssh root@bambu /tmp/getkey >> localconfig.mk
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make
 ```
 
-With some luck, you should get a `.x1p` file in your working directory!  You
-can copy that to your SD card (`scp` it over -- never remove an SD card from
-a live X1Plus system, you goofball), reboot your printer, and install it
-from the menu.
+In order to `make` on the Docker container a safe directory must be added to 
+the git config. As that will only persist for one run the Docker container 
+must be run in interactive mode. 
+
+```
+$ docker run -dit -v `pwd`:/work --name x1plusmake x1plusbuild 
+```
+
+Now, `exec` into the Docker container and run the make commands.
+
+```
+$ docker exec -v `pwd`:/work x1plusmake bash -c 'git config --global --add safe.directory /work'
+$ docker exec -v `pwd`:/work x1plusmake make scripts
+$ docker exec -v `pwd`:/work x1plusbuild make
+```
+
+With some luck, you should get a `.x1p` file in your working directory! Get 
+the name of that file:
+
+```
+$ docker exec -v `pwd`:/work x1plusmake sh -c 'ls /work | grep .x1p'
+$ <somefilename>.x1p
+```
+
+Copy that out of the Docker container. 
+
+```
+$ docker cp x1plusmake:/work/<somefilename>.x1p
+```
+
+And `scp` it to the printer (never remove an SD card from a live X1Plus system, 
+you goofball).
+
+```
+scp <somefilename>.x1p root@<printer’s IP>:/sdcard
+```
+
+Reboot your printer, and install X1Plus from the menu.
+
+Finally, don't forget to stop your Docker container!
+
+```
+docker stop x1plusmake
+```
 
 If you're going to make changes to any of the UI files, you should really
 read the rest of this document...  otherwise you might be in for a nasty
