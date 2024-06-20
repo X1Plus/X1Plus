@@ -15,7 +15,7 @@ Rectangle {
     width: 1280
     height: 720
     color: Colors.gray_500
-
+    
     function confirmThenDo(prompt, what, confirm) {
         dialogStack.popupDialog("TextConfirm", {
             name: "installer yesno",
@@ -25,7 +25,7 @@ Rectangle {
             onNo: function() { dialogStack.pop(); }
         });
     }
-
+    
     function startFromSd() {
         X1PlusNative.system("/opt/kexec/boot");
     }
@@ -33,14 +33,14 @@ Rectangle {
     function startFromSdDebug() {
         X1PlusNative.system("/opt/kexec/boot debug");
     }
-
+    
     function startInstaller() {
         dialogStack.replace("SelectX1pPage.qml");
     }
-
+    
     function promptWipeWritable() {
         confirmThenDo(qsTr("Resetting X1Plus settings can help to recover from modified X1Plus installations.  ") +
-                      qsTr("It will also reset the lock screen passcode, root password, and ssh keys.  (This process takes a few minutes.)"),
+                      qsTr("It will also reset the lock screen passcode, root password, and ssh keys.  (This process takes a few minutes.)"), 
                       function () {
                           /* load printer.json, and wipe any cfw keys */
                           let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/screen/printer.json";
@@ -54,9 +54,9 @@ Rectangle {
                                   delete j[k];
                               }
                           }
-
+                          
                           X1PlusNative.saveFile(X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/screen/printer.json", JSON.stringify(j, null, 4));
-
+                          
                           let hostkey_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/config/sshd/*";
                           X1PlusNative.system(`rm -f ${hostkey_path}`);
                           let sdcard_logs_path = X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/printers/${DeviceManager.build.seriaNO}/logs/*";
@@ -70,7 +70,7 @@ Rectangle {
                           X1PlusNative.system(`rm -f ${ext4_path} && truncate -s ${1024*1024*1024} ${ext4_path} && mkfs.ext4 -F ${ext4_path}`);
 
                           X1PlusNative.system(`sync`);
-
+                          
                           dialogStack.pop();
                       }, qsTr("Wipe writable partition"));
     }
@@ -83,7 +83,7 @@ Rectangle {
             }, qsTr("I'll be careful, I promise"));
     }
 
-
+    
     function promptBootDisable() {
         confirmThenDo(qsTr("Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option attempts to enter LAN mode before starting, and disables the printer's internal upgrade service; you can use this option to help avoid inadvertent erasure of your X1Plus installation.") + "<br><br>" + qsTr("<font color=\"#EEAAAA\">Use this mode with caution.</font>"),
             function() {
@@ -95,7 +95,7 @@ Rectangle {
                 Qt.quit();
             }, "Fingers are crossed");
     }
-
+    
     function promptBootUnmodified() {
         confirmThenDo(
             qsTr("<font color=\"#EEAAAA\">Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option starts the printer with no modifications to the built-in firmware. If your printer performs a firmware upgrade in this mode, X1Plus will likely be uninstalled; if you want to run X1Plus afterwards, you will need to rerun the X1Plus installation process. If prompted to install upgrades, you should answer \"no\" if you want to keep your X1Plus installation.</font><br><br>Use this mode with extreme caution."),
@@ -104,7 +104,7 @@ Rectangle {
                 Qt.quit();
             }, qsTr("Fingers are crossed"));
     }
-
+    
     /* Replicated in KexecDialog.qml; keep this in sync if you change this (or, really, refactor it then). */
     property var hasSdCard: (function () {
         let path = "file://" + X1PlusNative.getenv("EMULATION_WORKAROUNDS") + "/sdcard/x1plus/boot.conf";
@@ -122,7 +122,7 @@ Rectangle {
         [qsTr("<font color=\"#EEAAAA\">Start built-in firmware with updater disabled</font>"), true, promptBootDisable],
         [qsTr("<font color=\"#FF7777\">Start built-in firmware unmodified</font>"), true, promptBootUnmodified]
     ])
-
+    
     Text {
         id: titlelabel
         anchors.left: parent.left
@@ -134,7 +134,7 @@ Rectangle {
         color: Colors.brand
         text: qsTr("X1Plus startup options")
     }
-
+    
     ZLineSplitter {
         id: splitter
         height: 2
@@ -147,7 +147,7 @@ Rectangle {
         padding: 15
         color: Colors.gray_300
     }
-
+    
     Item {
         id: body
         anchors.top: splitter.bottom
@@ -158,7 +158,7 @@ Rectangle {
         anchors.rightMargin: 48
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 48
-
+        
         Item {
             id: lframe
             anchors.left: parent.left
@@ -186,7 +186,7 @@ Rectangle {
                 source: "../image/cfw.png"
             }
         }
-
+        
         Item {
             id: rframe
             anchors.left: lframe.right
@@ -194,7 +194,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-
+            
             Rectangle {
                 radius: 16
                 color: Colors.gray_600
@@ -204,7 +204,7 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 clip: true
-
+                
                 ListView {
                     anchors.top: parent.top
                     anchors.topMargin: 24
@@ -220,10 +220,10 @@ Rectangle {
             }
         }
     }
-
+    
     Component {
         id: statusComp
-
+        
         Rectangle {
             property var modelText: modelData[0]
             property var modelEnabled: modelData[1]
@@ -233,14 +233,14 @@ Rectangle {
             height: 77
             radius: 10
             color: handler.active ? Colors.gray_500 : "transparent"
-
+            
             ZLineSplitter {
                 alignment: Qt.AlignTop
                 padding: 55
                 color: Colors.gray_400
                 visible: index > 0
             }
-
+            
             /*Rectangle {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
@@ -248,7 +248,7 @@ Rectangle {
                 height: 1
                 color: "#ffffff"
             }*/
-
+            
             Item {
                 anchors.top: parent.top
                 height: parent.height
@@ -256,7 +256,7 @@ Rectangle {
                 anchors.leftMargin: 24
                 anchors.right: parent.right
                 anchors.rightMargin: 18
-
+                
                 Image {
                     id: statusIcon
                     anchors.right: parent.right
@@ -265,7 +265,7 @@ Rectangle {
                     rotation: 90
                     source: "../image/up.svg"
                 }
-
+                
                 Text {
                     id: statusTitle
                     wrapMode: Text.WordWrap
@@ -278,7 +278,7 @@ Rectangle {
                     text: modelText
                 }
             }
-
+            
             TapHandler {
                 id: handler
                 enabled: modelEnabled

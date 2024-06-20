@@ -28,7 +28,7 @@ class OTAService(X1PlusDBusService):
     STATUS_CHECKING_OTA = "CHECKING_OTA"
     STATUS_DOWNLOADING_X1P = "DOWNLOADING_X1P"
     STATUS_DOWNLOADING_BASE = "DOWNLOADING_BASE"
-
+    
     def __init__(self, settings, **kwargs):
         self.x1psettings = settings
         self.ota_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
@@ -63,7 +63,7 @@ class OTAService(X1PlusDBusService):
                 "date": "2024-04-17",
                 "buildTimestamp": 1713397465.0,
             }
-
+        
         super().__init__(
             dbus_interface=OTA_INTERFACE, dbus_path=OTA_PATH, **kwargs
         )
@@ -75,7 +75,7 @@ class OTAService(X1PlusDBusService):
         # On startup run an update check to populate info
         asyncio.create_task(self._ota_task())
         await super().task()
-
+    
     def _make_status_object(self):
         return {
             "status": self.task_status,
@@ -92,7 +92,7 @@ class OTAService(X1PlusDBusService):
                 "last_error": self.download_last_error,
             },
         }
-
+    
     async def dbus_CheckNow(self, req):
         self.next_check_timestamp = datetime.datetime.now()
         self.ota_task_wake.set()
@@ -108,7 +108,7 @@ class OTAService(X1PlusDBusService):
         self.ota_task_wake.set()
         self.download_base_update = bool(req.get('base_firmware', False))
         return {"status": "ok"}
-
+    
     async def dbus_Update(self, req):
         # you're on your own to make sure you're not printing when you call
         # this method!
@@ -126,7 +126,7 @@ class OTAService(X1PlusDBusService):
 
     async def _maybe_publish_status_object(self):
         "Publish a new _make_status_object as a DBus signal iff something has changed."
-
+        
         status_object = self._make_status_object()
         if status_object != self.last_status_object:
             # equality on a dict is object-equality, not reference-equality
@@ -161,7 +161,7 @@ class OTAService(X1PlusDBusService):
         # Reset error flag at this point, since we ran through correctly
         self.last_check_error = False
         self.next_check_timestamp = datetime.datetime.now() + UPDATE_CHECK_SUCCESSFUL_INTERVAL
-
+        
         # Also, since the last_check_response has changed, blank out that
         # the OTA has been downloaded until we check.
         self.ota_downloaded = False
@@ -176,7 +176,7 @@ class OTAService(X1PlusDBusService):
 
         # the status diagnostics will give the contents later
         logger.debug("_update_check successfully downloaded ota.json")
-
+    
     def _check_fwfiles(self):
         if not self.last_check_response:
             return
@@ -243,7 +243,7 @@ class OTAService(X1PlusDBusService):
                             self.download_bytes += len(chunk)
                             accum.update(chunk)
                             f.write(chunk)
-
+                            
                             # only make noise at 5Hz
                             if (datetime.datetime.now() - last_publish) > datetime.timedelta(seconds = 0.2):
                                 last_publish = datetime.datetime.now()
@@ -259,7 +259,7 @@ class OTAService(X1PlusDBusService):
             except:
                 pass
             raise
-
+    
     def _ota_url_changed(self):
         new_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
         if self.ota_url != new_url:
@@ -267,13 +267,13 @@ class OTAService(X1PlusDBusService):
         self.ota_url = new_url
         self.next_check_timestamp = datetime.datetime.now()
         self.ota_task_wake.set()
-
+    
     async def _ota_task(self):
         # Make sure that we are given a chance to see if there is work to do
         # when the OTA status changes.
         self.x1psettings.on("ota.enabled", lambda: self.ota_task_wake.set())
         self.x1psettings.on("ota.json_url", lambda: self._ota_url_changed())
-
+        
         while True:
             did_work = False
             ota_enabled = self.ota_enabled()
@@ -281,12 +281,12 @@ class OTAService(X1PlusDBusService):
             if ota_enabled and datetime.datetime.now() > self.next_check_timestamp:
                 await self._check_for_ota()
                 did_work = True
-
+            
             if self.recheck_files_request or self.download_ota_request:
                 self._check_fwfiles()
                 self.recheck_files_request = False
                 did_work = True
-
+            
             if ota_enabled and self.download_ota_request:
                 self.download_last_error = None
                 if not self.ota_downloaded:
@@ -302,7 +302,7 @@ class OTAService(X1PlusDBusService):
                         self.download_last_error = f"exception while downloading OTA: {e.__class__.__name__}: \"{e}\""
                         logger.debug(self.download_last_error)
                     self.task_status = OTAService.STATUS_IDLE
-
+                
                 if not self.base_update_downloaded and self.download_base_update:
                     self.task_status = OTAService.STATUS_DOWNLOADING_BASE
                     try:
@@ -318,15 +318,15 @@ class OTAService(X1PlusDBusService):
                     self.task_status = OTAService.STATUS_IDLE
                 self.download_ota_request = False
                 did_work = True
-
+            
             if not ota_enabled:
                 logger.debug(f"OTA engine is disabled, so we are definitely doing nothing")
                 self.task_status = OTAService.STATUS_DISABLED
             else:
                 self.task_status = OTAService.STATUS_IDLE
-
+            
             await self._maybe_publish_status_object()
-
+            
             if not did_work:
                 # we have nothing to do -- wait until we either have
                 # something to do, or until someone wakes us up to tell us
@@ -335,7 +335,7 @@ class OTAService(X1PlusDBusService):
                 # cooperatively multitasked (i.e., we will continue until we
                 # yield)
                 now = datetime.datetime.now()
-
+                
                 next_work = now + datetime.timedelta(days = 365) # really, "forever"
                 if ota_enabled:
                     next_work = min((next_work, self.next_check_timestamp,))

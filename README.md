@@ -18,7 +18,7 @@ about how to make changes and how to contribute back.  X1Plus is the result
 of a year or so of vaguely-structured work; it started life as a fairly
 frumious hack, and over the past few months, we've been working hard to try
 to clean it up for release to the outside world.  All that said, there are
-parts that you will find are still a mess, and for that, we're truly sorry!
+parts that you will find are still a mess, and for that, we're truly sorry! 
 We hope you'll come play around with it anyway.  There's a lot of fun stuff
 to be done, and we have only barely scratched the surface so far.
 
@@ -164,7 +164,7 @@ hot-reboot.  We perform the following steps in order to do this.
   `kexec-module`](https://github.com/amonakov/kexec-module), and
   subsequently, [fabianishere's
   `kexec-mod-arm64`](https://github.com/fabianishere/kexec-mod)!  We build
-  on this work in `kexec-mod/`, where we port this kernel module to ARM32.
+  on this work in `kexec-mod/`, where we port this kernel module to ARM32. 
   Much of the Rockchip SoC gets astonishingly angry if hot-rebooted; we very
   carefully reset large chunks of the SoC's state in
   `kexec-mod/kernel/arch/arm/machine_kexec_drv.c`.  To get access to many of
@@ -267,7 +267,7 @@ We work with pull requests and bug reports on GitHub.  Please reserve bug
 reports for actually triaged -- or, if not triaged, triageable -- bugs; if
 you have usage questions, please talk about those in "Discussions"!
 
-Please be reasonable human beings to each other.  It is just a 3D printer.
+Please be reasonable human beings to each other.  It is just a 3D printer. 
 If you have a problem, please chat with some of the maintainers and we will
 try to help you resolve it.
 
@@ -285,7 +285,7 @@ This probably ought go into a wiki page, but, you know, here we are.
 #### Building a kernel
 
 As of writing, it's not necessary to build a kernel image yourself as there's one present in
-`prebuilt`. But you can! This might be desirable to enable other kernel features for development,
+`prebuilt`. But you can! This might be desirable to enable other kernel features for development, 
 or to build a kernel module against.
 
 * Install prerequestites, including `lz4` for compressing the final image.
@@ -299,7 +299,7 @@ how necessary this is):
   -Larm-linux-gnueabihf/libc/usr/lib/ -L/usr/arm-linux-gnueabihf/lib/"
   export CCFLAGS="-I$TOOLCHAIN/include -I/usr/include"
   ```
-* From the root of kernel folder, run `make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+* From the root of kernel folder, run `make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- 
 O=build x1plus_defconfig`
 * Run `make mrproper`
 * CD into `build`

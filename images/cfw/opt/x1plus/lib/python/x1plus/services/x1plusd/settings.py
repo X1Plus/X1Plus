@@ -67,7 +67,7 @@ class SettingsService(X1PlusDBusService):
                     logger.error(f"failed to even move the old file out of the way ({e})!")
             self.settings = self._migrate_old_settings()
             self._save()
-
+        
         self.settings_callbacks = {}
 
         super().__init__(
@@ -120,7 +120,7 @@ class SettingsService(X1PlusDBusService):
         when an x1plusd setting changes.  If you need to perform an async
         task, then you will need to spawn it with asyncio.create_task().
         """
-
+        
         if setting not in self.settings_callbacks:
             self.settings_callbacks[setting] = []
         self.settings_callbacks[setting].append(fn)
@@ -153,9 +153,9 @@ class SettingsService(X1PlusDBusService):
         # they read it.
         if len(settings_updated) > 0:
             await self.emit_signal("SettingsChanged", settings_updated)
-
+        
         return settings_updated
-
+    
     async def put(self, key, value):
         return await self.put_multiple({key: value})
 
@@ -170,7 +170,7 @@ class SettingsService(X1PlusDBusService):
             return {"status": "error"}
 
         settings_updated = await self.put_multiple(settings_set)
-
+        
         logger.debug(
             f"x1p_settings: requested {settings_set}, updated {settings_updated}"
         )
