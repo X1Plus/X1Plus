@@ -6,28 +6,28 @@
              "intro": "Nozzle temperaturen är onormal, sensorn kan ha en öppen krets."
 +        },
 +        {
-+            "ecode": "03001B0000010001",
-+            "intro": "Signalen på den uppvärmda accelerationssensorn är svag. Sensorn kan ha fallit av eller blivit skadad."
-+        },
-+        {
 +            "ecode": "030001000001000A",
 +            "intro": "Den varmbädd temperaturkontroll är abnormt, AC styrelsen kan brytas."
 +        },
 +        {
-+            "ecode": "030091000001000A",
-+            "intro": "Temperaturen på kammarvärmare 1 är onormala. AC styrelsen kan brytas."
++            "ecode": "03001B0000010003",
++            "intro": "Den uppvärmda accelerationssensorn detekteras oväntad kontinuerlig kraft. Sensorn kan fastna eller den analoga främre änden kan brytas."
++        },
++        {
++            "ecode": "03001B0000010001",
++            "intro": "Signalen på den uppvärmda accelerationssensorn är svag. Sensorn kan ha fallit av eller blivit skadad."
 +        },
 +        {
 +            "ecode": "030092000001000A",
 +            "intro": "Temperaturen på kammarvärmare 2 är onormala. AC styrelsen kan brytas."
 +        },
 +        {
-+            "ecode": "03001B0000010003",
-+            "intro": "Den uppvärmda accelerationssensorn detekteras oväntad kontinuerlig kraft. Sensorn kan fastna eller den analoga främre änden kan brytas."
++            "ecode": "030091000001000A",
++            "intro": "Temperaturen på kammarvärmare 1 är onormala. AC styrelsen kan brytas."
          }
      ],
 -    "ver": 202311070340
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file

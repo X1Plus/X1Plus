@@ -1,4 +1,4 @@
-<TS language="pt" sourcelanguage="en" version="2.1">
+<TS language="pt-PT" sourcelanguage="en" version="2.1">
   <context>
     <name></name>
     <message>
@@ -666,87 +666,87 @@ Progresso: %5%</translation>
       <translation>Também irá redefinir a senha da tela de bloqueio, a senha root e as chaves ssh. (Este processo leva alguns minutos.)</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="69"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="75"></location>
       <source>Wipe writable partition</source>
       <translation>Limpar partição gravável</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="73"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="79"></location>
       <source>The emergency recovery console will connect the printer to its default WiFi network and start a temporary SSH server as root. It will also spawn a root console on the AP board's UART port and USB port.</source>
       <translation>A consola de recuperação de emergência irá conectar a impressora à sua rede Wi-Fi predefinida e iniciar um servidor SSH temporário como root. Também irá gerar uma consola root na porta UART e na porta USB da placa AP.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="73"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="79"></location>
       <source>It is possible to unrecoverably and permanently damage your printer with a root console. Never type something into a root console unless you understand what you're typing.</source>
       <translation>É possível danificar o aparelho ao utilizar uma consola de root. Nunca digite um comando numa consola de root, a menos que compreenda o que está a digitar.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="77"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="83"></location>
       <source>I'll be careful, I promise</source>
       <translation>Terei cuidado, prometo</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="82"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="88"></location>
       <source>Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option attempts to enter LAN mode before starting, and disables the printer's internal upgrade service; you can use this option to help avoid inadvertent erasure of your X1Plus installation.</source>
       <translation>O arranque do firmware OEM da Bambu pode ser útil para diagnosticar problemas com o X1Plus ou com a sua impressora. Este modo ativa o modo LAN antes de iniciar e desactiva o serviço de atualização da impressora; pode utilizar esta função para prevenir o apagamento involuntário da sua instalação do X1Plus.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="82"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="88"></location>
       <source>&lt;font color="#EEAAAA"&gt;Use this mode with caution.&lt;/font&gt;</source>
       <translation>&lt;font color="#EEAAAA"&gt;Utilize este modo com cuidado&lt;/font&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="95"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="101"></location>
       <source>&lt;font color="#EEAAAA"&gt;Starting from the built-in firmware can be useful to diagnose issues with X1Plus or with your printer. This option starts the printer with no modifications to the built-in firmware. If your printer performs a firmware upgrade in this mode, X1Plus will likely be uninstalled; if you want to run X1Plus afterwards, you will need to rerun the X1Plus installation process. If prompted to install upgrades, you should answer "no" if you want to keep your X1Plus installation.&lt;/font&gt;&lt;br&gt;&lt;br&gt;Use this mode with extreme caution.</source>
       <translation>&lt;font color="#EEAAAA"&gt;Esta opção inicia a impressora sem modificar o firmware interno. Se a impressora efetuar uma atualização de firmware neste modo, o X1Plus será provavelmente desinstalado; se pretender executar o X1Plus depois de este ser removido, terá de repetir o processo de instalação do X1Plus. Se for pedido para instalar actualizações, deve responder "não " se quiser manter a instalação do X1Plus. &lt;/font&gt;&lt;br&gt;&lt;br&gt;Tenha cuidado quando utilizar este modo.</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="99"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="105"></location>
       <source>Fingers are crossed</source>
       <translation>Dedos estão cruzados</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="111"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="117"></location>
       <source>Start X1Plus from SD card</source>
       <translation>Iniciar X1Plus do cartão SD</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="112"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="118"></location>
       <source>&lt;b&gt;Start X1Plus installer&lt;/b&gt;</source>
       <translation>&lt;b&gt;Iniciar o instalador X1Plus&lt;/b&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="113"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="119"></location>
       <source>Reset X1Plus settings</source>
       <translation>Restaurar configurações X1Plus</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="114"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="120"></location>
       <source>Start X1Plus in debug mode</source>
       <translation>Iniciar X1Plus no modo de depuração</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="115"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="121"></location>
       <source>Emergency recovery console</source>
       <translation>Consola de recuperação de emergência</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="116"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="122"></location>
       <source>&lt;font color="#EEAAAA"&gt;Start built-in firmware with updater disabled&lt;/font&gt;</source>
       <translation>&lt;font color="#EEAAAA"&gt;Inicie o firmware interno com o atualizador desativado&lt;/font&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="117"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="123"></location>
       <source>&lt;font color="#FF7777"&gt;Start built-in firmware unmodified&lt;/font&gt;</source>
       <translation>&lt;font color="#FF7777"&gt;Iniciar firmware interno não modificado&lt;/font&gt;</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="129"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="135"></location>
       <source>X1Plus startup options</source>
       <translation>Opções de inicialização de X1Plus</translation>
     </message>
     <message>
-      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="170"></location>
+      <location filename="kexec_ui/printerui/qml/BootOptionsPage.qml" line="176"></location>
       <source>Use these tools to upgrade or repair the X1Plus firmware on your printer.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Starting up using on-device firmware can result in your printer losing access to custom firmware.  Do this only as a last resort.&lt;/b&gt;&lt;/font&gt;</source>
       <translation>Use estas ferramentas para atualizar ou reparar o firmware X1Plus na sua impressora.&lt;br&gt;&lt;br&gt;&lt;font color="#EEAAAA"&gt;&lt;b&gt;Inicializar utilizando o firmware interno pode resultar em sua impressora perder o acesso a um firmware personalizado. Faça isto apenas como último recurso.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
@@ -1582,167 +1582,222 @@ Os comandos são executados de forma síncrona, e os comandos repetitivos ou com
   <context>
     <name>DevicePage</name>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="56"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="58"></location>
       <source>Device</source>
       <translation>Dispositivo</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="59"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="61"></location>
       <source>Language</source>
       <translation>Idioma</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="67"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="69"></location>
       <source>Firmware version</source>
       <translation>Versão de firmware</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="71"></location>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="276"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="73"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="307"></location>
       <source>Video</source>
       <translation>Vídeo</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="73"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="75"></location>
       <source>OFF</source>
       <translation>DESL.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>2min</source>
       <translation>2min</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>5min</source>
       <translation>5mins</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>10min</source>
       <translation>10min</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>15min</source>
       <translation>15min</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>Screen lock</source>
       <translation>Bloqueio de tela</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>screen saver</source>
       <translation>proteção de ecrã</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>swipe to unlock</source>
       <translation>deslize para desbloquear</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="92"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="94"></location>
       <source>passcode</source>
       <translation>código de acesso</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="97"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="99"></location>
       <source>LAN access</source>
       <translation>Acesso de LAN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="103"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="105"></location>
       <source>Off</source>
       <translation>Desligado</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="107"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="109"></location>
       <source>Device info</source>
       <translation>Informações do dispositivo</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="115"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="113"></location>
+      <source>WiFi driver</source>
+      <translation>Driver WiFi</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="113"></location>
+      <source>Legacy</source>
+      <translation>Antiga</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="113"></location>
+      <source>X1Plus</source>
+      <translation>X1Plus</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="113"></location>
+      <source> (reboot needed)</source>
+      <translation> (necessário reiniciar)</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="123"></location>
+      <source>WiFi driver changes will take effect after X1Plus reboots. Would you like to reboot now?</source>
+      <translation>As mudanças no driver WiFi serão aplicadas após a reinicialização do X1Plus. Quer reiniciar agora?</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="124"></location>
+      <source>No</source>
+      <translation>Não</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="124"></location>
+      <source>Reboot Now</source>
+      <translation>Reiniciar agora</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="132"></location>
+      <source>X1Plus is currently configured to load legacy (OEM) WiFi driver. Would you like to use the default X1Plus WiFi driver instead?</source>
+      <translation>X1Plus está neste momento configurado para carregar o controlador de WiFi antigo (OEM). Deseja utilizar o controlador WiFi predefinido do X1Plus?</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="133"></location>
+      <source>X1Plus is currently configured to load the default X1Plus WiFi driver. Would you like to use the legacy (OEM) WiFi driver instead? (This is not typically necessary.)</source>
+      <translation>O X1Plus está neste momento configurado para carregar o controlador WiFi predefinido do X1Plus. Deseja carregar o controlador WiFi antigo (OEM)? (Normalmente, isso não é necessário)</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="137"></location>
+      <source>Cancel</source>
+      <translation>Cancelar</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="137"></location>
+      <source>Yes</source>
+      <translation>Sim</translation>
+    </message>
+    <message>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="146"></location>
       <source>To change the name of your device, please use the slicer or the Bambu app.</source>
       <translation>Para alterar o nome do seu dispositivo, por favor, use o fatiador ou o aplicativo Bambu.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="233"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="264"></location>
       <source>SD card</source>
       <translation>Cartão de memória</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="244"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="275"></location>
       <source>Format required</source>
       <translation>Formato necessário</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="244"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="275"></location>
       <source>No SD card</source>
       <translation>Nenhum cartão SD</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="276"></location>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="312"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="307"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="343"></location>
       <source>Resolution</source>
       <translation>Resolução</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="289"></location>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="325"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="320"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="356"></location>
       <source>Unable to open without SD card.</source>
       <translation>Não é possível abrir sem cartão SD.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="312"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="343"></location>
       <source>Timelapse</source>
       <translation>Timelapse</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="353"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="384"></location>
       <source>Network</source>
       <translation>Rede</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="382"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="413"></location>
       <source>Enabling LAN mode will disconnect all Bambu Studio and Bambu Handy connected to the device. Do you want to continue?</source>
       <translation>Habilitar o modo Apenas LAN desconectará todos os Bambu Studio e Bambu Handy conectados ao dispositivo. Deseja continuar?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="391"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="422"></location>
       <source>Do you need to open LAN Mode Liveview?</source>
       <translation>Você precisa abrir a visualização ao vivo do Modo LAN?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="408"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="439"></location>
       <source>X1Plus Shield Mode is an enhancement to LAN mode that uses iptables to block outbound connections from the printer.  You will still be able to connect to the printer via FTP and MQTT, but the printer will not be able to download toolhead firmware.  Enabling shield mode requires restarting your printer.  Enable now?</source>
       <translation>O Modo Escudo X1Plus é um aprimoramento para o modo LAN que usa iptables para bloquear conexões de saída da impressora. Você ainda será capaz de conectar à impressora via FTP e MQTT, mas a impressora não será capaz de baixar o firmware da cabeça de impressão. Ativar o modo de escudo requer reiniciar sua impressora. Ativar agora?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="410"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="441"></location>
       <source>Enable shield and restart</source>
       <translation>Ativar escudo e reiniciar</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="410"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="441"></location>
       <source>Enable LAN mode only</source>
       <translation>Habilitar modo somente LAN</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="435"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="466"></location>
       <source>The Access Code has moved to the "LAN access" menu, at right.</source>
       <translation>O código de acesso foi movido para o menu "Acesso de LAN" à direita.</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="741"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="775"></location>
       <source>This action will stop the current recording and start a new one with the target resolution.
 Are you sure you want to change the video resolution?</source>
       <translation>Esta ação ira parar a gravação atual e começar uma nova com a resolução pretendida.
 Tem a certeza que quer mudar a resolução?</translation>
     </message>
     <message>
-      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="792"></location>
+      <location filename="printer_ui/printerui/qml/settings/DevicePage.qml" line="826"></location>
       <source>Please use the Bambu Handy APP to scan the code to view RTSP setvice details.</source>
       <translation>Por favor, utilize o aplicativo Bambu Handy para escanear o código para ver os detalhes do serviço RTSP.</translation>
     </message>
@@ -1775,10 +1830,6 @@ Por favor, mova a mesa aquecida para a posição central antes de restaurar as c
     <message>
       <source>Restore Factory Settings</source>
       <translation>Restaurar Configurações de fábrica</translation>
-    </message>
-    <message>
-      <source>Cancel</source>
-      <translation>Cancelar</translation>
     </message>
     <message>
       <source>Export</source>

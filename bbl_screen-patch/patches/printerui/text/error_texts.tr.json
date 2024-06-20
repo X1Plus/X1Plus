@@ -1,99 +1,171 @@
 {
     "tr": [
         {
-            "ecode": "05004001",
-            "intro": "Bambu Buluta bağlanılamadı. Lütfen ağ bağlantınızı kontrol edin."
+            "ecode": "12038011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12FFC006",
-            "intro": "Lütfen takım kafası filament sensörü tetiklene kadar makara tutucusundan besleyin."
+            "ecode": "07FF8006",
+            "intro": "Lütfen takım kafası filament sensörü tetiklenene kadar makara tutucusundan besleyin, ardından \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "0300800E",
-            "intro": "Yazdırma dosyası mevcut değil. Depolama ortamının çıkarılıp çıkarılmadığını kontrol edin."
+            "ecode": "12008006",
+            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12038002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07018001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004008",
-            "intro": "Yazdırmaya başlama başarısız oldu. Lütfen yazıcıyı yeniden başlatın ve yazdırma işlemini yeniden gönderin."
-        },
-        {
-            "ecode": "05004021",
-            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
-        },
-        {
-            "ecode": "05004023",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+            "ecode": "03008013",
+            "intro": "Yazdırma işlemi kullanıcı tarafından duraklatıldı. Yazdırma işine devam etmek için \"Devam\" düğmesine tıklayabilirsiniz."
         },
         {
             "ecode": "05004018",
             "intro": "Bağlama yapılandırma bilgileri çözümlenemedi,  lütfen tekrar deneyin."
         },
         {
-            "ecode": "05008030",
-            "intro": ""
+            "ecode": "12008003",
+            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12FF8001",
-            "intro": "Filament kesilemedi. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "07034001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
         },
         {
-            "ecode": "12028010",
-            "intro": "Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "0501401B",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
         },
         {
-            "ecode": "0500401C",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+            "ecode": "0300800D",
+            "intro": "Temizlenen filamentler fazla haznede birikmiş ve bu durum takım kafası çarpışmasına neden olabilir. Lütfen filamentleri temizleyin. Temizlendiğinde veya kabul edilebilir olduğunda, yazdırma işine devam etmek için devam düğmesine dokunun."
         },
         {
-            "ecode": "0C008002",
-            "intro": "Spagetti hatası tespit edildi."
+            "ecode": "12008005",
+            "intro": "Filamenti besleme işlemi başarısız oldu. Lütfen filament yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0500402D",
+            "intro": "Sistem hatası."
+        },
+        {
+            "ecode": "07018007",
+            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07038006",
+            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014034",
+            "intro": "Uzun süredir dilimleme ilerlemesi güncellenmedi ve yazdırma görevi sonlandırıldı. Lütfen parametreleri kontrol edin ve yazdırmayı yeniden başlatın."
+        },
+        {
+            "ecode": "1000C002",
+            "intro": "Paslanmaz çelikle CF malzemesi baskısı yapmak nozul hasarına yol açabilir."
+        },
+        {
+            "ecode": "05014021",
+            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
+        },
+        {
+            "ecode": "07008012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004004",
+            "intro": "Yazdırma işlemi sırasında yazdırma işleri gönderilemez."
+        },
+        {
+            "ecode": "12038004",
+            "intro": "Filament, takım kafasından geri çekilemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07028013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
             "ecode": "05014024",
             "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
         },
         {
-            "ecode": "12028011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "05004021",
+            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
         },
         {
-            "ecode": "12008002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "0500402A",
+            "intro": "Yönlendiriciye bağlanılamadı; bu durum kablosuz parazit veya yönlendiriciden çok uzakta olma nedeniyle olabilir. Lütfen tekrar deneyin veya yazıcıyı yönlendiriciye daha yakın bir yere taşıyıp tekrar deneyin."
         },
         {
-            "ecode": "12018004",
-            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "05004037",
+            "intro": "Dilimlenmiş dosyanız mevcut yazıcı modeliyle uyumlu değil. Bu dosya bu yazıcıda basılamaz."
         },
         {
-            "ecode": "12008003",
-            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "03008008",
+            "intro": "Nozul sıcaklık hatası."
         },
         {
-            "ecode": "12018014",
-            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "05004027",
+            "intro": "Bulut erişimi başarısız oldu; bu, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
         },
         {
-            "ecode": "05014028",
+            "ecode": "07028001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0C008005",
+            "intro": "Boşaltılan filament fazla, kanalda birikmiştir bu da takım kafasının çarpmasına neden olabilir."
+        },
+        {
+            "ecode": "0300400B",
+            "intro": "Dahili iletişim istisnası."
+        },
+        {
+            "ecode": "12FF8001",
+            "intro": "Filament kesilemedi. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004020",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "0500401E",
             "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
         },
         {
-            "ecode": "12028016",
-            "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
+            "ecode": "05014019",
+            "intro": "Yazıcı zaten bağlanmış. Lütfen bağlantısını kaldırın ve tekrar deneyin."
         },
         {
-            "ecode": "07028005",
+            "ecode": "05008036",
+            "intro": "Dilimlenmiş dosyanız mevcut yazıcı modeliyle tutarlı değil. Devam edelim mi?"
+        },
+        {
+            "ecode": "05014033",
+            "intro": "Uygulamanızın bölgesi yazıcınız ile eşleşmiyor, lütfen ilgili bölgedeki uygulamayı indirip hesabınızı tekrar kaydedin."
+        },
+        {
+            "ecode": "07038007",
+            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018006",
+            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07028006",
+            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07038011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12038006",
+            "intro": "Filament takım kafasına beslenemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12028001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07008005",
             "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
@@ -101,931 +173,171 @@
             "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın ve \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "05014021",
-            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
-        },
-        {
-            "ecode": "12034001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "07018012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500401E",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "05004022",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "07038012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12008016",
-            "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03008013",
-            "intro": "Yazdırma işlemi kullanıcı tarafından duraklatıldı. Yazdırma işine devam etmek için \"Devam\" düğmesine tıklayabilirsiniz."
-        },
-        {
-            "ecode": "12008004",
-            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008007",
-            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014032",
-            "intro": "QR kod bağlama işlemi devam ediyor, bu yüzden cihaz keşfi bağlaması yapılamıyor. Bağlama işlemi için ekrandaki QR kodunu tarayabilir veya ekrandaki QR kodu gösterme sayfasından çıkıp cihaz keşfi bağlamasını deneyebilirsiniz."
-        },
-        {
-            "ecode": "12008006",
-            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500400A",
-            "intro": "Dosya adı desteklenmiyor. Lütfen yeniden adlandırın ve yazdırma işlemini yeniden başlatın."
-        },
-        {
-            "ecode": "07028010",
-            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05008036",
-            "intro": "Dilimlenmiş dosyanız mevcut yazıcı modeliyle tutarlı değil. Devam edelim mi?"
-        },
-        {
-            "ecode": "03008005",
-            "intro": "Takım kafası ön kapağı düştüğü için yazdırma duraklatıldı. Lütfen takım kafasını geri takın ve yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "03008015",
-            "intro": "Filament bitti, lütfen \"filament\" sayfasında yeni filament yükleyin, ardından baskı sayfasına geri dönüp baskı işine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "05014023",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "05004020",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "07028001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07018005",
-            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07028013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12FF8010",
-            "intro": "Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500400D",
-            "intro": "Lütfen bir kendi kendine test çalıştırın ve yazdırma işlemini yeniden başlatın."
-        },
-        {
-            "ecode": "12008015",
-            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12FF8004",
-            "intro": "Filament, takım kafasından geri çekilemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004024",
-            "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
-        },
-        {
-            "ecode": "0C008001",
-            "intro": "İlk katmanda hatalar tespit edildi. Hatalar kabul edilebilir ise yazdırma işine devam etmek için \"Devam\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004028",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "07028003",
-            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12018003",
-            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12028001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07018013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "1001C001",
-            "intro": "Zaman atlama desteklenmiyor çünkü dilimleme ayarlarında Spiral vazo etkinleştirildi."
-        },
-        {
-            "ecode": "05004037",
-            "intro": "Dilimlenmiş dosyanız mevcut yazıcı modeliyle uyumlu değil. Bu dosya bu yazıcıda basılamaz."
-        },
-        {
-            "ecode": "0500402C",
-            "intro": "IP adresi alınamadı; bu durum kablosuz parazit nedeniyle veri iletim hatası veya yönlendiricinin DHCP adres havuzunun dolu olması nedeniyle olabilir. Lütfen yazıcıyı yönlendiriciye daha yakın bir yere taşıyıp tekrar deneyin. Sorun devam ederse, yönlendirici ayarlarını kontrol ederek IP adreslerinin tükenip tükenmediğini kontrol edin."
-        },
-        {
-            "ecode": "03008014",
-            "intro": "Nozul filamentle kaplanmış veya yapı plakası yanlış takılmış. Lütfen nozulu temizleyin veya yapı plakasının konumunu ayarlayın. Ardından baskı işine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "12028014",
-            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03004008",
-            "intro": "AMS, filament değişiminde başarısız oldu."
-        },
-        {
-            "ecode": "07028007",
-            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12018012",
+            "ecode": "12028012",
             "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07028011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038006",
-            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014033",
-            "intro": "Uygulamanızın bölgesi yazıcınız ile eşleşmiyor, lütfen ilgili bölgedeki uygulamayı indirip hesabınızı tekrar kaydedin."
-        },
-        {
-            "ecode": "0C00C004",
-            "intro": "Olası spagetti hatası tespit edildi."
-        },
-        {
-            "ecode": "07004001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "03008007",
-            "intro": "Yazıcı kapanırken tamamlanmamış bir baskı işlemi vardı. Yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "12FF8006",
-            "intro": "Lütfen makara tutucusundan filamenti, takım kafası filament sensörünü tetikleyene kadar besleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12028007",
-            "intro": "Filament ekstrüde edilemedi. Lütfen ekstruderin tıkalı olup olmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008003",
-            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500401D",
-            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
-        },
-        {
-            "ecode": "0500402F",
-            "intro": "Micro SD kart sektör verileri hasar görmüş. Lütfen SD kart onarım aracını kullanarak onarın veya formatlayın. Eğer hala tanınmıyorsa, lütfen Micro SD kartı değiştirin."
-        },
-        {
-            "ecode": "12028004",
-            "intro": "Filament, takım kafasından geri çekilemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07018002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12028005",
-            "intro": "Filament beslenemedi. Lütfen filamenti yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12018013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008010",
-            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12038014",
-            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500400C",
-            "intro": "MicroSD Kart hatası: lütfen yeniden takın, biçimlendirin veya değiştirin."
-        },
-        {
-            "ecode": "12038004",
-            "intro": "Filament, takım kafasından geri çekilemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004016",
-            "intro": "MicroSD Kart yazma korumalı. Lütfen MicroSD Kartı değiştirin."
-        },
-        {
-            "ecode": "05014027",
-            "intro": "Bulut erişimi başarısız oldu; bu, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
-        },
-        {
-            "ecode": "07FF4001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "0300400F",
-            "intro": "Yapı plakası yerleştirilmemiş."
-        },
-        {
-            "ecode": "12008011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12008010",
-            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07024001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "03004001",
-            "intro": "Yazıcı, takım kafasının sıfırlanmadan önce nozulun soğumasını beklerken zaman aşımına uğradı."
-        },
-        {
-            "ecode": "05014020",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "1000C002",
-            "intro": "Paslanmaz çelikle CF malzemesi baskısı yapmak nozul hasarına yol açabilir."
-        },
-        {
-            "ecode": "07014001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "12028002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03008008",
-            "intro": "Nozul sıcaklık hatası."
-        },
-        {
-            "ecode": "07008013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12038010",
-            "intro": "Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014034",
-            "intro": "Uzun süredir dilimleme ilerlemesi güncellenmedi ve yazdırma görevi sonlandırıldı. Lütfen parametreleri kontrol edin ve yazdırmayı yeniden başlatın."
-        },
-        {
-            "ecode": "05014029",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "12FF8007",
-            "intro": "Nozulu kontrol edin. Filament ekstrüde edildi ise \"Bitti\" düğmesine tıklayın, aksi takdirde filamenti biraz ileri itip \"Yeniden Dene\" düğmesine tıklayın"
-        },
-        {
-            "ecode": "12008005",
-            "intro": "Filamenti besleme işlemi başarısız oldu. Lütfen filament yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12008007",
-            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008006",
-            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0300400C",
-            "intro": "Yazdırma iptal edildi."
-        },
-        {
-            "ecode": "0300800A",
-            "intro": "Temizlenen filamentler fazla haznede birikmiş ve bu durum takım kafası çarpışmasına neden olabilir. Lütfen filamentleri temizleyin. Temizlendiğinde veya kabul edilebilir olduğunda, yazdırma işine devam etmek için devam düğmesine dokunun."
-        },
-        {
-            "ecode": "05004002",
-            "intro": "Desteklenmeyen baskı dosya yolu veya adı. Lütfen baskı işini yeniden gönderin."
-        },
-        {
-            "ecode": "12038003",
-            "intro": "Filament ekstruderden çıkarılamadı. Lütfen ekstruderin tıkalı olup olmadığını veya filamentin ekstruder içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500402E",
-            "intro": "Sistem, şu anda Micro SD kart tarafından kullanılan dosya sistemini desteklemiyor. Lütfen Micro SD kartı değiştirin veya mevcut Micro SD kartı FAT32 olarak formatlayın."
-        },
-        {
-            "ecode": "03008006",
-            "intro": "Baskı tablası yer belirleme işareti bulunamadı. Lütfen yazdırma işini durdurun ve baskı tablasını bulun. Yazdırma işine zorla devam etmek için \"Devam\" düğmesine de tıklayabilirsiniz."
-        },
-        {
-            "ecode": "07028012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0C008009",
-            "intro": "Baskı tablası yer belirleme işareti bulunamadı."
-        },
-        {
-            "ecode": "0C00C003",
-            "intro": "İlk katmanda olası kusurlar tespit edildi."
-        },
-        {
-            "ecode": "12038013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstrüderin tıkalı olup olmadığını kontrol edin. Sorunu çözdükten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12FF8002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0300400D",
-            "intro": "Güç kaybı sonrası devam edilemedi."
-        },
-        {
-            "ecode": "05004003",
-            "intro": "gcode.3mf Dosyası ayrıştırılırken bir sorun oluştu. Lütfen yazdırma işlemini yeniden gönderin."
-        },
-        {
-            "ecode": "12028006",
-            "intro": "Filament takım kafasına beslenemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12018007",
-            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500402D",
-            "intro": "Sistem hatası."
-        },
-        {
-            "ecode": "12038001",
-            "intro": "Filament kesilemedi. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12024001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "03004006",
-            "intro": "Nozul tıkalı."
-        },
-        {
-            "ecode": "03004000",
-            "intro": "Z eksenine sıfırlama başarısız oldu."
-        },
-        {
-            "ecode": "12038007",
-            "intro": "Filament ekstrüde edilemedi. Lütfen ekstruderin tıkalı olup olmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0501401F",
-            "intro": "Yetkilendirme zaman aşımına uğradı. Lütfen telefonunuzun veya bilgisayarınızın internet erişimi olduğundan emin olun ve bağlama işlemi sırasında Bambu Studio/Bambu Handy uygulamasının ön planda çalıştığından emin olun."
-        },
-        {
-            "ecode": "07018007",
-            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07FF8010",
-            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0501401C",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "03008016",
-            "intro": "Nozul filamentlerle tıkanmış. Lütfen nozulu kontrol edin. Ardından baskı işine devam etmek için \"Devam\" düğmesine dokunabilirsiniz."
         },
         {
             "ecode": "12018015",
             "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "0501401A",
-            "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
-        },
-        {
-            "ecode": "05004009",
-            "intro": "Firmware güncellenirken yazdırma işleri gönderilemez."
-        },
-        {
-            "ecode": "03008017",
-            "intro": "Sıcak yatakta yabancı cisimler tespit edildi. Lütfen sıcak yatağı kontrol edip temizleyin. Ardından baskı işine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "07018006",
-            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004029",
+            "ecode": "0500401C",
             "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
         },
         {
-            "ecode": "12018011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "12018007",
+            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "0500401F",
-            "intro": "Yetkilendirme zaman aşımına uğradı. Lütfen telefonunuzun veya bilgisayarınızın internet erişimi olduğundan emin olun ve bağlama işlemi sırasında Bambu Studio/Bambu Handy uygulamasının ön planda çalıştığından emin olun."
-        },
-        {
-            "ecode": "07FF8001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0501401D",
-            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
-        },
-        {
-            "ecode": "0501401B",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "05004006",
-            "intro": "Yazdırma işlemi için yeterli boş depolama alanı yok. Fabrika ayarlarına geri dönerek kullanılabilir alanı serbest bırakabilirsiniz."
-        },
-        {
-            "ecode": "07FF8011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12028013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstrüderin tıkalı olup olmadığını kontrol edin. Sorunu çözdükten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038004",
-            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0C008005",
-            "intro": "Boşaltılan filament fazla, kanalda birikmiştir bu da takım kafasının çarpmasına neden olabilir."
-        },
-        {
-            "ecode": "12028012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03008001",
-            "intro": "Yazdırma işlemi kullanıcı tarafından duraklatıldı. Yazdırma işine devam etmek için \"Devam\" düğmesine tıklayabilirsiniz."
-        },
-        {
-            "ecode": "0300400A",
-            "intro": "Mekanik rezonans frekansı tanımlaması başarısız oldu."
-        },
-        {
-            "ecode": "07FF8013",
-            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038010",
-            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "1000C003",
-            "intro": "Geleneksel zaman atlamayı etkinleştirmek kusurlara yol açabilir. Devam edilsin mi?"
-        },
-        {
-            "ecode": "1000C001",
-            "intro": "Yüksek yatak sıcaklığı nozuldaki filamentin tıkanmasına yol açabilir. Lütfen yazıcının havalandırmasını sağlayın."
-        },
-        {
-            "ecode": "0300800F",
-            "intro": "Kapı açık gibi görünüyor, bu nedenle yazdırma durduruldu."
-        },
-        {
-            "ecode": "07038003",
-            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12038015",
-            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12008012",
-            "intro": "AMS eşleme tablosu alınamadı. Devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014017",
-            "intro": "Bağlama işlemi başarısız oldu. Lütfen tekrar deneyin veya yazıcıyı yeniden başlatıp tekrar deneyin."
-        },
-        {
-            "ecode": "12018001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004038",
-            "intro": "Dilimlenmiş dosyadaki nozul çapı, mevcut nozul ayarıyla tutarlı değil. Bu dosya basılamaz."
-        },
-        {
-            "ecode": "03008003",
-            "intro": "Spagetti kusurları tespit edildi. Eğer kusurlar kabul edilebilir ise, yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "07018011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014022",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "0500C010",
-            "intro": "MicroSD Kart hatası: lütfen yeniden takın, biçimlendirin veya değiştirin."
-        },
-        {
-            "ecode": "05014026",
-            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "12018005",
-            "intro": "Filamenti besleme işlemi başarısız oldu. Lütfen filament yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07FFC006",
-            "intro": "Lütfen takım kafası filament sensörü tetiklenene kadar makara tutucusundan besleyin."
-        },
-        {
-            "ecode": "07FF8005",
-            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03004005",
-            "intro": "Nozul fan hızı düzgün değil."
-        },
-        {
-            "ecode": "05004004",
-            "intro": "Yazdırma işlemi sırasında yazdırma işleri gönderilemez."
-        },
-        {
-            "ecode": "12028015",
-            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Tekrar Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014038",
-            "intro": "Bölgesel ayarlar yazıcıyla eşleşmiyor, lütfen yazıcının bölgesel ayarlarını kontrol edin."
-        },
-        {
-            "ecode": "12018016",
-            "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004017",
-            "intro": "Bağlama işlemi başarısız oldu. Lütfen tekrar deneyin veya yazıcıyı yeniden başlatıp tekrar deneyin."
-        },
-        {
-            "ecode": "0500400B",
-            "intro": "Bir dosya indirme sorunu oluştu. Lütfen ağ bağlantınızı kontrol edin ve yazdırma işlemini yeniden gönderin."
-        },
-        {
-            "ecode": "03008002",
-            "intro": "İlk katmanda kusurlar tespit edildi. Kusurlar kabul edilebilir ise, yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
-        },
-        {
-            "ecode": "03004009",
-            "intro": "XY eksenlerine sıfırlama başarısız oldu."
-        },
-        {
-            "ecode": "12038012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07FF8004",
-            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12FF4001",
+            "ecode": "12034001",
             "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
-        },
-        {
-            "ecode": "12008013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03008009",
-            "intro": "Isıtma yatağı sıcaklık hatası."
-        },
-        {
-            "ecode": "05014025",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "12038005",
-            "intro": "Filament beslenemedi. Lütfen filamenti yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
             "ecode": "12028003",
             "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "07FF8002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03008004",
-            "intro": "Filament bitti. Lütfen yeni filament yükleyin ve \"Devam\" düğmesine dokunarak yazdırma işlemine devam edin."
-        },
-        {
-            "ecode": "05004015",
-            "intro": "Yazdırma işlemi için yeterli boş depolama alanı yok. Lütfen MicroSD kartı biçimlendirin veya temizleyerek kullanılabilir alanı serbest bırakın."
-        },
-        {
-            "ecode": "05004019",
-            "intro": "Yazıcı zaten bağlanmış. Lütfen bağlantısını kaldırın ve tekrar deneyin."
-        },
-        {
-            "ecode": "12038006",
-            "intro": "Filament takım kafasına beslenemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "03008000",
-            "intro": "Bilinmeyen bir nedenle yazdırma duraklatıldı. Yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunabilirsiniz."
-        },
-        {
-            "ecode": "12FF8005",
-            "intro": "Filament beslenemedi. Lütfen filamenti yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07FF8007",
-            "intro": "Nozulu kontrol edin. Filament ekstrüde edildi ise \"Bitti\" düğmesine tıklayın; değilse, filamenti biraz ileri itip ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0501401E",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
-        },
-        {
-            "ecode": "12FF8013",
-            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Tekrar Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004005",
-            "intro": "Firmware güncellenirken yazdırma işleri gönderilemez."
-        },
-        {
-            "ecode": "05014019",
-            "intro": "Yazıcı zaten bağlanmış. Lütfen bağlantısını kaldırın ve tekrar deneyin."
-        },
-        {
-            "ecode": "0500402B",
-            "intro": "Yönlendiriciye bağlantı, yanlış şifre nedeniyle başarısız oldu. Lütfen şifreyi kontrol edin ve tekrar deneyin."
-        },
-        {
-            "ecode": "05004027",
-            "intro": "Bulut erişimi başarısız oldu; bu, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
-        },
-        {
-            "ecode": "07028006",
-            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0300400B",
-            "intro": "Dahili iletişim istisnası."
-        },
-        {
-            "ecode": "07008001",
-            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07008004",
-            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve 'Yeniden Dene' düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038005",
-            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05004026",
+            "ecode": "05014020",
             "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
         },
         {
-            "ecode": "0300800D",
-            "intro": "Temizlenen filamentler fazla haznede birikmiş ve bu durum takım kafası çarpışmasına neden olabilir. Lütfen filamentleri temizleyin. Temizlendiğinde veya kabul edilebilir olduğunda, yazdırma işine devam etmek için devam düğmesine dokunun."
+            "ecode": "05004003",
+            "intro": "gcode.3mf Dosyası ayrıştırılırken bir sorun oluştu. Lütfen yazdırma işlemini yeniden gönderin."
         },
         {
-            "ecode": "0300800C",
-            "intro": "Atlama adımı algılandı, otomatik kurtarma tamamlandı; lütfen yazdırmaya devam edin ve herhangi bir katman kayması sorunu olup olmadığını kontrol edin."
-        },
-        {
-            "ecode": "05004031",
-            "intro": "Cihaz keşif bağlama işlemi devam ediyor ve QR kodu ekranda görüntülenemiyor. Bağlama işleminin bitmesini bekleyebilir veya APP/Studio'da cihaz keşif bağlama işlemini iptal edip ekrandaki QR kodunu tekrar tarayarak bağlama işlemini yeniden deneyebilirsiniz."
-        },
-        {
-            "ecode": "07028002",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12018010",
+            "ecode": "07038010",
             "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "0500400E",
-            "intro": "Yazdırma iptal edildi."
+            "ecode": "07018001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "07038007",
-            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "07028011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12FFC003",
-            "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın."
+            "ecode": "07018011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "07018004",
-            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "0501401F",
+            "intro": "Yetkilendirme zaman aşımına uğradı. Lütfen telefonunuzun veya bilgisayarınızın internet erişimi olduğundan emin olun ve bağlama işlemi sırasında Bambu Studio/Bambu Handy uygulamasının ön planda çalıştığından emin olun."
         },
         {
-            "ecode": "05014031",
-            "intro": "Cihaz keşif bağlama işlemi devam ediyor ve QR kodu ekranda görüntülenemiyor. Bağlama işleminin bitmesini bekleyebilir veya APP/Studio'da cihaz keşif bağlama işlemini iptal edip ekrandaki QR kodunu tekrar tarayarak bağlama işlemini yeniden deneyebilirsiniz."
+            "ecode": "03004006",
+            "intro": "Nozul tıkalı."
+        },
+        {
+            "ecode": "0501401C",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12028007",
+            "intro": "Filament ekstrüde edilemedi. Lütfen ekstruderin tıkalı olup olmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
             "ecode": "05004032",
             "intro": "QR kod ile bağlama işlemi devam ediyor ve cihaz keşif bağlama işlemi gerçekleştirilemiyor. Bağlama için ekrandaki QR kodunu tarayabilir veya ekrandaki QR kodu gösterme sayfasından çıkıp cihaz keşif bağlama işlemini deneyebilirsiniz."
         },
         {
-            "ecode": "05004014",
-            "intro": "Yazdırma işlemi dilimlenemedi; lütfen ayarları kontrol edin ve yazdırma işlemini yeniden başlatın."
-        },
-        {
-            "ecode": "1001C002",
-            "intro": "Zaman atlama desteklenmiyor çünkü Baskı sırası \"Nesneye göre\" olarak ayarlandı."
-        },
-        {
-            "ecode": "12004001",
+            "ecode": "12024001",
             "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
         },
         {
-            "ecode": "0C00800A",
-            "intro": "Algılanan baskı tablası, G-kodundaki ile aynı değil."
+            "ecode": "12FF8006",
+            "intro": "Lütfen makara tutucusundan filamenti, takım kafası filament sensörünü tetikleyene kadar besleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12038011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500401A",
-            "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
-        },
-        {
-            "ecode": "07018003",
-            "intro": "Filament ekstruderden çıkarılamadı. Lütfen ekstruderin tıkalı olup olmadığını veya filamentin ekstruder içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014035",
-            "intro": "Cihaz bağlanma sürecinde ve yeni bağlanma isteklerine yanıt veremiyor."
-        },
-        {
-            "ecode": "05008013",
-            "intro": "Yazdırma dosyası mevcut değil. Depolama ortamının çıkarılıp çıkarılmadığını kontrol edin."
-        },
-        {
-            "ecode": "05004012",
-            "intro": "Kapı açık gibi görünüyor, bu nedenle yazdırma durduruldu."
-        },
-        {
-            "ecode": "07028004",
-            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "07038011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "12008014",
-            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "05014018",
-            "intro": "Bağlama yapılandırma bilgileri çözümlenemedi,  lütfen tekrar deneyin."
-        },
-        {
-            "ecode": "07FFC003",
-            "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın."
+            "ecode": "05004028",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
         },
         {
             "ecode": "12008001",
             "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12014001",
-            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+            "ecode": "0300400E",
+            "intro": "Motor otomatik kontrolü başarısız oldu."
         },
         {
-            "ecode": "05004025",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+            "ecode": "1001C001",
+            "intro": "Zaman atlama desteklenmiyor çünkü dilimleme ayarlarında Spiral vazo etkinleştirildi."
         },
         {
-            "ecode": "0500401B",
-            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+            "ecode": "12008016",
+            "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
         },
         {
-            "ecode": "12FF8003",
-            "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın ve \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "07FF8010",
+            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "05004007",
-            "intro": "Zorunlu güncelleme sırasında veya onarım güncellemesi gerektiğinde yazdırma işlerinin gönderilmesine izin verilmez."
+            "ecode": "03008017",
+            "intro": "Sıcak yatakta yabancı cisimler tespit edildi. Lütfen sıcak yatağı kontrol edip temizleyin. Ardından baskı işine devam etmek için \"Devam\" düğmesine dokunun."
         },
         {
-            "ecode": "12018006",
-            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "12018002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "07008005",
-            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "12018014",
+            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "03008011",
-            "intro": "Mevcut baskı tablası, G-kodundaki ile aynı değil. Lütfen yazdırma işini durdurun ve baskı tablasını değiştirin. Yazdırma işine zorla devam etmek için \"Devam\" düğmesine de tıklayabilirsiniz."
-        },
-        {
-            "ecode": "12FF8012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
-        },
-        {
-            "ecode": "0500402A",
-            "intro": "Yönlendiriciye bağlanılamadı; bu durum kablosuz parazit veya yönlendiriciden çok uzakta olma nedeniyle olabilir. Lütfen tekrar deneyin veya yazıcıyı yönlendiriciye daha yakın bir yere taşıyıp tekrar deneyin."
-        },
-        {
-            "ecode": "03008010",
-            "intro": "Nozul fan hızı düzgün değil."
+            "ecode": "1001C002",
+            "intro": "Zaman atlama desteklenmiyor çünkü Baskı sırası \"Nesneye göre\" olarak ayarlandı."
         },
         {
             "ecode": "12038016",
             "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
         },
         {
-            "ecode": "07FF8012",
-            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "07008004",
+            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12FF8011",
-            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "03008000",
+            "intro": "Bilinmeyen bir nedenle yazdırma duraklatıldı. Yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunabilirsiniz."
         },
         {
-            "ecode": "0300400E",
-            "intro": "Motor otomatik kontrolü başarısız oldu."
+            "ecode": "07038002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve 'Yeniden Dene' düğmesine tıklayın."
         },
         {
-            "ecode": "0C00C006",
-            "intro": "Boşaltılan filament fazla, haznede birikmiş olabilir."
+            "ecode": "07008001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "0300800B",
-            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve devam düğmesine tıklayın."
+            "ecode": "07008011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
-            "ecode": "12018002",
+            "ecode": "07008003",
+            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0300800F",
+            "intro": "Kapı açık gibi görünüyor, bu nedenle yazdırma durduruldu."
+        },
+        {
+            "ecode": "12038003",
+            "intro": "Filament ekstruderden çıkarılamadı. Lütfen ekstruderin tıkalı olup olmadığını veya filamentin ekstruder içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07038013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018005",
+            "intro": "Filamenti besleme işlemi başarısız oldu. Lütfen filament yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0500400E",
+            "intro": "Yazdırma iptal edildi."
+        },
+        {
+            "ecode": "07028002",
             "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
@@ -1033,17 +345,705 @@
             "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
         },
         {
+            "ecode": "05014035",
+            "intro": "Cihaz bağlanma sürecinde ve yeni bağlanma isteklerine yanıt veremiyor."
+        },
+        {
+            "ecode": "07FF8007",
+            "intro": "Nozulu kontrol edin. Filament ekstrüde edildi ise \"Bitti\" düğmesine tıklayın; değilse, filamenti biraz ileri itip ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018016",
+            "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014027",
+            "intro": "Bulut erişimi başarısız oldu; bu, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
+        },
+        {
+            "ecode": "0300800E",
+            "intro": "Yazdırma dosyası mevcut değil. Depolama ortamının çıkarılıp çıkarılmadığını kontrol edin."
+        },
+        {
+            "ecode": "07038004",
+            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0300400C",
+            "intro": "Yazdırma iptal edildi."
+        },
+        {
+            "ecode": "07028004",
+            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12008012",
+            "intro": "AMS eşleme tablosu alınamadı. Devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004029",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "0500402F",
+            "intro": "Micro SD kart sektör verileri hasar görmüş. Lütfen SD kart onarım aracını kullanarak onarın veya formatlayın. Eğer hala tanınmıyorsa, lütfen Micro SD kartı değiştirin."
+        },
+        {
+            "ecode": "0501401E",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12028014",
+            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0300800C",
+            "intro": "Atlama adımı algılandı, otomatik kurtarma tamamlandı; lütfen yazdırmaya devam edin ve herhangi bir katman kayması sorunu olup olmadığını kontrol edin."
+        },
+        {
+            "ecode": "0300400A",
+            "intro": "Mekanik rezonans frekansı tanımlaması başarısız oldu."
+        },
+        {
+            "ecode": "05004001",
+            "intro": "Bambu Buluta bağlanılamadı. Lütfen ağ bağlantınızı kontrol edin."
+        },
+        {
+            "ecode": "0300400D",
+            "intro": "Güç kaybı sonrası devam edilemedi."
+        },
+        {
+            "ecode": "05014031",
+            "intro": "Cihaz keşif bağlama işlemi devam ediyor ve QR kodu ekranda görüntülenemiyor. Bağlama işleminin bitmesini bekleyebilir veya APP/Studio'da cihaz keşif bağlama işlemini iptal edip ekrandaki QR kodunu tekrar tarayarak bağlama işlemini yeniden deneyebilirsiniz."
+        },
+        {
+            "ecode": "12FF8011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05008013",
+            "intro": "Yazdırma dosyası mevcut değil. Depolama ortamının çıkarılıp çıkarılmadığını kontrol edin."
+        },
+        {
+            "ecode": "12FF4001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "05004008",
+            "intro": "Yazdırmaya başlama başarısız oldu. Lütfen yazıcıyı yeniden başlatın ve yazdırma işlemini yeniden gönderin."
+        },
+        {
+            "ecode": "07038003",
+            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12FF8013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Tekrar Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07018013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004024",
+            "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
+        },
+        {
+            "ecode": "12038015",
+            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "03004001",
+            "intro": "Yazıcı, takım kafasının sıfırlanmadan önce nozulun soğumasını beklerken zaman aşımına uğradı."
+        },
+        {
+            "ecode": "05014017",
+            "intro": "Bağlama işlemi başarısız oldu. Lütfen tekrar deneyin veya yazıcıyı yeniden başlatıp tekrar deneyin."
+        },
+        {
+            "ecode": "03008002",
+            "intro": "İlk katmanda kusurlar tespit edildi. Kusurlar kabul edilebilir ise, yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
+        },
+        {
+            "ecode": "12028011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014029",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12FF8004",
+            "intro": "Filament, takım kafasından geri çekilemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "03004008",
+            "intro": "AMS, filament değişiminde başarısız oldu."
+        },
+        {
+            "ecode": "0500402C",
+            "intro": "IP adresi alınamadı; bu durum kablosuz parazit nedeniyle veri iletim hatası veya yönlendiricinin DHCP adres havuzunun dolu olması nedeniyle olabilir. Lütfen yazıcıyı yönlendiriciye daha yakın bir yere taşıyıp tekrar deneyin. Sorun devam ederse, yönlendirici ayarlarını kontrol ederek IP adreslerinin tükenip tükenmediğini kontrol edin."
+        },
+        {
+            "ecode": "12008010",
+            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07018004",
+            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12FF8003",
+            "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004009",
+            "intro": "Firmware güncellenirken yazdırma işleri gönderilemez."
+        },
+        {
+            "ecode": "07008010",
+            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07028012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0300800B",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve devam düğmesine tıklayın."
+        },
+        {
+            "ecode": "0C008009",
+            "intro": "Baskı tablası yer belirleme işareti bulunamadı."
+        },
+        {
+            "ecode": "12018010",
+            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0C00800A",
+            "intro": "Algılanan baskı tablası, G-kodundaki ile aynı değil."
+        },
+        {
+            "ecode": "0500401F",
+            "intro": "Yetkilendirme zaman aşımına uğradı. Lütfen telefonunuzun veya bilgisayarınızın internet erişimi olduğundan emin olun ve bağlama işlemi sırasında Bambu Studio/Bambu Handy uygulamasının ön planda çalıştığından emin olun."
+        },
+        {
+            "ecode": "12008004",
+            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12008011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12FF8007",
+            "intro": "Nozulu kontrol edin. Filament ekstrüde edildi ise \"Bitti\" düğmesine tıklayın, aksi takdirde filamenti biraz ileri itip \"Yeniden Dene\" düğmesine tıklayın"
+        },
+        {
+            "ecode": "12FF8005",
+            "intro": "Filament beslenemedi. Lütfen filamenti yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07008013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı: Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004017",
+            "intro": "Bağlama işlemi başarısız oldu. Lütfen tekrar deneyin veya yazıcıyı yeniden başlatıp tekrar deneyin."
+        },
+        {
+            "ecode": "03008010",
+            "intro": "Nozul fan hızı düzgün değil."
+        },
+        {
+            "ecode": "05014032",
+            "intro": "QR kod bağlama işlemi devam ediyor, bu yüzden cihaz keşfi bağlaması yapılamıyor. Bağlama işlemi için ekrandaki QR kodunu tarayabilir veya ekrandaki QR kodu gösterme sayfasından çıkıp cihaz keşfi bağlamasını deneyebilirsiniz."
+        },
+        {
+            "ecode": "12028015",
+            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Tekrar Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004026",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12028002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07024001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "0500C010",
+            "intro": "MicroSD Kart hatası: lütfen yeniden takın, biçimlendirin veya değiştirin."
+        },
+        {
+            "ecode": "03008005",
+            "intro": "Takım kafası ön kapağı düştüğü için yazdırma duraklatıldı. Lütfen takım kafasını geri takın ve yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
+        },
+        {
+            "ecode": "12038005",
+            "intro": "Filament beslenemedi. Lütfen filamenti yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004025",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12004001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "03004005",
+            "intro": "Nozul fan hızı düzgün değil."
+        },
+        {
+            "ecode": "12038001",
+            "intro": "Filament kesilemedi. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12028005",
+            "intro": "Filament beslenemedi. Lütfen filamenti yükleyin ve ardından \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0500400B",
+            "intro": "Bir dosya indirme sorunu oluştu. Lütfen ağ bağlantınızı kontrol edin ve yazdırma işlemini yeniden gönderin."
+        },
+        {
+            "ecode": "0500402E",
+            "intro": "Sistem, şu anda Micro SD kart tarafından kullanılan dosya sistemini desteklemiyor. Lütfen Micro SD kartı değiştirin veya mevcut Micro SD kartı FAT32 olarak formatlayın."
+        },
+        {
+            "ecode": "05004012",
+            "intro": "Kapı açık gibi görünüyor, bu nedenle yazdırma durduruldu."
+        },
+        {
+            "ecode": "05004006",
+            "intro": "Yazdırma işlemi için yeterli boş depolama alanı yok. Fabrika ayarlarına geri dönerek kullanılabilir alanı serbest bırakabilirsiniz."
+        },
+        {
+            "ecode": "0C008002",
+            "intro": "Spagetti hatası tespit edildi."
+        },
+        {
+            "ecode": "05004002",
+            "intro": "Desteklenmeyen baskı dosya yolu veya adı. Lütfen baskı işini yeniden gönderin."
+        },
+        {
+            "ecode": "07FFC006",
+            "intro": "Lütfen takım kafası filament sensörü tetiklenene kadar makara tutucusundan besleyin."
+        },
+        {
+            "ecode": "07FFC003",
+            "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın."
+        },
+        {
+            "ecode": "07008006",
+            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07028007",
+            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014025",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "03004009",
+            "intro": "XY eksenlerine sıfırlama başarısız oldu."
+        },
+        {
+            "ecode": "0300800A",
+            "intro": "Temizlenen filamentler fazla haznede birikmiş ve bu durum takım kafası çarpışmasına neden olabilir. Lütfen filamentleri temizleyin. Temizlendiğinde veya kabul edilebilir olduğunda, yazdırma işine devam etmek için devam düğmesine dokunun."
+        },
+        {
+            "ecode": "07028003",
+            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "03008007",
+            "intro": "Yazıcı kapanırken tamamlanmamış bir baskı işlemi vardı. Yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
+        },
+        {
+            "ecode": "12FF8002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
             "ecode": "03004002",
             "intro": "Hasır yatak tesviyesi başarısız oldu."
         },
         {
-            "ecode": "07FF8006",
-            "intro": "Lütfen takım kafası filament sensörü tetiklenene kadar makara tutucusundan besleyin, ardından \"Yeniden Dene\" düğmesine tıklayın."
+            "ecode": "03008004",
+            "intro": "Filament bitti. Lütfen yeni filament yükleyin ve \"Devam\" düğmesine dokunarak yazdırma işlemine devam edin."
         },
         {
-            "ecode": "07034001",
+            "ecode": "12038013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstrüderin tıkalı olup olmadığını kontrol edin. Sorunu çözdükten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0C00C004",
+            "intro": "Olası spagetti hatası tespit edildi."
+        },
+        {
+            "ecode": "12028013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstrüderin tıkalı olup olmadığını kontrol edin. Sorunu çözdükten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018004",
+            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014023",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "05004015",
+            "intro": "Yazdırma işlemi için yeterli boş depolama alanı yok. Lütfen MicroSD kartı biçimlendirin veya temizleyerek kullanılabilir alanı serbest bırakın."
+        },
+        {
+            "ecode": "07038001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07FF8001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "1000C003",
+            "intro": "Geleneksel zaman atlamayı etkinleştirmek kusurlara yol açabilir. Devam edilsin mi?"
+        },
+        {
+            "ecode": "07014001",
             "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "12038012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12028004",
+            "intro": "Filament, takım kafasından geri çekilemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12014001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "07028010",
+            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07004001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "03008001",
+            "intro": "Yazdırma işlemi kullanıcı tarafından duraklatıldı. Yazdırma işine devam etmek için \"Devam\" düğmesine tıklayabilirsiniz."
+        },
+        {
+            "ecode": "12018012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014018",
+            "intro": "Bağlama yapılandırma bilgileri çözümlenemedi,  lütfen tekrar deneyin."
+        },
+        {
+            "ecode": "0500402B",
+            "intro": "Yönlendiriciye bağlantı, yanlış şifre nedeniyle başarısız oldu. Lütfen şifreyi kontrol edin ve tekrar deneyin."
+        },
+        {
+            "ecode": "12038014",
+            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0500401D",
+            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
+        },
+        {
+            "ecode": "1000C001",
+            "intro": "Yüksek yatak sıcaklığı nozuldaki filamentin tıkanmasına yol açabilir. Lütfen yazıcının havalandırmasını sağlayın."
+        },
+        {
+            "ecode": "12028006",
+            "intro": "Filament takım kafasına beslenemedi. Lütfen filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07FF8002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07018005",
+            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12008007",
+            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "03008014",
+            "intro": "Nozul filamentle kaplanmış veya yapı plakası yanlış takılmış. Lütfen nozulu temizleyin veya yapı plakasının konumunu ayarlayın. Ardından baskı işine devam etmek için \"Devam\" düğmesine dokunun."
+        },
+        {
+            "ecode": "07018006",
+            "intro": "Filamenti takım kafasına besleme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0C00C006",
+            "intro": "Boşaltılan filament fazla, haznede birikmiş olabilir."
+        },
+        {
+            "ecode": "0500400A",
+            "intro": "Dosya adı desteklenmiyor. Lütfen yeniden adlandırın ve yazdırma işlemini yeniden başlatın."
+        },
+        {
+            "ecode": "03008015",
+            "intro": "Filament bitti, lütfen \"filament\" sayfasında yeni filament yükleyin, ardından baskı sayfasına geri dönüp baskı işine devam etmek için \"Devam\" düğmesine dokunun."
+        },
+        {
+            "ecode": "0500400D",
+            "intro": "Lütfen bir kendi kendine test çalıştırın ve yazdırma işlemini yeniden başlatın."
+        },
+        {
+            "ecode": "03004000",
+            "intro": "Z eksenine sıfırlama başarısız oldu."
+        },
+        {
+            "ecode": "05004014",
+            "intro": "Yazdırma işlemi dilimlenemedi; lütfen ayarları kontrol edin ve yazdırma işlemini yeniden başlatın."
+        },
+        {
+            "ecode": "03008006",
+            "intro": "Baskı tablası yer belirleme işareti bulunamadı. Lütfen yazdırma işini durdurun ve baskı tablasını bulun. Yazdırma işine zorla devam etmek için \"Devam\" düğmesine de tıklayabilirsiniz."
+        },
+        {
+            "ecode": "05004019",
+            "intro": "Yazıcı zaten bağlanmış. Lütfen bağlantısını kaldırın ve tekrar deneyin."
+        },
+        {
+            "ecode": "07FF4001",
+            "intro": "Filament devre dışı bırakıldığı halde AMS'den yüklenmeye devam ediyor. Lütfen AMS filamentini boşaltın, makara tutucudan yükleyin ve yazdırma işini yeniden başlatın."
+        },
+        {
+            "ecode": "07028005",
+            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07FF8011",
+            "intro": "AMS filament bitti. Lütfen AMS'ye yeni bir filament yerleştirin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05008030",
+            "intro": ""
+        },
+        {
+            "ecode": "12028016",
+            "intro": "Ekstruder normal bir şekilde ekstrüzyon yapmıyor, lütfen HMS'ye başvurun. Sorunu giderdikten sonra, yeniden dene düğmesine tıklayın."
+        },
+        {
+            "ecode": "0300400F",
+            "intro": "Yapı plakası yerleştirilmemiş."
+        },
+        {
+            "ecode": "12028010",
+            "intro": "Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004016",
+            "intro": "MicroSD Kart yazma korumalı. Lütfen MicroSD Kartı değiştirin."
+        },
+        {
+            "ecode": "07018003",
+            "intro": "Filament ekstruderden çıkarılamadı. Lütfen ekstruderin tıkalı olup olmadığını veya filamentin ekstruder içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07018012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12FF8010",
+            "intro": "Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12FFC003",
+            "intro": "Lütfen ekstruderden makara tutucusundaki filamenti çekin veya ekstruder içinde kırılmış filament  olup olmadığını kontrol edin. Daha sonra AMS kullanılacaksa, lütfen PTFE tüpünü bağlayıcıya bağlayın."
+        },
+        {
+            "ecode": "12008013",
+            "intro": "Eski filament temizlenirken zaman aşımına uğradı. Lütfen filamentin sıkışıp sıkışmadığını veya ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12018001",
+            "intro": "Filament kesme işlemi başarısız oldu. Lütfen kesiciyi kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07FF8013",
+            "intro": "AMS yardımcı motoru aşırı yüklendi. Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014026",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "07018002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004038",
+            "intro": "Dilimlenmiş dosyadaki nozul çapı, mevcut nozul ayarıyla tutarlı değil. Bu dosya basılamaz."
+        },
+        {
+            "ecode": "07008007",
+            "intro": "Filamentin ekstrüzyonu başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014028",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12FFC006",
+            "intro": "Lütfen takım kafası filament sensörü tetiklene kadar makara tutucusundan besleyin."
+        },
+        {
+            "ecode": "12038007",
+            "intro": "Filament ekstrüde edilemedi. Lütfen ekstruderin tıkalı olup olmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12008014",
+            "intro": "Takım kafasında filament konumu kontrolü başarısız oldu, lütfen HMS'ye bakın. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12008002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12008015",
+            "intro": "Filamenti takım kafasından geri çekme işlemi başarısız oldu. Lütfen filamentin sıkışıp sıkışmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07038012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05004022",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "05004005",
+            "intro": "Firmware güncellenirken yazdırma işleri gönderilemez."
+        },
+        {
+            "ecode": "05004023",
+            "intro": "Bulut erişimi reddedildi. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "12018003",
+            "intro": "Filamenti ekstruderden çekme işlemi başarısız oldu. Lütfen ekstruderin tıkanıp tıkanmadığını veya filamentin ekstruderin içinde kırılıp kırılmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "05014038",
+            "intro": "Bölgesel ayarlar yazıcıyla eşleşmiyor, lütfen yazıcının bölgesel ayarlarını kontrol edin."
+        },
+        {
+            "ecode": "05004031",
+            "intro": "Cihaz keşif bağlama işlemi devam ediyor ve QR kodu ekranda görüntülenemiyor. Bağlama işleminin bitmesini bekleyebilir veya APP/Studio'da cihaz keşif bağlama işlemini iptal edip ekrandaki QR kodunu tekrar tarayarak bağlama işlemini yeniden deneyebilirsiniz."
+        },
+        {
+            "ecode": "05004007",
+            "intro": "Zorunlu güncelleme sırasında veya onarım güncellemesi gerektiğinde yazdırma işlerinin gönderilmesine izin verilmez."
+        },
+        {
+            "ecode": "03008016",
+            "intro": "Nozul filamentlerle tıkanmış. Lütfen nozulu kontrol edin. Ardından baskı işine devam etmek için \"Devam\" düğmesine dokunabilirsiniz."
+        },
+        {
+            "ecode": "0500401A",
+            "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
+        },
+        {
+            "ecode": "07FF8012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0500400C",
+            "intro": "MicroSD Kart hatası: lütfen yeniden takın, biçimlendirin veya değiştirin."
+        },
+        {
+            "ecode": "03008009",
+            "intro": "Isıtma yatağı sıcaklık hatası."
+        },
+        {
+            "ecode": "0C00C003",
+            "intro": "İlk katmanda olası kusurlar tespit edildi."
+        },
+        {
+            "ecode": "0C008001",
+            "intro": "İlk katmanda hatalar tespit edildi. Hatalar kabul edilebilir ise yazdırma işine devam etmek için \"Devam\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0501401A",
+            "intro": "Bulut erişimi başarısız oldu. Olası nedenler arasında parazit nedeniyle ağ kararsızlığı, internet erişimi olmaması veya yönlendirici güvenlik duvarı yapılandırma kısıtlamaları bulunur. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı veya yönlendirici yapılandırmasını kontrol etmeyi deneyebilirsiniz."
+        },
+        {
+            "ecode": "12038010",
+            "intro": "Lütfen makaranın veya filamentin sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0500401B",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "05014022",
+            "intro": "Bulut yanıtı geçersiz. Birden fazla kez denediyseniz ve hala başarısız oluyorsanız, lütfen müşteri hizmetleri ile iletişime geçin."
+        },
+        {
+            "ecode": "07FF8004",
+            "intro": "Filamenti takım kafasından AMS'ye geri çekme işlemi başarısız oldu. Lütfen filamentin veya makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "0501401D",
+            "intro": "Bulut erişimi başarısız oldu; bu durum, parazit nedeniyle ağ kararsızlığından kaynaklanabilir. Tekrar denemeden önce yazıcıyı yönlendiriciye daha yakın bir yere taşımayı deneyebilirsiniz."
+        },
+        {
+            "ecode": "03008003",
+            "intro": "Spagetti kusurları tespit edildi. Eğer kusurlar kabul edilebilir ise, yazdırma işlemine devam etmek için \"Devam\" düğmesine dokunun."
+        },
+        {
+            "ecode": "07038005",
+            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07FF8005",
+            "intro": "Filamenti AMS'nin dışına besleme işlemi başarısız oldu. Lütfen filamentin ucunu düz şekilde kesin ve makaranın sıkışıp sıkışmadığını kontrol edin. Sorunu giderdikten sonra \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12038002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "07008002",
+            "intro": "Kesici sıkıştı. Lütfen kesici kolunu çekin ve \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "12FF8012",
+            "intro": "AMS eşleme tablosu alınamadı; devam etmek için lütfen \"Yeniden Dene\" düğmesine tıklayın."
+        },
+        {
+            "ecode": "03008011",
+            "intro": "Mevcut baskı tablası, G-kodundaki ile aynı değil. Lütfen yazdırma işini durdurun ve baskı tablasını değiştirin. Yazdırma işine zorla devam etmek için \"Devam\" düğmesine de tıklayabilirsiniz."
         }
     ],
-    "ver": 202406020147
+    "ver": 202406200846
 }

@@ -1,87 +1,9 @@
 --- printer_ui-orig/printerui/app_fr.ts
 +++ printer_ui/printerui/app_fr.ts
-@@ -3432,4 +3432,256 @@
+@@ -3432,4 +3432,262 @@
          <translation>Voulez-vous vraiment annuler cette tâche ?</translation>
      </message>
  </context>
-+<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>Retourner à</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>UpgradeDialog</name>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>Annuler</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>Retourner à</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>Retourner à</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VibrationComp</name>
-+  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>Une erreur est survenue et la collecte des données a expiré.</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>Historique de calibration</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>GpioKeys</name>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorer</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Rerun diagnostics</source>
-+    <translation>Réitérer la procédure de diagnostic</translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibration: Toolhead is homing</source>
-+    <translation>Calibration du niveau de lit: la tête d'outil prends sa référence</translation>
-+  </message>
-+  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>Une erreur est survenue et la collecte des données a expiré.</translation>
-+  </message>
-+  <message>
-+    <source>Bed Diagnostics</source>
-+    <translation>Diagnostic du lit</translation>
-+  </message>
-+  <message>
-+    <source>Run diagnostics</source>
-+    <translation>Lancer les diagnostics</translation>
-+  </message>
-+  <message>
-+    <source>Tram bed</source>
-+    <translation>Cadrer le lit</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>Historique de calibration</translation>
-+  </message>
-+  <message>
-+    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
-+    <translation>Cela effacera toutes les données de mise à niveau de lit enregistrées. Êtes-vous sûr de vouloir continuer ?</translation>
-+  </message>
-+</context>
 +<context>
 +  <name>HardwarePage</name>
 +  <message>
@@ -118,70 +40,44 @@
 +  </message>
 +</context>
 +<context>
-+  <name>DeviceInfo</name>
++  <name>BedMesh</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Retourner à</translation>
++    <source>Rerun diagnostics</source>
++    <translation>Réitérer la procédure de diagnostic</translation>
 +  </message>
 +  <message>
-+    <source>reset</source>
-+    <translation>réinitialiser</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedTramming</name>
-+  <message>
-+    <source>Step 1:</source>
-+    <translation>Étape 1:</translation>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>Calibration du niveau de lit: la tête d'outil prends sa référence</translation>
 +  </message>
 +  <message>
-+    <source>Step 2:</source>
-+    <translation>Étape 2:</translation>
++    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Progress: %5%</source>
++    <translation>Point %1 sondé &lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Progression : %5%</translation>
 +  </message>
 +  <message>
-+    <source>Step 3:</source>
-+    <translation>Étape 3:</translation>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Une erreur est survenue et la collecte des données a expiré.</translation>
 +  </message>
-+  <message>
-+    <source>Step 4:</source>
-+    <translation>Étape 4:</translation>
-+  </message>
-+  <message>
-+    <source>Step 5:</source>
-+    <translation>Étape 5:</translation>
-+  </message>
-+  <message>
-+    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
-+    <translation>Contrôler chaque position dans l'ordre, répéter les trois jusqu'à ce qu'aucun ajustement supplémentaire ne soit nécessaire.</translation>
-+  </message>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>Préparer</translation>
-+  </message>
-+  <message>
-+    <source>Rear
-+   2</source>
-+    <translation>Arrière
-+   2</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedLevelDiag</name>
 +  <message>
 +    <source>Bed Diagnostics</source>
 +    <translation>Diagnostic du lit</translation>
 +  </message>
 +  <message>
-+    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
-+    <translation>&lt;font size='3' color='#AEAEAE'&gt;Ces données de calibration ont été collectées le %1, avec une température de lit de %2.&lt;br&gt;&lt;br&amp;gt Inclinaison du lit de %3 sur l'axe X, et de %4 sur l'axe 
-+ Y. Le lit avait une déviation entre pics et creux de %5, et la déformation restante après avoir parfaitement ajusté le lit serait de %6.&lt;br&gt;&lt;br&gt;</translation>
++    <source>Run diagnostics</source>
++    <translation>Lancer les diagnostics</translation>
 +  </message>
-+</context>
-+<context>
-+  <name>VersionDialog</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Retourner à</translation>
++    <source>Tram bed</source>
++    <translation>Cadrer le lit</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Historique de calibration</translation>
++  </message>
++  <message>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>Cela effacera toutes les données de mise à niveau de lit enregistrées. Êtes-vous sûr de vouloir continuer ?</translation>
 +  </message>
 +</context>
 +<context>
@@ -235,10 +131,33 @@
 +  </message>
 +</context>
 +<context>
-+  <name>LanAccessPage</name>
++  <name>VibrationComp</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Retourner à</translation>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Une erreur est survenue et la collecte des données a expiré.</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Historique de calibration</translation>
++  </message>
++</context>
++<context>
++  <name>BedLevelDiag</name>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>Diagnostic du lit</translation>
++  </message>
++  <message>
++    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
++    <translation>&lt;font size='3' color='#AEAEAE'&gt;Ces données de calibration ont été collectées le %1, avec une température de lit de %2.&lt;br&gt;&lt;br&amp;gt Inclinaison du lit de %3 sur l'axe X, et de %4 sur l'axe 
++ Y. Le lit avait une déviation entre pics et creux de %5, et la déformation restante après avoir parfaitement ajusté le lit serait de %6.&lt;br&gt;&lt;br&gt;</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorer</translation>
 +  </message>
 +</context>
 +<context>
@@ -254,6 +173,93 @@
 +  <message>
 +    <source>Close</source>
 +    <translation>Fermer</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>Annuler</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>Étape 1:</translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>Étape 2:</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>Étape 3:</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>Étape 4:</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>Étape 5:</translation>
++  </message>
++  <message>
++    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
++    <translation>Contrôler chaque position dans l'ordre, répéter les trois jusqu'à ce qu'aucun ajustement supplémentaire ne soit nécessaire.</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>Préparer</translation>
++  </message>
++  <message>
++    <source>Rear
++   2</source>
++    <translation>Arrière
++   2</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>réinitialiser</translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Retourner à</translation>
 +  </message>
 +</context>
  </TS>

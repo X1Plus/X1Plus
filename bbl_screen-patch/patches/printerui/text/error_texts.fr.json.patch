@@ -6,16 +6,16 @@
              "intro": "Impossible d'alimenter le filament en dehors de l'AMS. Veuillez nettoyer la pointe du filament et vérifier si la bobine est coincée. Après le dépannage, cliquez sur le bouton Réessayer."
 +        },
 +        {
-+            "ecode": "05004012",
-+            "intro": "La porte semble ouverte, l'impression a donc été interrompue."
-+        },
-+        {
 +            "ecode": "05008036",
 +            "intro": "Votre fichier d'impression n'est pas compatible avec le modèle d'imprimante actuel. Continuer ?"
++        },
++        {
++            "ecode": "05004012",
++            "intro": "La porte semble ouverte, l'impression a donc été interrompue."
          }
      ],
 -    "ver": 202309261900
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file

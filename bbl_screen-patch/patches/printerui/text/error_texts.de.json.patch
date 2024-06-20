@@ -6,36 +6,36 @@
              "intro": "Drucken starten fehlgeschlagen. Bitte den Drucken neu starten und den Druckauftrag neu senden."
 +        },
 +        {
-+            "ecode": "05004031",
-+            "intro": "Die Bindung per Geräteerkennung wird ausgeführt und der QR-Code kann nicht auf dem Bildschirm angezeigt werden. Sie können warten, bis die Bindung abgeschlossen ist, oder den Bindevorgang in der APP/Studio abbrechen und erneut versuchen, den QR-Code auf dem Bildschirm für die Bindung zu scannen."
-+        },
-+        {
-+            "ecode": "12028016",
-+            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
-+        },
-+        {
-+            "ecode": "12038016",
-+            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
++            "ecode": "05004012",
++            "intro": "Die Tür scheint offen zu sein, daher wurde der Druck pausiert."
 +        },
 +        {
 +            "ecode": "0300400F",
 +            "intro": "Es wurde keine Bauplatte eingelegt."
 +        },
 +        {
-+            "ecode": "12008016",
++            "ecode": "12018016",
 +            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
 +        },
 +        {
-+            "ecode": "05004012",
-+            "intro": "Die Tür scheint offen zu sein, daher wurde der Druck pausiert."
++            "ecode": "05004031",
++            "intro": "Die Bindung per Geräteerkennung wird ausgeführt und der QR-Code kann nicht auf dem Bildschirm angezeigt werden. Sie können warten, bis die Bindung abgeschlossen ist, oder den Bindevorgang in der APP/Studio abbrechen und erneut versuchen, den QR-Code auf dem Bildschirm für die Bindung zu scannen."
 +        },
 +        {
-+            "ecode": "12018016",
++            "ecode": "12038016",
++            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
++        },
++        {
++            "ecode": "12028016",
++            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
++        },
++        {
++            "ecode": "12008016",
 +            "intro": "Der Extruder arbeitet nicht normal. Bitte beachten sie das HMS. Nach der Fehlerbehebung drücken sie bitte auf den \"Wiederholen\"-Knopf."
          }
      ],
 -    "ver": 202311071450
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file

@@ -6,16 +6,16 @@
              "intro": "Le filament d'AMS1 slot2 peut être cassé dans le tube PTFE."
 +        },
 +        {
-+            "ecode": "1200250000020001",
-+            "intro": "Le filament n'a pas été extrudé, l'extrudeur est peut-être obstrué."
-+        },
-+        {
 +            "ecode": "1200240000020001",
 +            "intro": "Le filament est peut-être cassé dans l'extrudeur."
++        },
++        {
++            "ecode": "1200250000020001",
++            "intro": "Le filament n'a pas été extrudé, l'extrudeur est peut-être obstrué."
          }
      ],
 -    "ver": 202309261840
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file

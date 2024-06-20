@@ -6,16 +6,16 @@
              "intro": "De ventilatorsnelheid van de heatbreak is abnormaal."
 +        },
 +        {
-+            "ecode": "05004012",
-+            "intro": "De deur lijkt open te staan, dus het printen werd gepauzeerd."
-+        },
-+        {
 +            "ecode": "05008036",
 +            "intro": "Het gesegmenteerde bestand is niet consistent met het huidige printermodel. Doorgaan?"
++        },
++        {
++            "ecode": "05004012",
++            "intro": "De deur lijkt open te staan, dus het printen werd gepauzeerd."
          }
      ],
 -    "ver": 202309261900
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file
