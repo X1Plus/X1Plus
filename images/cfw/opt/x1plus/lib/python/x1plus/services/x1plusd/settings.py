@@ -31,7 +31,13 @@ class SettingsService(X1PlusDBusService):
     DBus invocation tool (currently, x1plus-test-settings).
     """
 
-    DEFAULT_X1PLUS_SETTINGS = { }
+    DEFAULT_X1PLUS_SETTINGS = {
+        "boot.quick_boot": False,
+        "boot.dump_emmc": False,
+        "boot.sdcard_syslog": False,
+        "boot.perf_log": False,
+        "ota.enabled": False,
+    }
 
     def __init__(self, **kwargs):
         if x1plus.utils.is_emulating():
