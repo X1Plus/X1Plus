@@ -7,36 +7,38 @@ import os
 import sys
 import io
 
-# crowdin language -> (app_*.ts, error_texts.*.json)
-LANG_MAP = {
-    "de": ("de", "de"),
-    "en": ("en", "en"),
-    "es-ES": ("es", "es"),
-    "fr": ("fr", "fr"),
-    "ja": ("ja", "ja"),
-    "nl": ("nl", "nl"),
-    "ru": ("ru", "ru"),
-    "pt": ("pt", "pt"),
-    "tr": ("tr", "tr"),
-    "sv-SE": ("sv", "sv"),
-    "zh-CN": ("cn", "zh-cn"),
-    "zh-TW": ("tw", "zh-tw"),
-}
+from collections import namedtuple
+
+TranslatableLanguage = namedtuple('LangMapEnt', ['crowdin_language', 'crowdin_ts_dir', 'tslang', 'jsonlang'])
+
+# crowdin language -> (base.tsapp_*.ts, error_texts.*.json)
+LANG_MAP = [
+    TranslatableLanguage('de', 'de-DE', 'de', 'de'),
+    TranslatableLanguage('en', 'en-US', 'en', 'en'),
+    TranslatableLanguage('es-ES', 'es-ES', 'es', 'es'),
+    TranslatableLanguage('fr', 'fr-FR', 'fr', 'fr'),
+    TranslatableLanguage('ja', 'ja-JP', 'ja', 'ja'),
+    TranslatableLanguage('nl', 'nl-NL', 'nl', 'nl'),
+    TranslatableLanguage('ru', 'ru-RU', 'ru', 'ru'),
+    TranslatableLanguage('pt-PT', 'pt-PT', 'pt', 'pt'),
+    TranslatableLanguage('tr', 'tr-TR', 'tr', 'tr'),
+    TranslatableLanguage('sv-SE', 'sv-SE', 'sv', 'sv'),
+    TranslatableLanguage('zh-CN', 'zh-CN', 'cn', 'zh-cn'),
+    TranslatableLanguage('zh-TW', 'zh-TW', 'tw', 'zh-tw'),
+]
 
 archive = zipfile.ZipFile(sys.argv[1])
 
 # Unpack each language and update as needed.
-dt = archive.getinfo("en/Firmware/base.ts").date_time
+dt = archive.getinfo("en-US/Firmware/base.ts").date_time
 build_ver = int(f"{dt[0]:04d}{dt[1]:02d}{dt[2]:02d}{dt[3]:02d}{dt[4]:02d}")
 
 for lang in LANG_MAP:
     print(f"unpacking {lang}...")
 
-    tslang = LANG_MAP[lang][0]
-    jsonlang = LANG_MAP[lang][1]
 
     for src in ["hms_texts", "error_texts"]:
-        ts_tree = ET.fromstring(archive.open(f"{lang}/Firmware/{src}.ts").read())
+        ts_tree = ET.fromstring(archive.open(f"{lang.crowdin_language}/Firmware/{src}.ts").read())
 
         # jsonlang = 'en' translations always seem to be 'unfinished', so
         # take the ones from CrowdIn anyway
@@ -44,7 +46,7 @@ for lang in LANG_MAP:
             m.get("id"): m.find("./translation").text or ""
             for m in ts_tree.iter("message")
             if (
-                jsonlang == "en"
+                lang.jsonlang == "en"
                 or m.find("./translation").get("type", None) != "unfinished"
             )
         }
@@ -60,13 +62,13 @@ for lang in LANG_MAP:
                     "printer_ui-orig",
                     "printerui",
                     "text",
-                    f"{src}.{jsonlang}.json",
+                    f"{src}.{lang.jsonlang}.json",
                 ),
                 "r",
             ) as f:
-                orig = json.load(f)[jsonlang]
+                orig = json.load(f)[lang.jsonlang]
         except:
-            print(f"did not find original {src}.{jsonlang}.json")
+            print(f"did not find original {src}.{lang.jsonlang}.json")
             orig = []
 
         newmsgs = []
@@ -83,14 +85,14 @@ for lang in LANG_MAP:
         missing_from_db = set(msg["ecode"] for msg in orig) - set(messages.keys())
         if len(missing_from_db) > 0:
             print(
-                f"language {jsonlang} {src} has ecodes {missing_from_db} missing from database... very curious"
+                f"language {lang.jsonlang} {src} has ecodes {missing_from_db} missing from database... very curious"
             )
 
         # new codes that we need to append
         for ecode in set(messages.keys()) - set(msg["ecode"] for msg in orig):
             newmsgs.append({"ecode": ecode, "intro": messages[ecode]})
 
-        contents = {jsonlang: newmsgs, "ver": build_ver}
+        contents = {lang.jsonlang: newmsgs, "ver": build_ver}
         with open(
             os.path.join(
                 os.path.dirname(__file__),
@@ -99,7 +101,7 @@ for lang in LANG_MAP:
                 "printer_ui",
                 "printerui",
                 "text",
-                f"{src}.{jsonlang}.json",
+                f"{src}.{lang.jsonlang}.json",
             ),
             "w",
         ) as f:
@@ -111,7 +113,7 @@ for lang in LANG_MAP:
     # BBL lconvert-generated .ts files.  gross.  actually, it is sort of
     # like the json situation, but...  xml.
     new_tree = ET.fromstring(
-        ET.canonicalize(archive.open(f"{lang}/Firmware/base.ts").read())
+        ET.canonicalize(archive.open(f"{lang.crowdin_ts_dir}/Firmware/base.ts").read())
     )
     try:
         with open(
@@ -121,13 +123,13 @@ for lang in LANG_MAP:
                 "bbl_screen-patch",
                 "printer_ui-orig",
                 "printerui",
-                f"app_{tslang}.ts",
+                f"app_{lang.tslang}.ts",
             ),
             "r",
         ) as f:
             old_tree = ET.fromstring(f.read())
     except:
-        print(f"did not find original app_{tslang}.ts")
+        print(f"did not find original app_{lang.tslang}.ts")
         old_tree = new_tree
 
     # which contexts are missing?  just append them
@@ -191,7 +193,7 @@ for lang in LANG_MAP:
             "bbl_screen-patch",
             "printer_ui",
             "printerui",
-            f"app_{tslang}.ts",
+            f"app_{lang.tslang}.ts",
         ),
         "w",
     ) as f:

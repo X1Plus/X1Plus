@@ -1,78 +1,9 @@
 --- printer_ui-orig/printerui/app_de.ts
 +++ printer_ui/printerui/app_de.ts
-@@ -3435,4 +3435,312 @@
+@@ -3435,4 +3435,410 @@
          <translation>Sind Sie sich sicher, dass sie diesen Druck abbrechen wollen?</translation>
      </message>
  </context>
-+<context>
-+  <name>EmergencyConsole</name>
-+  <message>
-+    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>Es ist möglich, Ihren Drucker unwiederbringlich und dauerhaft mit einer Root-Konsole zu beschädigen. Geben sie niemals etwas in eine Root-Konsole ein, wenn sie nicht genau wissen was sie machen.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>UpgradeDialog</name>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>Abbrechen</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VibrationComp</name>
-+  <message>
-+    <source>X axis</source>
-+    <translation>X-Achse</translation>
-+  </message>
-+  <message>
-+    <source>Y axis</source>
-+    <translation>Y-Achse</translation>
-+  </message>
-+  <message>
-+    <source>Range:</source>
-+    <translation>Bereich:</translation>
-+  </message>
-+  <message>
-+    <source>to</source>
-+    <translation>bis</translation>
-+  </message>
-+  <message>
-+    <source>Hz</source>
-+    <translation>Hz</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>GpioKeys</name>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorieren</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Bed mesh calibration: Toolhead is homing</source>
-+    <translation>Höhenprofil Kalibrierung: Werkzeugkopf wird referenziert</translation>
-+  </message>
-+</context>
 +<context>
 +  <name>HardwarePage</name>
 +  <message>
@@ -112,65 +43,62 @@
 +    <translation>Wenn Sie das Zubehör ausgetauscht haben, aktualisieren Sie bitte die unteren Einstellungen, damit sie mit dem tatsächlichen Zustand des Zubehörs übereinstimmen und die Druckqualität gewährleistet ist.</translation>
 +  </message>
 +  <message>
++    <source>Button Actions:</source>
++    <translation>Schaltflächenaktionen</translation>
++  </message>
++  <message>
++    <source>Restarts Linux with a shell command</source>
++    <translation>Startet Linux mit einem Shell-Befehl neu</translation>
++  </message>
++  <message>
++    <source>Pause print</source>
++    <translation>Druck pausieren</translation>
++  </message>
++  <message>
++    <source>Pauses current print job.</source>
++    <translation>Pausiert den aktuellen Druckauftrag.</translation>
++  </message>
++  <message>
++    <source>Abort print</source>
++    <translation>Druck abbrechen</translation>
++  </message>
++  <message>
++    <source>Aborts current print job.</source>
++    <translation>Bricht den aktuellen Druckjob ab.</translation>
++  </message>
++  <message>
 +    <source>Ignore</source>
 +    <translation>Ignorieren</translation>
 +  </message>
-+</context>
-+<context>
-+  <name>DeviceInfo</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
-+  </message>
-+  <message>
-+    <source>Total print time: </source>
-+    <translation>Druckzeit insgesamt: </translation>
-+  </message>
-+  <message>
-+    <source>reset</source>
-+    <translation>zurücksetzen</translation>
-+  </message>
-+  <message>
-+    <source>AMS total filament switches: </source>
-+    <translation>AMS Anzahl der Filamentwechsel: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total failed filament switches: </source>
-+    <translation>AMS Anzahl der fehlerhaften Filamentwechsel: </translation>
++    <source>No action</source>
++    <translation>Keine Aktion</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>BedTramming</name>
++  <name>BedMesh</name>
 +  <message>
-+    <source>Step 1:</source>
-+    <translation>Schritt 1:</translation>
++    <source>Rerun diagnostics</source>
++    <translation>Diagnose wiederholen</translation>
 +  </message>
 +  <message>
-+    <source>Step 2:</source>
-+    <translation>Schritt 2:</translation>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>Höhenprofil Kalibrierung: Werkzeugkopf wird referenziert</translation>
 +  </message>
 +  <message>
-+    <source>Step 3:</source>
-+    <translation>Schritt 3:</translation>
++    <source>Run diagnostics</source>
++    <translation>Diagnose ausführen</translation>
 +  </message>
 +  <message>
-+    <source>Step 4:</source>
-+    <translation>Schritt 4:</translation>
-+  </message>
-+  <message>
-+    <source>Step 5:</source>
-+    <translation>Schritt 5:</translation>
-+  </message>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>Vorbereiten</translation>
++    <source>Calibration History</source>
++    <translation>Kalibrierungshistorie</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>VersionDialog</name>
++  <name>EmergencyConsole</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
++    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>Es ist möglich, Ihren Drucker unwiederbringlich und dauerhaft mit einer Root-Konsole zu beschädigen. Geben sie niemals etwas in eine Root-Konsole ein, wenn sie nicht genau wissen was sie machen.</translation>
 +  </message>
 +</context>
 +<context>
@@ -240,7 +168,7 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VibrationCompPlotter</name>
++  <name>VibrationComp</name>
 +  <message>
 +    <source>X axis</source>
 +    <translation>X-Achse</translation>
@@ -249,16 +177,24 @@
 +    <source>Y axis</source>
 +    <translation>Y-Achse</translation>
 +  </message>
-+</context>
-+<context>
-+  <name>LanAccessPage</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Zurück</translation>
++    <source>Range:</source>
++    <translation>Bereich:</translation>
 +  </message>
 +  <message>
-+    <source>Root password: </source>
-+    <translation>Root Passwort: </translation>
++    <source>to</source>
++    <translation>bis</translation>
++  </message>
++  <message>
++    <source>Hz</source>
++    <translation>Hz</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>Ignorieren</translation>
 +  </message>
 +</context>
 +<context>
@@ -310,6 +246,168 @@
 +  <message>
 +    <source>Close</source>
 +    <translation>Schließen</translation>
++  </message>
++  <message>
++    <source>Export console log</source>
++    <translation>Konsolen-Log exportieren</translation>
++  </message>
++  <message>
++    <source>Save console output to:</source>
++    <translation>Konsolenausgabe speichern unter:</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>Abbrechen</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>Schritt 1:</translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>Schritt 2:</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>Schritt 3:</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>Schritt 4:</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>Schritt 5:</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>Vorbereiten</translation>
++  </message>
++</context>
++<context>
++  <name>MeshCalcs</name>
++  <message>
++    <source>Your hotbed appears to be flat and level.</source>
++    <translation>Das Heizbett scheint flach und eben zu sein.</translation>
++  </message>
++</context>
++<context>
++  <name>VibrationCompPlotter</name>
++  <message>
++    <source>X axis</source>
++    <translation>X-Achse</translation>
++  </message>
++  <message>
++    <source>Y axis</source>
++    <translation>Y-Achse</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>%1: Device Info</source>
++    <translation>%1: Geräteinformationen</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++  <message>
++    <source>Printer serial number: </source>
++    <translation>Drucker-Seriennummer: </translation>
++  </message>
++  <message>
++    <source>Total print time: </source>
++    <translation>Druckzeit insgesamt: </translation>
++  </message>
++  <message>
++    <source>%1 hours</source>
++    <translation>%1 Stunden</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>zurücksetzen</translation>
++  </message>
++  <message>
++    <source>AMS total filament switches: </source>
++    <translation>AMS Anzahl der Filamentwechsel: </translation>
++  </message>
++  <message>
++    <source>AMS total failed filament switches: </source>
++    <translation>AMS Anzahl der fehlerhaften Filamentwechsel: </translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Zurück</translation>
++  </message>
++  <message>
++    <source>LAN access code</source>
++    <translation>LAN Zugangscode</translation>
++  </message>
++  <message>
++    <source>VNC server (remote desktop) is disabled.</source>
++    <translation>VNC-Server (entfernter Desktop) ist deaktiviert.</translation>
++  </message>
++  <message>
++    <source>The VNC password is disabled.  Be careful!</source>
++    <translation>Das VNC-Passwort ist deaktiviert. Vorsicht!</translation>
++  </message>
++  <message>
++    <source>The VNC password has been customized through the X1Plus command-line, and is not shown here.</source>
++    <translation>Das VNC-Passwort wurde über die X1Plus-Befehlszeile angepasst und wird hier nicht angezeigt.</translation>
++  </message>
++  <message>
++    <source>SSH server (remote command line) is disabled.</source>
++    <translation>SSH-Server (entfernte Kommandozeile) ist deaktiviert.</translation>
++  </message>
++  <message>
++    <source>Root password: </source>
++    <translation>Root Passwort: </translation>
++  </message>
++  <message>
++    <source>[not yet set]</source>
++    <translation>[noch nicht gesetzt]</translation>
++  </message>
++</context>
++<context>
++  <name>KexecDialog</name>
++  <message>
++    <source>No bootable SD card detected.</source>
++    <translation>Keine bootfähige SD-Karte erkannt.</translation>
 +  </message>
 +</context>
  </TS>

@@ -1,441 +1,9 @@
 --- printer_ui-orig/printerui/app_es.ts
 +++ printer_ui/printerui/app_es.ts
-@@ -3437,4 +3437,1142 @@
+@@ -3437,4 +3437,1170 @@
          <translation>¿Estás seguro de que quieres cancelar este trabajo?</translation>
      </message>
  </context>
-+<context>
-+  <name>EmergencyConsole</name>
-+  <message>
-+    <source>Starting emergency recovery console...</source>
-+    <translation>Iniciando consola de recuperación de emergencia...</translation>
-+  </message>
-+  <message>
-+    <source>Emergency recovery console is running. You can access it in the following ways:</source>
-+    <translation>Se está ejecutando la consola de recuperación de emergencias. Puede accederse a ella de las siguientes formas:</translation>
-+  </message>
-+  <message>
-+    <source>SSH to %1.</source>
-+    <translation>SSH a %1.</translation>
-+  </message>
-+  <message>
-+    <source>The password is %1; your printer is connected to the Wi-Fi network "%2".</source>
-+    <translation>La contraseña es %1, la impresora está conectada a la red Wi-Fi "%2".</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Connect a micro-USB cable to the AP board&lt;/b&gt; and use ADB to connect.</source>
-+    <translation>&lt;b&gt;Conecte un cable micro-USB a la placa AP&lt;/b&gt; y use ADB para conectarse.</translation>
-+  </message>
-+  <message>
-+    <source>Connect a UART to the AP board.</source>
-+    <translation>Conectar un UART al tablero AP.</translation>
-+  </message>
-+  <message>
-+    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>Advertencia: Es posible causar daños permanentes e irreversibles a su impresora desde una consola root. No escriba comandos sin comprender su función.</translation>
-+  </message>
-+  <message>
-+    <source>To exit the emergency console, restart your printer.</source>
-+    <translation>Para salir de la consola de emergencia, reinicie la impresora.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>SelectX1pPage</name>
-+  <message>
-+    <source>X1Plus custom firmware installation</source>
-+    <translation>Instalación de firmware personalizada de X1Plus</translation>
-+  </message>
-+  <message>
-+    <source>Select a firmware bundle to install:</source>
-+    <translation>Seleccione un paquete de firmware para instalar:</translation>
-+  </message>
-+  <message>
-+    <source>No .x1p files found on SD card.</source>
-+    <translation>No hay archivos .x1p en la micro SD.</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Custom firmware version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Bambu Lab base firmware version:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Build date:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;Release notes:&lt;/b&gt; %4</source>
-+    <translation>&lt;b&gt;Versión de firmware personalizada:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Versión de firmware base de Bambu Lab:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Fecha de construcción:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;notas de lanzamiento:&lt;/b&gt; %4</translation>
-+  </message>
-+  <message>
-+    <source>No custom firmware installation bundles found on SD card. Copy a &lt;b&gt;.x1p&lt;/b&gt; file to the SD card and try again.</source>
-+    <translation>No se han encontrado archivos de instalación de firmware personalizado en la tarjeta SD. Copie un archivo &lt;b&gt;.x1p&lt;/b&gt; en la tarjeta SD y reinicie.</translation>
-+  </message>
-+  <message>
-+    <source>Are you sure you're ready to install the X1Plus custom firmware?&lt;br&gt;&lt;br&gt;While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.&lt;br&gt;&lt;br&gt;Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.</source>
-+    <translation>¿Estás seguro de que estás preparado para instalar el firmware personalizado de X1Plus?&lt;br&gt;&lt;br&gt;Aunque hemos hecho la instalación fiable, siempre existen riesgos asociados a la modificación de tu impresora. X1Plus no viene con NINGUNA GARANTÍA, EXPRESA O IMPLÍCITA, y al instalarlo, usted acepta que usted y sólo usted es responsable del riesgo de daños a su impresora, o sus alrededores.&lt;br&gt;&lt;br&gt;Una vez que comience el proceso de instalación, no' toque su impresora hasta que se complete. La instalación puede durar hasta 10 minutos (o más, dependiendo de la velocidad de la conexión a la red).</translation>
-+  </message>
-+  <message>
-+    <source>Yes! Install X1Plus!</source>
-+    <translation>¡Sí! ¡Instala X1Plus!</translation>
-+  </message>
-+  <message>
-+    <source>Er, never mind</source>
-+    <translation>Er, no importa</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Download base firmware</source>
-+    <translation>Descargar firmware base</translation>
-+  </message>
-+  <message>
-+    <source>Download update</source>
-+    <translation>Descargar actualización</translation>
-+  </message>
-+  <message>
-+    <source>Install update</source>
-+    <translation>Instalar actualización</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>Volver</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Current X1Plus version&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Versión actual de X1Plus&lt;/b&gt;: %1</translation>
-+  </message>
-+  <message>
-+    <source>Checking for X1Plus updates is enabled.</source>
-+    <translation>La opción «Buscar actualizaciones de X1Plus» está activada.</translation>
-+  </message>
-+  <message>
-+    <source>Checking for X1Plus updates is disabled.</source>
-+    <translation>La opción «Buscar actualizaciones de X1Plus» está desactivada.</translation>
-+  </message>
-+  <message>
-+    <source>&lt;i&gt;Checking for updates...&lt;/i&gt;</source>
-+    <translation>&lt;i&gt;Buscando actualizaciones...&lt;/i&gt;</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Last checked for updates&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Fecha de la última comprobación de actualizaciones&lt;/b&gt;: %1</translation>
-+  </message>
-+  <message>
-+    <source>&lt;i&gt;Most recent check for updates failed.  Check your network connection.&lt;/i&gt;</source>
-+    <translation>&lt;i&gt;Ha fallado la comprobación de actualizaciones más reciente.  Compruebe su conexión de red&lt;/i&gt;</translation>
-+  </message>
-+  <message>
-+    <source>You are running the newest version of X1Plus.</source>
-+    <translation>Está ejecutando la versión más reciente de X1Plus.</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;New X1Plus version %1&lt;/b&gt; is available!</source>
-+    <translation>&lt;b&gt;Ya está disponible la nueva versión %1&lt;/b&gt; de X1Plus!</translation>
-+  </message>
-+  <message>
-+    <source>X1Plus update download in progress (%1).</source>
-+    <translation>Descarga de actualización de X1Plus en curso (%1).</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>Success</name>
-+  <message>
-+    <source>Rebooting...</source>
-+    <translation>Reiniciando...</translation>
-+  </message>
-+  <message>
-+    <source>Rebooting in %1 seconds</source>
-+    <translation>Reiniciando en %1 segundos</translation>
-+  </message>
-+  <message>
-+    <source>&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</source>
-+    <translation>&lt;center&gt;&lt;b&gt;¡Éxito!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus se ha instalado correctamente en tu impresora. ¡Deja la tarjeta SD insertada y reinicia la impresora para disfrutar de tu nuevo firmware personalizado!</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>UpgradeDialog</name>
-+  <message>
-+    <source>Download %1</source>
-+    <translation>Descargar %1</translation>
-+  </message>
-+  <message>
-+    <source>Install %1</source>
-+    <translation>Instalar %1</translation>
-+  </message>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>Cancelar</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>Volver</translation>
-+  </message>
-+  <message>
-+    <source>%1 update %2</source>
-+    <translation>Actualización %1 %2</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 does not exist on the SD card. Download it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
-+    <translation>La versión %1 no existe en la tarjeta SD. ¿Descargarlo ahora?&lt;br&gt;&lt;br&gt;Esto requiere una conexión activa a Internet y se conectará a los servidores de Bambu Lab.</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
-+    <translation>La versión %1 no existe en la tarjeta SD. ¿Descargarlo ahora?&lt;br&gt;&lt;br&gt;Esto requiere una conexión activa a Internet y se conectará a los servidores de Bambu Lab.</translation>
-+  </message>
-+  <message>
-+    <source>Downloading version %1 from Bambu Lab: %2</source>
-+    <translation>Descargando la versión %1 de Bambu Lab: %2</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 is available on the SD card and ready to install. Install it now?</source>
-+    <translation>La versión %1 está disponible en la tarjeta SD y lista para instalar. ¿Instalar ahora?</translation>
-+  </message>
-+  <message>
-+    <source>Installing version %1.  Do not power off your printer.</source>
-+    <translation>Instalando la versión %1. No apague la impresora.</translation>
-+  </message>
-+  <message>
-+    <source>Successfully installed version %1.</source>
-+    <translation>Versión instalada con éxito %1.</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 failed to install. Consider trying again, or power cycling your printer.</source>
-+    <translation>La versión %1 no se pudo instalar. Considere intentarlo de nuevo, o reinicie la impresora.</translation>
-+  </message>
-+  <message>
-+    <source> (Updater message "%1".)</source>
-+    <translation> (Mensaje del actualizador "%1".)</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>MeshCalcs</name>
-+  <message>
-+    <source>Your hotbed appears not to be level. Try tramming the bed.</source>
-+    <translation>Parece que tu cama no es de nivel. Prueba a atrapar la cama.</translation>
-+  </message>
-+  <message>
-+    <source>Your hotbed appears reasonably level, but may be warped.</source>
-+    <translation>La cama parece razonablemente nivel, pero puede ser deformado.</translation>
-+  </message>
-+  <message>
-+    <source>Your hotbed appears to be flat and level.</source>
-+    <translation>La cama parece ser plana y de nivel.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>Volver</translation>
-+  </message>
-+  <message>
-+    <source>The screen lock is a low-security deterrence against casual passers-by, but it will not provide a strong defense against sophisticated attackers.&lt;br&gt;&lt;br&gt;If the printer is connected to a network, you will still be able to print over the network when the screen is locked.</source>
-+    <translation>El salvapantallas es una disuasión de baja seguridad contra los transeúntes casuales, pero no servirá como defensa contra los atacantes sofisticados.&lt;br&gt;&lt;br&gt;Si la impresora está conectada a la red, podrá imprimir sobre la red cuando la pantalla esté bloqueada.</translation>
-+  </message>
-+  <message>
-+    <source>2 minutes</source>
-+    <translation>2 minutos</translation>
-+  </message>
-+  <message>
-+    <source>5 minutes</source>
-+    <translation>5 minutos</translation>
-+  </message>
-+  <message>
-+    <source>10 minutes</source>
-+    <translation>10 minutos</translation>
-+  </message>
-+  <message>
-+    <source>15 minutes</source>
-+    <translation>15 minutos</translation>
-+  </message>
-+  <message>
-+    <source>Time before display sleeps</source>
-+    <translation>Tiempo antes de que la pantalla duerme</translation>
-+  </message>
-+  <message>
-+    <source>Lock screen mode</source>
-+    <translation>Bloqueo de pantalla</translation>
-+  </message>
-+  <message>
-+    <source>Screen saver only</source>
-+    <translation>Sólo salvapantallas</translation>
-+  </message>
-+  <message>
-+    <source>Swipe to unlock</source>
-+    <translation>Desliza el dedo para desbloquear</translation>
-+  </message>
-+  <message>
-+    <source>Passcode</source>
-+    <translation>Código de acceso</translation>
-+  </message>
-+  <message>
-+    <source>Passcode: "%1"</source>
-+    <translation>Código de acceso: "%1"</translation>
-+  </message>
-+  <message>
-+    <source>Passcode is unset</source>
-+    <translation>El código de acceso no está establecido</translation>
-+  </message>
-+  <message>
-+    <source>Passcode set to "%1"</source>
-+    <translation>Código de acceso establecido en "%1"</translation>
-+  </message>
-+  <message>
-+    <source>Change passcode</source>
-+    <translation>Cambiar código</translation>
-+  </message>
-+  <message>
-+    <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
-+    <translation>Puede añadir texto personalizado o una imagen de fondo a la pantalla de bloqueo colocando un archivo de texto o una imagen en estas rutas:&lt;br&gt;&lt;br&gt;&lt;b&gt;Texto&lt;/b&gt;: /x1plus/lockscreen. xt&lt;br&gt;&lt;b&gt;Imagen&lt;/b&gt;: /x1plus/lockscreen.png</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VibrationComp</name>
-+  <message>
-+    <source>Vibration Compensation</source>
-+    <translation>Compensación de la vibración</translation>
-+  </message>
-+  <message>
-+    <source>Beginning vibration compensation calibration.</source>
-+    <translation>Comenzando la calibración de la compensación por vibración.</translation>
-+  </message>
-+  <message>
-+    <source>X axis</source>
-+    <translation>Eje X</translation>
-+  </message>
-+  <message>
-+    <source>Y axis</source>
-+    <translation>Eje Y</translation>
-+  </message>
-+  <message>
-+    <source>Sweeping %1
-+%2 Hz: %3 dB
-+Progress: %4%</source>
-+    <translation>Barrido de frecuencia %1
-+%2 Hz: %3 dB
-+Progreso: %4%</translation>
-+  </message>
-+  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>Se ha producido un error y se ha cancelado la calibración.</translation>
-+  </message>
-+  <message>
-+    <source>Vibration compensation calibration: internal state error, status = %1</source>
-+    <translation>Calibración de la malla de la cama: error de estado interno, estado = %1</translation>
-+  </message>
-+  <message>
-+    <source>The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.&lt;br&gt;&lt;br&gt;All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.&lt;br&gt;&lt;br&gt;Run a sweep from this page to begin.</source>
-+    <translation>La calibración de compensación de vibraciones en la impresora se utiliza para mitigar los artefactos de impresion. Esta herramienta permite ejecutar barridos de frecuencia de calibración y visualizar los datos para realizar diagnósticos; captura tanto los datos de frecuencia sin procesar como los parámetros de compensación finales calculados y utilizados por la impresora.&lt;br&gt;&lt;br&gt; Los cambios a lo largo del tiempo en esta curva de respuesta pueden deberse a menudo a vibraciones del motor, cambios en la tensión de las correas de distribuciónes, atascamiento del cabezal de la herramienta u otros factores. El análisis de estos datos de respuesta de frecuencia puede guiarle en el diagnóstico de problemas de la impresora, y en la identificación de cuándo la impresora necesita mantenimiento.&lt;br&gt;&lt;br&gt;Ejecute un barrido de frecuencies desde esta página para empezar.</translation>
-+  </message>
-+  <message>
-+    <source>Vibration</source>
-+    <translation>Vibración</translation>
-+  </message>
-+  <message>
-+    <source>Run frequency sweep</source>
-+    <translation>Ejecutar barrido de frecuencias</translation>
-+  </message>
-+  <message>
-+    <source>Range:</source>
-+    <translation>Rango:</translation>
-+  </message>
-+  <message>
-+    <source>to</source>
-+    <translation>de</translation>
-+  </message>
-+  <message>
-+    <source>Hz</source>
-+    <translation>Hz</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>Registro de Calibración</translation>
-+  </message>
-+  <message>
-+    <source>Clear calibration logs</source>
-+    <translation>Borrar registros de calificación</translation>
-+  </message>
-+  <message>
-+    <source>This will remove all of your saved vibration compensation data.  Are you sure you want to proceed?</source>
-+    <translation>Borrar todos los datos guardados de la malla de la cama. ¿Está seguro de que desea continuar?</translation>
-+  </message>
-+  <message>
-+    <source>&lt;br&gt;Run date: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</source>
-+    <translation>&lt;br&gt;Fecha de ejecución: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;eje X: ε_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;eje Y: ε_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>GpioKeys</name>
-+  <message>
-+    <source>Sleep/wake</source>
-+    <translation>Dormir/despertar</translation>
-+  </message>
-+  <message>
-+    <source>Reboot</source>
-+    <translation>Reiniciar</translation>
-+  </message>
-+  <message>
-+    <source>Pause print</source>
-+    <translation>Pausar impresión</translation>
-+  </message>
-+  <message>
-+    <source>Abort print</source>
-+    <translation>Cancelar impresión</translation>
-+  </message>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>Ignorar</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Rerun diagnostics</source>
-+    <translation>Rehacer diagnósticos</translation>
-+  </message>
-+  <message>
-+    <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
-+    <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;La inclinación calculada (del eje X) es de %2 mm, y de %3 mm en el eje Y; la desviación pico a pico para esta calibración es de %4 mm.&lt;/font&gt;</translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibration: Toolhead is homing</source>
-+    <translation>Calibración de la malla: el cabezal de la herramienta se dirige a su posición inicial</translation>
-+  </message>
-+  <message>
-+    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
-+Progress: %5%</source>
-+    <translation>Punto probado %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
-+Progreso: %5%</translation>
-+  </message>
-+  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>Se ha producido un error y se ha cancelado la calibración.</translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibration: internal state error, status = %1</source>
-+    <translation>Calibración de la malla de la cama: error de estado interno, estado = %1</translation>
-+  </message>
-+  <message>
-+    <source>Bed Diagnostics</source>
-+    <translation>Diagnóstico de mallas</translation>
-+  </message>
-+  <message>
-+    <source>If your prints are not flat and square, you may need to check whether your hotbed is level.&lt;br&gt;&lt;br&gt;The printer's built-in automatic bed leveling can provide information as to whether your hotbed is out of level, or if it is warped.&lt;br&gt;&lt;br&gt;Run the diagnostics to begin.</source>
-+    <translation>Si sus impresiones no son planas y cuadradas, puede que tenga que verificar si su cama está nivelada.&lt;br&gt;&lt;br&gt;La nivelación automática 'de cama de esta impresora puede ofrecer información sobre si su cama requiere nivelación o si está alabeada.&lt;br&gt;&lt;br&gt;Ejecute los diagnósticos para comenzar.</translation>
-+  </message>
-+  <message>
-+    <source>Run diagnostics</source>
-+    <translation>Ejecutar diagnósticos</translation>
-+  </message>
-+  <message>
-+    <source>Tram bed</source>
-+    <translation>Igualó la cama</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>Registro de Calibración</translation>
-+  </message>
-+  <message>
-+    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
-+    <translation>Esto borrará todos los datos guardados de la malla de la cama. ¿Está seguro de que desea continuar?</translation>
-+  </message>
-+  <message>
-+    <source>&lt;br&gt;Run date: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Bed Temperature: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;X-tilt: %3&lt;br&gt;Y-tilt: %4&lt;br&gt;Peak to peak deviation: %5&lt;/font&gt;</source>
-+    <translation>&lt;br&gt;Fecha de ejecución: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Temperatura de la cama: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;inclinación: eje X: %3&lt;br&gt; eje Y: %4&lt;br&gt;desviación de pico a pico: %5&lt;/font&gt;</translation>
-+  </message>
-+</context>
 +<context>
 +  <name>HardwarePage</name>
 +  <message>
@@ -564,291 +132,95 @@
 +  </message>
 +</context>
 +<context>
-+  <name>DeviceInfo</name>
++  <name>BedMesh</name>
 +  <message>
-+    <source>%1: Device Info</source>
-+    <translation>%1: Información del dispositivo</translation>
++    <source>Rerun diagnostics</source>
++    <translation>Rehacer diagnósticos</translation>
 +  </message>
 +  <message>
-+    <source>Return</source>
-+    <translation>Volver</translation>
++    <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
++    <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;La inclinación calculada (del eje X) es de %2 mm, y de %3 mm en el eje Y; la desviación pico a pico para esta calibración es de %4 mm.&lt;/font&gt;</translation>
 +  </message>
 +  <message>
-+    <source>Printer serial number: </source>
-+    <translation>Número de serie de impresora: </translation>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>Calibración de la malla: el cabezal de la herramienta se dirige a su posición inicial</translation>
 +  </message>
 +  <message>
-+    <source>Total print time: </source>
-+    <translation>Tiempo de impresión total: </translation>
++    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Progress: %5%</source>
++    <translation>Punto probado %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Progreso: %5%</translation>
 +  </message>
 +  <message>
-+    <source>%1 hours</source>
-+    <translation>%1 horas</translation>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Se ha producido un error y se ha cancelado la calibración.</translation>
 +  </message>
 +  <message>
-+    <source>reset</source>
-+    <translation>restablecer</translation>
++    <source>Bed mesh calibration: internal state error, status = %1</source>
++    <translation>Calibración de la malla de la cama: error de estado interno, estado = %1</translation>
 +  </message>
-+  <message>
-+    <source>Lead screws last lubricated: </source>
-+    <translation>Tornillos de plomo lubricados: </translation>
-+  </message>
-+  <message>
-+    <source>ASA carbon rod maintenance timer: </source>
-+    <translation>Temporizador de mantenimiento de barras de carbono ASA: </translation>
-+  </message>
-+  <message>
-+    <source>ABS carbon rod maintenance timer: </source>
-+    <translation>Temporizador de mantenimiento de barras de carbono ABS: </translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibrated: </source>
-+    <translation>Malla de cama calificada: </translation>
-+  </message>
-+  <message>
-+    <source>Vibration compensation calibrated: </source>
-+    <translation>Compensación por vibración calificada: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total length: </source>
-+    <translation>Longitud total del AMS: </translation>
-+  </message>
-+  <message>
-+    <source>%1 meters</source>
-+    <translation>%1 metros</translation>
-+  </message>
-+  <message>
-+    <source>AMS total print time: </source>
-+    <translation>Tiempo de impresión total: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total filament switches: </source>
-+    <translation>Cambios de filamentos de AMS: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total failed filament switches: </source>
-+    <translation>Cambios de filamento fallidos: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 print time: </source>
-+    <translation>Bandeja %1 tiempo de impresión total: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 filament switches: </source>
-+    <translation>Bandeja %1 cambios de filamento: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 failed filament switches: </source>
-+    <translation>Bandeja %1 cambios de filamento fallidos: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 print length: </source>
-+    <translation>Bandeja %1 longitud total de impresión: </translation>
-+  </message>
-+  <message>
-+    <source>%1 - print time: </source>
-+    <translation>%1 - tiempo de impresión total: </translation>
-+  </message>
-+  <message>
-+    <source>%1 - print length: </source>
-+    <translation>%1 - longitud total de impresión: </translation>
-+  </message>
-+</context>
-+<context>
-+  <name>KexecDialog</name>
-+  <message>
-+    <source>Start from SD card</source>
-+    <translation>Arranque X1Plus desde la micro SD</translation>
-+  </message>
-+  <message>
-+    <source>Startup options...</source>
-+    <translation>Opciones de inicio...</translation>
-+  </message>
-+  <message>
-+    <source>Bootable SD card detected.</source>
-+    <translation>Tarjeta SD de arranque detectada.</translation>
-+  </message>
-+  <message>
-+    <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
-+    <translation>Tu impresora arrancará automáticamente desde la tarjeta SD en %1 segundos.</translation>
-+  </message>
-+  <message>
-+    <source>Your printer is rebooting into the OS on the inserted SD card.</source>
-+    <translation>Tu impresora está reiniciando el sistema operativo en la tarjeta SD insertada.</translation>
-+  </message>
-+  <message>
-+    <source>Install update</source>
-+    <translation>Instalar actualización</translation>
-+  </message>
-+  <message>
-+    <source>X1Plus update ready to install.</source>
-+    <translation>Actualización de X1Plus lista para instalar.</translation>
-+  </message>
-+  <message>
-+    <source>Automatically installing X1Plus version %1 in %2 seconds. To cancel or skip installation, use the startup options menu.</source>
-+    <translation>Instalación automática de la versión %1 de X1Plus en %2 segundos. Para cancelar u omitir la instalación, utilice el menú de opciones de inicio.</translation>
-+  </message>
-+  <message>
-+    <source>Starting installation of X1Plus version %1.</source>
-+    <translation>Iniciando la instalación de X1Plus versión %1.</translation>
-+  </message>
-+  <message>
-+    <source>No bootable SD card detected.</source>
-+    <translation>No se ha detectado ninguna tarjeta SD de arranque.</translation>
-+  </message>
-+  <message>
-+    <source>Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.</source>
-+    <translation>Inserte una tarjeta SD de arranque y reinicie la impresora, o utilice el menú de opciones de inicio para reparar la instalación de X1Plus.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLock</name>
-+  <message>
-+    <source>Enter passcode.</source>
-+    <translation>Introducir código.</translation>
-+  </message>
-+  <message>
-+    <source>Enter passcode: %1</source>
-+    <translation>Introducir código: %1</translation>
-+  </message>
-+  <message>
-+    <source>This printer is locked.</source>
-+    <translation>Esta impresora está cerrado.</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedTramming</name>
-+  <message>
-+    <source>Step 1:</source>
-+    <translation>Paso 1:</translation>
-+  </message>
-+  <message>
-+    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
-+    <translation>Ajuste los tornillos de la cama a su ajuste de tensión de base, como se describe en la sección "Prepare para nivelar la cama" de la wiki Bambu Lab.  (Un enlace de código QR se da en la parte inferior de este texto)</translation>
-+  </message>
-+  <message>
-+    <source>Step 2:</source>
-+    <translation>Paso 2:</translation>
-+  </message>
-+  <message>
-+    <source>Tap the "Prepare" button below to home the bed.</source>
-+    <translation>Pulse el botón "Preparar" para volver a casa la cama.</translation>
-+  </message>
-+  <message>
-+    <source>Step 3:</source>
-+    <translation>Paso 3:</translation>
-+  </message>
-+  <message>
-+    <source>Tap the "1" button to move the nozzle to the front left position.  Adjust the front left bed adjustment screw until the nozzle just barely touches the bed.</source>
-+    <translation>Pulse el botón "1" para mover la boquilla a la posición delantera izquierda. Ajuste el tornillo de ajuste de la cama delantera izquierda hasta que la boquilla casi no toque la cama.</translation>
-+  </message>
-+  <message>
-+    <source>Step 4:</source>
-+    <translation>Paso 4:</translation>
-+  </message>
-+  <message>
-+    <source>Adjust the front right and rear positions by tapping their corresponding button and adjusting their corresponding screws.</source>
-+    <translation>Ajuste los otros dos tornillos pulsando su botón respectivo y ajustando sus tornillos correspondientes.</translation>
-+  </message>
-+  <message>
-+    <source>Step 5:</source>
-+    <translation>Paso 5:</translation>
-+  </message>
-+  <message>
-+    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
-+    <translation>Compruebe cada posición secuencialmente, repitiendo las tres hasta que no se necesite ningunos cambios.</translation>
-+  </message>
-+  <message>
-+    <source>Bed Tramming</source>
-+    <translation>Tranvía de impresora</translation>
-+  </message>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>Preparación</translation>
-+  </message>
-+  <message>
-+    <source>Rear
-+   2</source>
-+    <translation>Posterior 
-+   2</translation>
-+  </message>
-+  <message>
-+    <source>Front L
-+     1</source>
-+    <translation>Frente Izq
-+     1</translation>
-+  </message>
-+  <message>
-+    <source>Front R
-+     3</source>
-+    <translation>Frente dcha
-+     3</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedLevelDiag</name>
 +  <message>
 +    <source>Bed Diagnostics</source>
 +    <translation>Diagnóstico de mallas</translation>
 +  </message>
 +  <message>
-+    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
-+    <translation>&lt;font size='3' color='#AEAEAE'&gt;Esta calibración se completó él %1, a una temperatura dé la cama de %2.&lt;br&gt;&lt;br&gt; El valor de inclinación calculado fue de %3 en el eje X, y de %4 en el eje Y. La desviación de pico a pico fue de %5, y la no planitud después del tramear perfectamente la cama sería de %6.&lt;br&gt;&lt;br&gt;</translation>
++    <source>If your prints are not flat and square, you may need to check whether your hotbed is level.&lt;br&gt;&lt;br&gt;The printer's built-in automatic bed leveling can provide information as to whether your hotbed is out of level, or if it is warped.&lt;br&gt;&lt;br&gt;Run the diagnostics to begin.</source>
++    <translation>Si sus impresiones no son planas y cuadradas, puede que tenga que verificar si su cama está nivelada.&lt;br&gt;&lt;br&gt;La nivelación automática 'de cama de esta impresora puede ofrecer información sobre si su cama requiere nivelación o si está alabeada.&lt;br&gt;&lt;br&gt;Ejecute los diagnósticos para comenzar.</translation>
 +  </message>
 +  <message>
-+    <source>Are you sure you want to remove the data entry from $1?</source>
-+    <translation>¿Estás seguro de que quieres eliminar la entrada de datos de $1?</translation>
++    <source>Run diagnostics</source>
++    <translation>Ejecutar diagnósticos</translation>
++  </message>
++  <message>
++    <source>Tram bed</source>
++    <translation>Igualó la cama</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Registro de Calibración</translation>
++  </message>
++  <message>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>Esto borrará todos los datos guardados de la malla de la cama. ¿Está seguro de que desea continuar?</translation>
++  </message>
++  <message>
++    <source>&lt;br&gt;Run date: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Bed Temperature: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;X-tilt: %3&lt;br&gt;Y-tilt: %4&lt;br&gt;Peak to peak deviation: %5&lt;/font&gt;</source>
++    <translation>&lt;br&gt;Fecha de ejecución: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Temperatura de la cama: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;inclinación: eje X: %3&lt;br&gt; eje Y: %4&lt;br&gt;desviación de pico a pico: %5&lt;/font&gt;</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>VersionDialog</name>
++  <name>EmergencyConsole</name>
 +  <message>
-+    <source>To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time.</source>
-+    <translation>Para instalar una nueva versión del firmware personalizado, copia el nuevo archivo x1p a la raíz de la tarjeta SD, encendida la impresora, y seleccione el instalador al momento de arrancar.</translation>
++    <source>Starting emergency recovery console...</source>
++    <translation>Iniciando consola de recuperación de emergencia...</translation>
 +  </message>
 +  <message>
-+    <source>This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card.</source>
-+    <translation>Este firmware personalizado se ha cargado además de la versión errónea de firmware base de Bambu Lab. Es posible que la impresora no funcione correctamente. Reinstala el firmware personalizado en la tarjeta microSD.</translation>
++    <source>Emergency recovery console is running. You can access it in the following ways:</source>
++    <translation>Se está ejecutando la consola de recuperación de emergencias. Puede accederse a ella de las siguientes formas:</translation>
 +  </message>
 +  <message>
-+    <source>X1Plus Firmware</source>
-+    <translation>Firmware X1Plus</translation>
++    <source>SSH to %1.</source>
++    <translation>SSH a %1.</translation>
 +  </message>
 +  <message>
-+    <source>Bambu Lab base firmware</source>
-+    <translation>Firmware base de Bambu Lab</translation>
++    <source>The password is %1; your printer is connected to the Wi-Fi network "%2".</source>
++    <translation>La contraseña es %1, la impresora está conectada a la red Wi-Fi "%2".</translation>
 +  </message>
 +  <message>
-+    <source>Install %1</source>
-+    <translation>Instalar %1</translation>
++    <source>&lt;b&gt;Connect a micro-USB cable to the AP board&lt;/b&gt; and use ADB to connect.</source>
++    <translation>&lt;b&gt;Conecte un cable micro-USB a la placa AP&lt;/b&gt; y use ADB para conectarse.</translation>
 +  </message>
 +  <message>
-+    <source>Return</source>
-+    <translation>Volver</translation>
++    <source>Connect a UART to the AP board.</source>
++    <translation>Conectar un UART al tablero AP.</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Serial number&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Número Serial&lt;/b&gt;: %1</translation>
++    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>Advertencia: Es posible causar daños permanentes e irreversibles a su impresora desde una consola root. No escriba comandos sin comprender su función.</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Versión de hardware&lt;/b&gt;: %1</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Firmware version&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;Versión de Firmware&lt;/b&gt;: %1</translation>
-+  </message>
-+  <message>
-+    <source> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recommended: %1&lt;/i&gt;&lt;/font&gt;)</source>
-+    <translation> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recomendado: %1&lt;/i&gt;&lt;/font&gt;)</translation>
-+  </message>
-+  <message>
-+    <source>This component has the recommended firmware version installed.</source>
-+    <translation>Este componente tiene la versión de firmware recomendada.</translation>
-+  </message>
-+  <message>
-+    <source>This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?</source>
-+    <translation>La versión de firmware de este componente no coincide con la versión de firmware del sistema en ejecución. Es posible que la impresión no sea fiable. ¿Instalar nuevo firmware ahora?</translation>
++    <source>To exit the emergency console, restart your printer.</source>
++    <translation>Para salir de la consola de emergencia, reinicie la impresora.</translation>
 +  </message>
 +</context>
 +<context>
@@ -970,10 +342,14 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VibrationCompPlotter</name>
++  <name>VibrationComp</name>
 +  <message>
-+    <source>Are you sure you want to remove the data entry from %1?</source>
-+    <translation>¿Estás seguro dé que quieres borrar la entrada dé datos dé %1?</translation>
++    <source>Vibration Compensation</source>
++    <translation>Compensación de la vibración</translation>
++  </message>
++  <message>
++    <source>Beginning vibration compensation calibration.</source>
++    <translation>Comenzando la calibración de la compensación por vibración.</translation>
 +  </message>
 +  <message>
 +    <source>X axis</source>
@@ -984,67 +360,113 @@
 +    <translation>Eje Y</translation>
 +  </message>
 +  <message>
-+    <source>Frequency Response Plot: </source>
-+    <translation>Gráfico de Respuesta de Frecuencia: </translation>
++    <source>Sweeping %1
++%2 Hz: %3 dB
++Progress: %4%</source>
++    <translation>Barrido de frecuencia %1
++%2 Hz: %3 dB
++Progreso: %4%</translation>
++  </message>
++  <message>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>Se ha producido un error y se ha cancelado la calibración.</translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibration: internal state error, status = %1</source>
++    <translation>Calibración de la malla de la cama: error de estado interno, estado = %1</translation>
++  </message>
++  <message>
++    <source>The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.&lt;br&gt;&lt;br&gt;All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.&lt;br&gt;&lt;br&gt;Run a sweep from this page to begin.</source>
++    <translation>La calibración de compensación de vibraciones en la impresora se utiliza para mitigar los artefactos de impresion. Esta herramienta permite ejecutar barridos de frecuencia de calibración y visualizar los datos para realizar diagnósticos; captura tanto los datos de frecuencia sin procesar como los parámetros de compensación finales calculados y utilizados por la impresora.&lt;br&gt;&lt;br&gt; Los cambios a lo largo del tiempo en esta curva de respuesta pueden deberse a menudo a vibraciones del motor, cambios en la tensión de las correas de distribuciónes, atascamiento del cabezal de la herramienta u otros factores. El análisis de estos datos de respuesta de frecuencia puede guiarle en el diagnóstico de problemas de la impresora, y en la identificación de cuándo la impresora necesita mantenimiento.&lt;br&gt;&lt;br&gt;Ejecute un barrido de frecuencies desde esta página para empezar.</translation>
++  </message>
++  <message>
++    <source>Vibration</source>
++    <translation>Vibración</translation>
++  </message>
++  <message>
++    <source>Run frequency sweep</source>
++    <translation>Ejecutar barrido de frecuencias</translation>
++  </message>
++  <message>
++    <source>Range:</source>
++    <translation>Rango:</translation>
++  </message>
++  <message>
++    <source>to</source>
++    <translation>de</translation>
++  </message>
++  <message>
++    <source>Hz</source>
++    <translation>Hz</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>Registro de Calibración</translation>
++  </message>
++  <message>
++    <source>Clear calibration logs</source>
++    <translation>Borrar registros de calificación</translation>
++  </message>
++  <message>
++    <source>This will remove all of your saved vibration compensation data.  Are you sure you want to proceed?</source>
++    <translation>Borrar todos los datos guardados de la malla de la cama. ¿Está seguro de que desea continuar?</translation>
++  </message>
++  <message>
++    <source>&lt;br&gt;Run date: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</source>
++    <translation>&lt;br&gt;Fecha de ejecución: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;eje X: ε_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;eje Y: ε_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>LanAccessPage</name>
++  <name>Success</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>Volver</translation>
++    <source>Rebooting...</source>
++    <translation>Reiniciando...</translation>
 +  </message>
 +  <message>
-+    <source>X1Plus allows you to connect to your printer over your local network, not only using the slicer.  For your security, only enable services that you plan to use.</source>
-+    <translation>X1Plus le permite conectarse a su impresora a través de su red local, no sólo utilizando el corte. Por su seguridad, active únicamente los servicios que tenga previsto utilizar.</translation>
++    <source>Rebooting in %1 seconds</source>
++    <translation>Reiniciando en %1 segundos</translation>
 +  </message>
 +  <message>
-+    <source>LAN access code</source>
-+    <translation>Código de acceso LAN</translation>
++    <source>&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</source>
++    <translation>&lt;center&gt;&lt;b&gt;¡Éxito!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus se ha instalado correctamente en tu impresora. ¡Deja la tarjeta SD insertada y reinicia la impresora para disfrutar de tu nuevo firmware personalizado!</translation>
++  </message>
++</context>
++<context>
++  <name>BedLevelDiag</name>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>Diagnóstico de mallas</translation>
 +  </message>
 +  <message>
-+    <source>RTSP server (LAN-only live view) is enabled.</source>
-+    <translation>El servidor RTSP (sólo vista en vivo LAN) está activado.</translation>
++    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
++    <translation>&lt;font size='3' color='#AEAEAE'&gt;Esta calibración se completó él %1, a una temperatura dé la cama de %2.&lt;br&gt;&lt;br&gt; El valor de inclinación calculado fue de %3 en el eje X, y de %4 en el eje Y. La desviación de pico a pico fue de %5, y la no planitud después del tramear perfectamente la cama sería de %6.&lt;br&gt;&lt;br&gt;</translation>
 +  </message>
 +  <message>
-+    <source>RTSP server (LAN-only live view) is disabled.</source>
-+    <translation>El servidor RTSP (sólo LAN) está desactivado.</translation>
++    <source>Are you sure you want to remove the data entry from $1?</source>
++    <translation>¿Estás seguro de que quieres eliminar la entrada de datos de $1?</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Sleep/wake</source>
++    <translation>Dormir/despertar</translation>
 +  </message>
 +  <message>
-+    <source>VNC server (remote desktop) is enabled.</source>
-+    <translation>Servidor VNC (escritorio remoto) está activado.</translation>
++    <source>Reboot</source>
++    <translation>Reiniciar</translation>
 +  </message>
 +  <message>
-+    <source>VNC server (remote desktop) is disabled.</source>
-+    <translation>Servidor VNC (escritorio remoto) está desactivado.</translation>
++    <source>Pause print</source>
++    <translation>Pausar impresión</translation>
 +  </message>
 +  <message>
-+    <source>The VNC password is set to the LAN access code.</source>
-+    <translation>La contraseña VNC está configurada con el código de acceso a la LAN.</translation>
++    <source>Abort print</source>
++    <translation>Cancelar impresión</translation>
 +  </message>
 +  <message>
-+    <source>The VNC password is disabled.  Be careful!</source>
-+    <translation>La contraseña de VNC está desactivada. ¡Tenga cuidado!</translation>
-+  </message>
-+  <message>
-+    <source>The VNC password has been customized through the X1Plus command-line, and is not shown here.</source>
-+    <translation>La contraseña VNC ha sido personalizada a través de la línea de comandos X1Plus, y no se muestra aquí.</translation>
-+  </message>
-+  <message>
-+    <source>SSH server (remote command line) is enabled.</source>
-+    <translation>El servidor SSH (línea de comandos remota) está activado.</translation>
-+  </message>
-+  <message>
-+    <source>SSH server (remote command line) is disabled.</source>
-+    <translation>El servidor SSH (línea de comandos remota) está desactivado.</translation>
-+  </message>
-+  <message>
-+    <source>Root password: </source>
-+    <translation>Contraseña de root: </translation>
-+  </message>
-+  <message>
-+    <source>[not yet set]</source>
-+    <translation>[aún no definido]</translation>
++    <source>Ignore</source>
++    <translation>Ignorar</translation>
 +  </message>
 +</context>
 +<context>
@@ -1140,6 +562,612 @@
 +  <message>
 +    <source>Save console output to:</source>
 +    <translation>Guardar salida de consola en:</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Volver</translation>
++  </message>
++  <message>
++    <source>The screen lock is a low-security deterrence against casual passers-by, but it will not provide a strong defense against sophisticated attackers.&lt;br&gt;&lt;br&gt;If the printer is connected to a network, you will still be able to print over the network when the screen is locked.</source>
++    <translation>El salvapantallas es una disuasión de baja seguridad contra los transeúntes casuales, pero no servirá como defensa contra los atacantes sofisticados.&lt;br&gt;&lt;br&gt;Si la impresora está conectada a la red, podrá imprimir sobre la red cuando la pantalla esté bloqueada.</translation>
++  </message>
++  <message>
++    <source>2 minutes</source>
++    <translation>2 minutos</translation>
++  </message>
++  <message>
++    <source>5 minutes</source>
++    <translation>5 minutos</translation>
++  </message>
++  <message>
++    <source>10 minutes</source>
++    <translation>10 minutos</translation>
++  </message>
++  <message>
++    <source>15 minutes</source>
++    <translation>15 minutos</translation>
++  </message>
++  <message>
++    <source>Time before display sleeps</source>
++    <translation>Tiempo antes de que la pantalla duerme</translation>
++  </message>
++  <message>
++    <source>Lock screen mode</source>
++    <translation>Bloqueo de pantalla</translation>
++  </message>
++  <message>
++    <source>Screen saver only</source>
++    <translation>Sólo salvapantallas</translation>
++  </message>
++  <message>
++    <source>Swipe to unlock</source>
++    <translation>Desliza el dedo para desbloquear</translation>
++  </message>
++  <message>
++    <source>Passcode</source>
++    <translation>Código de acceso</translation>
++  </message>
++  <message>
++    <source>Passcode: "%1"</source>
++    <translation>Código de acceso: "%1"</translation>
++  </message>
++  <message>
++    <source>Passcode is unset</source>
++    <translation>El código de acceso no está establecido</translation>
++  </message>
++  <message>
++    <source>Passcode set to "%1"</source>
++    <translation>Código de acceso establecido en "%1"</translation>
++  </message>
++  <message>
++    <source>Change passcode</source>
++    <translation>Cambiar código</translation>
++  </message>
++  <message>
++    <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
++    <translation>Puede añadir texto personalizado o una imagen de fondo a la pantalla de bloqueo colocando un archivo de texto o una imagen en estas rutas:&lt;br&gt;&lt;br&gt;&lt;b&gt;Texto&lt;/b&gt;: /x1plus/lockscreen. xt&lt;br&gt;&lt;b&gt;Imagen&lt;/b&gt;: /x1plus/lockscreen.png</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time.</source>
++    <translation>Para instalar una nueva versión del firmware personalizado, copia el nuevo archivo x1p a la raíz de la tarjeta SD, encendida la impresora, y seleccione el instalador al momento de arrancar.</translation>
++  </message>
++  <message>
++    <source>This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card.</source>
++    <translation>Este firmware personalizado se ha cargado además de la versión errónea de firmware base de Bambu Lab. Es posible que la impresora no funcione correctamente. Reinstala el firmware personalizado en la tarjeta microSD.</translation>
++  </message>
++  <message>
++    <source>X1Plus Firmware</source>
++    <translation>Firmware X1Plus</translation>
++  </message>
++  <message>
++    <source>Bambu Lab base firmware</source>
++    <translation>Firmware base de Bambu Lab</translation>
++  </message>
++  <message>
++    <source>Install %1</source>
++    <translation>Instalar %1</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Volver</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Serial number&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Número Serial&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Versión de hardware&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Firmware version&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Versión de Firmware&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recommended: %1&lt;/i&gt;&lt;/font&gt;)</source>
++    <translation> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recomendado: %1&lt;/i&gt;&lt;/font&gt;)</translation>
++  </message>
++  <message>
++    <source>This component has the recommended firmware version installed.</source>
++    <translation>Este componente tiene la versión de firmware recomendada.</translation>
++  </message>
++  <message>
++    <source>This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?</source>
++    <translation>La versión de firmware de este componente no coincide con la versión de firmware del sistema en ejecución. Es posible que la impresión no sea fiable. ¿Instalar nuevo firmware ahora?</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Download base firmware</source>
++    <translation>Descargar firmware base</translation>
++  </message>
++  <message>
++    <source>Download update</source>
++    <translation>Descargar actualización</translation>
++  </message>
++  <message>
++    <source>Install update</source>
++    <translation>Instalar actualización</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Volver</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Current X1Plus version&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Versión actual de X1Plus&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source>Checking for X1Plus updates is enabled.</source>
++    <translation>La opción «Buscar actualizaciones de X1Plus» está activada.</translation>
++  </message>
++  <message>
++    <source>Checking for X1Plus updates is disabled.</source>
++    <translation>La opción «Buscar actualizaciones de X1Plus» está desactivada.</translation>
++  </message>
++  <message>
++    <source>&lt;i&gt;Checking for updates...&lt;/i&gt;</source>
++    <translation>&lt;i&gt;Buscando actualizaciones...&lt;/i&gt;</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Last checked for updates&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;Fecha de la última comprobación de actualizaciones&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source>&lt;i&gt;Most recent check for updates failed.  Check your network connection.&lt;/i&gt;</source>
++    <translation>&lt;i&gt;Ha fallado la comprobación de actualizaciones más reciente.  Compruebe su conexión de red&lt;/i&gt;</translation>
++  </message>
++  <message>
++    <source>You are running the newest version of X1Plus.</source>
++    <translation>Está ejecutando la versión más reciente de X1Plus.</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;New X1Plus version %1&lt;/b&gt; is available!</source>
++    <translation>&lt;b&gt;Ya está disponible la nueva versión %1&lt;/b&gt; de X1Plus!</translation>
++  </message>
++  <message>
++    <source>X1Plus update download in progress (%1).</source>
++    <translation>Descarga de actualización de X1Plus en curso (%1).</translation>
++  </message>
++  <message>
++    <source>X1Plus update %1download complete%2.</source>
++    <translation>X1Plus actualiza %1descarga completada%2.</translation>
++  </message>
++  <message>
++    <source>X1Plus update has not been downloaded.</source>
++    <translation>No se ha descargado la actualización del X1Plus.</translation>
++  </message>
++  <message>
++    <source>Base firmware download in progress (%1).</source>
++    <translation>Descargando el firmware base (%1).</translation>
++  </message>
++  <message>
++    <source>Base firmware %1download complete%2.</source>
++    <translation>Firmware base %1descarga completa%2.</translation>
++  </message>
++  <message>
++    <source>Base firmware has not been downloaded, but downloading it from Bambu Lab servers is enabled.</source>
++    <translation>El firmware base no se ha descargado, pero la descarga desde los servidores de Bambu Lab está activada.</translation>
++  </message>
++  <message>
++    <source>Base firmware has not been downloaded, and downloading it is disabled.</source>
++    <translation>El firmware base no se ha descargado, pero la descarga desde los servidores de Bambu Lab está desactivada.</translation>
++  </message>
++  <message>
++    <source>&lt;i&gt;Last download failed: %1&lt;/i&gt;</source>
++    <translation>&lt;i&gt;La última descarga falló: %1&lt;/i&gt;</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Download %1</source>
++    <translation>Descargar %1</translation>
++  </message>
++  <message>
++    <source>Install %1</source>
++    <translation>Instalar %1</translation>
++  </message>
++  <message>
++    <source>Cancel</source>
++    <translation>Cancelar</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Volver</translation>
++  </message>
++  <message>
++    <source>%1 update %2</source>
++    <translation>Actualización %1 %2</translation>
++  </message>
++  <message>
++    <source>Version %1 does not exist on the SD card. Download it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
++    <translation>La versión %1 no existe en la tarjeta SD. ¿Descargarlo ahora?&lt;br&gt;&lt;br&gt;Esto requiere una conexión activa a Internet y se conectará a los servidores de Bambu Lab.</translation>
++  </message>
++  <message>
++    <source>Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
++    <translation>La versión %1 no existe en la tarjeta SD. ¿Descargarlo ahora?&lt;br&gt;&lt;br&gt;Esto requiere una conexión activa a Internet y se conectará a los servidores de Bambu Lab.</translation>
++  </message>
++  <message>
++    <source>Downloading version %1 from Bambu Lab: %2</source>
++    <translation>Descargando la versión %1 de Bambu Lab: %2</translation>
++  </message>
++  <message>
++    <source>Version %1 is available on the SD card and ready to install. Install it now?</source>
++    <translation>La versión %1 está disponible en la tarjeta SD y lista para instalar. ¿Instalar ahora?</translation>
++  </message>
++  <message>
++    <source>Installing version %1.  Do not power off your printer.</source>
++    <translation>Instalando la versión %1. No apague la impresora.</translation>
++  </message>
++  <message>
++    <source>Successfully installed version %1.</source>
++    <translation>Versión instalada con éxito %1.</translation>
++  </message>
++  <message>
++    <source>Version %1 failed to install. Consider trying again, or power cycling your printer.</source>
++    <translation>La versión %1 no se pudo instalar. Considere intentarlo de nuevo, o reinicie la impresora.</translation>
++  </message>
++  <message>
++    <source> (Updater message "%1".)</source>
++    <translation> (Mensaje del actualizador "%1".)</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>Paso 1:</translation>
++  </message>
++  <message>
++    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
++    <translation>Ajuste los tornillos de la cama a su ajuste de tensión de base, como se describe en la sección "Prepare para nivelar la cama" de la wiki Bambu Lab.  (Un enlace de código QR se da en la parte inferior de este texto)</translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>Paso 2:</translation>
++  </message>
++  <message>
++    <source>Tap the "Prepare" button below to home the bed.</source>
++    <translation>Pulse el botón "Preparar" para volver a casa la cama.</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>Paso 3:</translation>
++  </message>
++  <message>
++    <source>Tap the "1" button to move the nozzle to the front left position.  Adjust the front left bed adjustment screw until the nozzle just barely touches the bed.</source>
++    <translation>Pulse el botón "1" para mover la boquilla a la posición delantera izquierda. Ajuste el tornillo de ajuste de la cama delantera izquierda hasta que la boquilla casi no toque la cama.</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>Paso 4:</translation>
++  </message>
++  <message>
++    <source>Adjust the front right and rear positions by tapping their corresponding button and adjusting their corresponding screws.</source>
++    <translation>Ajuste los otros dos tornillos pulsando su botón respectivo y ajustando sus tornillos correspondientes.</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>Paso 5:</translation>
++  </message>
++  <message>
++    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
++    <translation>Compruebe cada posición secuencialmente, repitiendo las tres hasta que no se necesite ningunos cambios.</translation>
++  </message>
++  <message>
++    <source>Bed Tramming</source>
++    <translation>Tranvía de impresora</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>Preparación</translation>
++  </message>
++  <message>
++    <source>Rear
++   2</source>
++    <translation>Posterior 
++   2</translation>
++  </message>
++  <message>
++    <source>Front L
++     1</source>
++    <translation>Frente Izq
++     1</translation>
++  </message>
++  <message>
++    <source>Front R
++     3</source>
++    <translation>Frente dcha
++     3</translation>
++  </message>
++</context>
++<context>
++  <name>MeshCalcs</name>
++  <message>
++    <source>Your hotbed appears not to be level. Try tramming the bed.</source>
++    <translation>Parece que tu cama no es de nivel. Prueba a atrapar la cama.</translation>
++  </message>
++  <message>
++    <source>Your hotbed appears reasonably level, but may be warped.</source>
++    <translation>La cama parece razonablemente nivel, pero puede ser deformado.</translation>
++  </message>
++  <message>
++    <source>Your hotbed appears to be flat and level.</source>
++    <translation>La cama parece ser plana y de nivel.</translation>
++  </message>
++</context>
++<context>
++  <name>VibrationCompPlotter</name>
++  <message>
++    <source>Are you sure you want to remove the data entry from %1?</source>
++    <translation>¿Estás seguro dé que quieres borrar la entrada dé datos dé %1?</translation>
++  </message>
++  <message>
++    <source>X axis</source>
++    <translation>Eje X</translation>
++  </message>
++  <message>
++    <source>Y axis</source>
++    <translation>Eje Y</translation>
++  </message>
++  <message>
++    <source>Frequency Response Plot: </source>
++    <translation>Gráfico de Respuesta de Frecuencia: </translation>
++  </message>
++</context>
++<context>
++  <name>SelectX1pPage</name>
++  <message>
++    <source>X1Plus custom firmware installation</source>
++    <translation>Instalación de firmware personalizada de X1Plus</translation>
++  </message>
++  <message>
++    <source>Select a firmware bundle to install:</source>
++    <translation>Seleccione un paquete de firmware para instalar:</translation>
++  </message>
++  <message>
++    <source>No .x1p files found on SD card.</source>
++    <translation>No hay archivos .x1p en la micro SD.</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Custom firmware version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Bambu Lab base firmware version:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Build date:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;Release notes:&lt;/b&gt; %4</source>
++    <translation>&lt;b&gt;Versión de firmware personalizada:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Versión de firmware base de Bambu Lab:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Fecha de construcción:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;notas de lanzamiento:&lt;/b&gt; %4</translation>
++  </message>
++  <message>
++    <source>No custom firmware installation bundles found on SD card. Copy a &lt;b&gt;.x1p&lt;/b&gt; file to the SD card and try again.</source>
++    <translation>No se han encontrado archivos de instalación de firmware personalizado en la tarjeta SD. Copie un archivo &lt;b&gt;.x1p&lt;/b&gt; en la tarjeta SD y reinicie.</translation>
++  </message>
++  <message>
++    <source>Are you sure you're ready to install the X1Plus custom firmware?&lt;br&gt;&lt;br&gt;While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.&lt;br&gt;&lt;br&gt;Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.</source>
++    <translation>¿Estás seguro de que estás preparado para instalar el firmware personalizado de X1Plus?&lt;br&gt;&lt;br&gt;Aunque hemos hecho la instalación fiable, siempre existen riesgos asociados a la modificación de tu impresora. X1Plus no viene con NINGUNA GARANTÍA, EXPRESA O IMPLÍCITA, y al instalarlo, usted acepta que usted y sólo usted es responsable del riesgo de daños a su impresora, o sus alrededores.&lt;br&gt;&lt;br&gt;Una vez que comience el proceso de instalación, no' toque su impresora hasta que se complete. La instalación puede durar hasta 10 minutos (o más, dependiendo de la velocidad de la conexión a la red).</translation>
++  </message>
++  <message>
++    <source>Yes! Install X1Plus!</source>
++    <translation>¡Sí! ¡Instala X1Plus!</translation>
++  </message>
++  <message>
++    <source>Er, never mind</source>
++    <translation>Er, no importa</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLock</name>
++  <message>
++    <source>Enter passcode.</source>
++    <translation>Introducir código.</translation>
++  </message>
++  <message>
++    <source>Enter passcode: %1</source>
++    <translation>Introducir código: %1</translation>
++  </message>
++  <message>
++    <source>This printer is locked.</source>
++    <translation>Esta impresora está cerrado.</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>%1: Device Info</source>
++    <translation>%1: Información del dispositivo</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>Volver</translation>
++  </message>
++  <message>
++    <source>Printer serial number: </source>
++    <translation>Número de serie de impresora: </translation>
++  </message>
++  <message>
++    <source>Total print time: </source>
++    <translation>Tiempo de impresión total: </translation>
++  </message>
++  <message>
++    <source>%1 hours</source>
++    <translation>%1 horas</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>restablecer</translation>
++  </message>
++  <message>
++    <source>Lead screws last lubricated: </source>
++    <translation>Tornillos de plomo lubricados: </translation>
++  </message>
++  <message>
++    <source>ASA carbon rod maintenance timer: </source>
++    <translation>Temporizador de mantenimiento de barras de carbono ASA: </translation>
++  </message>
++  <message>
++    <source>ABS carbon rod maintenance timer: </source>
++    <translation>Temporizador de mantenimiento de barras de carbono ABS: </translation>
++  </message>
++  <message>
++    <source>Bed mesh calibrated: </source>
++    <translation>Malla de cama calificada: </translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibrated: </source>
++    <translation>Compensación por vibración calificada: </translation>
++  </message>
++  <message>
++    <source>AMS total length: </source>
++    <translation>Longitud total del AMS: </translation>
++  </message>
++  <message>
++    <source>%1 meters</source>
++    <translation>%1 metros</translation>
++  </message>
++  <message>
++    <source>AMS total print time: </source>
++    <translation>Tiempo de impresión total: </translation>
++  </message>
++  <message>
++    <source>AMS total filament switches: </source>
++    <translation>Cambios de filamentos de AMS: </translation>
++  </message>
++  <message>
++    <source>AMS total failed filament switches: </source>
++    <translation>Cambios de filamento fallidos: </translation>
++  </message>
++  <message>
++    <source>Tray %1 print time: </source>
++    <translation>Bandeja %1 tiempo de impresión total: </translation>
++  </message>
++  <message>
++    <source>Tray %1 filament switches: </source>
++    <translation>Bandeja %1 cambios de filamento: </translation>
++  </message>
++  <message>
++    <source>Tray %1 failed filament switches: </source>
++    <translation>Bandeja %1 cambios de filamento fallidos: </translation>
++  </message>
++  <message>
++    <source>Tray %1 print length: </source>
++    <translation>Bandeja %1 longitud total de impresión: </translation>
++  </message>
++  <message>
++    <source>%1 - print time: </source>
++    <translation>%1 - tiempo de impresión total: </translation>
++  </message>
++  <message>
++    <source>%1 - print length: </source>
++    <translation>%1 - longitud total de impresión: </translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>Volver</translation>
++  </message>
++  <message>
++    <source>X1Plus allows you to connect to your printer over your local network, not only using the slicer.  For your security, only enable services that you plan to use.</source>
++    <translation>X1Plus le permite conectarse a su impresora a través de su red local, no sólo utilizando el corte. Por su seguridad, active únicamente los servicios que tenga previsto utilizar.</translation>
++  </message>
++  <message>
++    <source>LAN access code</source>
++    <translation>Código de acceso LAN</translation>
++  </message>
++  <message>
++    <source>RTSP server (LAN-only live view) is enabled.</source>
++    <translation>El servidor RTSP (sólo vista en vivo LAN) está activado.</translation>
++  </message>
++  <message>
++    <source>RTSP server (LAN-only live view) is disabled.</source>
++    <translation>El servidor RTSP (sólo LAN) está desactivado.</translation>
++  </message>
++  <message>
++    <source>VNC server (remote desktop) is enabled.</source>
++    <translation>Servidor VNC (escritorio remoto) está activado.</translation>
++  </message>
++  <message>
++    <source>VNC server (remote desktop) is disabled.</source>
++    <translation>Servidor VNC (escritorio remoto) está desactivado.</translation>
++  </message>
++  <message>
++    <source>The VNC password is set to the LAN access code.</source>
++    <translation>La contraseña VNC está configurada con el código de acceso a la LAN.</translation>
++  </message>
++  <message>
++    <source>The VNC password is disabled.  Be careful!</source>
++    <translation>La contraseña de VNC está desactivada. ¡Tenga cuidado!</translation>
++  </message>
++  <message>
++    <source>The VNC password has been customized through the X1Plus command-line, and is not shown here.</source>
++    <translation>La contraseña VNC ha sido personalizada a través de la línea de comandos X1Plus, y no se muestra aquí.</translation>
++  </message>
++  <message>
++    <source>SSH server (remote command line) is enabled.</source>
++    <translation>El servidor SSH (línea de comandos remota) está activado.</translation>
++  </message>
++  <message>
++    <source>SSH server (remote command line) is disabled.</source>
++    <translation>El servidor SSH (línea de comandos remota) está desactivado.</translation>
++  </message>
++  <message>
++    <source>Root password: </source>
++    <translation>Contraseña de root: </translation>
++  </message>
++  <message>
++    <source>[not yet set]</source>
++    <translation>[aún no definido]</translation>
++  </message>
++</context>
++<context>
++  <name>KexecDialog</name>
++  <message>
++    <source>Start from SD card</source>
++    <translation>Arranque X1Plus desde la micro SD</translation>
++  </message>
++  <message>
++    <source>Startup options...</source>
++    <translation>Opciones de inicio...</translation>
++  </message>
++  <message>
++    <source>Bootable SD card detected.</source>
++    <translation>Tarjeta SD de arranque detectada.</translation>
++  </message>
++  <message>
++    <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
++    <translation>Tu impresora arrancará automáticamente desde la tarjeta SD en %1 segundos.</translation>
++  </message>
++  <message>
++    <source>Your printer is rebooting into the OS on the inserted SD card.</source>
++    <translation>Tu impresora está reiniciando el sistema operativo en la tarjeta SD insertada.</translation>
++  </message>
++  <message>
++    <source>Install update</source>
++    <translation>Instalar actualización</translation>
++  </message>
++  <message>
++    <source>X1Plus update ready to install.</source>
++    <translation>Actualización de X1Plus lista para instalar.</translation>
++  </message>
++  <message>
++    <source>Automatically installing X1Plus version %1 in %2 seconds. To cancel or skip installation, use the startup options menu.</source>
++    <translation>Instalación automática de la versión %1 de X1Plus en %2 segundos. Para cancelar u omitir la instalación, utilice el menú de opciones de inicio.</translation>
++  </message>
++  <message>
++    <source>Starting installation of X1Plus version %1.</source>
++    <translation>Iniciando la instalación de X1Plus versión %1.</translation>
++  </message>
++  <message>
++    <source>No bootable SD card detected.</source>
++    <translation>No se ha detectado ninguna tarjeta SD de arranque.</translation>
++  </message>
++  <message>
++    <source>Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.</source>
++    <translation>Inserte una tarjeta SD de arranque y reinicie la impresora, o utilice el menú de opciones de inicio para reparar la instalación de X1Plus.</translation>
 +  </message>
 +</context>
  </TS>
