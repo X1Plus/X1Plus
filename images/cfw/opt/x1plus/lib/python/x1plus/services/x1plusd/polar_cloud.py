@@ -6,6 +6,9 @@ import asyncio
 import logging
 import os
 import socketio
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+from base64 import b64encode
 
 import x1plus
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
@@ -143,7 +146,6 @@ class PolarPrintService:
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
             self.polar_sn = response["serialNumber"]
-            await self.polar_settings.put("polar_sn", response["serialNumber"])
 
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
@@ -245,10 +247,10 @@ class PolarPrintService:
         username and PIN don't keep being requested and printer doesn't reregister.
         """
         if response["serialNumber"] == self.polar_settings.get("polar.sn"):
-            self.polar_settings.put("polar.sn", "")
-            self.polar_settings.put("polar.username", "")
-            self.polar_settings.put("polar.public_key", "")
-            self.polar_settings.put("polar.private_key", "")
+            self.sn = ""
+            self.username = ""
+            self.public_key = ""
+            self.private_key = ""
             self.pin = ""
             self.mac = ""
             self.username = ""
