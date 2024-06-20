@@ -4,7 +4,6 @@ Module to allow printing using Polar Cloud service.
 
 import asyncio
 import logging
-import os
 import socketio
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
@@ -45,10 +44,7 @@ class PolarPrintService:
         self.socket = socketio.AsyncClient()
         self.set_interface()
         await self.get_creds()
-        connect_task = asyncio.create_task(
-            self.socket.connect(self.server_url, transports=["websocket"])
-        )
-        await connect_task
+        await self.socket.connect(self.server_url, transports=["websocket"])
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -76,7 +72,7 @@ class PolarPrintService:
             hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
             key = pkcs1_15.new(rsa_key)
             data = {
-                "serialNumber": self.polar_settings.get("polar.sn", ""),
+                "serialNumber": self.polar_settings.get("polar.sn"), # Don't need a default here.
                 "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
@@ -120,7 +116,7 @@ class PolarPrintService:
             logger.info("Polar Cloud connected.")
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
-            # Send error to interface.
+            # Todo: send error to interface.
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
@@ -146,7 +142,7 @@ class PolarPrintService:
     async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
         Get register response from status server and save serial number.
-        When this fn is finished printer will be ready to receive print calls.
+        When this fn finishes, printer will be ready to receive print calls.
         """
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
@@ -266,10 +262,10 @@ class PolarPrintService:
             # dotenv isn't installed, so just open the .env file and parse it.
             # This means that .env file must formatted correctly, with var names
             # `username` and `pin`.
-            import inspect
+            from pathlib import Path
 
-            env_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-            with open(os.path.join(env_dir, ".env")) as env:
+            env_dir = Path(__file__).resolve()
+            with open(env_dir.parents[0] / ".env") as env:
                 for line in env:
                     k, v = line.split("=")
                     setattr(self, k, v.strip())
