@@ -220,10 +220,10 @@ Rectangle {
             }
         }
     }
-
+    
     Component {
         id: statusComp
-
+        
         Rectangle {
             property var modelText: modelData[0]
             property var modelEnabled: modelData[1]
@@ -233,14 +233,14 @@ Rectangle {
             height: 77
             radius: 10
             color: handler.active ? Colors.gray_500 : "transparent"
-
+            
             ZLineSplitter {
                 alignment: Qt.AlignTop
                 padding: 55
                 color: Colors.gray_400
                 visible: index > 0
             }
-
+            
             /*Rectangle {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
@@ -248,7 +248,7 @@ Rectangle {
                 height: 1
                 color: "#ffffff"
             }*/
-
+            
             Item {
                 anchors.top: parent.top
                 height: parent.height

@@ -28,8 +28,9 @@ def get_MAC() -> str:
 
 
 def get_IP() -> str:
-    """Return the IP address of the printer."""
-    if is_emulating():
-        return "192.168.2.113"
-    hostname = subprocess.run(["hostname", "-I"], capture_output=True)
-    return hostname.stdout.decode().split(" ")[0]
+    """Return the IP address of the printer. This is currently on hold."""
+    pass
+    # if is_emulating():
+    #     return "192.168.2.113"
+    # hostname = subprocess.run(["hostname", "-I"], capture_output=True)
+    # return hostname.stdout.decode().split(" ")[0]
