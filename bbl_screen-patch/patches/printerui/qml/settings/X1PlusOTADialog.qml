@@ -10,9 +10,8 @@ import "../X1Plus.js" as X1Plus
 Item {
     property alias name: textConfirm.objectName
     property var currentVersion: screenSaver.cfwVersions['cfw']['version']
-    property var isShield: DeviceManager.getSetting("cfw_shield", false)
     property var ota: X1Plus.OTA.status()
-    property var otaEnabled: !!X1Plus.Settings.get("ota.enabled", true) && !isShield
+    property var otaEnabled: !!X1Plus.Settings.get("ota.enabled", false)
     property var downloadBaseFirmware: true /* wire up to switch */
     property var otaBusy: ota.status != 'IDLE' && ota.status != 'DISABLED'
     property var progressString: `${(ota.download.bytes / 1048576).toFixed(2)} MB / ${(ota.download.bytes_total / 1048576).toFixed(2)} MB`
@@ -51,12 +50,12 @@ Item {
     id: textConfirm
     width: 960
     height: layout.height
-    
+
     RowLayout {
         id: layout
         width: 960
         spacing: 0
-        
+
         Image {
             id: moduleIcon
             Layout.preferredWidth: 128
@@ -66,7 +65,7 @@ Item {
             fillMode: Image.PreserveAspectFit
             source: "../../icon/components/cfw.png"
         }
-        
+
         GridLayout {
             rowSpacing: 6
             columnSpacing: 12
@@ -74,7 +73,7 @@ Item {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.maximumWidth: 1000
-            
+
             Text {
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
@@ -85,7 +84,7 @@ Item {
                 text: "X1Plus updates"
             }
 
-            
+
             Text {
                 Layout.fillWidth: true
                 font: Fonts.body_26
@@ -95,20 +94,19 @@ Item {
                 Layout.bottomMargin: 16
                 text: qsTr("<b>Current X1Plus version</b>: %1").arg(currentVersion)
             }
-            
+
             Text {
                 Layout.fillWidth: true
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                text: isShield ? qsTr("X1Plus cannot check for updates while the printer is in Shield Mode.") :
-                      otaEnabled ? qsTr("Checking for X1Plus updates is enabled.") : qsTr("Checking for X1Plus updates is disabled.")
+                text: otaEnabled ? qsTr("Checking for X1Plus updates is enabled.") : qsTr("Checking for X1Plus updates is disabled.")
                 Layout.columnSpan: otaBusy ? 2 : 1
             }
-            
+
             ZSwitchButton {
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                visible: !otaBusy && !isShield
+                visible: !otaBusy
                 dynamicChecked: otaEnabled
                 onToggled: {
                     X1Plus.Settings.put("ota.enabled", checked)
@@ -125,9 +123,9 @@ Item {
                 color: Colors.gray_300
                 visible: otaEnabled
             }
-            
+
             /*** Last update check ***/
-            
+
             Text {
                 text: qsTr("<i>Checking for updates...</i>")
                 font: Fonts.body_26
@@ -135,7 +133,7 @@ Item {
                 wrapMode: Text.Wrap
                 visible: otaEnabled && ota.status == 'CHECKING_OTA'
             }
-            
+
             Text {
                 text: qsTr("<b>Last checked for updates</b>: %1").arg(new Date(ota.last_checked * 1000).toLocaleString(undefined, {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'}))
                 font: Fonts.body_26
@@ -143,7 +141,7 @@ Item {
                 wrapMode: Text.Wrap
                 visible: otaEnabled && ota.status != 'CHECKING_OTA'
             }
-            
+
             ZButton {
                 id: refreshBtn
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -160,7 +158,7 @@ Item {
                 onClicked: {
                     X1Plus.OTA.checkNow()
                 }
-                
+
                 RotationAnimation {
                     id: rotationId
                     target: refreshBtn.iconItem
@@ -173,7 +171,7 @@ Item {
                     running: ota.status == 'CHECKING_OTA'
                 }
             }
-            
+
             Text {
                 text: qsTr("<i>Most recent check for updates failed.  Check your network connection.</i>")
                 font: Fonts.body_26
@@ -182,9 +180,9 @@ Item {
                 visible: otaEnabled && ota.err_on_last_check
                 Layout.columnSpan: 2
             }
-            
+
             /*** New OTA available ***/
-            
+
             Text {
                 text: qsTr("You are running the newest version of X1Plus.")
                 font: Fonts.body_26
@@ -194,7 +192,7 @@ Item {
                 visible: otaEnabled && !ota.ota_available
                 Layout.columnSpan: 2
             }
-            
+
             Text {
                 text: qsTr("<b>New X1Plus version %1</b> is available!").arg((ota.ota_info || {}).cfwVersion)
                 font: Fonts.body_26
@@ -204,8 +202,8 @@ Item {
                 visible: otaEnabled && ota.ota_available
                 Layout.columnSpan: 2
             }
-            
-            
+
+
             Text {
                 text: ota.status == 'DOWNLOADING_X1P' ? qsTr("X1Plus update download in progress (%1).").arg(progressString) :
                       ota.ota_is_downloaded ?
@@ -240,7 +238,7 @@ Item {
                 }
                 visible: otaEnabled && ota.ota_available && !(ota.ota_base_is_downloaded || ota.status == 'DOWNLOADING_BASE')
             }
-            
+
             Text {
                 text: qsTr("<i>Last download failed: %1</i>").arg(ota.download.last_error)
                 font: Fonts.body_26

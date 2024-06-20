@@ -5,16 +5,12 @@ Module to allow printing using Polar Cloud service.
 import asyncio
 import logging
 import os
-import subprocess
 import socketio
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
-from typing import Dict
 
-
-# from x1plusd.dbus import
 import x1plus
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
 
@@ -39,7 +35,8 @@ class PolarPrintService:
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
-        # self.polar_settings.on("polarprint.enabled", self._startstop())
+        self.polar_settings = settings
+        # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
 
@@ -52,7 +49,7 @@ class PolarPrintService:
             self.socket.connect(self.server_url, transports=["websocket"])
         )
         await connect_task
-        # Assign socket callbacks
+        # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
