@@ -70,7 +70,7 @@
 +    
 +    property var newX1pOtaAvailable: X1Plus.OTA.status()['ota_available']
 +    property var newX1pOtaDidKvetch: false
-+    property var newX1pOtaShouldKvetch: newX1pOtaAvailable && !newX1pOtaDidKvetch
++    property var newX1pOtaShouldKvetch: newX1pOtaAvailable && !newX1pOtaDidKvetch && !DeviceManager.getSetting("cfw_shield", false)
 +    onNewX1pOtaShouldKvetch: {
 +        if (!updater.hasPendingNotify)
 +            return
