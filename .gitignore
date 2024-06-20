@@ -3,8 +3,12 @@ __pycache__
 localconfig.mk
 installer/info.json
 bbl_screen-patch/interpose.moc.h
+.env
 
 # Build artifacts
 *.x1p
 bbl_screen-patch/printer_ui.so.xdelta
 ota.json
+
+# MacOS metadata
+.DS_Store
