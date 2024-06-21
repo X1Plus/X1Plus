@@ -32,7 +32,7 @@ class PolarPrintService:
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
-        self.registered = False # If True ignore welcome responses.
+        self.registered = False  # If True ignore welcome requests.
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
         # status_task_awake is for awaits between status updates to server.
@@ -78,7 +78,9 @@ class PolarPrintService:
             hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
             key = pkcs1_15.new(rsa_key)
             data = {
-                "serialNumber": self.polar_settings.get("polar.sn"), # Don't need a default here.
+                "serialNumber": self.polar_settings.get(
+                    "polar.sn"
+                ),  # Don't need a default here.
                 "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
@@ -104,7 +106,8 @@ class PolarPrintService:
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         elif not self.polar_settings.get("polar.sn", ""):
             # We already have a key: just register.
-            # Todo: I think there might be a race condition here.
+            # Todo: There might be a race condition here or maybe server is sending
+            # a lot of welcome requests. Dealt with it by adding self.registered.
             logger.info(f"_on_welcome Registering.")
             await self._register()
         else:
@@ -243,27 +246,21 @@ class PolarPrintService:
         14     Door open; unable to start or resume a print
         15     Clear build plate; unable to start a new print
         """
-        iteration = 0
+
         while True:
-            if not self.registered: break
+            if not self.registered:
+                break
             data = {
                 "serialNumber": self.serial_number(),
                 "status": 0,
             }
-            await self.socket.emit("status", data)
             logger.info(f"Status update {datetime.datetime.now()}")
-            # iteration += 1
-            # if iteration == 3:
-            #     # So, once a minute.
-            #     logger.info("Status update")
-            #     iteration = 0
 
             try:
-                await asyncio.wait_for(self.status_task_wake.wait(), timeout = 20)
+                await asyncio.wait_for(self.status_task_wake.wait(), timeout=20)
             except asyncio.TimeoutError:
                 pass
             self.status_task_wake.clear()
-
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
