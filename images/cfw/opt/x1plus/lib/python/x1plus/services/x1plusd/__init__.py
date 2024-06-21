@@ -23,7 +23,7 @@ async def main():
     asyncio.create_task(ota.task())
     if settings.get("polar_cloud", True):
         from .polar_cloud import PolarPrintService
-        polar_cloud = PolarPrintService(settings=settings)
-        asyncio.create_task(polar_cloud.begin())
+        polar_cloud = PolarPrintService(router=router, settings=settings)
+        asyncio.create_task(polar_cloud.task())
 
     logger.info("x1plusd is running")
