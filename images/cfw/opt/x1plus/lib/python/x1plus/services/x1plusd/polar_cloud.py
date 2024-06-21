@@ -32,9 +32,11 @@ class PolarPrintService:
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
+        self.registered = False # If True ignore welcome responses.
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
-        self.polar_settings = settings
+        # status_task_awake is for awaits between status updates to server.
+        self.status_task_wake = asyncio.Event()
         # Todo: Fix two "on" fn calls below.
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
@@ -62,6 +64,8 @@ class PolarPrintService:
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
+        if self.registered:
+            return
         if self.polar_settings.get("polar.sn", "") and self.polar_settings.get(
             "polar.private_key", ""
         ):
@@ -114,9 +118,12 @@ class PolarPrintService:
         If printer is previously registered, a successful hello response means
         the printer is connected and ready to print.
         """
+        if self.registered:
+            return
         if response["status"] == "SUCCESS":
             logger.info("_on_hello_response success")
             logger.info("Polar Cloud connected.")
+            self.registered = True
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Todo: send error to interface.
@@ -135,6 +142,7 @@ class PolarPrintService:
             logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
+            self.registered = False
             # After the next request the server will respond with `welcome`.
             logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
@@ -237,29 +245,24 @@ class PolarPrintService:
         """
         iteration = 0
         while True:
-            now = datetime.datetime.now()
-
-            # next_work = now + datetime.timedelta(seconds = 20) # Several times a minute.
-            await asyncio.wait_for(self._some_task(), timeout = 20)
+            if not self.registered: break
             data = {
                 "serialNumber": self.serial_number(),
                 "status": 0,
             }
-            await self.socket.emit("register", data)
-            iteration += 1
-            if iteration % 3 == 0:
-                # So once a minute
-                logger.info("Status update")
-                iteration = 0
-            pass
-            # if ota_enabled:
-            #     next_work = min((next_work, self.next_check_timestamp,))
+            await self.socket.emit("status", data)
+            logger.info(f"Status update {datetime.datetime.now()}")
+            # iteration += 1
+            # if iteration == 3:
+            #     # So, once a minute.
+            #     logger.info("Status update")
+            #     iteration = 0
 
-            # try:
-            #     await asyncio.wait_for(self.ota_task_wake.wait(), timeout = (next_work - now).total_seconds())
-            # except asyncio.TimeoutError:
-            #     pass
-            # self.ota_task_wake.clear()
+            try:
+                await asyncio.wait_for(self.status_task_wake.wait(), timeout = 20)
+            except asyncio.TimeoutError:
+                pass
+            self.status_task_wake.clear()
 
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
