@@ -3,6 +3,7 @@ Module to allow printing using Polar Cloud service.
 """
 
 import asyncio
+import datetime
 import logging
 import socketio
 from Crypto.PublicKey import RSA
@@ -33,8 +34,8 @@ class PolarPrintService:
         self.socket = None
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
-        # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
         self.polar_settings = settings
+        # Todo: Fix two "on" fn calls below.
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
@@ -66,6 +67,7 @@ class PolarPrintService:
         ):
             logger.debug(f"challenge: {response['challenge']}")
             # The printer has been registered.
+            # Remember that "polar.sn" is the serial number assigned by the server.
             # First, encode challenge string with the private key.
             private_key = self.polar_settings.get("polar.private_key").encode("utf-8")
             rsa_key = RSA.import_key(private_key)
@@ -98,6 +100,7 @@ class PolarPrintService:
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         elif not self.polar_settings.get("polar.sn", ""):
             # We already have a key: just register.
+            # Todo: I think there might be a race condition here.
             logger.info(f"_on_welcome Registering.")
             await self._register()
         else:
@@ -106,7 +109,7 @@ class PolarPrintService:
             logger.error("Somehow have an SN and no key.")
             exit()
 
-    def _on_hello_response(self, response, *args, **kwargs) -> None:
+    async def _on_hello_response(self, response, *args, **kwargs) -> None:
         """
         If printer is previously registered, a successful hello response means
         the printer is connected and ready to print.
@@ -117,6 +120,8 @@ class PolarPrintService:
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Todo: send error to interface.
+            exit()
+        await self._status()
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
@@ -142,7 +147,7 @@ class PolarPrintService:
     async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
         Get register response from status server and save serial number.
-        When this fn finishes, printer will be ready to receive print calls.
+        When this fn completes, printer will be ready to receive print calls.
         """
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
@@ -230,7 +235,32 @@ class PolarPrintService:
         14     Door open; unable to start or resume a print
         15     Clear build plate; unable to start a new print
         """
-        pass
+        iteration = 0
+        while True:
+            now = datetime.datetime.now()
+
+            # next_work = now + datetime.timedelta(seconds = 20) # Several times a minute.
+            await asyncio.wait_for(self._some_task(), timeout = 20)
+            data = {
+                "serialNumber": self.serial_number(),
+                "status": 0,
+            }
+            await self.socket.emit("register", data)
+            iteration += 1
+            if iteration % 3 == 0:
+                # So once a minute
+                logger.info("Status update")
+                iteration = 0
+            pass
+            # if ota_enabled:
+            #     next_work = min((next_work, self.next_check_timestamp,))
+
+            # try:
+            #     await asyncio.wait_for(self.ota_task_wake.wait(), timeout = (next_work - now).total_seconds())
+            # except asyncio.TimeoutError:
+            #     pass
+            # self.ota_task_wake.clear()
+
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
