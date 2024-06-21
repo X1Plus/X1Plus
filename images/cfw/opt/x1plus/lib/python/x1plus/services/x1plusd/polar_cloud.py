@@ -11,8 +11,8 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
 
+import x1plus
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
-from .dbus import X1PlusDBusService
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +34,11 @@ class PolarPrintService(X1PlusDBusService):
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
+        self.registered = False  # If True ignore welcome requests.
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
-        self.polar_settings = settings
+        # status_task_awake is for awaits between status updates to server.
+        self.status_task_wake = asyncio.Event()
         # Todo: Fix two "on" fn calls below.
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
@@ -45,10 +47,7 @@ class PolarPrintService(X1PlusDBusService):
             dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs
         )
 
-    def polar_enabled(self):
-        return bool(self.x1psettings.get("ota.enabled", False))
-
-    async def task(self):
+    async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
@@ -60,7 +59,6 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
         self.socket.on("delete", self._on_delete)
-
         await super().task()
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
@@ -72,6 +70,8 @@ class PolarPrintService(X1PlusDBusService):
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
+        if self.registered:
+            return
         if self.polar_settings.get("polar.sn", "") and self.polar_settings.get(
             "polar.private_key", ""
         ):
@@ -84,7 +84,9 @@ class PolarPrintService(X1PlusDBusService):
             hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
             key = pkcs1_15.new(rsa_key)
             data = {
-                "serialNumber": self.polar_settings.get("polar.sn"), # Don't need a default here.
+                "serialNumber": self.polar_settings.get(
+                    "polar.sn"
+                ),  # Don't need a default here.
                 "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
@@ -110,7 +112,8 @@ class PolarPrintService(X1PlusDBusService):
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         elif not self.polar_settings.get("polar.sn", ""):
             # We already have a key: just register.
-            # Todo: I think there might be a race condition here.
+            # Todo: There might be a race condition here or maybe server is sending
+            # a lot of welcome requests. Dealt with it by adding self.registered.
             logger.info(f"_on_welcome Registering.")
             await self._register()
         else:
@@ -119,19 +122,22 @@ class PolarPrintService(X1PlusDBusService):
             logger.error("Somehow have an SN and no key.")
             exit()
 
-    def _on_hello_response(self, response, *args, **kwargs) -> None:
+    async def _on_hello_response(self, response, *args, **kwargs) -> None:
         """
         If printer is previously registered, a successful hello response means
         the printer is connected and ready to print.
         """
+        if self.registered:
+            return
         if response["status"] == "SUCCESS":
             logger.info("_on_hello_response success")
             logger.info("Polar Cloud connected.")
+            self.registered = True
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Todo: send error to interface.
             exit()
-        self._status()
+        await self._status()
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
@@ -145,6 +151,7 @@ class PolarPrintService(X1PlusDBusService):
             logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
+            self.registered = False
             # After the next request the server will respond with `welcome`.
             logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
@@ -246,17 +253,19 @@ class PolarPrintService(X1PlusDBusService):
         15     Clear build plate; unable to start a new print
         """
         while True:
-            now = datetime.datetime.now()
-
-            next_work = now + datetime.timedelta(seconds = 20) # Several times a minute.
-            if ota_enabled:
-                next_work = min((next_work, self.next_check_timestamp,))
+            if not self.registered:
+                break
+            data = {
+                "serialNumber": self.serial_number(),
+                "status": 0,
+            }
+            logger.info(f"Status update {datetime.datetime.now()}")
 
             try:
-                await asyncio.wait_for(self.ota_task_wake.wait(), timeout = (next_work - now).total_seconds())
+                await asyncio.wait_for(self.status_task_wake.wait(), timeout=20)
             except asyncio.TimeoutError:
                 pass
-            self.ota_task_wake.clear()
+            self.status_task_wake.clear()
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
