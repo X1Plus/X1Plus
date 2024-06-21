@@ -3,6 +3,7 @@ Module to allow printing using Polar Cloud service.
 """
 
 import asyncio
+
 import datetime
 import logging
 import socketio
@@ -13,6 +14,7 @@ from base64 import b64encode
 
 import x1plus
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
+
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ class PolarPrintService:
         ignore this. Otherwise, must get a key pair, then call register.
         """
         logger.info("_on_welcome.")
+
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
@@ -165,7 +168,6 @@ class PolarPrintService:
             logger.debug(f"Serial number: {response['serialNumber']}")
             await self.polar_settings.put("polar.sn", response["serialNumber"])
             logger.info("Polar Cloud connected.")
-
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
             # Todo: deal with various failure modes here. Most can be dealt
@@ -246,7 +248,6 @@ class PolarPrintService:
         14     Door open; unable to start or resume a print
         15     Clear build plate; unable to start a new print
         """
-
         while True:
             if not self.registered:
                 break
