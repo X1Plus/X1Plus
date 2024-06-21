@@ -3,6 +3,7 @@ Module to allow printing using Polar Cloud service.
 """
 
 import asyncio
+import datetime
 import logging
 import socketio
 from Crypto.PublicKey import RSA
@@ -10,14 +11,16 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
 
-import x1plus
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
+from .dbus import X1PlusDBusService
 
 logger = logging.getLogger(__name__)
 
+POLAR_INTERFACE = "x1plus.polar"
+POLAR_PATH = "/x1plus/polar"
 
-class PolarPrintService:
-    def __init__(self, settings):
+class PolarPrintService(X1PlusDBusService):
+    def __init__(self, settings, **kwargs):
         """
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
@@ -33,13 +36,19 @@ class PolarPrintService:
         self.socket = None
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
-        # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
         self.polar_settings = settings
+        # Todo: Fix two "on" fn calls below.
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
+        super().__init__(
+            dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs
+        )
 
-    async def begin(self) -> None:
+    def polar_enabled(self):
+        return bool(self.x1psettings.get("ota.enabled", False))
+
+    async def task(self):
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
@@ -51,6 +60,8 @@ class PolarPrintService:
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
         self.socket.on("delete", self._on_delete)
+
+        await super().task()
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
@@ -66,6 +77,7 @@ class PolarPrintService:
         ):
             logger.debug(f"challenge: {response['challenge']}")
             # The printer has been registered.
+            # Remember that "polar.sn" is the serial number assigned by the server.
             # First, encode challenge string with the private key.
             private_key = self.polar_settings.get("polar.private_key").encode("utf-8")
             rsa_key = RSA.import_key(private_key)
@@ -98,6 +110,7 @@ class PolarPrintService:
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         elif not self.polar_settings.get("polar.sn", ""):
             # We already have a key: just register.
+            # Todo: I think there might be a race condition here.
             logger.info(f"_on_welcome Registering.")
             await self._register()
         else:
@@ -117,6 +130,8 @@ class PolarPrintService:
         else:
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Todo: send error to interface.
+            exit()
+        self._status()
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
@@ -142,7 +157,7 @@ class PolarPrintService:
     async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
         Get register response from status server and save serial number.
-        When this fn finishes, printer will be ready to receive print calls.
+        When this fn completes, printer will be ready to receive print calls.
         """
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
@@ -230,7 +245,18 @@ class PolarPrintService:
         14     Door open; unable to start or resume a print
         15     Clear build plate; unable to start a new print
         """
-        pass
+        while True:
+            now = datetime.datetime.now()
+
+            next_work = now + datetime.timedelta(seconds = 20) # Several times a minute.
+            if ota_enabled:
+                next_work = min((next_work, self.next_check_timestamp,))
+
+            try:
+                await asyncio.wait_for(self.ota_task_wake.wait(), timeout = (next_work - now).total_seconds())
+            except asyncio.TimeoutError:
+                pass
+            self.ota_task_wake.clear()
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
