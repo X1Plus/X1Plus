@@ -6,12 +6,13 @@ import asyncio
 import datetime
 import logging
 import socketio
+import time
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
 
-import x1plus
+from .dbus import X1PlusDBusService
 from x1plus.utils import get_MAC, get_IP, serial_number, is_emulating
 
 logger = logging.getLogger(__name__)
@@ -91,10 +92,10 @@ class PolarPrintService(X1PlusDBusService):
                 "MAC": self.mac,
                 "protocol": "2.0",
                 "mfgSn": self.serial_number(),
+                "printerMake": "Bambu Lab X1 Carbon",
             }
             """
             Note that the following optional fields might be used in future.
-            "printerMake": "printer make",                     // string, optional
             "version": "currently installed software version", // string, optional
             "localIP": "printer's local IP address",           // string, optional
             "rotateImg": 0 | 1,                                // integer, optional
@@ -256,16 +257,21 @@ class PolarPrintService(X1PlusDBusService):
             if not self.registered:
                 break
             data = {
-                "serialNumber": self.serial_number(),
+                "serialNumber": self.polar_settings.get("polar.sn"),
                 "status": 0,
             }
-            logger.info(f"Status update {datetime.datetime.now()}")
-
             try:
-                await asyncio.wait_for(self.status_task_wake.wait(), timeout=20)
-            except asyncio.TimeoutError:
-                pass
-            self.status_task_wake.clear()
+                await self.socket.emit("status", data)
+                logger.debug(f"status data {data}")
+                logger.info(f"Status update {datetime.datetime.now()}")
+            except Exception as e:
+                logger.error(f"emit status failed: {e}")
+            await asyncio.sleep(20)
+            # try:
+            #     await asyncio.wait_for(self.status_task_wake.wait(), timeout=50)
+            # except TimeoutError as e:
+            #     logger.error(e)
+            # self.status_task_wake.clear()
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """

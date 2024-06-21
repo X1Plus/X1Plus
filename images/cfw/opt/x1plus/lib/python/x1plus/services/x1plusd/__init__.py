@@ -21,7 +21,7 @@ async def main():
 
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
-    if settings.get("polar_cloud", False):
+    if settings.get("polar_cloud", True):
         from .polar_cloud import PolarPrintService
         polar_cloud = PolarPrintService(router=router, settings=settings)
         asyncio.create_task(polar_cloud.task())
