@@ -1,0 +1,2 @@
+#!/bin/sh
+LD_PRELOAD=/opt/x1plus/lib/netService_shim.so exec /usr/bin/netService "$@"
