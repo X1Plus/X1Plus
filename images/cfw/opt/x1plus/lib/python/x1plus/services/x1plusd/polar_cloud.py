@@ -35,6 +35,7 @@ class PolarPrintService(X1PlusDBusService):
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
+        self.status = 0 # Idle
         """
         last_ping will hold time of last ping, so we're not sending status
         more than once every 10 seconds.
@@ -73,7 +74,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("delete", self._on_delete)
         await super().task()
 
-    async def unregister(self);
+    async def unregister(self):
         """
         After a printer is deleted I'll need this in order to reregister it
         Later it'll be necessary for the interface, so I just added it now.
@@ -279,7 +280,7 @@ class PolarPrintService(X1PlusDBusService):
                 return
             data = {
                 "serialNumber": self.polar_settings.get("polar.sn"),
-                "status": 0,
+                "status": self.status,
             }
             try:
                 await self.socket.emit("status", data)
@@ -289,6 +290,7 @@ class PolarPrintService(X1PlusDBusService):
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
                 if str(e) == "/ is not a connected namespace.":
+                    logger.debug('Got "/ is not a connected namespace." error.')
                     # This seems to be a python socketio bug/feature?
                     # In any case, recover by reconnecting.
                     await self.socket.disconnect()
