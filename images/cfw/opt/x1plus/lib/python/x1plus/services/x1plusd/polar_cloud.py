@@ -35,7 +35,12 @@ class PolarPrintService(X1PlusDBusService):
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
-        self.registered = False  # If True ignore welcome requests.
+        """
+        last_ping will hold time of last ping, so we're not sending status
+        more than once every 10 seconds.
+        """
+        self.last_ping = datetime.datetime.now() - datetime.timedelta(seconds = 10)
+        self.is_connected = False
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
         # status_task_awake is for awaits between status updates to server.
@@ -60,7 +65,24 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
         self.socket.on("delete", self._on_delete)
+        self.socket.on("print", self._on_print)
+        self.socket.on("job", self._on_job)
+        self.socket.on("pause", self._on_pause)
+        self.socket.on("resume", self._on_resume)
+        self.socket.on("cancel", self._on_cancel)
+        self.socket.on("delete", self._on_delete)
         await super().task()
+
+    async def unregister(self);
+        """
+        After a printer is deleted I'll need this in order to reregister it
+        Later it'll be necessary for the interface, so I just added it now.
+        Todo: In future _on_delete() will remove the username and PIN from
+        non-volatile memory (i.e. the SD card), so additional arguments will
+        be needed for this to work.
+        """
+        await self.socket.emit("unregister", self.polar_settings.get("polar.sn"))
+
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
@@ -71,8 +93,6 @@ class PolarPrintService(X1PlusDBusService):
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
-        if self.registered:
-            return
         if self.polar_settings.get("polar.sn", "") and self.polar_settings.get(
             "polar.private_key", ""
         ):
@@ -114,7 +134,7 @@ class PolarPrintService(X1PlusDBusService):
         elif not self.polar_settings.get("polar.sn", ""):
             # We already have a key: just register.
             # Todo: There might be a race condition here or maybe server is sending
-            # a lot of welcome requests. Dealt with it by adding self.registered.
+            # a lot of welcome requests. Dealt with it by adding self.last_ping.
             logger.info(f"_on_welcome Registering.")
             await self._register()
         else:
@@ -128,16 +148,12 @@ class PolarPrintService(X1PlusDBusService):
         If printer is previously registered, a successful hello response means
         the printer is connected and ready to print.
         """
-        if self.registered:
-            return
         if response["status"] == "SUCCESS":
             logger.info("_on_hello_response success")
             logger.info("Polar Cloud connected.")
-            self.registered = True
-        else:
+            self.is_connected = True
+        elif response['message'] != "Printer has been deleted":
             logger.error(f"_on_hello_response failure: {response['message']}")
-            # Todo: send error to interface.
-            exit()
         await self._status()
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
@@ -152,10 +168,11 @@ class PolarPrintService(X1PlusDBusService):
             logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
-            self.registered = False
+            self.is_connected = False
             # After the next request the server will respond with `welcome`.
             logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
+            self.is_connected = True
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
@@ -189,7 +206,7 @@ class PolarPrintService(X1PlusDBusService):
                     f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
                     f"{self.mac}\n\n"
                 )
-                exit()
+                return
 
     async def _register(self) -> None:
         """
@@ -254,8 +271,11 @@ class PolarPrintService(X1PlusDBusService):
         15     Clear build plate; unable to start a new print
         """
         while True:
-            if not self.registered:
-                break
+            if not self.is_connected:
+                return
+            if (datetime.datetime.now() - self.last_ping).total_seconds() <=5:
+                # No extra status updates.
+                return
             data = {
                 "serialNumber": self.polar_settings.get("polar.sn"),
                 "status": 0,
@@ -264,14 +284,27 @@ class PolarPrintService(X1PlusDBusService):
                 await self.socket.emit("status", data)
                 logger.debug(f"status data {data}")
                 logger.info(f"Status update {datetime.datetime.now()}")
+                self.last_ping = datetime.datetime.now()
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
-            await asyncio.sleep(20)
+                if str(e) == "/ is not a connected namespace.":
+                    # This seems to be a python socketio bug/feature?
+                    # In any case, recover by reconnecting.
+                    await self.socket.disconnect()
+                    logger.info("Disconnecting.")
+                    self.is_connected = False
+                    # After the next request the server will respond with `welcome`.
+                    logger.info("Reconnecting.")
+                    await self.socket.connect()
+                    self.is_connected = True
+                    return # Or else we'll starting sending too many updates.
+            await asyncio.sleep(10)
             # try:
             #     await asyncio.wait_for(self.status_task_wake.wait(), timeout=50)
             # except TimeoutError as e:
             #     logger.error(e)
             # self.status_task_wake.clear()
+        logger.debug("Status ending.")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -279,16 +312,20 @@ class PolarPrintService(X1PlusDBusService):
         from card. The current print should finish. Disconnect socket so that
         username and PIN don't keep being requested and printer doesn't reregister.
         """
+        logger.info("_on_delete")
         if response["serialNumber"] == self.polar_settings.get("polar.sn"):
-            self.polar_settings.put("polar.sn", "")
-            self.polar_settings.put("polar.username", "")
-            self.polar_settings.put("polar.public_key", "")
-            self.polar_settings.put("polar.private_key", "")
             self.pin = ""
             self.mac = ""
             self.username = ""
-            # Todo: stop status() here?
-            self.socket.disconnect()
+            to_remove = {
+                # "polar.sn", "", # Todo: add this back in after interface is done.
+                "polar.username": "",
+                "polar.public_key": "",
+                "polar.private_key": "",
+            }
+            await self.polar_settings.put_multiple(to_remove)
+            await self.socket.disconnect()
+            self.is_connected = False
 
     async def get_creds(self) -> None:
         """
@@ -318,6 +355,22 @@ class PolarPrintService(X1PlusDBusService):
             if not self.polar_settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
+
+    async def _on_print(self):
+        pass
+
+    async def _on_job(self):
+        pass
+
+    async def _on_pause(self):
+        pass
+
+    async def _on_resume(self):
+        pass
+
+    async def _on_cancel(self):
+        pass
+
 
     def set_interface(self) -> None:
         """
