@@ -13,6 +13,7 @@
 .import "./x1plus/Settings.js" as X1PlusSettings
 .import "./x1plus/TempGraph.js" as X1PlusTempGraph
 .import "./x1plus/OTA.js" as X1PlusOTA
+.import "./x1plus/Network.js" as X1PlusNetwork
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -60,6 +61,8 @@ X1Plus.TempGraph = X1PlusTempGraph;
 var TempGraph = X1PlusTempGraph;
 X1Plus.OTA = X1PlusOTA;
 var OTA = X1PlusOTA;
+X1Plus.Network = X1PlusNetwork;
+var Network = X1PlusNetwork;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -70,12 +73,15 @@ DBus.X1Plus = X1Plus;
 Settings.X1Plus = X1Plus;
 TempGraph.X1Plus = X1Plus;
 OTA.X1Plus = X1Plus;
+Network.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 var DeviceManager = null;
 var PrintManager = null;
+var NetworkManager = null;
 var PrintTask = null;
+var NetworkEnum = null;
 var printerConfigDir = null;
 
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
@@ -148,11 +154,13 @@ X1Plus.fileExists = fileExists;
  * they are loaded, and they might need to do work touching other modules. 
  * These things happen from 'awaken'.
  */
-function awaken(_DeviceManager, _PrintManager, _PrintTask) {
+function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Network) {
 	console.log("X1Plus.js awakening");
 	X1Plus.DeviceManager = DeviceManager = _DeviceManager;
 	X1Plus.PrintManager = PrintManager = _PrintManager;
+	X1Plus.NetworkManager = NetworkManager = _NetworkManager;
 	X1Plus.PrintTask = PrintTask = _PrintTask;
+	X1Plus.NetworkEnum = NetworkEnum = _Network;
 	X1Plus.printerConfigDir = printerConfigDir = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
 	_X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + printerConfigDir);
 	Settings.awaken();
@@ -161,6 +169,7 @@ function awaken(_DeviceManager, _PrintManager, _PrintTask) {
 	ShaperCalibration.awaken();
 	GpioKeys.awaken();
 	TempGraph.awaken();
+	Network.awaken();
 	console.log("X1Plus.js is awake");
 }
 

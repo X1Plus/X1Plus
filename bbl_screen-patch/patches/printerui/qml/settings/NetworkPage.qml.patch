@@ -1,8 +1,10 @@
 --- printer_ui-orig/printerui/qml/settings/NetworkPage.qml
 +++ printer_ui/printerui/qml/settings/NetworkPage.qml
-@@ -6,7 +6,8 @@
+@@ -5,17 +5,19 @@
+ 
  import "qrc:/uibase/qml/widgets"
  import ".."
++import "../X1Plus.js" as X1Plus
  
 -Item {
 +Rectangle {
@@ -10,7 +12,18 @@
  
      property var network: NetworkManager.network
      property bool wifiIsOn: network.isOn && network.powerState
-@@ -29,10 +30,16 @@
+-    property var wiredNetwork: NetworkManager.wiredNetwork
++    property var wiredNetwork: X1Plus.Network.wiredNetwork()
+     property bool wiredIsOn: wiredNetwork.isOn && wiredNetwork.powerState
+     property var wifiNetwork: NetworkManager.wifiNetwork
+     property var wifiListModel: NetworkManager.wifiList
+     property bool hasNetworkSubCard: NetworkManager.networkSubCardState
+-    property bool hasWried: NetworkManager.wiredNetwork !== undefined
++    property bool hasWried: X1Plus.Network.wiredNetwork() !== undefined
+     property bool hasCertificate: NetworkManager.certificateList !== null
+ //    property var currentNetwork: NetworkManager.currentRoute
+ 
+@@ -29,10 +31,16 @@
  
      MarginPanel {
          id: wifiPanel
@@ -30,7 +43,7 @@
  
          Item {
              id: wlanTitle
-@@ -281,13 +288,16 @@
+@@ -281,13 +289,16 @@
  
      MarginPanel {
          id: rightPanel
@@ -52,3 +65,12 @@
          visible: hasNetworkSubCard
  
          Item {
+@@ -439,7 +450,7 @@
+ 
+             Item {
+                 id: infoPanel2
+-                anchors.top: line4.bottom
++                anchors.top: hasCertificate ? line4.bottom : line3.bottom
+                 height: 132
+                 anchors.left: wiredNetworkItem.left
+                 anchors.right: wiredNetworkItem.right
