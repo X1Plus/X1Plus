@@ -1,7 +1,7 @@
 import os
 import json
 import ssl
-import aiohttp
+# import aiohttp
 import datetime
 import asyncio
 import hashlib
