@@ -23,8 +23,10 @@ logger = logging.getLogger(__name__)
 POLAR_INTERFACE = "x1plus.polar"
 POLAR_PATH = "/x1plus/polar"
 
-# Setup SSL for aiohttp
+# Setup SSL for aiohttp and websocket.
 ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
+connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+http_session = aiohttp.ClientSession(connector=connector)
 
 class PolarPrintService(X1PlusDBusService):
     def __init__(self, settings, **kwargs):
@@ -32,7 +34,6 @@ class PolarPrintService(X1PlusDBusService):
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
         """
-        logger.info("PolarPrintService")
         self.mac = ""
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
@@ -64,7 +65,7 @@ class PolarPrintService(X1PlusDBusService):
 
     async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
-        self.socket = socketio.AsyncClient()
+        self.socket = socketio.AsyncClient(http_session=http_session)
         self.set_interface()
         try:
             await self.get_creds()
