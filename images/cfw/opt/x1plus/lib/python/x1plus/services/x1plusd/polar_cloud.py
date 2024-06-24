@@ -38,7 +38,9 @@ class PolarPrintService(X1PlusDBusService):
         self.registered = False  # If True ignore welcome requests.
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
+        self.status = self.polar_settings.get("polar.status", "idle")
         # status_task_awake is for awaits between status updates to server.
+        # Currently unused.
         self.status_task_wake = asyncio.Event()
         # Todo: Fix two "on" fn calls below.
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
@@ -207,6 +209,12 @@ class PolarPrintService(X1PlusDBusService):
         }
         await self.socket.emit("register", data)
 
+    def _status_changed(self) -> None:
+        new_status = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
+        if self.status != new_status:
+            logger.debug("Status has changed, triggering recheck.")
+        self.status = new_status
+
     async def _status(self) -> None:
         """
         Should send several times a minute (3? 4?). All fields but serialNumber
@@ -256,6 +264,7 @@ class PolarPrintService(X1PlusDBusService):
         while True:
             if not self.registered:
                 break
+            self.polar_settings.on("polar.status", lambda: self._status_changed())
             data = {
                 "serialNumber": self.polar_settings.get("polar.sn"),
                 "status": 0,
