@@ -52,7 +52,11 @@ class PolarPrintService(X1PlusDBusService):
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
-        await self.get_creds()
+        try:
+            await self.get_creds()
+        except Exception as e:
+            logger.debug(f"Polar get_creds: {e}")
+            return
         await self.socket.connect(self.server_url, transports=["websocket"])
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
@@ -275,7 +279,15 @@ class PolarPrintService(X1PlusDBusService):
             # Todo: stop status() here?
             self.socket.disconnect()
 
-    async def get_creds(self) -> None:
+    async def get_creds(self):
+        env_file = os.path.join("/sdcard", ".env")
+        with open(env_file) as env:
+            for line in env:
+                k, v = line.split("=")
+                setattr(self, k, v.strip())
+        await self.polar_settings.put("polar.username", self.username)
+
+    async def get_creds_real(self) -> None:
         """
         If PIN and username are not set, open Polar Cloud interface window and
         get them.
