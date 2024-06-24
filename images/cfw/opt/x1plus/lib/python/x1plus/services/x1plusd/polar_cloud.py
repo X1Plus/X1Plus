@@ -3,9 +3,12 @@ Module to allow printing using Polar Cloud service.
 """
 
 import asyncio
+import aiohttp
 import datetime
 import logging
+import os
 import socketio
+import ssl
 import time
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
@@ -19,6 +22,9 @@ logger = logging.getLogger(__name__)
 
 POLAR_INTERFACE = "x1plus.polar"
 POLAR_PATH = "/x1plus/polar"
+
+# Setup SSL for aiohttp
+ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
 
 class PolarPrintService(X1PlusDBusService):
     def __init__(self, settings, **kwargs):
@@ -35,12 +41,17 @@ class PolarPrintService(X1PlusDBusService):
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
-        self.registered = False  # If True ignore welcome requests.
+        self.status = 0 # Idle
+        self.job_id = ""
+        """
+        last_ping will hold time of last ping, so we're not sending status
+        more than once every 10 seconds.
+        """
+        self.last_ping = datetime.datetime.now() - datetime.timedelta(seconds = 10)
+        self.is_connected = False
         self.ip = ""  # This will be used for sending camera images.
         self.polar_settings = settings
-        self.status = self.polar_settings.get("polar.status", "idle")
         # status_task_awake is for awaits between status updates to server.
-        # Currently unused.
         self.status_task_wake = asyncio.Event()
         # Todo: Fix two "on" fn calls below.
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
@@ -62,7 +73,23 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("helloResponse", self._on_hello_response)
         self.socket.on("welcome", self._on_welcome)
         self.socket.on("delete", self._on_delete)
+        self.socket.on("print", self._on_print)
+        self.socket.on("pause", self._on_pause)
+        self.socket.on("resume", self._on_resume)
+        self.socket.on("cancel", self._on_cancel)
+        self.socket.on("delete", self._on_delete)
         await super().task()
+
+    async def unregister(self):
+        """
+        After a printer is deleted I'll need this in order to reregister it
+        Later it'll be necessary for the interface, so I just added it now.
+        Todo: In future _on_delete() will remove the username and PIN from
+        non-volatile memory (i.e. the SD card), so additional arguments will
+        be needed for this to work.
+        """
+        await self.socket.emit("unregister", self.polar_settings.get("polar.sn"))
+
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
@@ -73,8 +100,6 @@ class PolarPrintService(X1PlusDBusService):
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
-        if self.registered:
-            return
         if self.polar_settings.get("polar.sn", "") and self.polar_settings.get(
             "polar.private_key", ""
         ):
@@ -116,7 +141,7 @@ class PolarPrintService(X1PlusDBusService):
         elif not self.polar_settings.get("polar.sn", ""):
             # We already have a key: just register.
             # Todo: There might be a race condition here or maybe server is sending
-            # a lot of welcome requests. Dealt with it by adding self.registered.
+            # a lot of welcome requests. Dealt with it by adding self.last_ping.
             logger.info(f"_on_welcome Registering.")
             await self._register()
         else:
@@ -130,16 +155,13 @@ class PolarPrintService(X1PlusDBusService):
         If printer is previously registered, a successful hello response means
         the printer is connected and ready to print.
         """
-        if self.registered:
-            return
         if response["status"] == "SUCCESS":
             logger.info("_on_hello_response success")
             logger.info("Polar Cloud connected.")
-            self.registered = True
-        else:
+            self.is_connected = True
+        elif response['message'] != "Printer has been deleted":
             logger.error(f"_on_hello_response failure: {response['message']}")
             # Todo: send error to interface.
-            exit()
         await self._status()
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
@@ -154,10 +176,11 @@ class PolarPrintService(X1PlusDBusService):
             logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
-            self.registered = False
+            self.is_connected = False
             # After the next request the server will respond with `welcome`.
             logger.info("Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
+            self.is_connected = True
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
@@ -191,7 +214,7 @@ class PolarPrintService(X1PlusDBusService):
                     f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
                     f"{self.mac}\n\n"
                 )
-                exit()
+                return
 
     async def _register(self) -> None:
         """
@@ -208,12 +231,6 @@ class PolarPrintService(X1PlusDBusService):
             "myInfo": {"MAC": self.mac},
         }
         await self.socket.emit("register", data)
-
-    def _status_changed(self) -> None:
-        new_status = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
-        if self.status != new_status:
-            logger.debug("Status has changed, triggering recheck.")
-        self.status = new_status
 
     async def _status(self) -> None:
         """
@@ -262,25 +279,41 @@ class PolarPrintService(X1PlusDBusService):
         15     Clear build plate; unable to start a new print
         """
         while True:
-            if not self.registered:
-                break
-            self.polar_settings.on("polar.status", lambda: self._status_changed())
+            if not self.is_connected:
+                return
+            if (datetime.datetime.now() - self.last_ping).total_seconds() <=5:
+                # No extra status updates.
+                return
             data = {
                 "serialNumber": self.polar_settings.get("polar.sn"),
-                "status": 0,
+                "status": self.status,
             }
             try:
                 await self.socket.emit("status", data)
                 logger.debug(f"status data {data}")
                 logger.info(f"Status update {datetime.datetime.now()}")
+                self.last_ping = datetime.datetime.now()
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
-            await asyncio.sleep(20)
+                if str(e) == "/ is not a connected namespace.":
+                    logger.debug('Got "/ is not a connected namespace." error.')
+                    # This seems to be a python socketio bug/feature?
+                    # In any case, recover by reconnecting.
+                    await self.socket.disconnect()
+                    logger.info("Disconnecting.")
+                    self.is_connected = False
+                    # After the next request the server will respond with `welcome`.
+                    logger.info("Reconnecting.")
+                    await self.socket.connect()
+                    self.is_connected = True
+                    return # Or else we'll starting sending too many updates.
+            await asyncio.sleep(10)
             # try:
             #     await asyncio.wait_for(self.status_task_wake.wait(), timeout=50)
             # except TimeoutError as e:
             #     logger.error(e)
             # self.status_task_wake.clear()
+        logger.debug("Status ending.")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -288,16 +321,20 @@ class PolarPrintService(X1PlusDBusService):
         from card. The current print should finish. Disconnect socket so that
         username and PIN don't keep being requested and printer doesn't reregister.
         """
+        logger.info("_on_delete")
         if response["serialNumber"] == self.polar_settings.get("polar.sn"):
-            self.polar_settings.put("polar.sn", "")
-            self.polar_settings.put("polar.username", "")
-            self.polar_settings.put("polar.public_key", "")
-            self.polar_settings.put("polar.private_key", "")
             self.pin = ""
             self.mac = ""
             self.username = ""
-            # Todo: stop status() here?
-            self.socket.disconnect()
+            to_remove = {
+                # "polar.sn", "", # Todo: add this back in after interface is done.
+                "polar.username": "",
+                "polar.public_key": "",
+                "polar.private_key": "",
+            }
+            await self.polar_settings.put_multiple(to_remove)
+            await self.socket.disconnect()
+            self.is_connected = False
 
     async def get_creds(self) -> None:
         """
@@ -327,6 +364,105 @@ class PolarPrintService(X1PlusDBusService):
             if not self.polar_settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
+
+    async def _job(self, status):
+        logger.info(f"_job {status} {self.job_id}")
+        data = {
+            "serialNumber": self.polar_settings.get("polar.sn"),
+            "jobId": self.job_id,
+            "state": status, # "completed" | "canceled"
+            # Next two when we get more feature implemented
+            # "printSeconds": integer,              // integer, optional
+            # "filamentUsed": integer               // integer, optional
+        }
+        await self.socket.emit("job", data)
+
+    async def _on_print(self, data, *args, **kwargs):
+        logger.debug("_on_print")
+        self.job_id = data["jobId"]
+        if not data["serialNumber"] or data["serialNumber"] != data.get("serialNumber", ""):
+            logger.debug("Serial numbers don't match.")
+            await self._job("canceled")
+            return
+        # Todo: add recovery here if still printing.
+
+        print_file = ''
+        if 'gcodeFile' not in data:
+            logger.error("PolarCloud sent non-gcode file.")
+            await self._job("canceled")
+            return
+
+        path = "/tmp/x1plus" if is_emulating() else "/sdcard"
+        await self._download_file(path, f"{data['jobName']}.gcode", data["gcodeFile"])
+        # try:
+        #     info['file'] = print_file
+        #     req_stl = requests.get(print_file, timeout=5)
+        #     req_stl.raise_for_status()
+        # except Exception:
+        #     logger.exception(f"Could not retrieve print file from PolarCloud: {print_file}")
+        #     await self._job("canceled")
+        #     return
+        logger.info(os.listdir("/tmp"))
+
+        await self._job("completed")
+        self.job_id = ""
+        # self._file_manager.add_file(FileDestinations.LOCAL, path, StreamWrapper(path, BytesIO(req_stl.content)), allow_overwrite=True)
+        # self.job_id = data['jobId'] if 'jobId' in data else "123"
+        # logger.debug(f"print jobId is {self.jobId}")
+        # logger.debug(f"print data is {data}")
+
+        # if self._printer.is_closed_or_error():
+        #     self._printer.disconnect()
+        #     self._printer.connect()
+
+        # self._cloud_print = True
+        # await self._job_pending = True
+        # self._job_id = job_id
+        # self._pstate_counter = 0
+        # self._pstate = self.PSTATE_PREPARING
+        # self._cloud_print_info = info
+        # self._status_now = True
+
+
+    async def _download_file(self, path, file, url):
+        """Adapted/stolen from ota.py. Maybe could move to utils?"""
+        try:
+            dest = os.path.join(path, file)
+            logger.info("_download_file")
+            logger.debug(f"downloading {url} to {dest}")
+            download_bytes = 0
+            download_bytes_total = -1
+            with open(dest, 'wb') as f:
+                # Total timeout of 15 minutes per request means you need to
+                # sustain 100 kB/s from Bambu on a 90MB update.zip before we
+                # time out.
+                timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
+                async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout) as session:
+                    async with session.get(url) as response:
+                        response.raise_for_status()
+                        self.download_bytes_total = int(response.headers['content-length'])
+                        self.download_bytes = 0
+                        last_publish = datetime.datetime.now()
+                        async for chunk in response.content.iter_chunked(131072):
+                            self.download_bytes += len(chunk)
+                            f.write(chunk)
+        except:
+            try:
+                os.unlink(dest)
+            except:
+                pass
+            raise
+        logger.info(f"_download_file success: {os.path.getsize(dest)}")
+
+    async def _on_pause(self):
+        pass
+
+    async def _on_resume(self):
+        pass
+
+    async def _on_cancel(self):
+        pass
+
 
     def set_interface(self) -> None:
         """
