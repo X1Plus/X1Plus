@@ -65,17 +65,18 @@ class PolarPrintService(X1PlusDBusService):
     async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
-        logger.debug("\n\nsocket created.")
         self.set_interface()
-        logger.debug("\n\ninterface set.")
         try:
             await self.get_creds()
         except Exception as e:
             logger.debug(f"Polar get_creds: {e}")
             return
-        logger.debug(f"Creds got: {self.username}")
-        await self.socket.connect(self.server_url, transports=["websocket"])
-        logger.debug("Socket created!")
+        try:
+            await self.socket.connect(self.server_url, transports=["websocket"])
+        except Exception as e:
+            logger.debug(f"Socket connection failed: {e}")
+            return
+        logger.info("Socket created!")
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -359,29 +360,21 @@ class PolarPrintService(X1PlusDBusService):
             # `username` and `pin`.
             from pathlib import Path
             env_file = Path(__file__).resolve().parents[0] / ".env"
-            with open(env_file) as env:
-                for line in env:
-                    k, v = line.split("=")
-                    setattr(self, k, v.strip())
         else:
-            # Todo: Fix this for production. Should be from interface!!!
             env_file = os.path.join("/sdcard", ".env")
-            with open(env_file) as env:
-                k, v = env.readline().split("=")
-                self.username = v
-                k, v = env.readline().split("=")
-                self.pin = v
             if not self.pin:
                 # Get it from the interface.
                 pass
             if not self.polar_settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
-            # for line in env:
-            #     k, v = line.split("=")
-            #     # Because setattr doesn't exist.
-            #     self.username = v
-            #     # setattr(self, k, v.strip())
+        with open(env_file) as env:
+            for line in env.readlines():
+                k, v = line.strip().split("=")
+                if k == "username":
+                    self.username = v
+                elif k == "pin":
+                    self.pin = v
         await self.polar_settings.put("polar.username", self.username)
 
     async def _job(self, status):
@@ -444,8 +437,12 @@ class PolarPrintService(X1PlusDBusService):
 
 
     async def _download_file(self, path, file, url):
-        """Adapted from ota.py."""
+        """Adapted/stolen from ota.py. Maybe could move to utils?"""
         try:
+            try:
+                os.mkdir(path)
+            except:
+                logger.info(f"_download_file. {path} already exists.")
             dest = os.path.join(path, file)
             logger.info("_download_file")
             logger.debug(f"downloading {url} to {dest}")
