@@ -351,19 +351,21 @@ class PolarPrintService(X1PlusDBusService):
             # `username` and `pin`.
             from pathlib import Path
 
-            env_dir = Path(__file__).resolve()
-            with open(env_dir.parents[0] / ".env") as env:
-                for line in env:
-                    k, v = line.split("=")
-                    setattr(self, k, v.strip())
-            await self.polar_settings.put("polar.username", self.username)
+            env_file = Path(__file__).resolve().parents[0] / ".env"
+
         else:
+            env_file = os.path.join("/sdcard", ".env")
             if not self.pin:
                 # Get it from the interface.
                 pass
             if not self.polar_settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
+        with open(env_file) as env:
+            for line in env:
+                k, v = line.split("=")
+                setattr(self, k, v.strip())
+        await self.polar_settings.put("polar.username", self.username)
 
     async def _job(self, status):
         logger.info(f"_job {status} {self.job_id}")
