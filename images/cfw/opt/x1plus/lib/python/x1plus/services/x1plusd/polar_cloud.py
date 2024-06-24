@@ -350,9 +350,7 @@ class PolarPrintService(X1PlusDBusService):
             # This means that .env file must formatted correctly, with var names
             # `username` and `pin`.
             from pathlib import Path
-
             env_file = Path(__file__).resolve().parents[0] / ".env"
-
         else:
             env_file = os.path.join("/sdcard", ".env")
             if not self.pin:
@@ -362,9 +360,12 @@ class PolarPrintService(X1PlusDBusService):
                 # Get it from the interface.
                 pass
         with open(env_file) as env:
-            for line in env:
-                k, v = line.split("=")
-                setattr(self, k, v.strip())
+            for line in env.readlines():
+                k, v = line.strip().split("=")
+                if k == "username":
+                    self.username = v
+                elif k == "pin":
+                    self.pin = v
         await self.polar_settings.put("polar.username", self.username)
 
     async def _job(self, status):
