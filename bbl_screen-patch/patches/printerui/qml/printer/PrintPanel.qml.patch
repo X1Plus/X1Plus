@@ -1,0 +1,19 @@
+--- printer_ui-orig/printerui/qml/printer/PrintPanel.qml
++++ printer_ui/printerui/qml/printer/PrintPanel.qml
+@@ -4,6 +4,7 @@
+ 
+ import "qrc:/uibase/qml/widgets"
+ import ".."
++import "../X1Plus.js" as X1Plus
+ 
+ MarginPanel {
+     width: 138
+@@ -26,7 +27,7 @@
+     onVisibleChanged: {
+         DeviceManager.activeDeviceInfos(DeviceManager.DI_LED_LIGHT, visible)
+         NetworkManager.getNetworkInfo("wlan0")
+-        if (NetworkManager.wiredNetwork !== undefined) {
++        if (X1Plus.Network.wiredNetwork() !== undefined) {
+             NetworkManager.getNetworkInfo("eth0")
+         }
+         NetworkManager.setNetworkInfoPushOn(visible)
