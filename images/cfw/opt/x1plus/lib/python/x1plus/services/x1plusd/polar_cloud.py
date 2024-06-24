@@ -32,6 +32,7 @@ class PolarPrintService(X1PlusDBusService):
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
         """
+        logger.info("PolarPrintService")
         self.mac = ""
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
@@ -65,6 +66,7 @@ class PolarPrintService(X1PlusDBusService):
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient()
         self.set_interface()
+        logger.info("Socket created!")
         try:
             await self.get_creds()
         except Exception as e:
@@ -340,19 +342,10 @@ class PolarPrintService(X1PlusDBusService):
             await self.socket.disconnect()
             self.is_connected = False
 
-    async def get_creds(self):
-        env_file = os.path.join("/sdcard", ".env")
-        with open(env_file) as env:
-            for line in env:
-                k, v = line.split("=")
-                setattr(self, k, v.strip())
-        await self.polar_settings.put("polar.username", self.username)
-
-    async def get_creds_real(self) -> None:
+    async def get_creds(self) -> None:
         """
         If PIN and username are not set, open Polar Cloud interface window and
         get them.
-
         Todo: This works only during emulation.
         """
         if is_emulating():
@@ -362,20 +355,27 @@ class PolarPrintService(X1PlusDBusService):
             # This means that .env file must formatted correctly, with var names
             # `username` and `pin`.
             from pathlib import Path
-
-            env_dir = Path(__file__).resolve()
-            with open(env_dir.parents[0] / ".env") as env:
-                for line in env:
-                    k, v = line.split("=")
-                    setattr(self, k, v.strip())
-            await self.polar_settings.put("polar.username", self.username)
+            env_file = Path(__file__).resolve().parents[0] / ".env"
         else:
+            # Todo: Fix this for production. Should be from interface!!!
+            env_file = os.path.join("/sdcard", ".env")
             if not self.pin:
                 # Get it from the interface.
                 pass
             if not self.polar_settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
+        with open(env_file) as env:
+            k, v = env.readline.split("=")
+            self.username = v
+            k, v = env.readline.split("=")
+            self.pin = v
+            # for line in env:
+            #     k, v = line.split("=")
+            #     # Because setattr doesn't exist.
+            #     self.username = v
+            #     # setattr(self, k, v.strip())
+        await self.polar_settings.put("polar.username", self.username)
 
     async def _job(self, status):
         logger.info(f"_job {status} {self.job_id}")
