@@ -427,6 +427,10 @@ class PolarPrintService(X1PlusDBusService):
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
         try:
+            try:
+                os.mkdir(path)
+            except:
+                logger.info(f"_download_file. {path} already exists.")
             dest = os.path.join(path, file)
             logger.info("_download_file")
             logger.debug(f"downloading {url} to {dest}")
