@@ -1,6 +1,7 @@
 import os
 import subprocess
 import asyncio
+from pathlib import Path
 
 import aiohttp
 from aiohttp import web
@@ -22,7 +23,13 @@ class HTTPService():
         self.runner = None
         self.site = None
         self.app = web.Application()
-        self.app.add_routes([web.get('/', self.route_hello), web.get('/ws', self.route_websocket)])
+        
+        if x1plus.utils.is_emulating():
+            static_path = Path(__file__).resolve().parent.parent.parent.parent.parent.parent / 'share' / 'www'
+        else:
+            static_path = "/opt/x1plus/share/www"
+        logger.info(f"x1plus httpd will serve from {static_path}")
+        self.app.add_routes([web.get('/hello', self.route_hello), web.get('/ws', self.route_websocket), web.static("/", static_path)])
     
     async def route_hello(self, request):
         return web.Response(text="Hello, world")
