@@ -76,4 +76,5 @@ jobs:
         destination_folder: 'stable'
         user_email: 'x1plus@x1plus.net'
         user_name: 'OTAUploadBot'
-        commit_message: 'feat: upload x1plus release ${{ env.GITHUB_REF_NAME }}'
+        commit_message: 'feat: upload x1plus release ${{ github.ref_name }}'
+        destination_branch_create: ${{ github.ref_name }}
