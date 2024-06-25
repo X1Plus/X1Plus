@@ -7,6 +7,7 @@ from .dbus import *
 from .settings import SettingsService
 from .ota import OTAService
 from .sshd import SSHService
+from .mqtt import MQTTService
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +19,10 @@ async def main():
     settings = SettingsService(router=router)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
+    mqtt = MQTTService(router=router)
 
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
+    asyncio.create_task(mqtt.task())
 
     logger.info("x1plusd is running")
