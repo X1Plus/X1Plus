@@ -7,6 +7,7 @@ from .dbus import *
 from .settings import SettingsService
 from .ota import OTAService
 from .sshd import SSHService
+from .httpd import HTTPService
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +19,11 @@ async def main():
     settings = SettingsService(router=router)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
+    httpd = HTTPService(router=router, settings=settings)
 
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
+    asyncio.create_task(httpd.task())
     if settings.get("polar_cloud", True):
         from .polar_cloud import PolarPrintService
         polar_cloud = PolarPrintService(router=router, settings=settings)
