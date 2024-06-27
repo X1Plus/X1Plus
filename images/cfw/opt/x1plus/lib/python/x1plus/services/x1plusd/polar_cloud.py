@@ -232,9 +232,84 @@ class PolarPrintService(X1PlusDBusService):
         }
         await self.socket.emit("register", data)
 
-    async def _status(self) -> None:
+    async def _status_update(self):
         """
-        Should send several times a minute (3? 4?). All fields but serialNumber
+        Codes from the printer:
+        TaskStage: We'll ignore this; just here for completeness.
+          0: INITING
+          1: WAITING
+          2: WORKING
+          3: PAUSED
+        TaskState
+          0: IDLE
+          1: SLICING
+          2: PREPARE
+          3: RUNNING
+          4: FINISH
+          5: FAILED
+          6: PAUSE
+
+        Codes to return to the server:
+        0     Ready; printer is idle and ready to print
+        1     Serial; printer is printing a local print over its serial connection
+        2     Preparing; printer is preparing a cloud print (e.g., slicing)
+        3     Printing; printer is printing a cloud print
+        4     Paused; printer has paused a print
+        5     Postprocessing; printer is performing post-printing operations
+        6     Canceling; printer is canceling a print from the cloud
+        7     Complete; printer has completed a print job from the cloud
+        8     Updating; printer is updating its software
+        9     Cold pause; printer is in a "cold pause" state
+        10     Changing filament; printer is in a "change filament" state
+        11     TCP/IP; printer is printing a local print over a TCP/IP connection
+        12     Error; printer is in an error state
+        13     Disconnected; controller's USB is disconnected from the printer
+        14     Door open; unable to start or resume a print
+        15     Clear build plate; unable to start a new print
+
+        Several of these output states will be ignored for now.
+        Todo: 15 **really, really** needs to be dealt with.
+        """
+
+        """ Sample code, but see this link:
+        https://github.com/X1Plus/X1Plus/commit/b0495c528d1a05e76f7ce6ffc00aa57e5e6d2a98?diff=unified&w=0#diff-6528af1f39b80d6774161464e2c4a65a16e2b72e5ff2b2cf79662b040aea0550R75-R88
+
+        Joshua: I believe object path should
+        be bbl.service.screen,
+        bus name /bbl/service/screen,
+        interface bbl.screen.x1plus
+
+        try:
+            addr = DBusAddress("/x1plus/polar", bus_name="x1plus.polar", interface="x1plus.polar")
+            method = "getStatus"
+            params =
+        except Exception as e:
+            # deal with this
+        # Get a json string back.
+        msg = new_method_call(addr, method, 'x', body=())
+
+        Return fn from .js:
+        See Ping fn to see how this should actually be done.
+        // Return a json string.
+        function checkNow() {
+            return '{"stage": "' + X1Plus.curTask.stage + '", "state": "' + X1Plus.curTask.state + '"}';
+        }
+
+        Also see here: https://github.com/X1Plus/X1Plus/blob/main/bbl_screen-patch/patches/printerui/qml/X1Plus.js#L167-L170
+        """
+        status_translation: {
+            "0": 0, # Idle and ready
+            "1": 2, #
+            "2": 2,
+            "3": 3,
+            "4": 7,
+            "5": 5,
+            "6":
+        }
+
+    def _status(self) -> None:
+        """
+        Should send several every 10 seconds. All fields but serialNumber
         and status are optional.
         {
             "serialNumber": "string",
@@ -260,25 +335,9 @@ class PolarPrintService(X1PlusDBusService):
             "file": "string",
             "config": "string"
         }
-        Possible status codes are:
-        0     Ready; printer is idle and ready to print
-        1     Serial; printer is printing a local print over its serial connection
-        2     Preparing; printer is preparing a cloud print (e.g., slicing)
-        3     Printing; printer is printing a cloud print
-        4     Paused; printer has paused a print
-        5     Postprocessing; printer is performing post-printing operations
-        6     Canceling; printer is canceling a print from the cloud
-        7     Complete; printer has completed a print job from the cloud
-        8     Updating; printer is updating its software
-        9     Cold pause; printer is in a "cold pause" state
-        10     Changing filament; printer is in a "change filament" state
-        11     TCP/IP; printer is printing a local print over a TCP/IP connection
-        12     Error; printer is in an error state
-        13     Disconnected; controller's USB is disconnected from the printer
-        14     Door open; unable to start or resume a print
-        15     Clear build plate; unable to start a new print
         """
         while True:
+            self.polar_settings.on("status", lambda:self._status_update)
             if not self.is_connected:
                 return
             if (datetime.datetime.now() - self.last_ping).total_seconds() <=5:
@@ -426,6 +485,8 @@ class PolarPrintService(X1PlusDBusService):
         # self._cloud_print_info = info
         # self._status_now = True
 
+    def dbus_PrintFile(self):
+        pass
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
