@@ -71,11 +71,11 @@ async def print_progress():
         arr = []
         for i in range(N_LEDS):
             if i == math.floor(npct):
-                arr += [0.2 * (npct - i), 0, 0]
+                arr += [0.3 * (npct - i), 0, 0]
             elif i < npct:
-                arr += [0.2, 0, 0]
+                arr += [0.3, 0, 0]
             else:
-                arr += [0, 0, 0]
+                arr += [0, 0, 1/255]
         put([int(a * 255) for a in arr])
     
     for i in range(501):
