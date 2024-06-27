@@ -146,3 +146,4 @@ class NpxlService(X1PlusDBusService):
         await self.dbus_Stop(req)
         await blank()
 
+

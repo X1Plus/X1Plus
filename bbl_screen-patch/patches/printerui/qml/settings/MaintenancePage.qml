@@ -11,9 +11,28 @@ import "qrc:/uibase/qml/widgets"
 import "../printer"
 import ".."
 
+import "../X1Plus.js" as X1Plus
+
+
 Item {
     id: utilities
     property var maintain: DeviceManager.maintain
+    property var pxl_i: 0
+    
+    function npxl() {
+            pxl_i++;
+            console.log("NPXL demo func", pxl_i);
+            if (pxl_i == 0) {
+              X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/npxl", "x1plus.npxl", "Blank")();
+            } else if (pxl_i == 1) {
+              X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/npxl", "x1plus.npxl", "White")();
+            } else if (pxl_i == 2) {
+              X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/npxl", "x1plus.npxl", "PrintProgress")();
+            } else if (pxl_i == 3) {
+              X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/npxl", "x1plus.npxl", "Colorcycle")();
+              pxl_i = -1;
+            }
+          }
 
      property var mapping: ([
           { "friendly": qsTr("Bed Mesh Calibration"), "page": "../printer/BedMesh.qml", "icon": "../../icon/components/bedlevel.svg" },
@@ -23,8 +42,8 @@ Item {
           { "friendly": qsTr("Printer Calibration"), "page": "../printer/CalibrationPage.qml", "icon": "../../icon/components/lidar.svg" },
           { "friendly": qsTr("On-Screen Console"), "page": "ConsolePage.qml", "icon": "../../icon/components/console_shell.svg" },
           { "friendly": qsTr("Device Self-test"), "page": "../printer/SelfTestPage.qml", "icon": "../../icon/components/selftest.svg" },
-          { "friendly": qsTr("Dry Filament"), "page": "../printer/DryFilamentPage.qml",  "icon": "../../icon/components/filamentdry.svg" }
-
+          { "friendly": qsTr("Dry Filament"), "page": "../printer/DryFilamentPage.qml",  "icon": "../../icon/components/filamentdry.svg" },
+          { "friendly": qsTr("NeoPixel demo"), "icon": "../../icon/light.svg" }
      ])
 
      MarginPanel {
@@ -83,9 +102,15 @@ Item {
                     MouseArea {
                          anchors.fill: parent
                          onClicked: {
-                              pageStack.push(modelData.page)
-                              if (modelData.loadCompOpen !== undefined) {
-                                  pageStack.currentPage.loadCompOpen(modelData.loadCompOpen)
+                           console.log("CLICKED");
+                              if (modelData.page) {
+                                console.log("clicked -> page");
+                                  pageStack.push(modelData.page)
+                                  if (modelData.loadCompOpen !== undefined) {
+                                      pageStack.currentPage.loadCompOpen(modelData.loadCompOpen)
+                                  }
+                              } else {
+                                npxl()
                               }
                          }
                     }
