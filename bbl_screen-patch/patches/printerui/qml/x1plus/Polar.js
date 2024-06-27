@@ -27,7 +27,7 @@ var _Register = null;
 var _Update = null;
 
 function checkNow() {
-    _CheckNow({});
+    return '{"stage": "' + X1Plus.curTask.stage + '", "state": "' + X1Plus.curTask.state + '"}';
 }
 
 function download(base_firmware = false) {
@@ -45,8 +45,13 @@ function awaken() {
     X1Plus.DBus.onSignal("x1plus.polar", "StatusChanged", (arg) => {
         _setStatus(arg);
     });
-    
-    _CheckNow = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "CheckNow");
-    _Download = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "Download");
-    _Update   = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "Update"  );
+    // fns like these will also be used to get input from the screen.
+    _PrintFile = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "PrintFile");
+    // _Download = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "Download");
+    // _Update   = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "Update"  );
 }
+
+
+PrintManager.currentTask.stage
+
+gcode_file
