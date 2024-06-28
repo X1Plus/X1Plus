@@ -283,23 +283,23 @@ class PolarPrintService(X1PlusDBusService):
         Todo: 15 **really, really** needs to be dealt with.
         """
 
-        """ Sample code, but see this link:
+        """
+        Sample code, but see this link:
         https://github.com/X1Plus/X1Plus/commit/b0495c528d1a05e76f7ce6ffc00aa57e5e6d2a98?diff=unified&w=0#diff-6528af1f39b80d6774161464e2c4a65a16e2b72e5ff2b2cf79662b040aea0550R75-R88
 
-        Joshua: I believe object path should
-        be bbl.service.screen,
-        bus name /bbl/service/screen,
-        interface bbl.screen.x1plus
-
         try:
-            addr = DBusAddress("/x1plus/polar", bus_name="x1plus.polar", interface="x1plus.polar")
+            # DBusAddress aruments are object path, bus name, interface
+            addr = DBusAddress("bbl.service.screen", bus_name="/bbl/service/screen", interface="bbl.screen.x1plus")
             method = "getStatus"
             params =
         except Exception as e:
             # deal with this
         # Get a json string back.
-        msg = new_method_call(addr, method, 'x', body=())
-
+        if reply.header.message_type == MessageType.error:
+            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
+        else:
+            rv['result'] = json.loads(reply.body[0])
+        await ws.send_json(rv)
         Return fn from .js:
         See Ping fn to see how this should actually be done.
         // Return a json string.
@@ -316,10 +316,10 @@ class PolarPrintService(X1PlusDBusService):
             "3": 3,
             "4": 7,
             "5": 5,
-            "6":
+            "6": 4,
         }
 
-    def _status(self) -> None:
+    async def _status(self) -> None:
         """
         Should send several every 10 seconds. All fields but serialNumber
         and status are optional.
@@ -360,9 +360,10 @@ class PolarPrintService(X1PlusDBusService):
                 "status": self.status,
             }
             try:
+
                 await self.socket.emit("status", data)
                 logger.debug(f"status data {data}")
-                logger.info(f"Status update {datetime.datetime.now()}")
+                logger.info(f"Status update: {datetime.datetime.now()}")
                 self.last_ping = datetime.datetime.now()
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
