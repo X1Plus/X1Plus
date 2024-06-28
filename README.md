@@ -74,7 +74,7 @@ Now, `exec` into the Docker container and run the make commands. For Mac users:
 $ docker exec -w /work x1plusmake bash -c 'git config --global \
 --add safe.directory /work'
 $ docker exec -w /work x1plusmake make scripts
-$ docker exec -w /work x1plusbuild make
+$ docker exec -w /work x1plusmake make
 ```
 
 Now, `exec` into the Docker container and run the make commands. For Linux users:
