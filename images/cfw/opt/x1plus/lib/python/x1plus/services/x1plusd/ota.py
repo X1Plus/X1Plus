@@ -1,7 +1,7 @@
 import os
 import json
 import ssl
-# import aiohttp
+import aiohttp
 import datetime
 import asyncio
 import hashlib
@@ -69,7 +69,7 @@ class OTAService(X1PlusDBusService):
         )
 
     def ota_enabled(self):
-        return bool(self.x1psettings.get("ota.enabled", False))
+        return bool(self.x1psettings.get("ota.enabled", True))
 
     async def task(self):
         # On startup run an update check to populate info
