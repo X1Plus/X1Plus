@@ -735,16 +735,19 @@ class X1PlusProcess : public QProcess
 public:
     explicit X1PlusProcess(QObject* parent = nullptr) : QProcess(parent) {
         setProcessChannelMode(QProcess::MergedChannels);
+        setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     }
 
-    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList()) {
+    Q_INVOKABLE void start(const QString& program, const QVariantList& arguments = QVariantList(), bool waitForCompletion = false, int timeout = 30000) {
         QStringList args;
         for (const auto& arg : arguments) {
             args << arg.toString();
         }
         QProcess::start(program, args);
+        if (waitForCompletion) {
+            waitForFinished(timeout); 
+        }
     }
-
     Q_INVOKABLE QByteArray readAll() { return QProcess::readAll(); }
     Q_INVOKABLE QByteArray readLine() { return QProcess::readLine(); }
 

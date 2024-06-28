@@ -1,0 +1,82 @@
+[
+  {
+    "name": "reboot",
+    "action": "reboot"
+  },
+  {
+    "name": "restart<br>screen",
+    "action": "/etc/init.d/S99screen_service restart"
+  },
+  {
+    "name": "get<br>setting",
+    "action": "x1plus settings get vnc.password"
+  },
+  {
+    "name": "get all<br>settings",
+    "action": "x1plus settings get *"
+  },
+  {
+    "name": "set<br>setting",
+    "action": "x1plus settings set vnc.password lol"
+  },
+  {
+    "name": "OTA<br>status",
+    "action": "x1plus ota status"
+  },
+  {
+    "name": "check<br>OTA",
+    "action": "x1plus ota check"
+  },
+  {
+    "name": "download<br>OTA",
+    "action": "x1plus ota download"
+  },
+  {
+    "name": "set OTA<br>URL",
+    "action": "x1plus ota set-url http://"
+  },
+  {
+    "name": "python",
+    "action": "python3"
+  },
+  {
+    "name": "Print<br>speed<br>macro",
+    "action": "python3 -u /usr/etc/macros/speed_ramp.py -s 50 -r 100 "
+  },
+  {
+    "name": "ping",
+    "action": "ping 1.1.1.1"
+  },
+  {
+    "name": "ifconfig",
+    "action": "ifconfig"
+  },
+  {
+    "name": "iptables",
+    "action": "iptables"
+  },
+  {
+    "name": "kill",
+    "action": "kill"
+  },
+  {
+    "name": "killall",
+    "action": "killall"
+  },
+  {
+    "name": "ls",
+    "action": "ls"
+  },
+  {
+    "name": "pidof",
+    "action": "pidof"
+  },
+  {
+    "name": "ps",
+    "action": "ps"
+  },
+  {
+    "name": "rm",
+    "action": "rm"
+  }
+]

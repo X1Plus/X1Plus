@@ -5,6 +5,7 @@ import QtQuick.VirtualKeyboard 2.1
 import X1PlusNative 1.0
 import UIBase 1.0
 import Printer 1.0
+import X1PlusProcess 1.0
 import '../X1Plus.js' as X1Plus
 import "../printer"
 import "qrc:/uibase/qml/widgets"
@@ -12,203 +13,36 @@ import ".."
 
 Item {
     id: consoleComp
-    property var cmdHistory:[]
-    property int historyIndex: 0
-
-    property bool gcodeConsole: DeviceManager.getSetting("cfw_default_console",false)
+    property var cmdHistory:[[],[]]
+    property var idx: -1
+    property bool gcodeConsole: X1Plus.Settings.get("consolepage.default",false)
     property alias inputText: inputTextBox.text
     property bool printing: PrintManager.currentTask.stage >= PrintTask.WORKING
     property bool ignoreDialog: false
-    property var gcodeLibrary: X1Plus.GcodeGenerator
-    property var gcodeCommands: [
+    property var gcodeCommand: [
         {
-            name: "History",
-            action: "command history"
-        },
-        {
-            name: "ABL On",
-            action: gcodeLibrary.G292(1)
-        },
-        {
-            name: "Toolhead:<br>Absolute",
-            action: gcodeLibrary.G90()
-        },
-        {
-            name: "Toolhead:<br>Relative",
-            action: gcodeLibrary.G91()
-        },
-        {
-            name: "Disable<br>Endstops",
-            action: gcodeLibrary.M211({x:0, y:0, z:0})
-        },
-        {
-            name: "Extruder:<br>Retract",
-            action: gcodeLibrary.G1({e: -5, accel: 300})
-        },
-        {
-            name: "Extruder:<br>Extrude",
-            action: gcodeLibrary.G1({e: 5, accel: 300})
-        },
-        {
-            name: "Fan Speed:<br>Aux",
-            action: gcodeLibrary.M106.aux(255)
-        },
-        {
-            name: "Fan Speed:<br>Chamber",
-            action: gcodeLibrary.M106.chamber(255)
-        },
-        {
-            name: "Fan Speed:<br>Part",
-            action: gcodeLibrary.M106.part(255)
-        },
-        {
-            name: "Skew<br>Correction",
-            action: gcodeLibrary.M1005.i(0.001)
-        },
-        {
-            name: "Home:<br>XYZ",
-            action: gcodeLibrary.G28.xyz()
-        },
-        {
-            name: "Home:<br>XY",
-            action: gcodeLibrary.G28.xy()
-        },
-        {
-            name: "Home:<br>Low<br>Precision",
-            action: gcodeLibrary.G28.z_low_precision()
-        },
-        {
-            name: "Input<br>Shaper<br>On/Off",
-            action: gcodeLibrary.M975(true)
-        },
-        {
-            name: "Jerk<br>Limits",
-            action: gcodeLibrary.M205({x:0, y:0, z:0, e:0})
-        },
-        {
-            name: "K-value",
-            action: gcodeLibrary.M900(0.01, 1, 1000)
-        },
-        {
-            name: "Toolhead<br>Laser 1",
-            action: gcodeLibrary.M960.laser_vertical(1)
-        },
-        {
-            name: "Toolhead<br>Laser 2",
-            action: gcodeLibrary.M960.laser_horizontal(1)
-        },
-        {
-            name: "Toolhead<br>Camera<br>On",
-            action: gcodeLibrary.M973.on()
-        },
-        {
-            name: "Toolhead<br>Camera<br>Off",
-            action: gcodeLibrary.M973.off()
-        },
-        {
-            name: "Toolhead<br>Camera<br>Exposure",
-            action: gcodeLibrary.M973.expose(2, 600)
-        },
-        {
-            name: "Toolhead<br>Camera<br>Capture",
-            action: gcodeLibrary.M973.capture(1, 1)
-        },
-        {
-            name: "Toolhead<br>LED",
-            action: gcodeLibrary.M960.nozzle(1)
-        },
-        {
-            name: "Z-axis<br>down",
-            action: gcodeLibrary.G91() + gcodeLibrary.G0({z:5,accel:200})
-        },
-        {
-            name: "Z-axis<br>up",
-            action: gcodeLibrary.G91() + gcodeLibrary.G0({z:-5,accel:200})
-
-        },
-        {
-            name: "Move<br>toolhead",
-            action: gcodeLibrary.G91() + gcodeLibrary.G0({x:228,y:253,z:8,accel:1200})
-        },
-        {
-            name: "Disable<br>Motor<br>Noise<br>Cancellation",
-            action: gcodeLibrary.M9822()
-        },
-        {
-            name: "Pause<br>(G4)",
-            action: gcodeLibrary.G4(1)
-        },
-        {
-            name: "Pause<br>(M400)",
-            action: gcodeLibrary.M400.M400(1)
-        },
-        {
-            name: "Print<br>speed<br>50%",
-            action: gcodeLibrary.printSpeed("Silent")
-        },
-        {
-            name: "Print<br>speed<br>100%",
-            action: gcodeLibrary.printSpeed("Normal")
-        },
-        {
-            name: "Print<br>speed<br>124%",
-            action: gcodeLibrary.printSpeed("Sport")
-        },
-        {
-            name: "Print<br>speed<br>166%",
-            action: gcodeLibrary.printSpeed("Ludicrous")
-        },
-        {
-            name: "Timeline<br>Update",
-            action: gcodeLibrary.M73(100,0)
-        },
-        {
-            name: "Reset<br>Feed Rate",
-            action: gcodeLibrary.M220(100)
-        },
-        {
-            name: "Reset<br>Flow Rate",
-            action: gcodeLibrary.M221(100)
-        },
-        {
-            name: "Save<br>settings",
-            action: gcodeLibrary.M500()
-        },  
-        {
-            name: "Disable<br>steppers",
-            action: gcodeLibrary.M84()
-        },  
-        {
-            name: "Stepper<br>Current",
-            action: gcodeLibrary.M17(0.3,0.3,0.3)
-        },  
-        {
-            name: "Nozzle<br>Temp",
-            action: gcodeLibrary.M104(250)
-        },  
-        {
-            name: "Nozzle<br>Temp<br>(delay)",
-            action: gcodeLibrary.M109(250)
-        },  
-        {
-            name: "Bed<br>Temp",
-            action: gcodeLibrary.M140(55)
-        },  
-        {
-            name: "Bed Temp<br>(delay)",
-            action: gcodeLibrary.M190(55)
+            "name": "Command<br>History",
+            "action": "",
         }
+        ]
+    property var shellCommand: [
+        {
+            "name": "Command<br>History",
+            "action": "",
+        }
+        ]
 
-    ]
-    property var shellCommands: ["History"," $ ","  ( )  "," ` ", "  { }  ","  |  ","  -  ","  &  ","  /  ", "reboot","awk ","cat ", "chmod ","chown ", "chroot", "cp ","date -s ", "dd ", "df ", "echo ","grep", "head ","ifconfig", "iptables ", "kill ","killall ","ln -s","ls -l ","mount ","mv ","pgrep ","pidof","ping -c 1","poweroff","print ","ps aux ", "ps -ef ", "pwd", "remount", "rm ", "sed","sort","tar","test","touch ", "uname -a"]
     property var outputText:""
     property string savePath
     property string space: '       '
+    property bool jsonLoaded: false
+    
 
+    
     MarginPanel {
         id: outputPanel
         width: 1130
-        height: parent.height - 80 - 150
+        height: parent.height-80 - 150
         anchors.left: parent.left
         anchors.top:  inputPanel.bottom
         anchors.right: parent.right
@@ -234,17 +68,15 @@ Item {
             clip: true
             TextArea {
                 id: outputTextArea
-                width: 1130 /* parent.width, but avoiding a binding loop */ - 56
-                textFormat: Qt.PlainText //RichText is way too slow on the printer
+                width: outputPanel.width - 56
+                textFormat: Qt.AutoText
                 readOnly: true
                 font: outputText.length == 0 ? Fonts.body_24 : Fonts.body_18
                 color: outputText.length == 0 ? Colors.gray_300 : Colors.gray_100
                 wrapMode: TextEdit.Wrap
                 text: outputText.length != 0 ? outputText :
                       gcodeConsole ? qsTr("This interface allows you to send G-code commands to the printer. You can enter commands " +
-                        "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
-                        "the screen. The printer's G-code parser is somewhat picky; here are some tips for how to placate " +
-                        "it: ") + '\n\n' +
+                        "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of the screen.") + '\n\n' +
                     qsTr("Commands are case sensitive; the first character of a command is always a capital letter, " +
                         "followed by a number. For example, to set the aux fan to full speed, use M106 P2 S255:") + '\n' +
                     space + qsTr("M106: G-code command for fan control") +'\n' +
@@ -252,19 +84,19 @@ Item {
                     space + qsTr("S255: parameter to set fan speed (0 to 255)") + '\n\n' +
                     qsTr("For multi-line commands, each G-code command must be separated by the newline escape " +
                         "sequence, \\n. For example:") +'\n' +
-                    space + qsTr("M106 P2 S255\\nG4 S5\\nM106 P2 S0") + '\n\n' +
-                    space + qsTr("Aux fan to 255 -> Wait 5 sec -> Aux fan to 0")
-                    : qsTr("This interface allows you to run commands on your printer as root. You can enter commands " +
-                        "with the virtual keyboard, or put together commands from the shortcut bar at the bottom of " +
-                        "the screen. Commands are executed synchronously, so long-running commands or commands " +
-                        "that require user input may hang the UI; use caution! This is intended as a quick diagnostic " +
-                        "tool, but for more intensive tasks, consider SSHing to the printer instead.") + '\n\n' +
-                    qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
-                        "console. Do not enter commands unless you understand what you are typing.")
-
+                    space + qsTr("M106 P2 S255\\nG4 S5") + '\n\n'
+                    : qsTr("WARNING: It is possible to do permanent, irreversible damage to your printer from a root " +
+                        "console. For any intensive tasks, consider SSHing to the printer instead ") + 
+                        "\n\n" + qsTr("Tips: ") + "\n" +
+                        qsTr("• To run interactive scripts and commands such as `cd`, run `bash -i` first.") +
+                        "\n" + qsTr("• The color of the start button above indicates the process status.") + 
+                        "\n" + qsTr("• You can write to a process by entering a command while a process is running.") + 
+                        "\n" + qsTr("• Memory intensive continuous processes may cause performance issues.") 
                 placeholderTextColor: Colors.gray_300
             }
-            function scroll(contentOffset){
+            
+            function scroll(){
+                var contentOffset = outputText == "" ? 0 : outputTextArea.contentHeight;
                 // NB: future versions of Qt Quick will have to use flickableItem here, not contentItem
                 var maxOffset = outputTextArea.topPadding + outputTextArea.contentHeight + outputTextArea.bottomPadding - height;
                 if (maxOffset < 0)
@@ -301,89 +133,155 @@ Item {
         topMargin: 5
         bottomMargin:18
 
-        ListView {
-            id: hotkeysList
-            anchors.top: hotkeysPane.top
-            anchors.topMargin: 2   
+        Flickable {
+            id: flickable
             width: parent.width
+            anchors.fill: parent
             height: 105
-            orientation: ListView.Horizontal
-            model: gcodeConsole ? gcodeCommands : shellCommands
-            clip:true
-            delegate: Item {
-                id: itm
-                width: (index == 0) ? 100 : gcodeConsole ? 130 : (index < 8) ? 70 : 130
-                height: hotkeysList.height
-                ZButton {
-                    text: gcodeConsole ? modelData.name : modelData
-                    width: parent.width
-                    height: hotkeysList.height-10
-                    type: ZButtonAppearance.Tertiary
-                    textSize: 26
-                    textColor: Colors.gray_300
-                    backgroundColor: "transparent_pressed"
-                    borderColor: "transparent"
-                    //cornerRadius: width / 2
-                    onClicked: {
-                        if (index == 0 ){
-                            navigateHistory();
-                        } else {
-                            let commandToAdd = gcodeConsole ? modelData.action : shellCommands[index].trim().replace("<br>", "");
-                            if (inputText.trim().length > 0 && gcodeConsole) inputText += "\\n";
-                            inputText += commandToAdd;
+            contentWidth: hotkeysList.contentWidth
+            contentHeight: hotkeysList.height
+            interactive: true
+            flickableDirection: Flickable.HorizontalFlick
+            clip: true
+            ScrollBar.horizontal: ScrollBar {
+                id: horizontalScrollBar
+                active: true
+                width: flickable.width
+                height: 10
+                anchors.bottom: flickable.bottom
+
+                contentItem: Rectangle {
+                    color: Colors.gray_300
+                    radius: 10
+                }
+
+                policy: ScrollBar.AsNeeded
+                visible: flickable.contentWidth > flickable.width
+            }
+            ListView {
+                id: hotkeysList
+                visible: jsonLoaded
+                width: parent.width
+                height: 105
+                orientation: ListView.Horizontal
+                model: !jsonLoaded ? null : 
+                        gcodeConsole ? gcodeCommand : shellCommand
+                clip:true
+                Component.onCompleted:{
+                    loadJsonData();
+                }
+                delegate: Item {
+                    id: itm
+                    width: (index == 0) ? 100 : 130
+                    height: parent.height
+                    Rectangle {
+                        id: hotkeyBtn
+                        width: parent.width
+                        height: hotkeysList.height - 10
+                        color: Colors.gray_600
+                        radius: width / 2
+                        
+                        Text {
+                            id: hotkeyTxt
+                            anchors.centerIn : parent
+                            width: parent.width
+                            height: parent.height
+                            text: modelData.name
+                            color: Colors.gray_300
+                            font: Fonts.body_20
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            
+                            onClicked: {
+                                if (index == 0 ){
+                                    navigateHistory();
+                                } else {
+                                    let commandToAdd = modelData.action.trim().replace("<br>", "");
+                                    inputText += commandToAdd;
+                                }
+                            }
+                            onDoubleClicked:{
+                                
+                            }
                         }
                     }
+
+
+                    Rectangle {
+                        width: 1
+                        height: parent.height-20
+                        anchors.left: parent.left
+                        color: "#606060"
+                        visible: index > 0 && itm.width > 1
+                    
+                    }
                 }
-
-
-                Rectangle {
-                    width: 1
-                    height: parent.height-20
-                    anchors.left: parent.left
-                    color: "#606060"
-                    visible: index >0 && itm.width > 1//< model.count - 1 // Hide for the last item
-                
-                }
             }
-
-            ScrollBar.horizontal: ScrollBar {
-                policy: ScrollBar.AlwaysOn
+        
+        }
+    }
+    function loadJsonData(){
+        jsonLoaded = false;
+        try {
+            var gcodeJsonPath = X1Plus.Settings.get("consolepage.gcode.json","/usr/etc/macros/gcode_commands.json")
+            var shellJsonPath = X1Plus.Settings.get("consolepage.gcode.shell","/usr/etc/macros/shell_commands.json")
+            var jsonData = X1Plus.loadJson(gcodeJsonPath);
+            if (jsonData){
+                jsonData.forEach(function(item) {
+                    gcodeCommand.push(item);
+                });
+            } else {
+                console.error("Failed to load gcode commands.");
             }
-
-            ScrollBar.vertical: ScrollBar {
-                policy: ScrollBar.AlwaysOff
+            jsonData = X1Plus.loadJson(shellJsonPath);
+            if (jsonData){
+                jsonData.forEach(function(item) {
+                    shellCommand.push(item);
+                });
+                jsonLoaded = true;
+            } else {
+                console.error("Failed to load shell commands.");
             }
+        } catch (e) {
+            console.log("[x1p] error parsing json files", e);
+            jsonLoaded = false;
+            return;
         }
     }
     function navigateHistory() {
-        if (cmdHistory.length === 0) return;
-        historyIndex = (historyIndex - 1 + cmdHistory.length) % cmdHistory.length;
-        inputText = cmdHistory[historyIndex];
+        if (gcodeConsole) {
+            idx = Math.max(idx - 1, 0);
+            inputText = cmdHistory[0][idx] || "";
+        } else {   
+            idx = Math.max(idx - 1, 0);
+            inputText = cmdHistory[1][idx] || "";
+        }
     }
-    function timestamp(offset){
-        const now = new Date();
-        now.setDate(now.getDate()-offset);
-        const year = now.getFullYear().toString().slice(2);
-        const month = (now.getMonth()+1).toString().padStart(2,'0');
-        const day = now.getDate().toString().padStart(2,'0');
-        const hrs = now.getHours().toString().padStart(2,'0');
-        const mins = now.getMinutes().toString().padStart(2,'0');
-        const ms = now.getSeconds().toString().padStart(2,'0');
-        return hrs + mins + ms;
-    }
+    
     function sendCommand(str){
         try {
+            var inputCmd = str.replace(/\\n/g, '\n  ');
+            inputCmd = str.trim();
+            var rootStr = "<font color='#AAFF00'>[root@BL-P001]: </font>"
+            consoleComp.outputText += `<br>${rootStr} ${inputCmd}<br>`
+
             if (gcodeConsole) {
-                console.log("[x1p] publishing gcode ", str);
-                X1Plus.sendGcode(str);
-                cmdHistory.push(str);
-                return str;
+                gcodeProc.write(inputCmd + "\n");
+                cmdHistory[0].push(inputCmd);
+                idx = cmdHistory[0].length;
             } else {
-                let rs = X1PlusNative.popen(`${str}`);
-                console.log("[x1p] executed command ", rs);
-                cmdHistory.push(str);
-                return rs;
+                let commandParts = inputCmd.split(' ')
+                shellProcess.start("/bin/sh", ["-c", inputCmd]);
+                cmdHistory[1].push(inputCmd);
+                idx = cmdHistory[1].length;
+                
             }
+            return inputCmd;
         } catch (e) {
             console.log("[x1p] error executing command", e);
             return "";
@@ -406,7 +304,6 @@ Item {
             anchors.verticalCenter: inputTextBox.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin:60
-            //anchors.leftMargin: -5
             height: 70
             width: height * 1.9
             radius: height / 2
@@ -430,11 +327,16 @@ Item {
                 anchors.fill: parent
                 onClicked: {
                     gcodeConsole = !gcodeConsole;
+                    if (shellProcess.running) shellProcess.terminate();
+                    if (gcodeProc.running) gcodeProc.terminate();
+                    
+                    if (gcodeConsole) {
+                        gcodeProc.start("python3",["-u", "/opt/x1plus/bin/log_monitor.py"]);
+                    }
                     outputText = "";
                     inputText = "";
-                    DeviceManager.putSetting("cfw_default_console", gcodeConsole);
-                    cmdHistory = [];
-                    historyIndex = 0;
+                    X1Plus.Settings.put("consolepage.default", gcodeConsole);
+                    idx = 0;
                 }
             }
             
@@ -460,20 +362,21 @@ Item {
             height: 80
             anchors.left: consoleToggle.right
             anchors.leftMargin: 0 - leftInset + 15
-            anchors.right: enterBtn.left
+            anchors.right: buttonPanel.left
             anchors.rightMargin:20 - rightInset
             font: Fonts.body_28
             color: Colors.gray_200
             selectByMouse: true
-            text: ""//inputText
+            text: ""
             verticalAlignment: TextInput.AlignVCenter
             inputMethodHints: gcodeConsole ? Qt.ImhAutoUppercase | Qt.ImhPreferUppercase | Qt.ImhPreferNumbers
                                 | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhLatinOnly
                                 : Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhPreferNumbers
                                 | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhLatinOnly
             placeholderText: gcodeConsole ? qsTr("enter a G-code command")
-                                      : qsTr("enter a shell command to run as root")
+                                      : (shellProcess.running) ? qsTr("write to shell process") : qsTr("enter a shell command to run as root")
             placeholderTextColor: Colors.gray_400
+            property var hIndex: -1
             background: Rectangle {
                 color: Colors.gray_800
                 radius: height / 4
@@ -484,112 +387,169 @@ Item {
                 value: inputText
             }
         }
+        Shortcut {
+            sequences: ["Stop", "Ctrl+D"]
+            onActivated: {
+                if (shellProcess.running) shellProcess.terminate();
+                if (gcodeProc.running) gcodeProc.terminate();
+            }
+        }
+        
+        Component.onCompleted: {
+            if (gcodeConsole) {
+                gcodeProc.start("python3",["-u", "/opt/x1plus/bin/log_monitor.py"]);
+            }
+        }
+        
+        Component.onDestruction: {
+            if (shellProcess.running) shellProcess.terminate();
+            if (gcodeProc.running) gcodeProc.terminate();
+        }
 
-        ZButton { 
-            id: enterBtn
-            icon: "../../icon/components/console_enter.svg"
-            type: ZButtonAppearance.Secondary
-            anchors.right: exportBtn.left 
-            anchors.rightMargin: 10
-            anchors.verticalCenter:inputPanel.verticalCenter
-            iconSize: 80
-            width: 60
-            //cornerRadius: width / 2
+        X1PlusProcess {
+            id: shellProcess
+            property string output: ""
+            property string errCode
+            property bool running: false
+            onStarted: {
+                running = true;
+                errCode = "";
+            }
+            onFinished:{
+                outputText += `/bin/bash: ${exitCode}${errCode}<br>`
+                termScroll.scroll();
+                running = false;
+            }
+            onErrorOccurred: {
+                errCode = `: err ${error}`;
+                running = false;
+            }
+            
+            onReadyReadStandardOutput: {
+                output = "<br>" + shellProcess.readAll().toString().replace(/\n/g, '<br>')
+                output.replace('<br><br>','<br>');
+                consoleComp.outputText += output;
+                termScroll.scroll();
+            }
+        }
+        X1PlusProcess {
+            id: gcodeProc
+            property string output: ""
+            property bool running: false
+            onStarted: {
+                running = true;
+                termScroll.scroll();
+            }
+            onFinished:{
+                running = false;
+            }
+            onErrorOccurred: {
+                running = false;
+                termScroll.scroll();
+            }
+            
+            onReadyReadStandardOutput: {
+                output = gcodeProc.readAll().toString().trim();
+                consoleComp.outputText += output;
+                termScroll.scroll();
+            }
+        }
+        
+        Rectangle { 
+            id: buttonPanel
+            anchors.right: parent.right
+            anchors.top: parent.top
+            width: 140
+
             property string out
-            onClicked: {
-                if (printing && !ignoreDialog) {
-                    dialogStack.popupDialog(
-                        "TextConfirm", {
-                            name: "Limit Frame",
-                            type: TextConfirm.YES_NO_CANCEL,
-                            titles: [qsTr("Home"), qsTr("Ignore"), qsTr("Close")],
-                            text: qsTr("Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message."),
-                            onNo: function() {ignoreDialog = true},
-                            OnCancel: function () {return},
-                    }); 
+            
+            Rectangle {
+                id: enterBtn
+                width: 70 
+                height: 70
+                color: "transparent"
+                anchors.right: stopBtn.left
+                anchors.leftMargin: 15
+                ZImage {
+                    width: 70 
+                    height: 70
+                    anchors.fill:parent
+                    fillMode: Image.PreserveAspectFit 
+                    originSource:  "../../icon/start.svg"
+                    tintColor:  (gcodeConsole) ? Colors.gray_300 : (shellProcess.running) ? "orange" : "green"
                 }
-                var inputCmd = inputText.trim();
-                if (inputCmd.length <1) return;
-                inputCmd = inputCmd.replace(/\\n/g, '\n  ');
-                let response = sendCommand(inputCmd);
-                if (response !== "") {
-                    if (gcodeConsole) {
-                        out = qsTr(">Gcode command published to device\n  ");
-                    } else {
-                        out = response;
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        var inputCmd = inputText.trim();
+                        if (inputCmd.length <1) return;
+                        
+                        if (shellProcess.running && !gcodeConsole){
+                            shellProcess.write(inputTextBox.text + "\n");
+                            consoleComp.outputText += '<br>' + inputTextBox.text + "<br>"
+                            inputTextBox.text = "";
+                            termScroll.scroll();
+                            return;
+                        }
+                        if (printing && !ignoreDialog) {
+                            dialogStack.popupDialog(
+                                "TextConfirm", {
+                                    name: "Limit Frame",
+                                    type: TextConfirm.YES_NO,
+                                    titles: [qsTr("Ignore"), qsTr("Close")],
+                                    text: qsTr("Printer is busy! Are you sure you want to publish this command? Press ignore to hide this message."),
+                                    onYes: function() {ignoreDialog = true},
+                                    onNo: function () {
+                                        inputCmd = "";
+                                        return;
+                                    },
+                            }); 
+                        }
+                    
+                        
+                        inputCmd = inputCmd.replace(/\\n/g, '\n  ');
+                        sendCommand(inputCmd);
+                        inputText = "";  
                     }
-                    if (outputText != "") outputText += "\n\n";
-                    var origHeight = outputText == "" ? 0 : outputTextArea.contentHeight;
-                    var ts = timestamp(0) + "[root]:";
-                    outputText += ts + inputCmd  + "\n" + out;
-                    inputText = "";
-                    termScroll.scroll(origHeight);
-                }                
-            }
-        }
-
-
-        ZButton{
-            id:exportBtn
-            icon:"../../icon/components/export.svg"
-            iconSize: 50
-            width: 50
-
-            anchors.right:parent.right
-            anchors.rightMargin:26
-            anchors.top:parent.top
-            anchors.topMargin:12
-            type: ZButtonAppearance.Secondary
-            onClicked: {
-    
-                dialogStack.popupDialog(
-                        "TextConfirm", {
-                            name: gcodeConsole ? qsTr("Export console log"):qsTr("Export Gcode macro"),
-                            type: TextConfirm.YES_NO,
-                            defaultButton: 0,
-                            text: qsTr("Export console output to a log file?"),
-                            onYes: function() {
-                                if (gcodeConsole) {
-                                    pathDialog(`/mnt/sdcard/x1plus/gcode_${timestamp(0)}.log`,savePath);                 
-                                } else {
-                                    pathDialog(`/mnt/sdcard/x1plus/console_${timestamp(0)}.log`,savePath);                 
-                                }
-                                                        
-                            },
-                        })
-            }
-        }        
-    }
-
-    function pathDialog(inputtxt){
-            dialogStack.push("InputPage.qml", {
-                                input_head_text : qsTr("Save console output to:"),
-                                input_text : inputtxt,
-                                max_input_num : 50,
-                                isUsePassWord : false,
-                                isInputShow : true,
-                                isInputting_obj : rect_isInputting_obj,
-                                output_obj : inputText});    
-        }
-    QtObject {
-        id: rect_isInputting_obj
-        property bool isInputting: false
-      
-        onIsInputtingChanged: {
-            if(!isInputting){
-                if (!savePath== ""){
-                    console.log(`[x1p] saving console log ${savePath}`);
-                    X1PlusNative.saveFile(savePath, outputTextArea.text);
+                    onEntered: parent.opacity = 0.8
+                    onExited: parent.opacity = 1.0
                 }
-    
-                
+            }
+            Rectangle {
+                id: stopBtn
+                color: "transparent"
+                width: 70 
+                height: 70
+                anchors.right: parent.right
+                ZImage {
+                    width: 70 
+                    height: 70
+                    anchors.fill:parent
+                    fillMode: Image.PreserveAspectFit 
+                    originSource:  "../../icon/stop.svg"
+                    tintColor:  (gcodeConsole) ? Colors.gray_300 : (shellProcess.running) ? "red" :  Colors.gray_300
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (shellProcess.running)
+                            inputText = "";
+                            shellProcess.terminate();
+                    }
+                    onEntered: parent.opacity = 0.8
+                    onExited: parent.opacity = 1.0
+                }
             }
         }
+          
     }
+
     Item {
         X1PBackButton {
             id: backBtn
             onClicked: { 
+                if (shellProcess.running) shellProcess.terminate();
+                if (gcodeProc.running) gcodeProc.terminate();
                 consoleComp.parent.pop();
             }
         }
