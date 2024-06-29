@@ -9,6 +9,7 @@ import logging
 import os
 import socketio
 import ssl
+import subprocess
 import time
 from json import dumps, loads
 from jeepney import DBusAddress, new_method_call, MessageType
@@ -310,6 +311,8 @@ class PolarPrintService(X1PlusDBusService):
 
         Also see here: https://github.com/X1Plus/X1Plus/blob/main/bbl_screen-patch/patches/printerui/qml/X1Plus.js#L167-L170
         """
+
+        """
         status_translation: {
             "0": 0, # Idle and ready
             "1": 2, #
@@ -344,15 +347,24 @@ class PolarPrintService(X1PlusDBusService):
         else:
             rv['result'] = loads(reply.body[0])
         logger.info(f"**** result: {rv['result']}")
+        """
 
+        # This is a total ugly hack.
+        dbus_call = ["dbus-send", "--system", "--print-reply", "--dest=bbl.service.screen", "/bbl/service/screen", "bbl.screen.x1plus.getStatus", 'string: {"text": "hello"}']
+        stage_and_state = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        # should actually decode next line, but I'm in a hurry.
+        stage_and_state_json = str(stage_and_state).split("string ")[1][1:-2]
+        output = loads(stage_and_state_json)
+        logger.debug(f"  *** {output['stage'], output['state']}")
+    # return hostname.stdout.decode().split(" ")[0]
         self.status = 0
-        if not self.job_id and task_state > 0 and task_state < 4:
-            self.status = 1
-        elif self.status == 6:
-            await self._job("canceled")
-            self.status = 6
-        elif status == 7:
-            await self._job("completed")
+        # if not self.job_id and task_state > 0 and task_state < 4:
+        #     self.status = 1
+        # elif self.status == 6:
+        #     await self._job("canceled")
+        #     self.status = 6
+        # elif status == 7:
+        #     await self._job("completed")
 
 
     async def _status(self) -> None:
