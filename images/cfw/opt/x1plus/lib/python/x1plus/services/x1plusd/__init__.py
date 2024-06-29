@@ -14,7 +14,11 @@ logger = logging.getLogger(__name__)
 async def main():
     logger.info("x1plusd is starting up")
 
-    router = await get_dbus_router()
+    try:
+        router = await get_dbus_router()
+    except Exception as e:
+        logger.error(e)
+        raise
     settings = SettingsService(router=router)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
