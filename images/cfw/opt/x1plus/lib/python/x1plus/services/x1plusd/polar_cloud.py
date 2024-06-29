@@ -317,7 +317,32 @@ class PolarPrintService(X1PlusDBusService):
             "5": 5,
             "6": 4,
         }
-        # await poll printer
+        # try:
+        #     addr = DBusAddress("bbl.service.screen", bus_name="/bbl/service/screen", interface="bbl.screen.x1plus")
+        #     method = "getStatus"
+        #     params = {"text": "getStatus"}
+        # except Exception as e:
+        #     # deal with this
+
+        # msg = new_method_call(addr, method, 'x', body=())
+        rv = {'jsonrpc': '2.0', 'id': pkt['id']}
+        try:
+            addr = DBusAddress(pkt['params']['object'], bus_name=pkt['params']['bus_name'], interface=pkt['params']['interface'])
+            method = pkt['params']['method']
+            params = pkt['params']['params']
+        except Exception as e:
+            pkt['error'] = {'code': -32602, 'message': str(e)}
+            await ws.send_json(rv)
+            continue
+        dmsg = new_method_call(addr, method, 's', (json.dumps(params), ))
+        reply = await self.router.send_and_get_reply(dmsg)
+        if reply.header.message_type == MessageType.error:
+            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
+        else:
+            rv['result'] = json.loads(reply.body[0])
+        logger.info(f"**** result: {rv['result']}")
+
+        self.status = 0
         if not self.job_id and task_state > 0 and task_state < 4:
             self.status = 1
         elif self.status == 6:
