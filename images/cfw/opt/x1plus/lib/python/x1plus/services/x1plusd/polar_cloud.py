@@ -10,6 +10,8 @@ import os
 import socketio
 import ssl
 import time
+from json import dumps, loads
+from jeepney import DBusAddress, new_method_call, MessageType
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
@@ -317,29 +319,30 @@ class PolarPrintService(X1PlusDBusService):
             "5": 5,
             "6": 4,
         }
-        # try:
-        #     addr = DBusAddress("bbl.service.screen", bus_name="/bbl/service/screen", interface="bbl.screen.x1plus")
-        #     method = "getStatus"
-        #     params = {"text": "getStatus"}
-        # except Exception as e:
-        #     # deal with this
-
-        # msg = new_method_call(addr, method, 'x', body=())
-        rv = {'jsonrpc': '2.0', 'id': pkt['id']}
+        rv = {'jsonrpc': '2.0', 'id': 1}
         try:
-            addr = DBusAddress(pkt['params']['object'], bus_name=pkt['params']['bus_name'], interface=pkt['params']['interface'])
-            method = pkt['params']['method']
-            params = pkt['params']['params']
+            addr = DBusAddress("bbl.service.screen", bus_name="/bbl/service/screen", interface="bbl.screen.x1plus")
+            method = "getStatus"
+            params = {"text": "getStatus"}
         except Exception as e:
-            pkt['error'] = {'code': -32602, 'message': str(e)}
-            await ws.send_json(rv)
-            continue
-        dmsg = new_method_call(addr, method, 's', (json.dumps(params), ))
+            logger.error(f"Something failed in status call: {e}")
+            return
+        dbus_msg = new_method_call(addr, method, 's', (dumps(params), ))
+        reply = await self.router.send_and_get_reply(dbus_msg)
+        if reply.header.message_type == MessageType.error:
+            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
+        else:
+            rv['result'] = loads(reply.body[0])
+        # except Exception as e:
+        #     # pkt['error'] = {'code': -32602, 'message': str(e)}
+        #     await ws.send_json(rv)
+        #     # continue
+        dmsg = new_method_call(addr, method, 's', (dumps(params), ))
         reply = await self.router.send_and_get_reply(dmsg)
         if reply.header.message_type == MessageType.error:
             rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
         else:
-            rv['result'] = json.loads(reply.body[0])
+            rv['result'] = loads(reply.body[0])
         logger.info(f"**** result: {rv['result']}")
 
         self.status = 0
@@ -382,7 +385,8 @@ class PolarPrintService(X1PlusDBusService):
         }
         """
         while True:
-            self.polar_settings.on("status", lambda:self._status_update)
+            await self._status_update()
+            # self.polar_settings.on("status", lambda:self._status_update)
             if not self.is_connected:
                 return
             if (datetime.datetime.now() - self.last_ping).total_seconds() <=5:
