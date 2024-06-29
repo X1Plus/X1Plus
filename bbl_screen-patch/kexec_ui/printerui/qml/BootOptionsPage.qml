@@ -1,4 +1,4 @@
-``import QtQuick 2.12
+import QtQuick 2.12
 import QtQuick.Controls 2.12
 import UIBase 1.0
 import Printer 1.0
