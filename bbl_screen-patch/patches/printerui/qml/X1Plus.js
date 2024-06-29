@@ -178,7 +178,10 @@ X1Plus.DBus.registerMethod("ping", (param) => {
 	return param;
 });
 X1Plus.DBus.registerMethod("getStatus", (param) => {
-	param["pong"] = PrintManager.currentTask.stage + " " + PrintManager.currentTask.status;
+  param["pong"] = "stage: "
+	param["pong"] += PrintManager.currentTask.stage;
+  param["pong"] += " state: "
+  param["pong"] += PrintManager.currentTask.state;
   return param;
 });
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));

@@ -102,7 +102,6 @@ class PolarPrintService(X1PlusDBusService):
         """
         await self.socket.emit("unregister", self.polar_settings.get("polar.sn"))
 
-
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
         Check to see if printer has already been registered. If it has, we can
@@ -272,12 +271,12 @@ class PolarPrintService(X1PlusDBusService):
         7     Complete; printer has completed a print job from the cloud
         8     Updating; printer is updating its software
         9     Cold pause; printer is in a "cold pause" state
-        10     Changing filament; printer is in a "change filament" state
-        11     TCP/IP; printer is printing a local print over a TCP/IP connection
-        12     Error; printer is in an error state
-        13     Disconnected; controller's USB is disconnected from the printer
-        14     Door open; unable to start or resume a print
-        15     Clear build plate; unable to start a new print
+        10    Changing filament; printer is in a "change filament" state
+        11    TCP/IP; printer is printing a local print over a TCP/IP connection
+        12    Error; printer is in an error state
+        13    Disconnected; controller's USB is disconnected from the printer
+        14    Door open; unable to start or resume a print
+        15    Clear build plate; unable to start a new print
 
         Several of these output states will be ignored for now.
         Todo: 15 **really, really** needs to be dealt with.
@@ -318,6 +317,15 @@ class PolarPrintService(X1PlusDBusService):
             "5": 5,
             "6": 4,
         }
+        # await poll printer
+        if not self.job_id and task_state > 0 and task_state < 4:
+            self.status = 1
+        elif self.status == 6:
+            await self._job("canceled")
+            self.status = 6
+        elif status == 7:
+            await self._job("completed")
+
 
     async def _status(self) -> None:
         """
@@ -444,7 +452,7 @@ class PolarPrintService(X1PlusDBusService):
             "serialNumber": self.polar_settings.get("polar.sn"),
             "jobId": self.job_id,
             "state": status, # "completed" | "canceled"
-            # Next two when we get more feature implemented
+            # Next two when we get more features implemented
             # "printSeconds": integer,              // integer, optional
             # "filamentUsed": integer               // integer, optional
         }
@@ -476,7 +484,7 @@ class PolarPrintService(X1PlusDBusService):
         #     await self._job("canceled")
         #     return
 
-        await self._job("completed")
+
         self.job_id = ""
         # self._file_manager.add_file(FileDestinations.LOCAL, path, StreamWrapper(path, BytesIO(req_stl.content)), allow_overwrite=True)
         # self.job_id = data['jobId'] if 'jobId' in data else "123"
@@ -495,7 +503,8 @@ class PolarPrintService(X1PlusDBusService):
         # self._cloud_print_info = info
         # self._status_now = True
 
-    def dbus_PrintFile(self):
+    def dbus_PrintFile(self, file_name):
+
         pass
 
     async def _download_file(self, path, file, url):
@@ -533,12 +542,14 @@ class PolarPrintService(X1PlusDBusService):
         logger.info(f"_download_file success: {os.path.getsize(dest)}")
 
     async def _on_pause(self):
+        self.status = 4
         pass
 
     async def _on_resume(self):
         pass
 
     async def _on_cancel(self):
+        self.status = 6
         pass
 
 
