@@ -355,16 +355,20 @@ class PolarPrintService(X1PlusDBusService):
         # should actually decode next line, but I'm in a hurry.
         stage_and_state_json = str(stage_and_state).split("string ")[1][1:-2]
         output = loads(stage_and_state_json)
-        logger.debug(f"  *** {output['stage'], output['state']}")
-    # return hostname.stdout.decode().split(" ")[0]
+        task_state = output["state"]
+        task_stage = output["stage"]
+        logger.debug(f"  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}")
         self.status = 0
-        # if not self.job_id and task_state > 0 and task_state < 4:
-        #     self.status = 1
-        # elif self.status == 6:
-        #     await self._job("canceled")
-        #     self.status = 6
-        # elif status == 7:
-        #     await self._job("completed")
+        if task_state > 0 and task_state < 4:
+            if not self.job_id:
+                self.status = 1
+            else:
+                self.status = 3
+        elif self.status == 6:
+            await self._job("canceled")
+            self.status = 6
+        elif self.status == 7:
+            await self._job("completed")
 
 
     async def _status(self) -> None:
@@ -424,7 +428,7 @@ class PolarPrintService(X1PlusDBusService):
                     self.is_connected = False
                     # After the next request the server will respond with `welcome`.
                     logger.info("Reconnecting.")
-                    await self.socket.connect()
+                    await self.socket.connect(self.server_url, transports=["websocket"])
                     self.is_connected = True
                     return # Or else we'll starting sending too many updates.
             await asyncio.sleep(10)
@@ -561,9 +565,7 @@ class PolarPrintService(X1PlusDBusService):
             download_bytes = 0
             download_bytes_total = -1
             with open(dest, 'wb') as f:
-                # Total timeout of 15 minutes per request means you need to
-                # sustain 100 kB/s from Bambu on a 90MB update.zip before we
-                # time out.
+                logger.debug("Opened file to write.")
                 timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
                 async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout) as session:
                     async with session.get(url) as response:
@@ -572,6 +574,7 @@ class PolarPrintService(X1PlusDBusService):
                         self.download_bytes = 0
                         last_publish = datetime.datetime.now()
                         async for chunk in response.content.iter_chunked(131072):
+                            logger.debug("Downloaded a chunk.")
                             self.download_bytes += len(chunk)
                             f.write(chunk)
         except:
