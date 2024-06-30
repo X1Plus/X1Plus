@@ -131,6 +131,16 @@ function sendGcode(gcode_line,seq_id = 0){
 }
 X1Plus.sendGcode = sendGcode;
 
+// function printGcodeFile(fileName){
+//   var payload = {
+//     command: "gcode_file",
+//     param: fileName,
+//   };
+//   DDS.publish("device/request/print", payload);
+//   console.log("[x1p] Gcode published:", JSON.stringify(payload));
+// }
+// X1Plus.printGcodeFile = printGcodeFile;
+
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
         	year: 'numeric', 
@@ -181,6 +191,21 @@ X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["stage"] = PrintManager.currentTask.stage;
 	param["state"] = PrintManager.currentTask.state;
 	return param;
+});
+X1Plus.DBus.registerMethod("printFile", (param) => {
+  var payload = {
+    command: "gcode_file",
+    param: param["filename"],
+  };
+  DDS.publish("device/request/print", payload);
+  console.log("[x1p] Gcode printed:", JSON.stringify(payload));
+  param["finished"] = "File printed.";
+  return
+}
+
+X1Plus.DBus.registerMethod("print", (param) => {
+
+  return param;
 });
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
 X1Plus.DBus.registerMethod("TryRpc", (param) => {
