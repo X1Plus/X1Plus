@@ -98,6 +98,8 @@ class HTTPService():
                 await ws.send_json(rv)
         except Exception as e:
             logger.error(f"websocket had exception {e}")
+            import traceback
+            traceback.print_exception(e)
             await ws.close()
 
         logger.info("goodbye, websocket")
