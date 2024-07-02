@@ -107,7 +107,7 @@ def _cmd_publish(args):
         try:
             payload = func(**kwargs)
             print(payload)
-            topic = f"device/{sn}/{command}"
+            topic = f"device/{sn}/request"
             result = publish_message(topic,payload)
             if result:
                 print(f"Successfully published to topic {topic}. Payload: {json.loads(payload)}")

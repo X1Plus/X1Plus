@@ -174,8 +174,7 @@ class MQTTService(X1PlusDBusService):
         if self.status == self.STATUS_DISABLED:
             await self.disconnect()
         elif self.status == self.STATUS_DISCONNECTED:
-            await self.connect
-            # await self.subscribe_topics()
+            await self.connect()
             
         while True:
             await asyncio.sleep(10)
