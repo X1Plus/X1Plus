@@ -1,6 +1,6 @@
 from . import ota
 from . import settings
-from . import mqtt
+from . import printer
 
-__all__ = ['ota', 'settings', 'mqtt']
+__all__ = ['ota', 'settings', 'printer']
 
