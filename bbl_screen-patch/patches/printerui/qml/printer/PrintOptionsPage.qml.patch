@@ -1,0 +1,84 @@
+--- printer_ui-orig/printerui/qml/printer/PrintOptionsPage.qml
++++ printer_ui/printerui/qml/printer/PrintOptionsPage.qml
+@@ -5,11 +5,17 @@
+ 
+ import "qrc:/uibase/qml/widgets"
+ import ".."
+-
++import "../X1Plus.js" as X1Plus
+ Item {
+ 
+     property var printConfig: PrintManager.printConfig
+     property var doorOpenLevelModel: [qsTr("notification"), qsTr("pause printing")]
++    property bool isPrintingMonitorOn: X1Plus.Settings.get("printer.isPrintingMonitorOn", printConfig.isPrintingMonitorOn)
++    property int printSensitiveMode: X1Plus.Settings.get("printer.printSensitiveMode", printConfig.printSensitiveMode)
++    property bool isBuildPlateMarkerOn: X1Plus.Settings.get("printer.isBuildPlateMarkerOn", printConfig.isBuildPlateMarkerOn)
++    property bool isFirstLayerOn: X1Plus.Settings.get("printer.isFirstLayerOn", printConfig.isFirstLayerOn)
++    property bool isStepLossRecoveryOn: X1Plus.Settings.get("printer.isStepLossRecoveryOn", printConfig.isStepLossRecoveryOn)
++    property bool isSDCardCache3mfOn: X1Plus.Settings.get("printer.isSDCardCache3mfOn", printConfig.isSDCardCache3mfOn)
+ 
+     ScrollView {
+         id: scroll
+@@ -42,7 +48,7 @@
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+                     anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.isPrintingMonitorOn
++                    dynamicChecked: isPrintingMonitorOn
+                     textColor: StateColors.get("gray_100")
+                     textWrapMode: Text.WordWrap
+                     font: Fonts.body_30
+@@ -77,7 +83,7 @@
+                     anchors.leftMargin: 3
+                     model: printConfig.printSensitiveStrings
+                     textColor: Colors.brand
+-                    currentIndex: printConfig.printSensitiveMode
++                    currentIndex: printSensitiveMode
+                     visible: printMonitorCheckBox.checked
+ 
+                     onCurrentIndexChanged: {
+@@ -86,7 +92,7 @@
+                         }
+                     }
+                     Binding on currentIndex {
+-                        value: printConfig.printSensitiveMode
++                        value: printSensitiveMode
+                     }
+                 }
+             }
+@@ -106,7 +112,7 @@
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+                     anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.isBuildPlateMarkerOn
++                    dynamicChecked: isBuildPlateMarkerOn
+                     textColor: StateColors.get("gray_100")
+                     textWrapMode: Text.WordWrap
+                     font: Fonts.body_30
+@@ -146,7 +152,7 @@
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+                     anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.isFirstLayerOn
++                    dynamicChecked: isFirstLayerOn
+                     textColor: StateColors.get("gray_100")
+                     font: Fonts.body_30
+                     text: qsTr("First Layer Inspection")
+@@ -170,7 +176,7 @@
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+                     anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.isStepLossRecoveryOn
++                    dynamicChecked: isStepLossRecoveryOn
+                     textColor: StateColors.get("gray_100")
+                     font: Fonts.body_30
+                     text: qsTr("Auto-recovery from step loss")
+@@ -279,7 +285,7 @@
+                     anchors.top: parent.top
+                     anchors.left: parent.left
+                     anchors.leftMargin: 27
+-                    dynamicChecked: printConfig.isSDCardCache3mfOn
++                    dynamicChecked: isSDCardCache3mfOn
+                     textColor: StateColors.get("gray_100")
+                     font: Fonts.body_30
+                     text: qsTr("Caching cloud print files to sdcard")

@@ -87,7 +87,6 @@ var printerConfigDir = null;
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
 X1Plus.emulating = emulating;
 
-
 function isIdle() {
 	return PrintManager.currentTask.stage < PrintTask.WORKING;
 }
@@ -148,6 +147,18 @@ function fileExists(fPath) {
 }
 X1Plus.fileExists = fileExists;
 
+_LayerUpdate = null;
+_PrintStateUpdate = null;
+
+function onStateChanged(a) {
+	_PrintStateUpdate({["state"]: a});
+}
+X1Plus.onStateChanged = onStateChanged;
+
+function onLayerChanged(a, b) {
+	_LayerUpdate({["layerNum"]: a,["totalLayerNum"]: b});
+}
+X1Plus.onLayerChanged = onLayerChanged;
 /* Some things can only happen after we have a DeviceManager and
  * PrintManager passed down, and the real QML environment is truly alive. 
  * Submodules also don't get access to the global X1Plus object until after
@@ -171,7 +182,10 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	TempGraph.awaken();
 	Network.awaken();
 	console.log("X1Plus.js is awake");
+	_LayerUpdate = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/status", "x1plus.status", "Layer");
+	_PrintStateUpdate = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/status", "x1plus.status", "State");
 }
+
 
 X1Plus.DBus.registerMethod("ping", (param) => {
 	param["pong"] = "from QML";
