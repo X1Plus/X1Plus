@@ -10,9 +10,8 @@ import "../X1Plus.js" as X1Plus
 Item {
     property alias name: textConfirm.objectName
     property var currentVersion: screenSaver.cfwVersions['cfw']['version']
-    property var isShield: DeviceManager.getSetting("cfw_shield", false)
     property var ota: X1Plus.OTA.status()
-    property var otaEnabled: !!X1Plus.Settings.get("ota.enabled", true) && !isShield
+    property var otaEnabled: !!X1Plus.Settings.get("ota.enabled", true)
     property var downloadBaseFirmware: true /* wire up to switch */
     property var otaBusy: ota.status != 'IDLE' && ota.status != 'DISABLED'
     property var progressString: `${(ota.download.bytes / 1048576).toFixed(2)} MB / ${(ota.download.bytes_total / 1048576).toFixed(2)} MB`
@@ -101,14 +100,13 @@ Item {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                text: isShield ? qsTr("X1Plus cannot check for updates while the printer is in Shield Mode.") :
-                      otaEnabled ? qsTr("Checking for X1Plus updates is enabled.") : qsTr("Checking for X1Plus updates is disabled.")
+                text: otaEnabled ? qsTr("Checking for X1Plus updates is enabled.") : qsTr("Checking for X1Plus updates is disabled.")
                 Layout.columnSpan: otaBusy ? 2 : 1
             }
             
             ZSwitchButton {
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                visible: !otaBusy && !isShield
+                visible: !otaBusy
                 dynamicChecked: otaEnabled
                 onToggled: {
                     X1Plus.Settings.put("ota.enabled", checked)

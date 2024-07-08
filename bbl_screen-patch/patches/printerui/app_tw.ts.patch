@@ -5,6 +5,38 @@
      </message>
  </context>
 +<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
++  </message>
++</context>
++<context>
 +  <name>HardwarePage</name>
 +  <message>
 +    <source>Stainless steel</source>
@@ -40,6 +72,31 @@
 +  </message>
 +</context>
 +<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>重置</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Prepare</source>
++    <translation>准备</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
 +  <name>InstallingPage</name>
 +  <message>
 +    <source>Yes</source>
@@ -58,10 +115,10 @@
 +  </message>
 +</context>
 +<context>
-+  <name>GpioKeys</name>
++  <name>LanAccessPage</name>
 +  <message>
-+    <source>Ignore</source>
-+    <translation>忽略</translation>
++    <source>Return</source>
++    <translation>返回</translation>
 +  </message>
 +</context>
 +<context>
@@ -77,63 +134,6 @@
 +  <message>
 +    <source>Close</source>
 +    <translation>关闭</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VersionDialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>UpgradeDialog</name>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>取消</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedTramming</name>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>准备</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>DeviceInfo</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+  <message>
-+    <source>reset</source>
-+    <translation>重置</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>LanAccessPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
 +  </message>
 +</context>
  </TS>

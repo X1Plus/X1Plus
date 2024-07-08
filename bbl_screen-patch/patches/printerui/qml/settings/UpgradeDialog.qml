@@ -15,7 +15,6 @@ Item {
     property var url: ""
     property var md5: ""
     property var fileName: url.substring(url.lastIndexOf("/") + 1)
-    property var isShield: DeviceManager.getSetting("cfw_shield", false)
     property var localPath: `/sdcard/x1plus/firmware/${fileName}`
     property var isDownloaded: false
     property var md5Failed: false
@@ -38,7 +37,7 @@ Item {
             isDefault: defaultButton == 0
             keepDialog: true
             onClicked: { downloadToCache(); }
-            visible: !isDownloaded && !downloadInProgress && !isInstalling && !isShield
+            visible: !isDownloaded && !downloadInProgress && !isInstalling
         }
         DialogButtonItem {
             name: "install"; title: qsTr("Install %1").arg(version)
@@ -235,8 +234,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: !isDownloaded && !downloadInProgress && !md5Failed
-                text: isShield ? qsTr("Version %1 does not exist on the SD card. You must take your printer out of Shield Mode in order to download it, or copy it manually to your SD card.").arg(version)
-                               : qsTr("Version %1 does not exist on the SD card. Download it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.").arg(version)
+                text: qsTr("Version %1 does not exist on the SD card. Download it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.").arg(version)
             }
 
             Text {
@@ -246,8 +244,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 visible: !isDownloaded && !downloadInProgress && md5Failed
-                text: isShield ? qsTr("Version %1 exists on the SD card, but appears to be corrupt. You must take your printer out of Shield Mode in order to download it, or copy it manually to your SD card.").arg(version)
-                               : qsTr("Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.").arg(version)
+                text: qsTr("Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?<br><br>This requires an active Internet connection, and will connect to Bambu Lab servers.").arg(version)
             }
 
             /* Phase: download. */
