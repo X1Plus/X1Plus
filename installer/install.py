@@ -47,11 +47,17 @@ basefw_mtime = INFO["base"]["mtime"]
 cfw_version = INFO["cfwVersion"]
 cfw_squashfs = f"{cfw_version}.squashfs"
 demand_free_space = fs_size + 1 * 1024 * 1024 * 1024
-# latest_safe_bblap = "00.00.28.55" # 1.07.02.00
+oldest_safe_bblap = "00.00.28.55" # 1.07.02.00 - anything older is not guaranteed to have a safe RPMB migration
 latest_safe_bblap = "00.00.30.73" # Firmware R - "1.06.06.58" aka 1.07.02.00+R
 
 dds_rx_queue = dds.subscribe("device/request/upgrade")
 dds_tx_pub = dds.publisher("device/report/upgrade")
+
+print("hello there, X1Plus installer here.  here's the contents of my info.json:")
+print(json.dumps(INFO, indent=4))
+print("let's-a go!")
+print("")
+print("")
 
 print("waiting for DDS to spin up...")
 time.sleep(3)
@@ -261,6 +267,33 @@ if not os.path.isfile(backup_path):
 # validate that we're on a machine that has a supported device tree
 report_progress("Checking system compatibility")
 
+with open("/etc/bblap/Version", "r") as apvf:
+    apv = apvf.read().strip()
+    if apv > latest_safe_bblap:
+        report_failure(f"Installed firmware version {apv} is too new for this version of X1Plus.")
+    if apv < oldest_safe_bblap:
+        report_failure(f"Installed firmware version {apv} is too old for this version of X1Plus.  You must upgrade to the Official Rootable Firmware to install this version of X1Plus.")
+    print(f"OK, I appear to be installing on bblap Version {apv}")
+
+# While we're in here, if the WiFi is on, and we came from a legacy kexec_ui
+# that's running wpa_supplicant_hook, and the configs are different, we need
+# to restart into netService.
+
+# we cannot use pidof here, because wpa_supplicant_hook is actually a /bin/bash
+wpa_supplicant_hook_pid = subprocess.run('ps aufx | grep -v grep | grep wpa_supplicant_hook', shell=True, capture_output=True).stdout.decode()
+if wpa_supplicant_hook_pid != '':
+    print("looks like wpa_supplicant_hook is running; guess we'll shoot it")
+    pid = re.match(r"[^ ]* *([^ ]*)", wpa_supplicant_hook_pid)[1]
+    os.system(f"kill {pid}")
+    os.system(f"killall wpa_cli")
+    time.sleep(0.5)
+    os.system(f"killall udhcpc")
+    time.sleep(0.5)
+    os.system(f"killall wpa_supplicant")
+    time.sleep(1)
+    print("bang bang, it oughta be dead.  starting up netService instead")
+    os.system(f"netService &")
+    
 if not os.path.isfile(f"{installer_path}/kernel/{device_tree_compute_key()}.dts"):
     report_failure("This custom firmware image does not support this printer's hardware version.")
 
@@ -269,7 +302,19 @@ report_success()
 
 def download_firmware(update_url, dest_path):
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+    # Take a few attempts to wait for the WiFi to come up before we complain
+    # that the network is unreachable -- especially important if we just
+    # restarted wpa_supplicant.
+    for _ in range(10):
+        ip_address = subprocess.run('wpa_cli -i wlan0 status | grep ^ip_address= | cut -d= -f2', shell=True, capture_output=True).stdout.decode().strip()
+        if ip_address != '':
+            break
+        report_interim_progress("Waiting for WiFi...")
+        time.sleep(2)
+
     report_interim_progress("Connecting...")
+    
     success = False
     retry = 1
     while success == False and retry < 20:

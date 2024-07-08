@@ -5,382 +5,6 @@
      </message>
  </context>
 +<context>
-+  <name>EmergencyConsole</name>
-+  <message>
-+    <source>Starting emergency recovery console...</source>
-+    <translation>緊急リカバリーコンソールを起動中...</translation>
-+  </message>
-+  <message>
-+    <source>Emergency recovery console is running. You can access it in the following ways:</source>
-+    <translation>緊急リカバリーコンソールが起動しています。以下の方法でアクセスできます：</translation>
-+  </message>
-+  <message>
-+    <source>SSH to %1.</source>
-+    <translation>%1 に SSH 接続</translation>
-+  </message>
-+  <message>
-+    <source>The password is %1; your printer is connected to the Wi-Fi network "%2".</source>
-+    <translation>パスワードは %1です。プリンタはWi-Fiネットワーク "%2" に接続されています。</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Connect a micro-USB cable to the AP board&lt;/b&gt; and use ADB to connect.</source>
-+    <translation>&lt;b&gt;マイクロUSBケーブルをAPボードに接続&lt;/b&gt;し、ADBを使って接続</translation>
-+  </message>
-+  <message>
-+    <source>Connect a UART to the AP board.</source>
-+    <translation>UARTをAPボードに接続します。</translation>
-+  </message>
-+  <message>
-+    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
-+    <translation>ルートコンソールからプリンタに永久的かつ不可逆的な損傷を与えることができます。 入力内容を理解しない限り、コマンドを入力しないでください。</translation>
-+  </message>
-+  <message>
-+    <source>To exit the emergency console, restart your printer.</source>
-+    <translation>緊急コンソールを終了するには、プリンタを再起動してください。</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>SelectX1pPage</name>
-+  <message>
-+    <source>X1Plus custom firmware installation</source>
-+    <translation>X1Plusカスタムファームウェアのインストール</translation>
-+  </message>
-+  <message>
-+    <source>Select a firmware bundle to install:</source>
-+    <translation>インストールするファームウェアバンドルを選択：</translation>
-+  </message>
-+  <message>
-+    <source>No .x1p files found on SD card.</source>
-+    <translation>SDカードに.x1pファイルがありません</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Custom firmware version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Bambu Lab base firmware version:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Build date:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;Release notes:&lt;/b&gt; %4</source>
-+    <translation>&lt;b&gt;カスタムファームウェアバージョン:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;ベースファームウェアバージョン:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;ビルド日時:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;リリースノート:&lt;/b&gt; %4</translation>
-+  </message>
-+  <message>
-+    <source>No custom firmware installation bundles found on SD card. Copy a &lt;b&gt;.x1p&lt;/b&gt; file to the SD card and try again.</source>
-+    <translation>SDカードにカスタムファームウェアインストールバンドルがありません。&lt;b&gt;.x1p&lt;/b&gt; ファイルをSDカードにコピーして再度実行してください。</translation>
-+  </message>
-+  <message>
-+    <source>Are you sure you're ready to install the X1Plus custom firmware?&lt;br&gt;&lt;br&gt;While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.&lt;br&gt;&lt;br&gt;Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.</source>
-+    <translation>X1Plusカスタムファームウェアをインストールする準備ができていますか？&lt;br&gt;&lt;br&gt;X1Plusの安全性には最善を尽くしていますが、プリンターの改造には常にリスクが伴います。X1Plusは、明示または黙示を問わず、いかなる保証もいたしません。X1Plusをインストールすることにより、プリンターまたはその周辺に損害が発生する危険性については、お客様ご自身のみが責任を負うことに同意したものとみなされます。&lt;br&gt;&lt;br&gt;インストールプロセスが始まったら、完了するまでプリンターに触れないでください。インストールには最大10分（インターネット接続速度によってはそれ以上）かかる場合があります。</translation>
-+  </message>
-+  <message>
-+    <source>Yes! Install X1Plus!</source>
-+    <translation>はい！X1 Plusをインストールします！</translation>
-+  </message>
-+  <message>
-+    <source>Er, never mind</source>
-+    <translation>気にしないでください</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>戻る</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>Success</name>
-+  <message>
-+    <source>&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</source>
-+    <translation>&lt;center&gt;&lt;b&gt;成功！&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plusがプリンターに正常にインストールされました。 SDカードを挿入したままプリンタを再起動し、新しいカスタムファームウェアをお楽しみください！</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>UpgradeDialog</name>
-+  <message>
-+    <source>Download %1</source>
-+    <translation>%1をダウンロード</translation>
-+  </message>
-+  <message>
-+    <source>Install %1</source>
-+    <translation>%1をインストール</translation>
-+  </message>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>キャンセル</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>戻る</translation>
-+  </message>
-+  <message>
-+    <source>%1 update %2</source>
-+    <translation>%1 アップデート %2</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 does not exist on the SD card. Download it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
-+    <translation>バージョン %1 が SD カードに存在しません。今すぐダウンロードしますか？&lt;br&gt;&lt;br&gt;これはアクティブなインターネット接続を必要とし、Bambu Labサーバーに接続します。</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
-+    <translation>バージョン %1 は SD カードに存在しますが、壊れているようです。再ダウンロードしますか？&lt;br&gt;&lt;br&gt;これはアクティブなインターネット接続を必要とし、Bambu Labサーバーに接続します。</translation>
-+  </message>
-+  <message>
-+    <source>Downloading version %1 from Bambu Lab: %2</source>
-+    <translation>Bambu Labからバージョン %1 をダウンロード中: %2</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 is available on the SD card and ready to install. Install it now?</source>
-+    <translation>バージョン %1 はSDカードで利用可能で、インストールの準備ができました。今すぐインストールしますか？</translation>
-+  </message>
-+  <message>
-+    <source>Installing version %1.  Do not power off your printer.</source>
-+    <translation>バージョン %1をインストールしています。プリンタの電源を切らないでください。</translation>
-+  </message>
-+  <message>
-+    <source>Successfully installed version %1.</source>
-+    <translation>バージョン %1 のインストールに成功しました。</translation>
-+  </message>
-+  <message>
-+    <source>Version %1 failed to install. Consider trying again, or power cycling your printer.</source>
-+    <translation>バージョン %1 をインストールできませんでした。もう一度試すか、プリンタの電源を入れ直してください。</translation>
-+  </message>
-+  <message>
-+    <source> (Updater message "%1".)</source>
-+    <translation> (アップデーターメッセージ "%1".)</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>MeshCalcs</name>
-+  <message>
-+    <source>Your hotbed appears not to be level. Try tramming the bed.</source>
-+    <translation>ホットベッドが水平ではないようです。ベッドレベリングを実行してください。</translation>
-+  </message>
-+  <message>
-+    <source>Your hotbed appears reasonably level, but may be warped.</source>
-+    <translation>ホットベッドはそれなりに水平に見えますが、歪んでいる可能性があります。</translation>
-+  </message>
-+  <message>
-+    <source>Your hotbed appears to be flat and level.</source>
-+    <translation>ホットベッドは水平のようです。</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>戻る</translation>
-+  </message>
-+  <message>
-+    <source>The screen lock is a low-security deterrence against casual passers-by, but it will not provide a strong defense against sophisticated attackers.&lt;br&gt;&lt;br&gt;If the printer is connected to a network, you will still be able to print over the network when the screen is locked.</source>
-+    <translation>スクリーンロックは、無関係な人間に対する低セキュリティの抑止力ですが、洗練された攻撃者に対する強力な防御力はありません。&lt;br&gt;&lt;br&gt;プリンタがネットワークに接続されている場合。 画面がロックされてもネットワーク上で印刷できます</translation>
-+  </message>
-+  <message>
-+    <source>2 minutes</source>
-+    <translation>2分</translation>
-+  </message>
-+  <message>
-+    <source>5 minutes</source>
-+    <translation>5分</translation>
-+  </message>
-+  <message>
-+    <source>10 minutes</source>
-+    <translation>10分</translation>
-+  </message>
-+  <message>
-+    <source>15 minutes</source>
-+    <translation>15分</translation>
-+  </message>
-+  <message>
-+    <source>Time before display sleeps</source>
-+    <translation>画面スリープまでの時間</translation>
-+  </message>
-+  <message>
-+    <source>Lock screen mode</source>
-+    <translation>ロック画面モード</translation>
-+  </message>
-+  <message>
-+    <source>Screen saver only</source>
-+    <translation>スクリーンセーバーのみ</translation>
-+  </message>
-+  <message>
-+    <source>Swipe to unlock</source>
-+    <translation>スワイプしてロック解除</translation>
-+  </message>
-+  <message>
-+    <source>Passcode</source>
-+    <translation>パスコード</translation>
-+  </message>
-+  <message>
-+    <source>Passcode: "%1"</source>
-+    <translation>パスコード："%1"</translation>
-+  </message>
-+  <message>
-+    <source>Passcode is unset</source>
-+    <translation>パスコードが未設定</translation>
-+  </message>
-+  <message>
-+    <source>Passcode set to "%1"</source>
-+    <translation>パスコードを"%1"に設定しました</translation>
-+  </message>
-+  <message>
-+    <source>Change passcode</source>
-+    <translation>パスコードを変更</translation>
-+  </message>
-+  <message>
-+    <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
-+    <translation>SDカードに以下のファイルの一方または両方を作成することで、ロック画面にカスタムテキストまたは背景画像を追加できます。:&lt;br&gt;&lt;br&gt;&lt;b&gt;テキスト&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;背景画像&lt;/b&gt;: /x1plus/lockscreen.png</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VibrationComp</name>
-+  <message>
-+    <source>Vibration Compensation</source>
-+    <translation>振動補正</translation>
-+  </message>
-+  <message>
-+    <source>Beginning vibration compensation calibration.</source>
-+    <translation>振動補正キャリブレーションを開始</translation>
-+  </message>
-+  <message>
-+    <source>X axis</source>
-+    <translation>X軸</translation>
-+  </message>
-+  <message>
-+    <source>Y axis</source>
-+    <translation>Y軸</translation>
-+  </message>
-+  <message>
-+    <source>Sweeping %1
-+%2 Hz: %3 dB
-+Progress: %4%</source>
-+    <translation>すいーピング %1
-+%2 Hz: %3 dB
-+進捗: %4%</translation>
-+  </message>
-+  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>エラーが発生し、データの収集がタイムアウトしました。</translation>
-+  </message>
-+  <message>
-+    <source>Vibration compensation calibration: internal state error, status = %1</source>
-+    <translation>振動補正キャリブレーション: 内部状態エラー、ステータス = %1</translation>
-+  </message>
-+  <message>
-+    <source>The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.&lt;br&gt;&lt;br&gt;All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.&lt;br&gt;&lt;br&gt;Run a sweep from this page to begin.</source>
-+    <translation>プリンターに内蔵された振動補正キャリブレーションは、リンギングアーチファクトを軽減するために使用されます。このツールにより、カスタマイズしたキャリブレーションスイープを実行し、診断のためにデータを視覚化することができます。このツールは、未加工の周波数データと、プリンターが計算して使用する最終的な補正パラメーターの両方をキャプチャします。&lt;br&gt;&lt;br&gt;すべてのプリンターは周波数応答曲線が異なります。この応答曲線の経時変化は、モーターの振動、ベルト張力の変化、ツールヘッドのバインディング、その他の要因によって引き起こされることが多いです。これらの周波数応答データを分析することで、プリンターの問題を診断したり、プリンターのメンテナンスが必要な時期を特定したりすることができます。&lt;br&gt;&lt;br&gt;このページからスイープを開始する。</translation>
-+  </message>
-+  <message>
-+    <source>Vibration</source>
-+    <translation>振動</translation>
-+  </message>
-+  <message>
-+    <source>Run frequency sweep</source>
-+    <translation>周波数スイープの実行</translation>
-+  </message>
-+  <message>
-+    <source>Range:</source>
-+    <translation>レンジ：</translation>
-+  </message>
-+  <message>
-+    <source>to</source>
-+    <translation>to</translation>
-+  </message>
-+  <message>
-+    <source>Hz</source>
-+    <translation>Hz</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>キャリブレーション履歴</translation>
-+  </message>
-+  <message>
-+    <source>Clear calibration logs</source>
-+    <translation>キャリブレーションログをクリア</translation>
-+  </message>
-+  <message>
-+    <source>This will remove all of your saved vibration compensation data.  Are you sure you want to proceed?</source>
-+    <translation>保存されたすべての振動補正データが消去されます。続行しますか？</translation>
-+  </message>
-+  <message>
-+    <source>&lt;br&gt;Run date: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</source>
-+    <translation>&lt;br&gt;ラン日時: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X軸: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y軸: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>GpioKeys</name>
-+  <message>
-+    <source>Sleep/wake</source>
-+    <translation>スリープ/起動</translation>
-+  </message>
-+  <message>
-+    <source>Reboot</source>
-+    <translation>再起動</translation>
-+  </message>
-+  <message>
-+    <source>Pause print</source>
-+    <translation>一時停止</translation>
-+  </message>
-+  <message>
-+    <source>Abort print</source>
-+    <translation>印刷中止</translation>
-+  </message>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>無視</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Rerun diagnostics</source>
-+    <translation>診断を再実行</translation>
-+  </message>
-+  <message>
-+    <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
-+    <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;計算されたベッドの傾き(X軸)は、X軸で%2mm、Y軸で%3mmであり、レベリング後のピークからピークへの偏差は%4mmです。&lt;/font&gt;</translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibration: Toolhead is homing</source>
-+    <translation>ベッドメッシュキャリブレーション：ツールヘッドが原点に移動しています</translation>
-+  </message>
-+  <message>
-+    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
-+Progress: %5%</source>
-+    <translation>測定点 %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
-+進行状況: %5%</translation>
-+  </message>
-+  <message>
-+    <source>An error has occurred and data collection timed out.</source>
-+    <translation>エラーが発生し、データの収集がタイムアウトしました。</translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibration: internal state error, status = %1</source>
-+    <translation>ベッドメッシュキャリブレーション: 内部状態エラー、ステータス = %1</translation>
-+  </message>
-+  <message>
-+    <source>Bed Diagnostics</source>
-+    <translation>ベッド診断</translation>
-+  </message>
-+  <message>
-+    <source>If your prints are not flat and square, you may need to check whether your hotbed is level.&lt;br&gt;&lt;br&gt;The printer's built-in automatic bed leveling can provide information as to whether your hotbed is out of level, or if it is warped.&lt;br&gt;&lt;br&gt;Run the diagnostics to begin.</source>
-+    <translation>印刷物が平らで正方形でない場合は、ホットベッドが水平かどうかを確認する必要があるかもしれません。&lt;br&gt;&lt;br&gt;プリンタに内蔵されている自動ベッドレベリング機能により、ホットベッドが水平でないかどうか、または反っているかどうかの情報を得ることができます。&lt;br&gt;&lt;br&gt;診断を実行して開始します。</translation>
-+  </message>
-+  <message>
-+    <source>Run diagnostics</source>
-+    <translation>診断を実行</translation>
-+  </message>
-+  <message>
-+    <source>Tram bed</source>
-+    <translation>ベッドレベリング</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>キャリブレーション履歴</translation>
-+  </message>
-+  <message>
-+    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
-+    <translation>保存されたすべてのベッドメッシュデータが消去されます。続行しますか？</translation>
-+  </message>
-+  <message>
-+    <source>&lt;br&gt;Run date: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Bed Temperature: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;X-tilt: %3&lt;br&gt;Y-tilt: %4&lt;br&gt;Peak to peak deviation: %5&lt;/font&gt;</source>
-+    <translation>&lt;br&gt;ラン日時: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ベッド温度: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;X傾き: %3&lt;br&gt;Y傾き: %4&lt;br&gt;ピーク-ピーク偏差: %5&lt;/font&gt;</translation>
-+  </message>
-+</context>
-+<context>
 +  <name>HardwarePage</name>
 +  <message>
 +    <source>Stainless steel</source>
@@ -468,274 +92,95 @@
 +  </message>
 +</context>
 +<context>
-+  <name>DeviceInfo</name>
++  <name>BedMesh</name>
 +  <message>
-+    <source>%1: Device Info</source>
-+    <translation>%1: デバイス情報</translation>
++    <source>Rerun diagnostics</source>
++    <translation>診断を再実行</translation>
 +  </message>
 +  <message>
-+    <source>Return</source>
-+    <translation>戻る</translation>
++    <source>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;Calculated bed tilt (X-axis) is %2 mm across the X axis, and %3 mm across the Y axis; post-tramming peak-to-peak deviation is %4 mm.&lt;/font&gt;</source>
++    <translation>&lt;font size="3" color="#AEAEAE"&gt;%1&lt;br&gt;&lt;br&gt;計算されたベッドの傾き(X軸)は、X軸で%2mm、Y軸で%3mmであり、レベリング後のピークからピークへの偏差は%4mmです。&lt;/font&gt;</translation>
 +  </message>
 +  <message>
-+    <source>Printer serial number: </source>
-+    <translation>プリンタのシリアル番号: </translation>
++    <source>Bed mesh calibration: Toolhead is homing</source>
++    <translation>ベッドメッシュキャリブレーション：ツールヘッドが原点に移動しています</translation>
 +  </message>
 +  <message>
-+    <source>Total print time: </source>
-+    <translation>総印刷時間: </translation>
++    <source>Probed point %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++Progress: %5%</source>
++    <translation>測定点 %1&lt;br&gt;X=%2, Y=%3&amp;nbsp;&amp;nbsp;Z=%4 mm
++進行状況: %5%</translation>
 +  </message>
 +  <message>
-+    <source>%1 hours</source>
-+    <translation>%1 時間</translation>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>エラーが発生し、データの収集がタイムアウトしました。</translation>
 +  </message>
 +  <message>
-+    <source>reset</source>
-+    <translation>リセット</translation>
++    <source>Bed mesh calibration: internal state error, status = %1</source>
++    <translation>ベッドメッシュキャリブレーション: 内部状態エラー、ステータス = %1</translation>
 +  </message>
-+  <message>
-+    <source>Lead screws last lubricated: </source>
-+    <translation>リードスクリューへの最終潤滑: </translation>
-+  </message>
-+  <message>
-+    <source>ASA carbon rod maintenance timer: </source>
-+    <translation>ABSカーボンロッドメンテナンスタイマー: </translation>
-+  </message>
-+  <message>
-+    <source>ABS carbon rod maintenance timer: </source>
-+    <translation>ABSカーボンロッドメンテナンスタイマー: </translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibrated: </source>
-+    <translation>ベッドメッシュ調整済み: </translation>
-+  </message>
-+  <message>
-+    <source>Vibration compensation calibrated: </source>
-+    <translation>振動補正済み: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total length: </source>
-+    <translation>AMSの総長: </translation>
-+  </message>
-+  <message>
-+    <source>%1 meters</source>
-+    <translation>%1 m</translation>
-+  </message>
-+  <message>
-+    <source>AMS total print time: </source>
-+    <translation>AMS総印刷時間: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total filament switches: </source>
-+    <translation>AMS総フィラメントスイッチ数: </translation>
-+  </message>
-+  <message>
-+    <source>AMS total failed filament switches: </source>
-+    <translation>AMS総フィラメントスイッチ失敗数: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 print time: </source>
-+    <translation>トレイ %1 印刷時間: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 filament switches: </source>
-+    <translation>トレイ %1 フィラメントスイッチ: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 failed filament switches: </source>
-+    <translation>トレイ %1 フィラメントスイッチ失敗数: </translation>
-+  </message>
-+  <message>
-+    <source>Tray %1 print length: </source>
-+    <translation>トレイ %1 印刷長: </translation>
-+  </message>
-+  <message>
-+    <source>%1 - print time: </source>
-+    <translation>%1 - 印刷時間: </translation>
-+  </message>
-+  <message>
-+    <source>%1 - print length: </source>
-+    <translation>%1 - 印刷長: </translation>
-+  </message>
-+</context>
-+<context>
-+  <name>KexecDialog</name>
-+  <message>
-+    <source>Start from SD card</source>
-+    <translation>SDカードから起動</translation>
-+  </message>
-+  <message>
-+    <source>Startup options...</source>
-+    <translation>スタートアップオプション...</translation>
-+  </message>
-+  <message>
-+    <source>Bootable SD card detected.</source>
-+    <translation>起動可能なSDカードを検出しました。</translation>
-+  </message>
-+  <message>
-+    <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
-+    <translation>プリンターは自動的に %1 秒後にSDカードから起動します。</translation>
-+  </message>
-+  <message>
-+    <source>Your printer is rebooting into the OS on the inserted SD card.</source>
-+    <translation>プリンターが挿入されたSDカードのOSに再起動しています。</translation>
-+  </message>
-+  <message>
-+    <source>No bootable SD card detected.</source>
-+    <translation>起動可能なSDカードを検出しました。</translation>
-+  </message>
-+  <message>
-+    <source>Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.</source>
-+    <translation>起動可能なSDカードを挿入してプリンタを再起動するか、起動オプションメニューを使用してX1Plusのインストールを修復します。</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLock</name>
-+  <message>
-+    <source>Enter passcode.</source>
-+    <translation>パスコードを入力</translation>
-+  </message>
-+  <message>
-+    <source>Enter passcode: %1</source>
-+    <translation>パスコードを入力：%1</translation>
-+  </message>
-+  <message>
-+    <source>This printer is locked.</source>
-+    <translation>プリンタはロックされています</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedTramming</name>
-+  <message>
-+    <source>Step 1:</source>
-+    <translation>ステップ 1:</translation>
-+  </message>
-+  <message>
-+    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
-+    <translation>Bambu Lab wikiの「Prepare for Bed Leveling」のセクションで説明されているように、ベッドスクリューを基準張力に設定する。 (QRコードのリンクはこの文章の一番下にあります)。 </translation>
-+  </message>
-+  <message>
-+    <source>Step 2:</source>
-+    <translation>ステップ 2:</translation>
-+  </message>
-+  <message>
-+    <source>Tap the "Prepare" button below to home the bed.</source>
-+    <translation>下の"Prepare"ボタンをタップして、ベッドをホームへ。</translation>
-+  </message>
-+  <message>
-+    <source>Step 3:</source>
-+    <translation>ステップ 3:</translation>
-+  </message>
-+  <message>
-+    <source>Tap the "1" button to move the nozzle to the front left position.  Adjust the front left bed adjustment screw until the nozzle just barely touches the bed.</source>
-+    <translation>"1"ボタンをタップして、ノズルを左手前の位置に移動します。 ノズルがベッドにギリギリ触れるまで、左手前のベッド調整ネジを調整します。</translation>
-+  </message>
-+  <message>
-+    <source>Step 4:</source>
-+    <translation>ステップ 4:</translation>
-+  </message>
-+  <message>
-+    <source>Adjust the front right and rear positions by tapping their corresponding button and adjusting their corresponding screws.</source>
-+    <translation>対応するボタンをタップし、対応するネジを調整することで、前面の右側と後側の位置を調整します。</translation>
-+  </message>
-+  <message>
-+    <source>Step 5:</source>
-+    <translation>ステップ 5:</translation>
-+  </message>
-+  <message>
-+    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
-+    <translation>順番に各ポジションを確認し、調整が不要になるまで3つすべてを繰り返します。</translation>
-+  </message>
-+  <message>
-+    <source>Bed Tramming</source>
-+    <translation>ベッドレベリング</translation>
-+  </message>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>準備中</translation>
-+  </message>
-+  <message>
-+    <source>Rear
-+   2</source>
-+    <translation>リア2</translation>
-+  </message>
-+  <message>
-+    <source>Front L
-+     1</source>
-+    <translation>フロント L
-+     1</translation>
-+  </message>
-+  <message>
-+    <source>Front R
-+     3</source>
-+    <translation>フロント R
-+     3</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedLevelDiag</name>
 +  <message>
 +    <source>Bed Diagnostics</source>
 +    <translation>ベッド診断</translation>
 +  </message>
 +  <message>
-+    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
-+    <translation>&lt;font size='3' color='#AEAEAE'&gt;このキャリブレーションの実行は、%1、ベッド温度 %2 でキャプチャされました。&lt;br&gt;&lt;br&gt; 検出されたベッドの傾きはX軸で%3、Y軸で%4。ベッドのピーク間偏差は%5で、ベッドを完全にレベリングした後に残る非平面性は%6となります。&lt;br&gt;&lt;br&gt;</translation>
++    <source>If your prints are not flat and square, you may need to check whether your hotbed is level.&lt;br&gt;&lt;br&gt;The printer's built-in automatic bed leveling can provide information as to whether your hotbed is out of level, or if it is warped.&lt;br&gt;&lt;br&gt;Run the diagnostics to begin.</source>
++    <translation>印刷物が平らで正方形でない場合は、ホットベッドが水平かどうかを確認する必要があるかもしれません。&lt;br&gt;&lt;br&gt;プリンタに内蔵されている自動ベッドレベリング機能により、ホットベッドが水平でないかどうか、または反っているかどうかの情報を得ることができます。&lt;br&gt;&lt;br&gt;診断を実行して開始します。</translation>
 +  </message>
 +  <message>
-+    <source>Are you sure you want to remove the data entry from $1?</source>
-+    <translation>$1からデータエントリを削除しますか？</translation>
++    <source>Run diagnostics</source>
++    <translation>診断を実行</translation>
++  </message>
++  <message>
++    <source>Tram bed</source>
++    <translation>ベッドレベリング</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>キャリブレーション履歴</translation>
++  </message>
++  <message>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>保存されたすべてのベッドメッシュデータが消去されます。続行しますか？</translation>
++  </message>
++  <message>
++    <source>&lt;br&gt;Run date: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Bed Temperature: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;X-tilt: %3&lt;br&gt;Y-tilt: %4&lt;br&gt;Peak to peak deviation: %5&lt;/font&gt;</source>
++    <translation>&lt;br&gt;ラン日時: %1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ベッド温度: %2 &lt;font size='3' color='#AEAEAE'&gt;&lt;br&gt;X傾き: %3&lt;br&gt;Y傾き: %4&lt;br&gt;ピーク-ピーク偏差: %5&lt;/font&gt;</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>VersionDialog</name>
++  <name>EmergencyConsole</name>
 +  <message>
-+    <source>To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time.</source>
-+    <translation>カスタムファームウェアの新バージョンをインストールするには、新しいx1pファイルをSDカードのルートにコピーし、プリンタの電源を切り、起動時にインストーラを選択します。</translation>
++    <source>Starting emergency recovery console...</source>
++    <translation>緊急リカバリーコンソールを起動中...</translation>
 +  </message>
 +  <message>
-+    <source>This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card.</source>
-+    <translation>このカスタムファームウェアは、間違ったBambu Labベースファームウェアバージョンの上にロードされています。印刷が信頼できない可能性があります。SDカードにカスタムファームウェアを再インストールしてください。</translation>
++    <source>Emergency recovery console is running. You can access it in the following ways:</source>
++    <translation>緊急リカバリーコンソールが起動しています。以下の方法でアクセスできます：</translation>
 +  </message>
 +  <message>
-+    <source>X1Plus Firmware</source>
-+    <translation>X1Plus ファームウェア</translation>
++    <source>SSH to %1.</source>
++    <translation>%1 に SSH 接続</translation>
 +  </message>
 +  <message>
-+    <source>Bambu Lab base firmware</source>
-+    <translation>Bambu Lab ベースファームウェア</translation>
++    <source>The password is %1; your printer is connected to the Wi-Fi network "%2".</source>
++    <translation>パスワードは %1です。プリンタはWi-Fiネットワーク "%2" に接続されています。</translation>
 +  </message>
 +  <message>
-+    <source>Install %1</source>
-+    <translation>%1をインストール</translation>
++    <source>&lt;b&gt;Connect a micro-USB cable to the AP board&lt;/b&gt; and use ADB to connect.</source>
++    <translation>&lt;b&gt;マイクロUSBケーブルをAPボードに接続&lt;/b&gt;し、ADBを使って接続</translation>
 +  </message>
 +  <message>
-+    <source>Return</source>
-+    <translation>戻る</translation>
++    <source>Connect a UART to the AP board.</source>
++    <translation>UARTをAPボードに接続します。</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Serial number&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;シリアル番号&lt;/b&gt;: %1</translation>
++    <source>It is possible to do permanent, irreversible damage to your printer from a root console. Do not enter commands unless you understand what you are typing.</source>
++    <translation>ルートコンソールからプリンタに永久的かつ不可逆的な損傷を与えることができます。 入力内容を理解しない限り、コマンドを入力しないでください。</translation>
 +  </message>
 +  <message>
-+    <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;ハードウェアリビジョン&lt;/b&gt;: %1</translation>
-+  </message>
-+  <message>
-+    <source>&lt;b&gt;Firmware version&lt;/b&gt;: %1</source>
-+    <translation>&lt;b&gt;ファームウェアバージョン&lt;/b&gt;: %1</translation>
-+  </message>
-+  <message>
-+    <source> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recommended: %1&lt;/i&gt;&lt;/font&gt;)</source>
-+    <translation> (&lt;font color='#ff6f00'&gt;&lt;i&gt;推奨: %1&lt;/i&gt;&lt;/font&gt;)</translation>
-+  </message>
-+  <message>
-+    <source>This component has the recommended firmware version installed.</source>
-+    <translation>このコンポーネントには、推奨ファームウェアバージョンがインストールされています。</translation>
-+  </message>
-+  <message>
-+    <source>This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?</source>
-+    <translation>このコンポーネントのファームウェアバージョンがシステムファームウェアのバージョンと一致しません。印刷が信頼できない可能性があります。新しいファームウェアを今すぐインストールしますか？</translation>
++    <source>To exit the emergency console, restart your printer.</source>
++    <translation>緊急コンソールを終了するには、プリンタを再起動してください。</translation>
 +  </message>
 +</context>
 +<context>
@@ -849,10 +294,14 @@
 +  </message>
 +</context>
 +<context>
-+  <name>VibrationCompPlotter</name>
++  <name>VibrationComp</name>
 +  <message>
-+    <source>Are you sure you want to remove the data entry from %1?</source>
-+    <translation>%1 からデータエントリを削除しますか？</translation>
++    <source>Vibration Compensation</source>
++    <translation>振動補正</translation>
++  </message>
++  <message>
++    <source>Beginning vibration compensation calibration.</source>
++    <translation>振動補正キャリブレーションを開始</translation>
 +  </message>
 +  <message>
 +    <source>X axis</source>
@@ -863,23 +312,105 @@
 +    <translation>Y軸</translation>
 +  </message>
 +  <message>
-+    <source>Frequency Response Plot: </source>
-+    <translation>周波数応答プロット: </translation>
++    <source>Sweeping %1
++%2 Hz: %3 dB
++Progress: %4%</source>
++    <translation>すいーピング %1
++%2 Hz: %3 dB
++進捗: %4%</translation>
++  </message>
++  <message>
++    <source>An error has occurred and data collection timed out.</source>
++    <translation>エラーが発生し、データの収集がタイムアウトしました。</translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibration: internal state error, status = %1</source>
++    <translation>振動補正キャリブレーション: 内部状態エラー、ステータス = %1</translation>
++  </message>
++  <message>
++    <source>The printer's built in vibration compensation calibration is used to mitigate ringing artifacts. This tool allows you to run customized calibration sweeps, and visualize the data for diagnostics; it captures both the raw frequency data and the final compensation parameters computed and used by the printer.&lt;br&gt;&lt;br&gt;All printers have a different frequency response curve. Changes over time in this response curve can often be caused by motor vibrations, changes in belt tension, toolhead binding, or other factors. Analyzing these frequency response data can guide you in diagnosing printer problems, and in identifying when the printer needs maintenance.&lt;br&gt;&lt;br&gt;Run a sweep from this page to begin.</source>
++    <translation>プリンターに内蔵された振動補正キャリブレーションは、リンギングアーチファクトを軽減するために使用されます。このツールにより、カスタマイズしたキャリブレーションスイープを実行し、診断のためにデータを視覚化することができます。このツールは、未加工の周波数データと、プリンターが計算して使用する最終的な補正パラメーターの両方をキャプチャします。&lt;br&gt;&lt;br&gt;すべてのプリンターは周波数応答曲線が異なります。この応答曲線の経時変化は、モーターの振動、ベルト張力の変化、ツールヘッドのバインディング、その他の要因によって引き起こされることが多いです。これらの周波数応答データを分析することで、プリンターの問題を診断したり、プリンターのメンテナンスが必要な時期を特定したりすることができます。&lt;br&gt;&lt;br&gt;このページからスイープを開始する。</translation>
++  </message>
++  <message>
++    <source>Vibration</source>
++    <translation>振動</translation>
++  </message>
++  <message>
++    <source>Run frequency sweep</source>
++    <translation>周波数スイープの実行</translation>
++  </message>
++  <message>
++    <source>Range:</source>
++    <translation>レンジ：</translation>
++  </message>
++  <message>
++    <source>to</source>
++    <translation>to</translation>
++  </message>
++  <message>
++    <source>Hz</source>
++    <translation>Hz</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>キャリブレーション履歴</translation>
++  </message>
++  <message>
++    <source>Clear calibration logs</source>
++    <translation>キャリブレーションログをクリア</translation>
++  </message>
++  <message>
++    <source>This will remove all of your saved vibration compensation data.  Are you sure you want to proceed?</source>
++    <translation>保存されたすべての振動補正データが消去されます。続行しますか？</translation>
++  </message>
++  <message>
++    <source>&lt;br&gt;Run date: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X-axis: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y-axis: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</source>
++    <translation>&lt;br&gt;ラン日時: %1 %2 %3 &lt;font size="3" color="#AEAEAE"&gt;&lt;br&gt;X軸: ω_n=%4 Hz %5 ksi=%6 %7 pk=%8 Hz&lt;br&gt;Y軸: ω_n=%9 Hz %10 ksi=%11 %12 pk=%13 Hz&lt;/font&gt;</translation>
 +  </message>
 +</context>
 +<context>
-+  <name>LanAccessPage</name>
++  <name>Success</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>戻る</translation>
++    <source>&lt;center&gt;&lt;b&gt;Success!&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plus has been successfully installed on your printer.  Leave the SD card inserted and restart your printer to enjoy your new custom firmware!</source>
++    <translation>&lt;center&gt;&lt;b&gt;成功！&lt;/b&gt;&lt;/center&gt;&lt;br&gt;&lt;br&gt;X1Plusがプリンターに正常にインストールされました。 SDカードを挿入したままプリンタを再起動し、新しいカスタムファームウェアをお楽しみください！</translation>
++  </message>
++</context>
++<context>
++  <name>BedLevelDiag</name>
++  <message>
++    <source>Bed Diagnostics</source>
++    <translation>ベッド診断</translation>
 +  </message>
 +  <message>
-+    <source>Root password: </source>
-+    <translation>root パスワード</translation>
++    <source>&lt;font size='3' color='#AEAEAE'&gt;This calibration run was captured on %1, at a bed temperature of %2.&lt;br&gt;&lt;br&gt;Detected bed tilt was %3 across the X axis, and %4 across the Y axis. The bed had a peak-to-peak deviation of %5, and remaining nonplanarity after perfectly tramming the bed would be %6.&lt;br&gt;&lt;br&gt;</source>
++    <translation>&lt;font size='3' color='#AEAEAE'&gt;このキャリブレーションの実行は、%1、ベッド温度 %2 でキャプチャされました。&lt;br&gt;&lt;br&gt; 検出されたベッドの傾きはX軸で%3、Y軸で%4。ベッドのピーク間偏差は%5で、ベッドを完全にレベリングした後に残る非平面性は%6となります。&lt;br&gt;&lt;br&gt;</translation>
 +  </message>
 +  <message>
-+    <source>[not yet set]</source>
-+    <translation>[未設定]</translation>
++    <source>Are you sure you want to remove the data entry from $1?</source>
++    <translation>$1からデータエントリを削除しますか？</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Sleep/wake</source>
++    <translation>スリープ/起動</translation>
++  </message>
++  <message>
++    <source>Reboot</source>
++    <translation>再起動</translation>
++  </message>
++  <message>
++    <source>Pause print</source>
++    <translation>一時停止</translation>
++  </message>
++  <message>
++    <source>Abort print</source>
++    <translation>印刷中止</translation>
++  </message>
++  <message>
++    <source>Ignore</source>
++    <translation>無視</translation>
 +  </message>
 +</context>
 +<context>
@@ -974,6 +505,475 @@
 +  <message>
 +    <source>Save console output to:</source>
 +    <translation>コンソール出力の保存先:</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>戻る</translation>
++  </message>
++  <message>
++    <source>The screen lock is a low-security deterrence against casual passers-by, but it will not provide a strong defense against sophisticated attackers.&lt;br&gt;&lt;br&gt;If the printer is connected to a network, you will still be able to print over the network when the screen is locked.</source>
++    <translation>スクリーンロックは、無関係な人間に対する低セキュリティの抑止力ですが、洗練された攻撃者に対する強力な防御力はありません。&lt;br&gt;&lt;br&gt;プリンタがネットワークに接続されている場合。 画面がロックされてもネットワーク上で印刷できます</translation>
++  </message>
++  <message>
++    <source>2 minutes</source>
++    <translation>2分</translation>
++  </message>
++  <message>
++    <source>5 minutes</source>
++    <translation>5分</translation>
++  </message>
++  <message>
++    <source>10 minutes</source>
++    <translation>10分</translation>
++  </message>
++  <message>
++    <source>15 minutes</source>
++    <translation>15分</translation>
++  </message>
++  <message>
++    <source>Time before display sleeps</source>
++    <translation>画面スリープまでの時間</translation>
++  </message>
++  <message>
++    <source>Lock screen mode</source>
++    <translation>ロック画面モード</translation>
++  </message>
++  <message>
++    <source>Screen saver only</source>
++    <translation>スクリーンセーバーのみ</translation>
++  </message>
++  <message>
++    <source>Swipe to unlock</source>
++    <translation>スワイプしてロック解除</translation>
++  </message>
++  <message>
++    <source>Passcode</source>
++    <translation>パスコード</translation>
++  </message>
++  <message>
++    <source>Passcode: "%1"</source>
++    <translation>パスコード："%1"</translation>
++  </message>
++  <message>
++    <source>Passcode is unset</source>
++    <translation>パスコードが未設定</translation>
++  </message>
++  <message>
++    <source>Passcode set to "%1"</source>
++    <translation>パスコードを"%1"に設定しました</translation>
++  </message>
++  <message>
++    <source>Change passcode</source>
++    <translation>パスコードを変更</translation>
++  </message>
++  <message>
++    <source>You can add custom text or a background image to the lock screen by creating one or both of the following files on the SD card:&lt;br&gt;&lt;br&gt;&lt;b&gt;Text&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;Image&lt;/b&gt;: /x1plus/lockscreen.png</source>
++    <translation>SDカードに以下のファイルの一方または両方を作成することで、ロック画面にカスタムテキストまたは背景画像を追加できます。:&lt;br&gt;&lt;br&gt;&lt;b&gt;テキスト&lt;/b&gt;: /x1plus/lockscreen.txt&lt;br&gt;&lt;b&gt;背景画像&lt;/b&gt;: /x1plus/lockscreen.png</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time.</source>
++    <translation>カスタムファームウェアの新バージョンをインストールするには、新しいx1pファイルをSDカードのルートにコピーし、プリンタの電源を切り、起動時にインストーラを選択します。</translation>
++  </message>
++  <message>
++    <source>This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card.</source>
++    <translation>このカスタムファームウェアは、間違ったBambu Labベースファームウェアバージョンの上にロードされています。印刷が信頼できない可能性があります。SDカードにカスタムファームウェアを再インストールしてください。</translation>
++  </message>
++  <message>
++    <source>X1Plus Firmware</source>
++    <translation>X1Plus ファームウェア</translation>
++  </message>
++  <message>
++    <source>Bambu Lab base firmware</source>
++    <translation>Bambu Lab ベースファームウェア</translation>
++  </message>
++  <message>
++    <source>Install %1</source>
++    <translation>%1をインストール</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>戻る</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Serial number&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;シリアル番号&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Hardware revision&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;ハードウェアリビジョン&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Firmware version&lt;/b&gt;: %1</source>
++    <translation>&lt;b&gt;ファームウェアバージョン&lt;/b&gt;: %1</translation>
++  </message>
++  <message>
++    <source> (&lt;font color='#ff6f00'&gt;&lt;i&gt;recommended: %1&lt;/i&gt;&lt;/font&gt;)</source>
++    <translation> (&lt;font color='#ff6f00'&gt;&lt;i&gt;推奨: %1&lt;/i&gt;&lt;/font&gt;)</translation>
++  </message>
++  <message>
++    <source>This component has the recommended firmware version installed.</source>
++    <translation>このコンポーネントには、推奨ファームウェアバージョンがインストールされています。</translation>
++  </message>
++  <message>
++    <source>This component's firmware version does not match the running system firmware version. Printing may not be reliable. Install new firmware now?</source>
++    <translation>このコンポーネントのファームウェアバージョンがシステムファームウェアのバージョンと一致しません。印刷が信頼できない可能性があります。新しいファームウェアを今すぐインストールしますか？</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>戻る</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Download %1</source>
++    <translation>%1をダウンロード</translation>
++  </message>
++  <message>
++    <source>Install %1</source>
++    <translation>%1をインストール</translation>
++  </message>
++  <message>
++    <source>Cancel</source>
++    <translation>キャンセル</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>戻る</translation>
++  </message>
++  <message>
++    <source>%1 update %2</source>
++    <translation>%1 アップデート %2</translation>
++  </message>
++  <message>
++    <source>Version %1 does not exist on the SD card. Download it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
++    <translation>バージョン %1 が SD カードに存在しません。今すぐダウンロードしますか？&lt;br&gt;&lt;br&gt;これはアクティブなインターネット接続を必要とし、Bambu Labサーバーに接続します。</translation>
++  </message>
++  <message>
++    <source>Version %1 exists on the SD card, but appears to be corrupt. Redownload it now?&lt;br&gt;&lt;br&gt;This requires an active Internet connection, and will connect to Bambu Lab servers.</source>
++    <translation>バージョン %1 は SD カードに存在しますが、壊れているようです。再ダウンロードしますか？&lt;br&gt;&lt;br&gt;これはアクティブなインターネット接続を必要とし、Bambu Labサーバーに接続します。</translation>
++  </message>
++  <message>
++    <source>Downloading version %1 from Bambu Lab: %2</source>
++    <translation>Bambu Labからバージョン %1 をダウンロード中: %2</translation>
++  </message>
++  <message>
++    <source>Version %1 is available on the SD card and ready to install. Install it now?</source>
++    <translation>バージョン %1 はSDカードで利用可能で、インストールの準備ができました。今すぐインストールしますか？</translation>
++  </message>
++  <message>
++    <source>Installing version %1.  Do not power off your printer.</source>
++    <translation>バージョン %1をインストールしています。プリンタの電源を切らないでください。</translation>
++  </message>
++  <message>
++    <source>Successfully installed version %1.</source>
++    <translation>バージョン %1 のインストールに成功しました。</translation>
++  </message>
++  <message>
++    <source>Version %1 failed to install. Consider trying again, or power cycling your printer.</source>
++    <translation>バージョン %1 をインストールできませんでした。もう一度試すか、プリンタの電源を入れ直してください。</translation>
++  </message>
++  <message>
++    <source> (Updater message "%1".)</source>
++    <translation> (アップデーターメッセージ "%1".)</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>ステップ 1:</translation>
++  </message>
++  <message>
++    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
++    <translation>Bambu Lab wikiの「Prepare for Bed Leveling」のセクションで説明されているように、ベッドスクリューを基準張力に設定する。 (QRコードのリンクはこの文章の一番下にあります)。 </translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>ステップ 2:</translation>
++  </message>
++  <message>
++    <source>Tap the "Prepare" button below to home the bed.</source>
++    <translation>下の"Prepare"ボタンをタップして、ベッドをホームへ。</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>ステップ 3:</translation>
++  </message>
++  <message>
++    <source>Tap the "1" button to move the nozzle to the front left position.  Adjust the front left bed adjustment screw until the nozzle just barely touches the bed.</source>
++    <translation>"1"ボタンをタップして、ノズルを左手前の位置に移動します。 ノズルがベッドにギリギリ触れるまで、左手前のベッド調整ネジを調整します。</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>ステップ 4:</translation>
++  </message>
++  <message>
++    <source>Adjust the front right and rear positions by tapping their corresponding button and adjusting their corresponding screws.</source>
++    <translation>対応するボタンをタップし、対応するネジを調整することで、前面の右側と後側の位置を調整します。</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>ステップ 5:</translation>
++  </message>
++  <message>
++    <source>Check each position in order, repeating all three until no further adjustment is needed.</source>
++    <translation>順番に各ポジションを確認し、調整が不要になるまで3つすべてを繰り返します。</translation>
++  </message>
++  <message>
++    <source>Bed Tramming</source>
++    <translation>ベッドレベリング</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>準備中</translation>
++  </message>
++  <message>
++    <source>Rear
++   2</source>
++    <translation>リア2</translation>
++  </message>
++  <message>
++    <source>Front L
++     1</source>
++    <translation>フロント L
++     1</translation>
++  </message>
++  <message>
++    <source>Front R
++     3</source>
++    <translation>フロント R
++     3</translation>
++  </message>
++</context>
++<context>
++  <name>MeshCalcs</name>
++  <message>
++    <source>Your hotbed appears not to be level. Try tramming the bed.</source>
++    <translation>ホットベッドが水平ではないようです。ベッドレベリングを実行してください。</translation>
++  </message>
++  <message>
++    <source>Your hotbed appears reasonably level, but may be warped.</source>
++    <translation>ホットベッドはそれなりに水平に見えますが、歪んでいる可能性があります。</translation>
++  </message>
++  <message>
++    <source>Your hotbed appears to be flat and level.</source>
++    <translation>ホットベッドは水平のようです。</translation>
++  </message>
++</context>
++<context>
++  <name>VibrationCompPlotter</name>
++  <message>
++    <source>Are you sure you want to remove the data entry from %1?</source>
++    <translation>%1 からデータエントリを削除しますか？</translation>
++  </message>
++  <message>
++    <source>X axis</source>
++    <translation>X軸</translation>
++  </message>
++  <message>
++    <source>Y axis</source>
++    <translation>Y軸</translation>
++  </message>
++  <message>
++    <source>Frequency Response Plot: </source>
++    <translation>周波数応答プロット: </translation>
++  </message>
++</context>
++<context>
++  <name>SelectX1pPage</name>
++  <message>
++    <source>X1Plus custom firmware installation</source>
++    <translation>X1Plusカスタムファームウェアのインストール</translation>
++  </message>
++  <message>
++    <source>Select a firmware bundle to install:</source>
++    <translation>インストールするファームウェアバンドルを選択：</translation>
++  </message>
++  <message>
++    <source>No .x1p files found on SD card.</source>
++    <translation>SDカードに.x1pファイルがありません</translation>
++  </message>
++  <message>
++    <source>&lt;b&gt;Custom firmware version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Bambu Lab base firmware version:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Build date:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;Release notes:&lt;/b&gt; %4</source>
++    <translation>&lt;b&gt;カスタムファームウェアバージョン:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;ベースファームウェアバージョン:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;ビルド日時:&lt;/b&gt; %3&lt;br&gt;&lt;br&gt;&lt;b&gt;リリースノート:&lt;/b&gt; %4</translation>
++  </message>
++  <message>
++    <source>No custom firmware installation bundles found on SD card. Copy a &lt;b&gt;.x1p&lt;/b&gt; file to the SD card and try again.</source>
++    <translation>SDカードにカスタムファームウェアインストールバンドルがありません。&lt;b&gt;.x1p&lt;/b&gt; ファイルをSDカードにコピーして再度実行してください。</translation>
++  </message>
++  <message>
++    <source>Are you sure you're ready to install the X1Plus custom firmware?&lt;br&gt;&lt;br&gt;While we've done our best to make X1Plus as safe as possible, there are always risks associated with modifying your printer. X1Plus comes with NO WARRANTY, EXPRESS OR IMPLIED, and by installing it, you accept that you and you alone are responsible for the risk of damage to your printer, or its surroundings.&lt;br&gt;&lt;br&gt;Once the installation process begins, don't touch your printer until it completes. It could take up to 10 minutes (or longer, depending on Internet connection speed) to install.</source>
++    <translation>X1Plusカスタムファームウェアをインストールする準備ができていますか？&lt;br&gt;&lt;br&gt;X1Plusの安全性には最善を尽くしていますが、プリンターの改造には常にリスクが伴います。X1Plusは、明示または黙示を問わず、いかなる保証もいたしません。X1Plusをインストールすることにより、プリンターまたはその周辺に損害が発生する危険性については、お客様ご自身のみが責任を負うことに同意したものとみなされます。&lt;br&gt;&lt;br&gt;インストールプロセスが始まったら、完了するまでプリンターに触れないでください。インストールには最大10分（インターネット接続速度によってはそれ以上）かかる場合があります。</translation>
++  </message>
++  <message>
++    <source>Yes! Install X1Plus!</source>
++    <translation>はい！X1 Plusをインストールします！</translation>
++  </message>
++  <message>
++    <source>Er, never mind</source>
++    <translation>気にしないでください</translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLock</name>
++  <message>
++    <source>Enter passcode.</source>
++    <translation>パスコードを入力</translation>
++  </message>
++  <message>
++    <source>Enter passcode: %1</source>
++    <translation>パスコードを入力：%1</translation>
++  </message>
++  <message>
++    <source>This printer is locked.</source>
++    <translation>プリンタはロックされています</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>%1: Device Info</source>
++    <translation>%1: デバイス情報</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>戻る</translation>
++  </message>
++  <message>
++    <source>Printer serial number: </source>
++    <translation>プリンタのシリアル番号: </translation>
++  </message>
++  <message>
++    <source>Total print time: </source>
++    <translation>総印刷時間: </translation>
++  </message>
++  <message>
++    <source>%1 hours</source>
++    <translation>%1 時間</translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>リセット</translation>
++  </message>
++  <message>
++    <source>Lead screws last lubricated: </source>
++    <translation>リードスクリューへの最終潤滑: </translation>
++  </message>
++  <message>
++    <source>ASA carbon rod maintenance timer: </source>
++    <translation>ABSカーボンロッドメンテナンスタイマー: </translation>
++  </message>
++  <message>
++    <source>ABS carbon rod maintenance timer: </source>
++    <translation>ABSカーボンロッドメンテナンスタイマー: </translation>
++  </message>
++  <message>
++    <source>Bed mesh calibrated: </source>
++    <translation>ベッドメッシュ調整済み: </translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibrated: </source>
++    <translation>振動補正済み: </translation>
++  </message>
++  <message>
++    <source>AMS total length: </source>
++    <translation>AMSの総長: </translation>
++  </message>
++  <message>
++    <source>%1 meters</source>
++    <translation>%1 m</translation>
++  </message>
++  <message>
++    <source>AMS total print time: </source>
++    <translation>AMS総印刷時間: </translation>
++  </message>
++  <message>
++    <source>AMS total filament switches: </source>
++    <translation>AMS総フィラメントスイッチ数: </translation>
++  </message>
++  <message>
++    <source>AMS total failed filament switches: </source>
++    <translation>AMS総フィラメントスイッチ失敗数: </translation>
++  </message>
++  <message>
++    <source>Tray %1 print time: </source>
++    <translation>トレイ %1 印刷時間: </translation>
++  </message>
++  <message>
++    <source>Tray %1 filament switches: </source>
++    <translation>トレイ %1 フィラメントスイッチ: </translation>
++  </message>
++  <message>
++    <source>Tray %1 failed filament switches: </source>
++    <translation>トレイ %1 フィラメントスイッチ失敗数: </translation>
++  </message>
++  <message>
++    <source>Tray %1 print length: </source>
++    <translation>トレイ %1 印刷長: </translation>
++  </message>
++  <message>
++    <source>%1 - print time: </source>
++    <translation>%1 - 印刷時間: </translation>
++  </message>
++  <message>
++    <source>%1 - print length: </source>
++    <translation>%1 - 印刷長: </translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>戻る</translation>
++  </message>
++  <message>
++    <source>Root password: </source>
++    <translation>root パスワード</translation>
++  </message>
++  <message>
++    <source>[not yet set]</source>
++    <translation>[未設定]</translation>
++  </message>
++</context>
++<context>
++  <name>KexecDialog</name>
++  <message>
++    <source>Start from SD card</source>
++    <translation>SDカードから起動</translation>
++  </message>
++  <message>
++    <source>Startup options...</source>
++    <translation>スタートアップオプション...</translation>
++  </message>
++  <message>
++    <source>Bootable SD card detected.</source>
++    <translation>起動可能なSDカードを検出しました。</translation>
++  </message>
++  <message>
++    <source>Your printer will automatically boot from the SD card in %1 seconds.</source>
++    <translation>プリンターは自動的に %1 秒後にSDカードから起動します。</translation>
++  </message>
++  <message>
++    <source>Your printer is rebooting into the OS on the inserted SD card.</source>
++    <translation>プリンターが挿入されたSDカードのOSに再起動しています。</translation>
++  </message>
++  <message>
++    <source>No bootable SD card detected.</source>
++    <translation>起動可能なSDカードを検出しました。</translation>
++  </message>
++  <message>
++    <source>Insert a bootable SD card and restart the printer, or use the startup options menu to repair your X1Plus installation.</source>
++    <translation>起動可能なSDカードを挿入してプリンタを再起動するか、起動オプションメニューを使用してX1Plusのインストールを修復します。</translation>
 +  </message>
 +</context>
  </TS>

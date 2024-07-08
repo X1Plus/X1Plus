@@ -75,10 +75,10 @@ void mocdump() {
         }
         printf("%d == %s (%s)\n", tp, tn, mo->className());
         for (int m = mo->methodOffset(); m < mo->methodCount(); m++) {
-            printf("  method: %s\n", mo->method(m).methodSignature().data());
+            printf("  method: %d %s\n", m, mo->method(m).methodSignature().data());
         }
         for (int p = mo->propertyOffset(); p < mo->propertyCount(); p++) {
-            printf("  property: %s %s\n", mo->property(p).typeName(), mo->property(p).name());
+            printf("  property: %d %s %s\n", p, mo->property(p).typeName(), mo->property(p).name());
         }
         for (int e = mo->enumeratorOffset(); e < mo->enumeratorCount(); e++) {
             QMetaEnum me = mo->enumerator(e);

@@ -13,7 +13,7 @@ killall start_rknn.sh
 
 # turn the WiFi on 
 echo 1 > /sys/class/rfkill/rfkill1/state
-wpa_supplicant_hook.sh >&2 &
+/usr/bin/netService >&2 &
 disown -a
 
 N=0
