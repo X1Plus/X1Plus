@@ -7,7 +7,7 @@ TARGET_CC ?= $(TOOLCHAIN)gcc
 LDFLAGS = -shared -ldl
 CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
 CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
-MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so
+MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so device_gate_shim.so netService_shim.so
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
@@ -63,6 +63,12 @@ base.ts: printer_ui.so kexec_ui.so
 
 %.so: %.c
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
+
+%.so: %.cpp
+	$(TARGET_CC) -o $@ $< $(CXXFLAGS) $(LDFLAGS)
+
+device_gate_shim.so: workaround_ifaddrs.c link_is_up.cpp
+	$(TARGET_CC) -o $@ workaround_ifaddrs.c link_is_up.cpp $(CXXFLAGS) $(LDFLAGS)
 
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
 	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)

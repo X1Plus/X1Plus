@@ -1,0 +1,29 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    if [ ! -d /sys/class/net/eth0 ]; then
+      # no ethernet at all
+      exit 0
+    fi
+    if [ "$(readlink /sys/class/net/eth0/device/driver)" != "../../../../../../../bus/usb/drivers/smsc95xx" ]; then
+      echo "x1plus_ethernet: found an eth0, but it was not a smsc95xx; assuming it is not an X1Plus expansion board."
+      exit 0
+    fi
+    if [ "$(cat /sys/class/net/eth0/addr_assign_type)" != "1" ]; then
+      echo "x1plus_ethernet: found a smsc95xx eth0, but it does not have a randomly assigned MAC address; not resetting the MAC address."
+      exit 0
+    fi
+    
+    MAC_PROTO=$(bbl_3dpsn 2>/dev/null | md5sum | cut -b1-12)
+
+    # we now have 12 hex bytes -- clear the LSB of the first octet to make
+    # unicast, then set the second LSB to make a LAA
+    MAC_B12345=$(echo $MAC_PROTO | cut -b3-12)
+    MAC_B0=$(printf %02x $((0x$(echo $MAC_PROTO | cut -b1-2) & 0xFE | 0x02)))
+    NEWMAC=$MAC_B0$MAC_B12345
+    echo "x1plus_ethernet: found a smsc95xx eth0 that has a randomly assigned MAC address; resetting to MAC from hash of serial number, $NEWMAC"
+    ifconfig eth0 hw ether $NEWMAC
+    exit 0
+    ;;
+esac

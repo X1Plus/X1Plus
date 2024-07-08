@@ -87,36 +87,68 @@
              "intro": "No se permite el envío de trabajos de impresión mientras se requiere la actualización forzada o la actualización de reparación."
 +        },
 +        {
-+            "ecode": "1000C003",
-+            "intro": "Activar el timelapse tradicional podría causar problemas. ¿Continuar?"
++            "ecode": "05008036",
++            "intro": "El archivo cortado no es coherente con el modelo de impresora actual. ¿Continuar?"
 +        },
 +        {
-+            "ecode": "05014035",
-+            "intro": "El dispositivo está en proceso de vinculación y no puede responder a nuevas solicitudes vinculantes."
++            "ecode": "05014031",
++            "intro": "El descubrimiento del dispositivo está en curso, y el código QR no se puede mostrar en la pantalla. Puede esperar a que la unión finalice o aborte el proceso de unión en la APP/Studio y trate escanear el código QR en la pantalla para unión."
 +        },
 +        {
-+            "ecode": "0300400F",
-+            "intro": "No hay cama de impresora."
-+        },
-+        {
-+            "ecode": "12008016",
++            "ecode": "12028016",
 +            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
-+        },
-+        {
-+            "ecode": "05004012",
-+            "intro": "Se ha detectado que la puerta esta abierta, la impresión se ha pausado."
-+        },
-+        {
-+            "ecode": "05004038",
-+            "intro": "El diámetro de la boquilla en el archivo gcode no coincide con la configuración actual de la boquilla. Este archivo no se puede imprimir."
 +        },
 +        {
 +            "ecode": "1001C001",
 +            "intro": "El Timelapse no está soportado porque el Vase Spiral está activado en las configuraciones del software de corte."
 +        },
 +        {
-+            "ecode": "05008036",
-+            "intro": "El archivo cortado no es coherente con el modelo de impresora actual. ¿Continuar?"
++            "ecode": "12008016",
++            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
++        },
++        {
++            "ecode": "1000C003",
++            "intro": "Activar el timelapse tradicional podría causar problemas. ¿Continuar?"
++        },
++        {
++            "ecode": "03008017",
++            "intro": "Objetos foráneos detectados en la cama de la impresora, Por favor limpia la cama, y entonces pulsa el botón \"Reiniciar\" para reanudar el trabajo de impresión."
++        },
++        {
++            "ecode": "0300400F",
++            "intro": "No hay cama de impresora."
++        },
++        {
++            "ecode": "05014038",
++            "intro": "Las configuraciones regionales no concuerdan con la impresora, por favor compruebe las configuraciones regionales de la impresora."
++        },
++        {
++            "ecode": "1001C002",
++            "intro": "El timelapse no está soportado porque la secuencia de impresiones se establece en \"Por objeto\"."
++        },
++        {
++            "ecode": "12038016",
++            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
++        },
++        {
++            "ecode": "05004031",
++            "intro": "El descubrimiento del dispositivo está en curso, y el código QR no se puede mostrar en la pantalla. Puede esperar a que la unión finalice o aborte el proceso de unión en la APP/Studio y trate escanear el código QR en la pantalla para unión."
++        },
++        {
++            "ecode": "03008016",
++            "intro": "La boquilla está obstruida con filamentos. Por favor, compruebe la boquilla. Luego puede tocar \"Reiniciar\" para reanudar el trabajo de impresión."
++        },
++        {
++            "ecode": "05004012",
++            "intro": "Se ha detectado que la puerta esta abierta, la impresión se ha pausado."
++        },
++        {
++            "ecode": "05014035",
++            "intro": "El dispositivo está en proceso de vinculación y no puede responder a nuevas solicitudes vinculantes."
++        },
++        {
++            "ecode": "12018016",
++            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
 +        },
 +        {
 +            "ecode": "05004037",
@@ -127,48 +159,16 @@
 +            "intro": "La boquilla está cubierta con filamento o la cama de impresión se instaló incorrectamente. Por favor, limpia la boquilla o ajusta la posición de la cama. Entonces puedes tocar \"Reiniciar\" para continuar el trabajo de impresión."
 +        },
 +        {
-+            "ecode": "12038016",
-+            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
-+        },
-+        {
-+            "ecode": "03008016",
-+            "intro": "La boquilla está obstruida con filamentos. Por favor, compruebe la boquilla. Luego puede tocar \"Reiniciar\" para reanudar el trabajo de impresión."
-+        },
-+        {
-+            "ecode": "05014038",
-+            "intro": "Las configuraciones regionales no concuerdan con la impresora, por favor compruebe las configuraciones regionales de la impresora."
-+        },
-+        {
-+            "ecode": "03008017",
-+            "intro": "Objetos foráneos detectados en la cama de la impresora, Por favor limpia la cama, y entonces pulsa el botón \"Reiniciar\" para reanudar el trabajo de impresión."
-+        },
-+        {
-+            "ecode": "12018016",
-+            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
-+        },
-+        {
-+            "ecode": "05004031",
-+            "intro": "El descubrimiento del dispositivo está en curso, y el código QR no se puede mostrar en la pantalla. Puede esperar a que la unión finalice o aborte el proceso de unión en la APP/Studio y trate escanear el código QR en la pantalla para unión."
-+        },
-+        {
-+            "ecode": "12028016",
-+            "intro": "La extrusora no es extrusora normalmente, por favor consulte el HMS, después de que haya problemas de disparo, haga clic en el botón de reintentar."
++            "ecode": "05004038",
++            "intro": "El diámetro de la boquilla en el archivo gcode no coincide con la configuración actual de la boquilla. Este archivo no se puede imprimir."
 +        },
 +        {
 +            "ecode": "05004032",
 +            "intro": "El enlazado de código QR está en progreso, y el enlazado no se lleva a cabo. Puede escanear el código QR en la pantalla para que lo vincule, o salir de la página de visualización del código QR en la pantalla y probar la vinculación de la identificación de dispositivos."
-+        },
-+        {
-+            "ecode": "05014031",
-+            "intro": "El descubrimiento del dispositivo está en curso, y el código QR no se puede mostrar en la pantalla. Puede esperar a que la unión finalice o aborte el proceso de unión en la APP/Studio y trate escanear el código QR en la pantalla para unión."
-+        },
-+        {
-+            "ecode": "1001C002",
-+            "intro": "El timelapse no está soportado porque la secuencia de impresiones se establece en \"Por objeto\"."
          }
      ],
 -    "ver": 202309261900
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file

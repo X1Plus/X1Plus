@@ -129,7 +129,7 @@
  <file>printerui/qml/wizard/Calibrate1Page.qml</file>
  <file>printerui/qml/wizard/CalibratePage.qml</file>
  <file>printerui/qml/wizard/CalibratingPage.qml</file>
-@@ -235,12 +290,31 @@
+@@ -235,12 +289,32 @@
  <file>printerui/qml/wizard/TermsPage.qml</file>
  <file>printerui/qml/wizard/WelcomePage.qml</file>
  <file>printerui/qml/wizard/WizardPage.qml</file>
@@ -144,6 +144,7 @@
 +<file>printerui/qml/x1plus/GcodeGenerator.js</file>
 +<file>printerui/qml/x1plus/GpioKeys.js</file>
 +<file>printerui/qml/x1plus/MeshCalcs.js</file>
++<file>printerui/qml/x1plus/Network.js</file>
 +<file>printerui/qml/x1plus/OTA.js</file>
 +<file>printerui/qml/x1plus/Settings.js</file>
 +<file>printerui/qml/x1plus/ShaperCalibration.js</file>

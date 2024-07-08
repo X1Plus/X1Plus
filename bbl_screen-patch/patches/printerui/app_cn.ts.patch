@@ -5,68 +5,6 @@
      </message>
  </context>
 +<context>
-+  <name>X1PlusOTADialog</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>UpgradeDialog</name>
-+  <message>
-+    <source>Cancel</source>
-+    <translation>取消</translation>
-+  </message>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>ScreenLockPage</name>
-+  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>VibrationComp</name>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>校准记录</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>GpioKeys</name>
-+  <message>
-+    <source>Ignore</source>
-+    <translation>忽略</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedMesh</name>
-+  <message>
-+    <source>Rerun diagnostics</source>
-+    <translation>重新检测</translation>
-+  </message>
-+  <message>
-+    <source>Bed Diagnostics</source>
-+    <translation>热床检测</translation>
-+  </message>
-+  <message>
-+    <source>Run diagnostics</source>
-+    <translation>运行检测</translation>
-+  </message>
-+  <message>
-+    <source>Calibration History</source>
-+    <translation>校准记录</translation>
-+  </message>
-+  <message>
-+    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
-+    <translation>这将清除所有保存的热床网格数据。您确定要继续吗？</translation>
-+  </message>
-+</context>
-+<context>
 +  <name>HardwarePage</name>
 +  <message>
 +    <source>Stainless steel</source>
@@ -138,88 +76,26 @@
 +  </message>
 +</context>
 +<context>
-+  <name>DeviceInfo</name>
++  <name>BedMesh</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
++    <source>Rerun diagnostics</source>
++    <translation>重新检测</translation>
 +  </message>
-+  <message>
-+    <source>Printer serial number: </source>
-+    <translation>打印机序列号： </translation>
-+  </message>
-+  <message>
-+    <source>Total print time: </source>
-+    <translation>打印时长： </translation>
-+  </message>
-+  <message>
-+    <source>reset</source>
-+    <translation>重置</translation>
-+  </message>
-+  <message>
-+    <source>Bed mesh calibrated: </source>
-+    <translation>热床平面校准： </translation>
-+  </message>
-+  <message>
-+    <source>Vibration compensation calibrated: </source>
-+    <translation>振动补偿校准： </translation>
-+  </message>
-+  <message>
-+    <source>AMS total length: </source>
-+    <translation>AMS 总长度： </translation>
-+  </message>
-+  <message>
-+    <source>AMS total print time: </source>
-+    <translation>AMS 总打印时间： </translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedTramming</name>
-+  <message>
-+    <source>Step 1:</source>
-+    <translation>第 1 步:</translation>
-+  </message>
-+  <message>
-+    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
-+    <translation>将床螺丝设置为基线紧张设置 描述于 "准备Bed Leveling" 部分的 Bambu 实验室wiki (在文本底部提供二维码链接。)</translation>
-+  </message>
-+  <message>
-+    <source>Step 2:</source>
-+    <translation>第 2 步:</translation>
-+  </message>
-+  <message>
-+    <source>Step 3:</source>
-+    <translation>第 3 步:</translation>
-+  </message>
-+  <message>
-+    <source>Step 4:</source>
-+    <translation>第 4 步:</translation>
-+  </message>
-+  <message>
-+    <source>Step 5:</source>
-+    <translation>第 5 步:</translation>
-+  </message>
-+  <message>
-+    <source>Prepare</source>
-+    <translation>准备</translation>
-+  </message>
-+  <message>
-+    <source>Rear
-+   2</source>
-+    <translation>后</translation>
-+  </message>
-+</context>
-+<context>
-+  <name>BedLevelDiag</name>
 +  <message>
 +    <source>Bed Diagnostics</source>
 +    <translation>热床检测</translation>
 +  </message>
-+</context>
-+<context>
-+  <name>VersionDialog</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
++    <source>Run diagnostics</source>
++    <translation>运行检测</translation>
++  </message>
++  <message>
++    <source>Calibration History</source>
++    <translation>校准记录</translation>
++  </message>
++  <message>
++    <source>This will clear all of your saved bed mesh data. Are you sure you want to proceed?</source>
++    <translation>这将清除所有保存的热床网格数据。您确定要继续吗？</translation>
 +  </message>
 +</context>
 +<context>
@@ -269,14 +145,24 @@
 +  </message>
 +</context>
 +<context>
-+  <name>LanAccessPage</name>
++  <name>VibrationComp</name>
 +  <message>
-+    <source>Return</source>
-+    <translation>返回</translation>
++    <source>Calibration History</source>
++    <translation>校准记录</translation>
 +  </message>
++</context>
++<context>
++  <name>BedLevelDiag</name>
 +  <message>
-+    <source>Root password: </source>
-+    <translation>Root 密码: </translation>
++    <source>Bed Diagnostics</source>
++    <translation>热床检测</translation>
++  </message>
++</context>
++<context>
++  <name>GpioKeys</name>
++  <message>
++    <source>Ignore</source>
++    <translation>忽略</translation>
 +  </message>
 +</context>
 +<context>
@@ -314,6 +200,120 @@
 +  </source>
 +    <translation>&gt;Gcode 命令已发送到设备
 +  </translation>
++  </message>
++</context>
++<context>
++  <name>ScreenLockPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>VersionDialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>X1PlusOTADialog</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>UpgradeDialog</name>
++  <message>
++    <source>Cancel</source>
++    <translation>取消</translation>
++  </message>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++</context>
++<context>
++  <name>BedTramming</name>
++  <message>
++    <source>Step 1:</source>
++    <translation>第 1 步:</translation>
++  </message>
++  <message>
++    <source>Set the bed screws to their baseline tension setting, as described in the "Prepare for Bed Leveling" section of the Bambu Lab wiki.  (A QR code link is given at the bottom of this text.)</source>
++    <translation>将床螺丝设置为基线紧张设置 描述于 "准备Bed Leveling" 部分的 Bambu 实验室wiki (在文本底部提供二维码链接。)</translation>
++  </message>
++  <message>
++    <source>Step 2:</source>
++    <translation>第 2 步:</translation>
++  </message>
++  <message>
++    <source>Step 3:</source>
++    <translation>第 3 步:</translation>
++  </message>
++  <message>
++    <source>Step 4:</source>
++    <translation>第 4 步:</translation>
++  </message>
++  <message>
++    <source>Step 5:</source>
++    <translation>第 5 步:</translation>
++  </message>
++  <message>
++    <source>Prepare</source>
++    <translation>准备</translation>
++  </message>
++  <message>
++    <source>Rear
++   2</source>
++    <translation>后</translation>
++  </message>
++</context>
++<context>
++  <name>DeviceInfo</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>Printer serial number: </source>
++    <translation>打印机序列号： </translation>
++  </message>
++  <message>
++    <source>Total print time: </source>
++    <translation>打印时长： </translation>
++  </message>
++  <message>
++    <source>reset</source>
++    <translation>重置</translation>
++  </message>
++  <message>
++    <source>Bed mesh calibrated: </source>
++    <translation>热床平面校准： </translation>
++  </message>
++  <message>
++    <source>Vibration compensation calibrated: </source>
++    <translation>振动补偿校准： </translation>
++  </message>
++  <message>
++    <source>AMS total length: </source>
++    <translation>AMS 总长度： </translation>
++  </message>
++  <message>
++    <source>AMS total print time: </source>
++    <translation>AMS 总打印时间： </translation>
++  </message>
++</context>
++<context>
++  <name>LanAccessPage</name>
++  <message>
++    <source>Return</source>
++    <translation>返回</translation>
++  </message>
++  <message>
++    <source>Root password: </source>
++    <translation>Root 密码: </translation>
 +  </message>
 +</context>
  </TS>

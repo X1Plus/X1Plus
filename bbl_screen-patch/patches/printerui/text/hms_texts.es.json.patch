@@ -721,16 +721,16 @@
 +            "intro": "El controlador de temperatura de la cama es anormal, la placa de AC puede estar rota."
 +        },
 +        {
-+            "ecode": "1200250000020001",
-+            "intro": "No se extruye el filamento, y es posible que el extrusor esté obstruido."
-+        },
-+        {
 +            "ecode": "1200240000020001",
 +            "intro": "Es posible que el filamento del cabezal esté roto."
++        },
++        {
++            "ecode": "1200250000020001",
++            "intro": "No se extruye el filamento, y es posible que el extrusor esté obstruido."
          }
      ],
 -    "ver": 202309261840
 -}
-+    "ver": 202406020147
++    "ver": 202406200846
 +}
 \ No newline at end of file
