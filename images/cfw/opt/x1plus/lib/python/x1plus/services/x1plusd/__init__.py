@@ -8,6 +8,7 @@ from .settings import SettingsService
 from .ota import OTAService
 from .sshd import SSHService
 from .httpd import HTTPService
+from .mqtt import MQTTClient
 
 logger = logging.getLogger(__name__)
 
@@ -17,10 +18,12 @@ async def main():
 
     router = await get_dbus_router()
     settings = SettingsService(router=router)
+    mqtt = MQTTClient(settings=settings)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
     httpd = HTTPService(router=router, settings=settings)
 
+    asyncio.create_task(mqtt.task())
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
     asyncio.create_task(httpd.task())

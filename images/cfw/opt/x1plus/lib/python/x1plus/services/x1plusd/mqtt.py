@@ -4,6 +4,7 @@ import asyncio
 import logging
 import ssl
 import json
+import contextlib
 
 logger = logging.getLogger(__name__)
 
@@ -17,15 +18,37 @@ class MQTTClient():
         
         self.mqttc = None
         self.reconnect_event = asyncio.Event()
+        
+        self.request_message_handlers = set()
+        self.report_message_handlers = set()
     
     def _trigger_reconnect(self):
         self.reconnect_event.set()
     
     async def mqtt_message_loop(self):
         async for message in self.mqttc.messages:
-            print(message.topic, json.loads(message.payload))
+            try:
+                payload = json.loads(message.payload)
+            except Exception as e:
+                logger.warning(f"unparseable message on topic {message.topic}: {message.payload}")
+                continue
+            if "/request" in message.topic.value:
+                for handler in self.request_message_handlers.copy(): # avoid problems if this gets mutated out from under us mid handler
+                    await handler(payload)
+            elif "/report" in message.topic.value:
+                for handler in self.report_message_handlers.copy(): # avoid problems if this gets mutated out from under us mid handler
+                    await handler(payload)
+            else:
+                logger.warning(f"message on unexpected topic {message.topic}?")
+    
+    async def bullshit(self):
+        with self.report_messages() as q:
+            while True:
+                v = await q.get()
+                print(v)
     
     async def task(self):
+        bullshit = asyncio.create_task(self.bullshit())
         while True:
             try:
                 logger.info("connecting to MQTT broker")
@@ -34,6 +57,10 @@ class MQTTClient():
                 if os.path.isfile("/config/device/access_token"):
                     password = open("/config/device/access_token", "r").read()
                 password = self.x1psettings.get("mqtt.override.password", password)
+                
+                self.sn = self.x1psettings.get("mqtt.override.sn", None)
+                if not self.sn:
+                    sn = x1plus.utils.serial_number()
                 
                 ssl_ctx = ssl.create_default_context()
                 ssl_ctx.check_hostname = False
@@ -54,6 +81,10 @@ class MQTTClient():
                     loop_task = asyncio.create_task(self.mqtt_message_loop())
                     await asyncio.wait([loop_task, self.reconnect_event.wait()], return_when=asyncio.FIRST_COMPLETED)
                     loop_task.cancel()
+                    try:
+                        await loop_task
+                    except asyncio.CancelledError:
+                        pass
             except aiomqtt.MqttError as e:
                 self.mqttc = None
                 logger.warning(f"MQTT connection lost: {e}")
@@ -62,13 +93,42 @@ class MQTTClient():
                 self.mqttc = None
 
     async def publish_request(self, obj):
-        pass
-    
+        if not self.mqttc:
+            logger.warning("publish_request, but mqtt client not connected")
+            return
+        await self.mqttc.publish(f"device/{self.sn}/request", payload=json.dumps(obj))
+
     async def publish_report(self, obj):
-        pass
+        if not self.mqttc:
+            logger.warning("publish_report, but mqtt client not connected")
+            return
+        await self.mqttc.publish(f"device/{self.sn}/report", payload=json.dumps(obj))
     
-    async def on_request(self, fn):
-        pass
+    @contextlib.contextmanager
+    def request_messages(self):
+        q = asyncio.Queue()
+        async def handle(msg):
+            await q.put(msg)
+        self.request_message_handlers.add(handle)
+        try:
+            yield q
+        finally:
+            self.request_message_handlers.remove(handle)
+
+    @contextlib.contextmanager
+    def report_messages(self):
+        q = asyncio.Queue()
+        async def handle(msg):
+            await q.put(msg)
+        self.report_message_handlers.add(handle)
+        try:
+            yield q
+        finally:
+            self.report_message_handlers.remove(handle)
     
-    async def on_report(self, fn):
-        pass
+    # for long-lived callbacks; fn should be async!!
+    def on_request_message(self, fn):
+        self.request_message_handlers.add(fn)
+    
+    def on_report_message(self, fn):
+        self.report_message_handlers.add(fn)
