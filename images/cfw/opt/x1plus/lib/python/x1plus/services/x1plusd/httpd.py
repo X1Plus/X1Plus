@@ -76,28 +76,33 @@ class HTTPService():
             reportq_future = None
             
             while True:
-                if ws_future == None:
-                    ws_future = asyncio.create_task(anext(ws))
-                if requestq_future == None:
-                    requestq_future = asyncio.create_task(requestq.get())
-                if reportq_future == None:
-                    reportq_future = asyncio.create_task(reportq.get())
-                
-                done, _ = await asyncio.wait((ws_future, requestq_future, reportq_future, ), return_when=asyncio.FIRST_COMPLETED)
+                # XXX: This is sort of unpleasant and really could use to be
+                # refactored...  but it work.
 
-                if ws_future in done:
+                if ws_future == None:
+                    ws_future = asyncio.ensure_future(anext(ws)) # no await!
+                if requestq_future == None:
+                    requestq_future = asyncio.ensure_future(requestq.get()) # no await!
+                if reportq_future == None:
+                    reportq_future = asyncio.ensure_future(reportq.get()) # no await!
+                
+                await asyncio.wait((ws_future, requestq_future, reportq_future, ), return_when=asyncio.FIRST_COMPLETED)
+
+                if ws_future.done():
                     try:
-                        msg = await ws_future
+                        msg = ws_future.result()
                     except StopAsyncIteration:
                         break
                     await self.websocket_handle_msg(ws, msg)
                     ws_future = None
-                if requestq_future in done:
-                    request = await requestq_future
+
+                if requestq_future.done():
+                    request = requestq_future.result()
                     await ws.send_json({'jsonrpc': '2.0', 'method': 'mqtt.notify', 'params': { 'topic': 'request', 'payload': request } })
                     requestq_future = None
-                if reportq_future in done:
-                    report = await reportq_future
+
+                if reportq_future.done():
+                    report = reportq_future.result()
                     await ws.send_json({'jsonrpc': '2.0', 'method': 'mqtt.notify', 'params': { 'topic': 'report', 'payload': report } })
                     reportq_future = None
     
