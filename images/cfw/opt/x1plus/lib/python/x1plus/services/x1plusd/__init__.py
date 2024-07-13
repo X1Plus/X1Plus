@@ -21,7 +21,7 @@ async def main():
     mqtt = MQTTClient(settings=settings)
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
-    httpd = HTTPService(router=router, settings=settings)
+    httpd = HTTPService(router=router, settings=settings, mqtt=mqtt)
 
     asyncio.create_task(mqtt.task())
     asyncio.create_task(settings.task())

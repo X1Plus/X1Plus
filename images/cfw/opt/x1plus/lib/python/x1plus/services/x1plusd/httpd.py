@@ -16,13 +16,14 @@ access_logger = logging.getLogger(__name__ + ".access")
 PROTOCOL_VERSION = 0
 
 class HTTPService():
-    def __init__(self, settings, router, **kwargs):
+    def __init__(self, settings, router, mqtt, **kwargs):
         self.x1psettings = settings
         self.x1psettings.on("http.enabled", lambda: asyncio.create_task(self.sync_startstop()))
         self.router = router
         self.runner = None
         self.site = None
         self.app = web.Application()
+        self.mqtt = mqtt
         
         if x1plus.utils.is_emulating():
             static_path = Path(__file__).resolve().parent.parent.parent.parent.parent.parent / 'share' / 'www'
@@ -33,6 +34,72 @@ class HTTPService():
     
     async def route_hello(self, request):
         return web.Response(text="Hello, world")
+
+    async def websocket_handle_msg(self, ws, msg):
+        if msg.type == aiohttp.WSMsgType.ERROR:
+            logger.error(f"websocket died with exception {ws.exception()}")
+            raise Exception(ws.exception())
+            
+        # all exceptions here will get handled by the top level exception handler
+        assert msg.type == aiohttp.WSMsgType.TEXT
+        pkt = msg.json()
+            
+        # all jsonrpc messages are RPCs here, not notifications, and so they should all have IDs
+        assert pkt['jsonrpc'] == '2.0'
+        assert pkt['id']
+        rv = {'jsonrpc': '2.0', 'id': pkt['id']}
+        if pkt['method'] == 'dbus.call':
+            try:
+                addr = DBusAddress(pkt['params']['object'], bus_name=pkt['params']['bus_name'], interface=pkt['params']['interface'])
+                method = pkt['params']['method']
+                params = pkt['params']['params']
+            except Exception as e:
+                pkt['error'] = {'code': -32602, 'message': str(e)}
+                await ws.send_json(rv)
+                return
+            dmsg = new_method_call(addr, method, 's', (json.dumps(params), ))
+            reply = await self.router.send_and_get_reply(dmsg)
+            if reply.header.message_type == MessageType.error:
+                rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
+            else:
+                rv['result'] = json.loads(reply.body[0])
+        else:
+            pkt['error'] = {'code': -32601, 'message': 'method not found'}
+        await ws.send_json(rv)
+
+    async def websocket_main(self, ws):
+        "Once a websocket has authenticated, this implements the main loop."
+        
+        with self.mqtt.request_messages() as requestq, self.mqtt.report_messages() as reportq:
+            ws_future = None
+            requestq_future = None
+            reportq_future = None
+            
+            while True:
+                if ws_future == None:
+                    ws_future = asyncio.create_task(anext(ws))
+                if requestq_future == None:
+                    requestq_future = asyncio.create_task(requestq.get())
+                if reportq_future == None:
+                    reportq_future = asyncio.create_task(reportq.get())
+                
+                done, _ = await asyncio.wait((ws_future, requestq_future, reportq_future, ), return_when=asyncio.FIRST_COMPLETED)
+
+                if ws_future in done:
+                    try:
+                        msg = await ws_future
+                    except StopAsyncIteration:
+                        break
+                    await self.websocket_handle_msg(ws, msg)
+                    ws_future = None
+                if requestq_future in done:
+                    request = await requestq_future
+                    await ws.send_json({'jsonrpc': '2.0', 'method': 'mqtt.notify', 'params': { 'topic': 'request', 'payload': request } })
+                    requestq_future = None
+                if reportq_future in done:
+                    report = await reportq_future
+                    await ws.send_json({'jsonrpc': '2.0', 'method': 'mqtt.notify', 'params': { 'topic': 'report', 'payload': report } })
+                    reportq_future = None
     
     async def route_websocket(self, request):
         ws = web.WebSocketResponse(autoping=True, heartbeat=10)
@@ -64,38 +131,8 @@ class HTTPService():
                 await ws.close()
                 return ws
             await ws.send_json({"jsonrpc": "2.0", "result": 0, "id": authpkt['id']})
-
-            async for msg in ws:
-                if msg.type == aiohttp.WSMsgType.ERROR:
-                    logger.error(f"websocket died with exception {ws.exception()}")
-                    break
-                
-                # all exceptions here will get handled by the top level exception handler
-                assert msg.type == aiohttp.WSMsgType.TEXT
-                pkt = msg.json()
-                
-                # all jsonrpc messages are RPCs here, not notifications, and so they should all have IDs
-                assert pkt['jsonrpc'] == '2.0'
-                assert pkt['id']
-                rv = {'jsonrpc': '2.0', 'id': pkt['id']}
-                if pkt['method'] == 'dbus.call':
-                    try:
-                        addr = DBusAddress(pkt['params']['object'], bus_name=pkt['params']['bus_name'], interface=pkt['params']['interface'])
-                        method = pkt['params']['method']
-                        params = pkt['params']['params']
-                    except Exception as e:
-                        pkt['error'] = {'code': -32602, 'message': str(e)}
-                        await ws.send_json(rv)
-                        continue
-                    dmsg = new_method_call(addr, method, 's', (json.dumps(params), ))
-                    reply = await self.router.send_and_get_reply(dmsg)
-                    if reply.header.message_type == MessageType.error:
-                        rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
-                    else:
-                        rv['result'] = json.loads(reply.body[0])
-                else:
-                    pkt['error'] = {'code': -32601, 'message': 'method not found'}
-                await ws.send_json(rv)
+            
+            await self.websocket_main(ws)
         except Exception as e:
             logger.error(f"websocket had exception {e}")
             import traceback

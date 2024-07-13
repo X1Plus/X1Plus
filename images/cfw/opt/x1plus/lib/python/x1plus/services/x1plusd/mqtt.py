@@ -6,6 +6,8 @@ import ssl
 import json
 import contextlib
 
+import x1plus.utils
+
 logger = logging.getLogger(__name__)
 
 class MQTTClient():
@@ -41,14 +43,7 @@ class MQTTClient():
             else:
                 logger.warning(f"message on unexpected topic {message.topic}?")
     
-    async def bullshit(self):
-        with self.report_messages() as q:
-            while True:
-                v = await q.get()
-                print(v)
-    
     async def task(self):
-        bullshit = asyncio.create_task(self.bullshit())
         while True:
             try:
                 logger.info("connecting to MQTT broker")
