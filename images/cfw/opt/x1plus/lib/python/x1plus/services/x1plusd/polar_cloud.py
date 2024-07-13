@@ -50,6 +50,11 @@ class PolarPrintService(X1PlusDBusService):
         self.status = 0  # Idle
         self.job_id = ""
         """
+        self.downloading will allow me to update status when printer doesn't realize
+        it's busy.
+        """
+        self.downloading = False
+        """
         last_ping will hold time of last ping, so we're not sending status
         more than once every 10 seconds.
         """
@@ -292,7 +297,10 @@ class PolarPrintService(X1PlusDBusService):
         interface bbl.screen.x1plus
 
         try:
-            addr = DBusAddress("/x1plus/polar", bus_name="x1plus.polar", interface="x1plus.polar")
+            addr = DBusAddress("/x1plus/polar",
+                   bus_name="x1plus.polar",
+                   interface="x1plus.polar"
+            )
             method = "getStatus"
             params =
         except Exception as e:
@@ -322,7 +330,11 @@ class PolarPrintService(X1PlusDBusService):
         }
         rv = {'jsonrpc': '2.0', 'id': 1}
         try:
-            addr = DBusAddress("bbl.service.screen", bus_name="/bbl/service/screen", interface="bbl.screen.x1plus")
+            addr = DBusAddress(
+                "bbl.service.screen",
+                bus_name="/bbl/service/screen",
+                interface="bbl.screen.x1plus"
+            )
             method = "getStatus"
             params = {"text": "getStatus"}
         except Exception as e:
@@ -331,7 +343,10 @@ class PolarPrintService(X1PlusDBusService):
         dbus_msg = new_method_call(addr, method, 's', (dumps(params), ))
         reply = await self.router.send_and_get_reply(dbus_msg)
         if reply.header.message_type == MessageType.error:
-            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
+            rv['error'] = {
+                'code': 1,
+                'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error')
+            }
         else:
             rv['result'] = loads(reply.body[0])
         # except Exception as e:
@@ -341,7 +356,10 @@ class PolarPrintService(X1PlusDBusService):
         dmsg = new_method_call(addr, method, 's', (dumps(params), ))
         reply = await self.router.send_and_get_reply(dmsg)
         if reply.header.message_type == MessageType.error:
-            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
+            rv['error'] = {
+                'code': 1,
+                'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error')
+            }
         else:
             rv['result'] = loads(reply.body[0])
         logger.info(f"**** result: {rv['result']}")
@@ -363,11 +381,13 @@ class PolarPrintService(X1PlusDBusService):
         output = loads(stage_and_state_json)
         task_state = output["state"]
         task_stage = output["stage"]
-        logger.debug(
+        logger.info(
             f"  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
-        self.status = 0
-        if task_state > 0 and task_state < 4:
+        self.status = 0  # Default to idle.
+        if self.downloading:
+            self.status = 2
+        elif task_state > 0 and task_state < 4:
             if not self.job_id:
                 self.status = 1
             else:
@@ -422,8 +442,8 @@ class PolarPrintService(X1PlusDBusService):
             }
             try:
                 await self.socket.emit("status", data)
-                logger.debug(f"status data {data}")
-                logger.info(f"Status update {datetime.datetime.now()}")
+                # logger.debug(f"status data {data}")
+                logger.info(f"Status update {self.status} {datetime.datetime.now()}")
                 self.last_ping = datetime.datetime.now()
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
@@ -523,7 +543,6 @@ class PolarPrintService(X1PlusDBusService):
             return
         # Todo: add recovery here if still printing.
 
-        print_file = ""
         if "gcodeFile" not in data:
             logger.error("PolarCloud sent non-gcode file.")
             await self._job("canceled")
@@ -534,7 +553,7 @@ class PolarPrintService(X1PlusDBusService):
         if not file_name.endswith(".gcode"):
             file_name += ".gcode"
         await self._download_file(path, file_name, data["gcodeFile"])
-        await sef._print_file(path, file_name)
+        self._print_file(path, file_name)
         # try:
         #     info['file'] = print_file
         #     req_stl = requests.get(print_file, timeout=5)
@@ -544,7 +563,11 @@ class PolarPrintService(X1PlusDBusService):
         #     await self._job("canceled")
         #     return
 
-        # self._file_manager.add_file(FileDestinations.LOCAL, path, StreamWrapper(path, BytesIO(req_stl.content)), allow_overwrite=True)
+        # self._file_manager.add_file(
+        #     FileDestinations.LOCAL,
+        #     path,
+        #     StreamWrapper(path, BytesIO(req_stl.content)), allow_overwrite=True
+        # )
         # self.job_id = data['jobId'] if 'jobId' in data else "123"
         # logger.debug(f"print jobId is {self.jobId}")
         # logger.debug(f"print data is {data}")
@@ -562,15 +585,16 @@ class PolarPrintService(X1PlusDBusService):
         # self._status_now = True
 
     def _print_file(self, path, file_name):
-        location = os.path.join(path, file)
+        location = os.path.join(path, file_name)
+        logger.info(f"_print_file {location}")
         dbus_call = [
             "dbus-send",
             "--system",
             "--print-reply",
             "--dest=bbl.service.screen",
             "/bbl/service/screen",
-            "bbl.screen.x1plus.printFile",
-            ('string: {"filename": ' f'"{location}"' "}"),
+            "bbl.screen.x1plus.printGcodeFile",
+            ('string: {"filePath": ' f'"{location}"' "}"),
         ]
         done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
         logger.info(done)
@@ -601,8 +625,10 @@ class PolarPrintService(X1PlusDBusService):
                         self.download_bytes = 0
                         last_publish = datetime.datetime.now()
                         async for chunk in response.content.iter_chunked(131072):
+                            self.downloading = True
                             self.download_bytes += len(chunk)
                             f.write(chunk)
+            self.downloading = False
         except:
             try:
                 os.unlink(dest)

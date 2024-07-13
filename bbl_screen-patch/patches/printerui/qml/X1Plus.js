@@ -120,7 +120,7 @@ function atomicSaveJson(path, json) {
 X1Plus.atomicSaveJson = atomicSaveJson;
 
 function sendGcode(gcode_line,seq_id = 0){
-	
+
 	var payload = {
 		command: "gcode_line",
 		param: gcode_line,
@@ -143,11 +143,11 @@ X1Plus.sendGcode = sendGcode;
 
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
-        	year: 'numeric', 
-        	month: 'short', 
+        	year: 'numeric',
+        	month: 'short',
         	day: 'numeric',
         	hour: '2-digit',
-        	minute: '2-digit', 
+        	minute: '2-digit',
         	hour12: false
 	});
 }
@@ -159,9 +159,9 @@ function fileExists(fPath) {
 X1Plus.fileExists = fileExists;
 
 /* Some things can only happen after we have a DeviceManager and
- * PrintManager passed down, and the real QML environment is truly alive. 
+ * PrintManager passed down, and the real QML environment is truly alive.
  * Submodules also don't get access to the global X1Plus object until after
- * they are loaded, and they might need to do work touching other modules. 
+ * they are loaded, and they might need to do work touching other modules.
  * These things happen from 'awaken'.
  */
 function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Network) {
@@ -192,19 +192,10 @@ X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["state"] = PrintManager.currentTask.state;
 	return param;
 });
-X1Plus.DBus.registerMethod("printFile", (param) => {
-  var payload = {
-    command: "gcode_file",
-    param: param["filename"],
-  };
-  DDS.publish("device/request/print", payload);
+X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": "gcode_file", "param": param["filePath"] });
   console.log("[x1p] Gcode printed:", JSON.stringify(payload));
   param["finished"] = "File printed.";
-  return
-}
-
-X1Plus.DBus.registerMethod("print", (param) => {
-
   return param;
 });
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
