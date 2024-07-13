@@ -174,7 +174,7 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	GpioKeys.awaken();
 	TempGraph.awaken();
 	Network.awaken();
-    Polar.awaken();
+	Polar.awaken();
 	console.log("X1Plus.js is awake");
 }
 
