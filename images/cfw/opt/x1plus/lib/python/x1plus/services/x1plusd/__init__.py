@@ -9,9 +9,9 @@ from .ota import OTAService
 from .sshd import SSHService
 from .httpd import HTTPService
 from .mqtt import MQTTClient
+from .expansion import ExpansionManager
 
 logger = logging.getLogger(__name__)
-
 
 async def main():
     logger.info("x1plusd is starting up")
@@ -22,6 +22,7 @@ async def main():
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
     httpd = HTTPService(router=router, settings=settings, mqtt=mqtt)
+    expansion = ExpansionManager(settings=settings)
 
     asyncio.create_task(mqtt.task())
     asyncio.create_task(settings.task())
