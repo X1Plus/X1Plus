@@ -74,7 +74,7 @@ class MQTTClient():
                     await client.subscribe("device/+/report")
                     self.mqttc = client
                     loop_task = asyncio.create_task(self.mqtt_message_loop())
-                    await asyncio.wait([loop_task, self.reconnect_event.wait()], return_when=asyncio.FIRST_COMPLETED)
+                    await asyncio.wait([loop_task, asyncio.ensure_future(self.reconnect_event.wait())], return_when=asyncio.FIRST_COMPLETED)
                     loop_task.cancel()
                     try:
                         await loop_task
