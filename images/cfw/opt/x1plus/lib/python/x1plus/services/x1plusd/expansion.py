@@ -56,12 +56,43 @@ class ExpansionManager():
         
         logger.info(f"found X1Plus expansion board serial {self.expansion.serial}")
         
+        self.ftdi_path = f"ftdi://::{self.expansion.ftdidev.bus:x}:{self.expansion.ftdidev.address:x}/"
+        if self.expansion.ftdidev.idProduct == 0x6010: # FT2232H
+            self.ftdi_nports = 2
+        else:
+            self.ftdi_nports = 2
+            logger.warning(f"FTDI product ID {self.expansion.ftdidev.idProduct:x} unrecognized")
+
         # later: detect each port on the FTDI to determine if it has an
         # attached eeprom
         
-        # later: register expansion.port_n for each port on the ftdidev with
-        # settings to call update_drivers
-        self.update_drivers()
+        self.x1psettings = settings
+        for port in range(self.ftdi_nports):
+            self.x1psettings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
+
+        self.last_configs = {}
+        self.drivers = {}
+        self._update_drivers()
     
-    def update_drivers(self):
-        pass
+    def _update_drivers(self):
+        for port in range(self.ftdi_nports):
+            port_name = f"port_{chr(0x61 + port)}"
+            config = self.x1psettings.get(f"expansion.{port_name}", None)
+            if not config:
+                continue
+            
+            if self.last_configs.get(port_name, None) == config:
+                # nothing has changed; do not reinitialize the port
+                continue
+            
+            if type(config) != dict or len(config) != 1:
+                logger.error(f"invalid configuration for port {port_name}: configuration must be dictionary with exactly one key")
+                continue
+            
+            if port_name in self.drivers:
+                self.drivers[port_name].disconnect()
+                del self.drivers[port_name]
+            
+            (driver, subconfig) = next(iter(config.items()))
+            logger.info(f"would connect driver {driver} to {port_name}")
+            
