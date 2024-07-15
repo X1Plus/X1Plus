@@ -3,6 +3,11 @@ import logging
 
 from collections import namedtuple
 import usb
+import time
+
+import pyftdi.ftdi
+
+from .i2c import I2cDriver
 
 # workaround for missing ldconfig
 def find_library(lib):
@@ -16,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 ExpansionDevice = namedtuple('ExpansionDevice', [ 'revision', 'serial', 'ftdidev' ])
 
-def detect_x1p_002_b01():
+def _detect_x1p_002_b01():
     """
     Looks for a X1P-002-B01.
     
@@ -43,13 +48,20 @@ def detect_x1p_002_b01():
         logger.warning("found a LAN9514, but no FTDI sibling")
         return None
     
+    # At least on X1P-002-B01, the FT2232 seems to sometimes get confused
+    # about frequency when reopened.  Resetting it seems to make it happier. 
+    # XXX: what causes this -- would a driver reload trigger this too?
+    ftdidev.reset()
+    
     return ExpansionDevice(revision = revision, serial = serial, ftdidev = ftdidev)
 
 class ExpansionManager():
+    DRIVERS = { 'i2c': I2cDriver }
+
     def __init__(self, settings, **kwargs):
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
-        self.expansion = detect_x1p_002_b01()
+        self.expansion = _detect_x1p_002_b01()
         if not self.expansion:
             logger.info("no X1Plus expansion board detected")
             return
@@ -72,9 +84,34 @@ class ExpansionManager():
 
         self.last_configs = {}
         self.drivers = {}
+
         self._update_drivers()
     
     def _update_drivers(self):
+        # Workaround https://github.com/eblot/pyftdi/issues/261 by resetting
+        # all drivers on the FTDI every time.
+        did_change = False
+        for port in range(self.ftdi_nports):
+            port_name = f"port_{chr(0x61 + port)}"
+            config = self.x1psettings.get(f"expansion.{port_name}", None)
+            if self.x1psettings.get(f"expansion.{port_name}", None) != self.last_configs.get(port_name, None):
+                did_change = True
+                break
+        
+        if did_change:
+            # shut down all ports...
+            for port in range(self.ftdi_nports):
+                port_name = f"port_{chr(0x61 + port)}"
+                if port_name in self.drivers:
+                    self.drivers[port_name].disconnect()
+                    del self.drivers[port_name]
+                
+                if port_name in self.last_configs:
+                    del self.last_configs[port_name]
+            
+            # reset the FTDI ...
+            self.expansion.ftdidev.reset()
+
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
             config = self.x1psettings.get(f"expansion.{port_name}", None)
@@ -86,7 +123,7 @@ class ExpansionManager():
                 continue
             
             if type(config) != dict or len(config) != 1:
-                logger.error(f"invalid configuration for port {port_name}: configuration must be dictionary with exactly one key")
+                logger.error(f"invalid configuration for {port_name}: configuration must be dictionary with exactly one key")
                 continue
             
             if port_name in self.drivers:
@@ -94,5 +131,14 @@ class ExpansionManager():
                 del self.drivers[port_name]
             
             (driver, subconfig) = next(iter(config.items()))
-            logger.info(f"would connect driver {driver} to {port_name}")
+            
+            if driver not in self.DRIVERS:
+                logger.error(f"{port_name} is assigned driver {driver}, which is not registered")
+                continue
+            
+            try:
+                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", config = subconfig, manager = self)
+                self.last_configs[port_name] = config
+            except Exception as e:
+                logger.error(f"{port_name} driver {driver} initialization failed: {e.__class__.__name__}: {e}")
             
