@@ -116,7 +116,7 @@ Item {
                             name: "clear calibration logs",
                             type: TextConfirm.YES_NO,
                             defaultButton: 0,
-                            text: qsTr("Are you sure you want to remove the data entry from $1?").arg(plotTitle),
+                            text: qsTr("Are you sure you want to remove the data entry from %1?").arg(plotTitle),
                             onYes: function() {
                                 X1Plus.BedMeshCalibration.deleteEntry(calibrationData.time);
                                 bedleveldiag.parent.pop();
