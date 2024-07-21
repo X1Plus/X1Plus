@@ -185,6 +185,12 @@ X1Plus.DBus.registerMethod("ping", (param) => {
 X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["stage"] = PrintManager.currentTask.stage;
 	param["state"] = PrintManager.currentTask.state;
+	param["tip_cur_temp"] = X1Plus.PrintManager.heaters.hotend.currentTemp;
+	param["tip_target_temp"] = X1Plus.PrintManager.heaters.hotend.targetTemp;
+	param["bed_cur_temp"] = X1Plus.PrintManager.heaters.heatbed.currentTemp;
+	param["bed_target_temp"] = X1Plus.PrintManager.heaters.heatbed.targetTemp;
+  param["chamber_cur_temp"] = X1Plus.PrintManager.heaters.chamber.currentTemp;
+	param["chamber_target_temp"] = X1Plus.PrintManager.heaters.chamber.targetTemp;
 	return param;
 });
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
