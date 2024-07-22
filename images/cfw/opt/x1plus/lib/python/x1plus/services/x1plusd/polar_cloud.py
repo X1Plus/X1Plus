@@ -51,6 +51,11 @@ class PolarPrintService(X1PlusDBusService):
         self.job_id = ""
         self.temps = {} # Will hold six temp values. Set in _status_update().
         """
+        self.downloading will allow me to update status when printer doesn't realize
+        it's busy.
+        """
+        self.downloading = False
+        """
         last_ping will hold time of last ping, so we're not sending status
         more than once every 10 seconds.
         """
@@ -284,70 +289,6 @@ class PolarPrintService(X1PlusDBusService):
         Todo: 15 **really, really** needs to be dealt with.
         """
 
-        """ Sample code, but see this link:
-        https://github.com/X1Plus/X1Plus/commit/b0495c528d1a05e76f7ce6ffc00aa57e5e6d2a98?diff=unified&w=0#diff-6528af1f39b80d6774161464e2c4a65a16e2b72e5ff2b2cf79662b040aea0550R75-R88
-
-        Joshua: I believe object path should
-        be bbl.service.screen,
-        bus name /bbl/service/screen,
-        interface bbl.screen.x1plus
-
-        try:
-            addr = DBusAddress("/x1plus/polar", bus_name="x1plus.polar", interface="x1plus.polar")
-            method = "getStatus"
-            params =
-        except Exception as e:
-            # deal with this
-        # Get a json string back.
-        msg = new_method_call(addr, method, 'x', body=())
-
-        Return fn from .js:
-        See Ping fn to see how this should actually be done.
-        // Return a json string.
-        function checkNow() {
-            return '{"stage": "' + X1Plus.curTask.stage + '", "state": "' + X1Plus.curTask.state + '"}';
-        }
-
-        Also see here: https://github.com/X1Plus/X1Plus/blob/main/bbl_screen-patch/patches/printerui/qml/X1Plus.js#L167-L170
-        """
-
-        """
-        status_translation: {
-            "0": 0, # Idle and ready
-            "1": 2, #
-            "2": 2,
-            "3": 3,
-            "4": 7,
-            "5": 5,
-            "6": 4,
-        }
-        rv = {'jsonrpc': '2.0', 'id': 1}
-        try:
-            addr = DBusAddress("bbl.service.screen", bus_name="/bbl/service/screen", interface="bbl.screen.x1plus")
-            method = "getStatus"
-            params = {"text": "getStatus"}
-        except Exception as e:
-            logger.error(f"Something failed in status call: {e}")
-            return
-        dbus_msg = new_method_call(addr, method, 's', (dumps(params), ))
-        reply = await self.router.send_and_get_reply(dbus_msg)
-        if reply.header.message_type == MessageType.error:
-            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
-        else:
-            rv['result'] = loads(reply.body[0])
-        # except Exception as e:
-        #     # pkt['error'] = {'code': -32602, 'message': str(e)}
-        #     await ws.send_json(rv)
-        #     # continue
-        dmsg = new_method_call(addr, method, 's', (dumps(params), ))
-        reply = await self.router.send_and_get_reply(dmsg)
-        if reply.header.message_type == MessageType.error:
-            rv['error'] = {'code': 1, 'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error') }
-        else:
-            rv['result'] = loads(reply.body[0])
-        logger.info(f"**** result: {rv['result']}")
-        """
-
         # This is a total ugly hack.
         dbus_call = [
             "dbus-send",
@@ -387,6 +328,7 @@ class PolarPrintService(X1PlusDBusService):
             self.status = 6
         elif self.status == 7:
             await self._job("completed")
+            self.job_id = ""
 
     async def _status(self) -> None:
         """
@@ -437,8 +379,7 @@ class PolarPrintService(X1PlusDBusService):
             }
             try:
                 await self.socket.emit("status", data)
-                logger.debug(f"status data {data}")
-                logger.info(f"Status update {datetime.datetime.now()}")
+                logger.info(f"Status update {self.status} {datetime.datetime.now()}")
                 self.last_ping = datetime.datetime.now()
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
@@ -538,44 +479,34 @@ class PolarPrintService(X1PlusDBusService):
             return
         # Todo: add recovery here if still printing.
 
-        print_file = ""
         if "gcodeFile" not in data:
             logger.error("PolarCloud sent non-gcode file.")
             await self._job("canceled")
             return
 
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
-        await self._download_file(path, f"{data['jobName']}.gcode", data["gcodeFile"])
-        # try:
-        #     info['file'] = print_file
-        #     req_stl = requests.get(print_file, timeout=5)
-        #     req_stl.raise_for_status()
-        # except Exception:
-        #     logger.exception(f"Could not retrieve print file from PolarCloud: {print_file}")
-        #     await self._job("canceled")
-        #     return
+        file_name = data["jobName"]
+        if not file_name.endswith(".gcode"):
+            file_name += ".gcode"
+        await self._download_file(path, file_name, data["gcodeFile"])
+        self._print_file(path, file_name)
 
         self.job_id = ""
-        # self._file_manager.add_file(FileDestinations.LOCAL, path, StreamWrapper(path, BytesIO(req_stl.content)), allow_overwrite=True)
-        # self.job_id = data['jobId'] if 'jobId' in data else "123"
-        # logger.debug(f"print jobId is {self.jobId}")
-        # logger.debug(f"print data is {data}")
 
-        # if self._printer.is_closed_or_error():
-        #     self._printer.disconnect()
-        #     self._printer.connect()
-
-        # self._cloud_print = True
-        # await self._job_pending = True
-        # self._job_id = job_id
-        # self._pstate_counter = 0
-        # self._pstate = self.PSTATE_PREPARING
-        # self._cloud_print_info = info
-        # self._status_now = True
-
-    def dbus_PrintFile(self, file_name):
-
-        pass
+    def _print_file(self, path, file_name):
+        location = os.path.join(path, file_name)
+        logger.info(f"_print_file {location}")
+        dbus_call = [
+            "dbus-send",
+            "--system",
+            "--print-reply",
+            "--dest=bbl.service.screen",
+            "/bbl/service/screen",
+            "bbl.screen.x1plus.printGcodeFile",
+            ('string: {"filePath": ' f'"{location}"' "}"),
+        ]
+        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        logger.info(done)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -603,9 +534,10 @@ class PolarPrintService(X1PlusDBusService):
                         self.download_bytes = 0
                         last_publish = datetime.datetime.now()
                         async for chunk in response.content.iter_chunked(131072):
-                            logger.debug("Downloaded a chunk.")
+                            self.downloading = True
                             self.download_bytes += len(chunk)
                             f.write(chunk)
+            self.downloading = False
         except:
             try:
                 os.unlink(dest)
