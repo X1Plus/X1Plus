@@ -31,7 +31,7 @@ class SettingsService(X1PlusDBusService):
     DBus invocation tool (currently, x1plus-test-settings).
     """
 
-    DEFAULT_X1PLUS_SETTINGS = { }
+    DEFAULT_X1PLUS_SETTINGS = {}
 
     def __init__(self, **kwargs):
         if x1plus.utils.is_emulating():
