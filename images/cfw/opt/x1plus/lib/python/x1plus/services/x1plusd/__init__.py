@@ -10,6 +10,7 @@ from .sshd import SSHService
 from .httpd import HTTPService
 from .mqtt import MQTTClient
 from .expansion import ExpansionManager
+from .sensors import SensorsService
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +23,14 @@ async def main():
     ota = OTAService(router=router, settings=settings)
     ssh = SSHService(settings=settings)
     httpd = HTTPService(router=router, settings=settings, mqtt=mqtt)
-    expansion = ExpansionManager(settings=settings)
+    sensors = SensorsService(router=router, settings=settings)
+    expansion = ExpansionManager(settings=settings, sensors=sensors)
 
     asyncio.create_task(mqtt.task())
     asyncio.create_task(settings.task())
     asyncio.create_task(ota.task())
     asyncio.create_task(httpd.task())
+    asyncio.create_task(sensors.task())
     if settings.get("polar_cloud", False):
         from .polar_cloud import PolarPrintService
         polar_cloud = PolarPrintService(settings=settings)

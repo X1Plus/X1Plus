@@ -58,7 +58,7 @@ def _detect_x1p_002_b01():
 class ExpansionManager():
     DRIVERS = { 'i2c': I2cDriver }
 
-    def __init__(self, settings, **kwargs):
+    def __init__(self, settings, sensors, **kwargs):
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
         self.expansion = _detect_x1p_002_b01()
@@ -81,6 +81,7 @@ class ExpansionManager():
         self.x1psettings = settings
         for port in range(self.ftdi_nports):
             self.x1psettings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
+        self.x1psensors = sensors
 
         self.last_configs = {}
         self.drivers = {}

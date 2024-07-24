@@ -14,6 +14,8 @@ class I2cDriver():
     DEVICE_DRIVERS = {}
     
     def __init__(self, manager, config, ftdi_path):
+        self.ftdi_path = ftdi_path
+
         self.i2c = pyftdi.i2c.I2cController()
         self.i2c.configure(ftdi_path, frequency=50000)
         
@@ -41,6 +43,8 @@ class Sht41Driver():
     CMD_MEASURE_HIGH_PRECISION = 0xFD
 
     def __init__(self, address, i2c_driver, config):
+        self.sensors = i2c_driver.manager.x1psensors
+
         self.sht41 = i2c_driver.i2c.get_port(address)
 
         self.sht41.write((self.CMD_SERIAL_NUMBER, ))
@@ -48,7 +52,7 @@ class Sht41Driver():
         self.sn = binascii.hexlify(sn[0:2] + sn[3:5]).decode()
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', None)
+        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/sht41/{self.sn}")
         
         self.task = asyncio.create_task(self._task())
         logger.info(f"probed SHT41 sensor at 0x{address:2x} with serial number {self.sn}")
@@ -69,10 +73,9 @@ class Sht41Driver():
                 t_C = -45 + 175 * t_raw / 65535
                 rh_pct = -6 + 125 * rh_raw/65535
             
-                # XXX: later, feed this to a x1plusd sensors subsystem that pubs to mqtt and to DBus
-                logger.info(f"SENSOR UPDATE: sensor name {self.name}, type sht41, serial {self.sn}, t {t_C}, rh_pct {rh_pct}")
+                await self.sensors.publish(self.name, type = 'sht41', serial = self.sn, t_c = t_C, rh_pct = rh_pct)
             except Exception as e:
-                logger.info(f"SENSOR UPDATE: sensor name {self.name}, type sht41, serial {self.sn}, inop: exception {e.__class__.__name__}: {e}")
+                await self.sensors.publish(self.name, type = 'sht41', serial = self.sn, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
     
@@ -84,6 +87,8 @@ class Aht20Driver():
     CMD_MEASURE = 0xAC
 
     def __init__(self, address, i2c_driver, config):
+        self.sensors = i2c_driver.manager.x1psensors
+
         self.aht20 = i2c_driver.i2c.get_port(address)
 
         self.aht20.write((self.CMD_RESET, ))
@@ -106,7 +111,7 @@ class Aht20Driver():
         self.aht20.write(b'\x71')
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', None)
+        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/aht20")
         
         self.task = asyncio.create_task(self._task())
         logger.info(f"probed AHT20 sensor at 0x{address:2x}")
@@ -140,10 +145,9 @@ class Aht20Driver():
                 t_raw = ((da[3] & 0xF) << 16) | (da[4] << 8) | da[5]
                 t_C = ((t_raw * 200.0) / 0x100000) - 50                
 
-                # XXX: later, feed this to a x1plusd sensors subsystem that pubs to mqtt and to DBus
-                logger.info(f"SENSOR UPDATE: sensor name {self.name}, type aht20, serial None, t {t_C}, rh_pct {rh_pct}, da {da}")
+                await self.sensors.publish(self.name, type = 'aht20', t_c = t_C, rh_pct = rh_pct)
             except Exception as e:
-                logger.info(f"SENSOR UPDATE: sensor name {self.name}, type aht20, serial None, inop: exception {e.__class__.__name__}: {e}")
+                await self.sensors.publish(self.name, type = 'aht20', inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
     
