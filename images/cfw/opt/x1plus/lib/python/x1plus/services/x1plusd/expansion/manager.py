@@ -8,6 +8,7 @@ import time
 import pyftdi.ftdi
 
 from .i2c import I2cDriver
+from .detect_eeprom import detect_eeprom
 
 # workaround for missing ldconfig
 def find_library(lib):
@@ -75,8 +76,18 @@ class ExpansionManager():
             self.ftdi_nports = 2
             logger.warning(f"FTDI product ID {self.expansion.ftdidev.idProduct:x} unrecognized")
 
-        # later: detect each port on the FTDI to determine if it has an
-        # attached eeprom
+        self.eeproms = {}
+        for port in range(self.ftdi_nports):
+            port_name = f"port_{chr(0x61 + port)}"
+            eeprom = detect_eeprom(f"{self.ftdi_path}{port + 1}")
+            if eeprom:
+                try:
+                    model, revision = eeprom[:16].decode().strip().rsplit('-', 1)
+                    serial = eeprom[16:24].decode()
+                    self.eeproms[port_name] = { 'model': model, 'revision': revision, 'serial': serial, 'raw': eeprom }
+                    logger.info(f"{port_name}: detected {model} rev {revision}, serial #{serial}")
+                except:
+                    logger.error(f"error decoding EEPROM contents {eeprom} on {port_name}")
         
         self.x1psettings = settings
         for port in range(self.ftdi_nports):
