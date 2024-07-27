@@ -12,8 +12,8 @@ SENSORS_PATH = "/x1plus/sensors"
 SENSOR_TIMEOUT = 60
 
 class SensorsService(X1PlusDBusService):
-    def __init__(self, settings, **kwargs):
-        self.x1psettings = settings
+    def __init__(self, daemon, **kwargs):
+        self.daemon = daemon
         self.sensors = {}
         super().__init__(
             dbus_interface=SENSORS_INTERFACE, dbus_path=SENSORS_PATH, **kwargs

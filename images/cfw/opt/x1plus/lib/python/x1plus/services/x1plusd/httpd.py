@@ -16,14 +16,13 @@ access_logger = logging.getLogger(__name__ + ".access")
 PROTOCOL_VERSION = 0
 
 class HTTPService():
-    def __init__(self, settings, router, mqtt, **kwargs):
-        self.x1psettings = settings
-        self.x1psettings.on("http.enabled", lambda: asyncio.create_task(self.sync_startstop()))
+    def __init__(self, router, daemon, **kwargs):
+        self.daemon = daemon
+        self.daemon.settings.on("http.enabled", lambda: asyncio.create_task(self.sync_startstop()))
         self.router = router
         self.runner = None
         self.site = None
         self.app = web.Application()
-        self.mqtt = mqtt
         
         if x1plus.utils.is_emulating():
             static_path = Path(__file__).resolve().parent.parent.parent.parent.parent.parent / 'share' / 'www'
@@ -70,7 +69,7 @@ class HTTPService():
     async def websocket_main(self, ws):
         "Once a websocket has authenticated, this implements the main loop."
         
-        with self.mqtt.request_messages() as requestq, self.mqtt.report_messages() as reportq:
+        with self.daemon.mqtt.request_messages() as requestq, self.daemon.mqtt.report_messages() as reportq:
             ws_future = None
             requestq_future = None
             reportq_future = None
@@ -127,7 +126,7 @@ class HTTPService():
                 await ws.close()
                 return ws
             
-            system_password = self.x1psettings.get('http.password', None)
+            system_password = self.daemon.settings.get('http.password', None)
             if system_password is None: # we have to do it the hard way, I guess
                 with open('/config/device/access_token', 'r') as f:
                     system_password = f.read().strip()
@@ -151,7 +150,7 @@ class HTTPService():
         await self.sync_startstop()
 
     async def sync_startstop(self):
-        enabled = self.x1psettings.get("http.enabled", False)
+        enabled = self.daemon.settings.get("http.enabled", False)
         
         if self.site and not enabled:
             await self.site.stop()
@@ -166,8 +165,8 @@ class HTTPService():
             await self.runner.setup()
         
         if enabled and not self.site:
-            bind_addr = self.x1psettings.get("http.bind.addr", "0.0.0.0")
-            bind_port = self.x1psettings.get("http.bind.port", 80)
+            bind_addr = self.daemon.settings.get("http.bind.addr", "0.0.0.0")
+            bind_port = self.daemon.settings.get("http.bind.port", 80)
             self.site = web.TCPSite(self.runner, bind_addr, bind_port)
             await self.site.start()
             logger.info(f"X1Plusd httpd is running on {bind_addr}:{bind_port}")

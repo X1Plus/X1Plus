@@ -59,7 +59,9 @@ def _detect_x1p_002_b01():
 class ExpansionManager():
     DRIVERS = { 'i2c': I2cDriver }
 
-    def __init__(self, settings, sensors, **kwargs):
+    def __init__(self, daemon, **kwargs):
+        self.daemon = daemon
+
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
         self.expansion = _detect_x1p_002_b01()
@@ -89,10 +91,8 @@ class ExpansionManager():
                 except:
                     logger.error(f"error decoding EEPROM contents {eeprom} on {port_name}")
         
-        self.x1psettings = settings
         for port in range(self.ftdi_nports):
-            self.x1psettings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
-        self.x1psensors = sensors
+            self.daemon.settings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
 
         self.last_configs = {}
         self.drivers = {}
@@ -105,8 +105,8 @@ class ExpansionManager():
         did_change = False
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
-            config = self.x1psettings.get(f"expansion.{port_name}", None)
-            if self.x1psettings.get(f"expansion.{port_name}", None) != self.last_configs.get(port_name, None):
+            config = self.daemon.settings.get(f"expansion.{port_name}", None)
+            if self.daemon.settings.get(f"expansion.{port_name}", None) != self.last_configs.get(port_name, None):
                 did_change = True
                 break
         
@@ -126,7 +126,7 @@ class ExpansionManager():
 
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
-            config = self.x1psettings.get(f"expansion.{port_name}", None)
+            config = self.daemon.settings.get(f"expansion.{port_name}", None)
             if not config:
                 continue
             
@@ -149,7 +149,7 @@ class ExpansionManager():
                 continue
             
             try:
-                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", config = subconfig, manager = self)
+                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", config = subconfig, daemon = self.daemon)
                 self.last_configs[port_name] = config
             except Exception as e:
                 logger.error(f"{port_name} driver {driver} initialization failed: {e.__class__.__name__}: {e}")

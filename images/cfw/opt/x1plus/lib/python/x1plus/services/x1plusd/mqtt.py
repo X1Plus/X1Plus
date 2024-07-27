@@ -11,12 +11,12 @@ import x1plus.utils
 logger = logging.getLogger(__name__)
 
 class MQTTClient():
-    def __init__(self, settings, **kwargs):
-        self.x1psettings = settings
+    def __init__(self, daemon, **kwargs):
+        self.daemon = daemon
         
-        self.x1psettings.on("mqtt.override.host", lambda: self._trigger_reconnect())
-        self.x1psettings.on("mqtt.override.password", lambda: self._trigger_reconnect())
-        self.x1psettings.on("mqtt.override.sn", lambda: self._trigger_reconnect())
+        self.daemon.settings.on("mqtt.override.host", lambda: self._trigger_reconnect())
+        self.daemon.settings.on("mqtt.override.password", lambda: self._trigger_reconnect())
+        self.daemon.settings.on("mqtt.override.sn", lambda: self._trigger_reconnect())
         
         self.mqttc = None
         self.reconnect_event = asyncio.Event()
@@ -51,9 +51,9 @@ class MQTTClient():
                 password = None
                 if os.path.isfile("/config/device/access_token"):
                     password = open("/config/device/access_token", "r").read()
-                password = self.x1psettings.get("mqtt.override.password", password)
+                password = self.daemon.settings.get("mqtt.override.password", password)
                 
-                self.sn = self.x1psettings.get("mqtt.override.sn", None)
+                self.sn = self.daemon.settings.get("mqtt.override.sn", None)
                 if not self.sn:
                     sn = x1plus.utils.serial_number()
                 
@@ -62,7 +62,7 @@ class MQTTClient():
                 ssl_ctx.verify_mode = ssl.CERT_NONE
 
                 client = aiomqtt.Client(
-                    hostname = self.x1psettings.get("mqtt.override.host", "127.0.0.1"),
+                    hostname = self.daemon.settings.get("mqtt.override.host", "127.0.0.1"),
                     port = 8883,
                     username = "bblp",
                     password = password,

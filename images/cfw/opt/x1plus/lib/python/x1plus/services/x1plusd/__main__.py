@@ -2,7 +2,7 @@ import asyncio
 import logging, logging.handlers
 import setproctitle
 
-from . import main, logger
+from . import X1PlusDaemon, logger
 
 setproctitle.setproctitle(__spec__.name)
 
@@ -28,10 +28,14 @@ def exceptions(loop, ctx):
         pass
 
 
+async def start():
+    x1plusd = await X1PlusDaemon.create()
+    await x1plusd.start()
+
 # TODO: check if we are already running
 loop = asyncio.new_event_loop()
 loop.set_exception_handler(exceptions)
-loop.create_task(main())
+loop.create_task(start())
 try:
     loop.run_forever()
 finally:

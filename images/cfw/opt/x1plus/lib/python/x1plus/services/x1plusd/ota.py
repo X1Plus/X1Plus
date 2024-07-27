@@ -29,9 +29,9 @@ class OTAService(X1PlusDBusService):
     STATUS_DOWNLOADING_X1P = "DOWNLOADING_X1P"
     STATUS_DOWNLOADING_BASE = "DOWNLOADING_BASE"
     
-    def __init__(self, settings, **kwargs):
-        self.x1psettings = settings
-        self.ota_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
+    def __init__(self, daemon, **kwargs):
+        self.daemon = daemon
+        self.ota_url = self.daemon.settings.get('ota.json_url', DEFAULT_OTA_URL)
         self.ota_available = False
         self.last_check_timestamp = None
         self.last_check_response = None
@@ -69,7 +69,7 @@ class OTAService(X1PlusDBusService):
         )
 
     def ota_enabled(self):
-        return bool(self.x1psettings.get("ota.enabled", True))
+        return bool(self.daemon.settings.get("ota.enabled", True))
 
     async def task(self):
         # On startup run an update check to populate info
@@ -114,7 +114,7 @@ class OTAService(X1PlusDBusService):
         # this method!
         if not self.ota_downloaded:
             return {"status": "failure", "reason": "ota not downloaded, doofus"}
-        await self.x1psettings.put('ota.filename', os.path.split(self.last_check_response['ota_url'])[-1])
+        await self.daemon.settings.put('ota.filename', os.path.split(self.last_check_response['ota_url'])[-1])
         if not x1plus.utils.is_emulating():
             os.system("sync; sync; reboot")
             return {"status": "rebooting"}
@@ -261,7 +261,7 @@ class OTAService(X1PlusDBusService):
             raise
     
     def _ota_url_changed(self):
-        new_url = self.x1psettings.get('ota.json_url', DEFAULT_OTA_URL)
+        new_url = self.daemon.settings.get('ota.json_url', DEFAULT_OTA_URL)
         if self.ota_url != new_url:
             logger.debug("OTA URL has changed, triggering recheck")
         self.ota_url = new_url
@@ -271,8 +271,8 @@ class OTAService(X1PlusDBusService):
     async def _ota_task(self):
         # Make sure that we are given a chance to see if there is work to do
         # when the OTA status changes.
-        self.x1psettings.on("ota.enabled", lambda: self.ota_task_wake.set())
-        self.x1psettings.on("ota.json_url", lambda: self._ota_url_changed())
+        self.daemon.settings.on("ota.enabled", lambda: self.ota_task_wake.set())
+        self.daemon.settings.on("ota.json_url", lambda: self._ota_url_changed())
         
         while True:
             did_work = False

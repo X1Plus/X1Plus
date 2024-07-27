@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 class I2cDriver():
     DEVICE_DRIVERS = {}
     
-    def __init__(self, manager, config, ftdi_path):
+    def __init__(self, daemon, config, ftdi_path):
         self.ftdi_path = ftdi_path
 
         self.i2c = pyftdi.i2c.I2cController()
         self.i2c.configure(ftdi_path, frequency=50000)
         
-        self.manager = manager
+        self.daemon = daemon
         self.devices = []
         
         # I2C config format is just a dict of addresses -> devices
@@ -43,7 +43,7 @@ class Sht41Driver():
     CMD_MEASURE_HIGH_PRECISION = 0xFD
 
     def __init__(self, address, i2c_driver, config):
-        self.sensors = i2c_driver.manager.x1psensors
+        self.sensors = i2c_driver.daemon.sensors
 
         self.sht41 = i2c_driver.i2c.get_port(address)
 
@@ -87,7 +87,7 @@ class Aht20Driver():
     CMD_MEASURE = 0xAC
 
     def __init__(self, address, i2c_driver, config):
-        self.sensors = i2c_driver.manager.x1psensors
+        self.sensors = i2c_driver.daemon.sensors
 
         self.aht20 = i2c_driver.i2c.get_port(address)
 

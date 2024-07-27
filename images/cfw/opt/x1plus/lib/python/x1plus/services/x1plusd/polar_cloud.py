@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class PolarPrintService:
-    def __init__(self, settings):
+    def __init__(self, daemon):
+        self.daemon = daemon
         self.polar_sn = 0
         # Todo: VERY IMPORTANT!! The public and private keys MUST be moved to
         # non-volatile memory before release.
@@ -30,9 +31,8 @@ class PolarPrintService:
         self.socket = None
         # self.ip = ""
         # Todo: Fix two "on" fn calls below. Also, start communicating with dbus.
-        self.polar_settings = settings
-        # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
-        # self.polar_settings.on("self.pin", self.set_pin())
+        # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
+        # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
         self.connected = False  # We might not need this, but here for now.
 
@@ -242,7 +242,7 @@ class PolarPrintService:
         from card. The current print should finish. Disconnect socket so that
         username and PIN don't keep being requested and printer doesn't reregister.
         """
-        if response["serialNumber"] == self.polar_settings.get("polar.sn"):
+        if response["serialNumber"] == self.daemon.settings.get("polar.sn"):
             self.sn = ""
             self.username = ""
             self.public_key = ""
@@ -277,7 +277,7 @@ class PolarPrintService:
             if not self.pin:
                 # Get it from the interface.
                 pass
-            if not self.polar_settings.get("polar.username", ""):
+            if not self.daemon.settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
 
