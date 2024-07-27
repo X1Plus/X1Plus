@@ -4,7 +4,6 @@ import logging
 import pyftdi.i2c
 import binascii
 
-import usb.util
 import asyncio
 import time
 
