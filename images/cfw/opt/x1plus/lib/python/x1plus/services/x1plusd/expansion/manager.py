@@ -7,6 +7,8 @@ import time
 
 import pyftdi.ftdi
 
+from ..dbus import *
+
 from .i2c import I2cDriver
 from .detect_eeprom import detect_eeprom
 
@@ -56,7 +58,10 @@ def _detect_x1p_002_b01():
     
     return ExpansionDevice(revision = revision, serial = serial, ftdidev = ftdidev)
 
-class ExpansionManager():
+EXPANSION_INTERFACE = "x1plus.expansion"
+EXPANSION_PATH = "/x1plus/expansion"
+
+class ExpansionManager(X1PlusDBusService):
     DRIVERS = { 'i2c': I2cDriver }
 
     def __init__(self, daemon, **kwargs):
@@ -81,6 +86,7 @@ class ExpansionManager():
         self.eeproms = {}
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
+            self.eeproms[port_name] = None
             eeprom = detect_eeprom(f"{self.ftdi_path}{port + 1}")
             if eeprom:
                 try:
@@ -98,6 +104,11 @@ class ExpansionManager():
         self.drivers = {}
 
         self._update_drivers()
+
+        super().__init__(
+            dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+        )
+
     
     def _update_drivers(self):
         # Workaround https://github.com/eblot/pyftdi/issues/261 by resetting
@@ -154,3 +165,16 @@ class ExpansionManager():
             except Exception as e:
                 logger.error(f"{port_name} driver {driver} initialization failed: {e.__class__.__name__}: {e}")
             
+    async def dbus_GetHardware(self, req):
+        if not self.expansion:
+            return None
+            
+        return {
+            'expansion_revision': self.expansion.revision,
+            'expansion_serial': self.expansion.serial,
+            'ports': { port_name: {
+                'model': eeprom['model'],
+                'revision': eeprom['revision'],
+                'serial': eeprom['serial'],
+            } if eeprom else None for port_name, eeprom in self.eeproms.items() },
+        }

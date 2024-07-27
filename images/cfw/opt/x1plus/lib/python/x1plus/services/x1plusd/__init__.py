@@ -28,7 +28,7 @@ class X1PlusDaemon:
         self.ssh = SSHService(daemon=self)
         self.httpd = HTTPService(router=self.router, daemon=self)
         self.sensors = SensorsService(router=self.router, daemon=self)
-        self.expansion = ExpansionManager(daemon=self)
+        self.expansion = ExpansionManager(router=self.router, daemon=self)
         if not self.settings.get("polar_cloud", False):
             self.polar_cloud = None
         else:
@@ -43,6 +43,7 @@ class X1PlusDaemon:
         asyncio.create_task(self.ota.task())
         asyncio.create_task(self.httpd.task())
         asyncio.create_task(self.sensors.task())
+        asyncio.create_task(self.expansion.task())
         if self.polar_cloud:
             asyncio.create_task(self.polar_cloud.begin())
 
