@@ -59,6 +59,7 @@ class LedStripDriver():
             (animname, subconfig) = next(iter(anim.items()))
             self.anim_list.append(self.ANIMATIONS[animname](self, subconfig))
 
+        self.last_gcode_state = None
         self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
             
     def put(self, bs):
@@ -78,6 +79,8 @@ class LedStripDriver():
                 msg = await report_queue.get()
                 # we do not do anything with it, we just use this to
                 # determine if the animation needs to be changed
+                if self.daemon.mqtt.latest_print_status.get('gcode_state', None) is not None:
+                    self.last_gcode_state = self.daemon.mqtt.latest_print_status['gcode_state']
 
                 wantanim = None
                 for anim in self.anim_list:
@@ -85,7 +88,7 @@ class LedStripDriver():
                         wantanim = anim
                         break
                 if wantanim != self.curanim:
-                    logger.debug(f"switching to animation {wantanim} from {self.curanim}")
+                    logger.debug(f"switching to animation {wantanim} from {self.curanim}, print state is {self.daemon.mqtt.latest_print_status.get('gcode_state', None)}")
                     if self.anim_task:
                         self.anim_task.cancel()
                         self.anim_task = None
@@ -142,7 +145,7 @@ class PausedAnimation():
         self.brightness = config.get('brightness', 0.25)
     
     def can_render(self):
-        return self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'PAUSED'
+        return self.leds.last_gcode_state == 'PAUSE'
     
     async def task(self):
         BLINK_PATTERN = [(160, 250), (140, 700), (160, 250), (140, 700), (160, 250), (140, 3000)]
@@ -169,7 +172,7 @@ class FailedAnimation():
         self.last_was_failed = False
     
     def can_render(self):
-        failed = self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'FAILED'
+        failed = self.leds.last_gcode_state == 'FAILED'
         if not self.last_was_failed and failed:
             self.last_failed_trn = time.time()
         self.last_was_failed = failed
@@ -203,7 +206,7 @@ class FinishAnimation():
         self.last_was_finish = False
     
     def can_render(self):
-        finish = self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'FINISH'
+        finish = self.leds.last_gcode_state == 'FINISH'
         if not self.last_was_finish and finish:
             self.last_finish_trn = time.time()
         self.last_was_finish = finish
@@ -228,7 +231,7 @@ class RunningAnimation():
         self.testmode = config.get('testmode', False)
     
     def can_render(self):
-        return self.testmode or self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'RUNNING'
+        return self.testmode or self.leds.last_gcode_state == 'RUNNING'
     
     async def task(self):
         ph = 0
@@ -257,7 +260,7 @@ class RunningAnimation():
                 await asyncio.sleep(0.05)
         else:
             while True:
-                put_print_progress(self.leds.daemon.mqtt.latest_print_status.get('mc_percent', 0))
+                put_print_progress(self.leds.daemon.mqtt.latest_print_status.get('mc_percent', 0) / 100)
                 await asyncio.sleep(0.05)
         
 LedStripDriver.ANIMATIONS['running'] = RunningAnimation
