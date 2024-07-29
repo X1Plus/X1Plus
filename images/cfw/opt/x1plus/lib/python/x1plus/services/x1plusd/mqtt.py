@@ -23,6 +23,8 @@ class MQTTClient():
         
         self.request_message_handlers = set()
         self.report_message_handlers = set()
+        
+        self.latest_print_status = {}
     
     def _trigger_reconnect(self):
         self.reconnect_event.set()
@@ -38,6 +40,8 @@ class MQTTClient():
                 for handler in self.request_message_handlers.copy(): # avoid problems if this gets mutated out from under us mid handler
                     await handler(payload)
             elif "/report" in message.topic.value:
+                if 'print' in payload:
+                    self.latest_print_status = payload['print']
                 for handler in self.report_message_handlers.copy(): # avoid problems if this gets mutated out from under us mid handler
                     await handler(payload)
             else:

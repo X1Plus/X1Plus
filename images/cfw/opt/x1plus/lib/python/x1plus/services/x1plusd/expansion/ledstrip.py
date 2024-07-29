@@ -1,6 +1,7 @@
 import os
 import logging
 import asyncio
+import time
 
 from collections import namedtuple
 
@@ -15,7 +16,11 @@ LED_TYPES = {
 }
 
 class LedStripDriver():
+    ANIMATIONS = {}
+    DEFAULT_ANIMATIONS = [ 'finish', 'paused', 'failed', 'rainbow' ]
+
     def __init__(self, daemon, config, ftdi_path):
+        self.daemon = daemon
         self.ftdi_path = ftdi_path
         self.config = config
 
@@ -35,17 +40,60 @@ class LedStripDriver():
                     v += self.led.one
             self.lut[i] = v
         
-        self.put(b'\x00\x00\x00' * self.n_leds)
+        self.put(b'\x00\x00\x00' * 128) # clear out a long strip
         
-        self.anim = asyncio.create_task(self.led_anim())
+        self.anim_task = None
+        self.curanim = None
 
+        # the 'animations' key is a list that looks like:
+        #
+        #   [ 'paused', { 'rainbow': { 'brightness': 0.5 } } ]
+        self.anim_list = []
+        for anim in self.config.get('animations', self.DEFAULT_ANIMATIONS):
+            if type(anim) == str:
+                self.anim_list.append(self.ANIMATIONS[anim](self, {}))
+                continue
+            elif type(anim) != dict or len(anim) != 1:
+                raise ValueError("animation must be either string or dictionary with exactly one key")
+            
+            (animname, subconfig) = next(iter(anim.items()))
+            self.anim_list.append(self.ANIMATIONS[animname](self, subconfig))
+
+        self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
+            
     def put(self, bs):
         obs = bytearray(b'').join([self.lut[b] for b in bs])
         self.spi.exchange(self.led.frequency, obs, readlen=0)
     
     def disconnect(self):
-        self.anim.cancel()
+        if self.anim_task:
+            self.anim_task.cancel()
+            self.anim_task = None
+        self.anim_watcher.cancel()
         self.spi.close()
+    
+    async def anim_watcher_task(self):
+        with self.daemon.mqtt.report_messages() as report_queue:
+            while True:
+                msg = await report_queue.get()
+                # we do not do anything with it, we just use this to
+                # determine if the animation needs to be changed
+
+                wantanim = None
+                for anim in self.anim_list:
+                    if anim.can_render():
+                        wantanim = anim
+                        break
+                if wantanim != self.curanim:
+                    logger.debug(f"switching to animation {wantanim} from {self.curanim}")
+                    if self.anim_task:
+                        self.anim_task.cancel()
+                        self.anim_task = None
+                    self.curanim = wantanim
+                    if not wantanim:
+                        self.put(b'\x00\x00\x00' * self.n_leds)
+                    else:
+                        self.anim_task = asyncio.create_task(anim.task())
     
     async def led_anim(self):
         import colorsys
@@ -59,3 +107,117 @@ class LedStripDriver():
             if ph > 1:
                 ph -= 1
             await asyncio.sleep(0.05)
+
+###############
+
+import colorsys
+import math
+
+class RainbowAnimation():
+    def __init__(self, leds, config):
+        self.leds = leds
+        self.brightness = config.get('brightness', 0.3)
+    
+    def can_render(self):
+        return True 
+    
+    async def task(self):
+        ph = 0
+        while True:
+            ph = ph + 0.01
+            arr = []
+            for i in range(self.leds.n_leds):
+                arr += colorsys.hsv_to_rgb((ph + i * 0.05) % 1, 1.0, 1.0)
+            self.leds.put([int(a * self.brightness * 255) for a in arr])
+            if ph > 1:
+                ph -= 1
+            await asyncio.sleep(0.05)
+        
+LedStripDriver.ANIMATIONS['rainbow'] = RainbowAnimation
+
+
+class PausedAnimation():
+    def __init__(self, leds, config):
+        self.leds = leds
+        self.brightness = config.get('brightness', 0.25)
+    
+    def can_render(self):
+        return self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'PAUSED'
+    
+    async def task(self):
+        BLINK_PATTERN = [(160, 250), (140, 700), (160, 250), (140, 700), (160, 250), (140, 3000)]
+        while True:
+            for on,off in BLINK_PATTERN:
+                arr = []
+                for i in range(self.leds.n_leds):
+                    arr += (self.brightness * 0.7, self.brightness * 1.0, 0.0,)
+                self.leds.put([int(a * 255) for a in arr])
+                await asyncio.sleep(on / 1000.0)
+                
+                self.leds.put(b'\x00\x00\x00' * self.leds.n_leds)
+                await asyncio.sleep(off / 1000.0)
+        
+LedStripDriver.ANIMATIONS['paused'] = PausedAnimation
+
+
+class FailedAnimation():
+    def __init__(self, leds, config):
+        self.leds = leds
+        self.brightness = config.get('brightness', 0.25)
+        self.timeout = config.get('timeout', 120) # failure goes away after 2 minutes
+        self.last_failed_trn = 0
+        self.last_was_failed = False
+    
+    def can_render(self):
+        failed = self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'FAILED'
+        if not self.last_was_failed and failed:
+            self.last_failed_trn = time.time()
+        self.last_was_failed = failed
+        return failed and (time.time() - self.last_failed_trn) < self.timeout
+    
+    async def task(self):
+        BLINK_PATTERN = [(750, 350), (750, 350), (750, 3000)]
+        while True:
+            for on,off in BLINK_PATTERN:
+                arr = []
+                for i in range(self.leds.n_leds):
+                    arr += (0.0, self.brightness * 1.0, 0.0,)
+                self.leds.put([int(a * 255) for a in arr])
+                await asyncio.sleep(on / 1000.0)
+                
+                arr = []
+                for i in range(self.leds.n_leds):
+                    arr += (0.0, 1/255, 0.0,)
+                self.leds.put([int(a * 255) for a in arr])
+                await asyncio.sleep(off / 1000.0)
+        
+LedStripDriver.ANIMATIONS['failed'] = FailedAnimation
+
+
+class FinishAnimation():
+    def __init__(self, leds, config):
+        self.leds = leds
+        self.brightness = config.get('brightness', 0.4)
+        self.timeout = config.get('timeout', 600) # success goes away after 10 minutes
+        self.last_finish_trn = 0
+        self.last_was_finish = False
+    
+    def can_render(self):
+        finish = self.leds.daemon.mqtt.latest_print_status.get('gcode_state', None) == 'FINISH'
+        if not self.last_was_finish and finish:
+            self.last_finish_trn = time.time()
+        self.last_was_finish = finish
+        return finish and (time.time() - self.last_finish_trn) < self.timeout
+    
+    async def task(self):
+        ph = 0
+
+        while True:
+            ph += 0.05
+            br = 0.6 + math.sin(ph) * 0.4
+            self.leds.put([int(255 * br * self.brightness), 0, 0] * self.leds.n_leds)
+            await asyncio.sleep(0.05)
+        
+LedStripDriver.ANIMATIONS['finish'] = FinishAnimation
+
+
