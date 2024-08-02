@@ -59,7 +59,7 @@ class MQTTClient():
                 
                 self.sn = self.daemon.settings.get("mqtt.override.sn", None)
                 if not self.sn:
-                    sn = x1plus.utils.serial_number()
+                    self.sn = x1plus.utils.serial_number()
                 
                 ssl_ctx = ssl.create_default_context()
                 ssl_ctx.check_hostname = False
