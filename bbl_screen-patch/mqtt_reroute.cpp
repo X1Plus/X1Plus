@@ -51,6 +51,8 @@ static MQTTAsync_messageArrived *messageArrived;
 
 extern "C" int MQTTAsync_isConnected(void *handle);
 extern "C" int MQTTAsync_sendMessage(void *handle, const char *topic, const struct MQTTAsync_message *msg, void *response);
+extern "C" void MQTTAsync_freeMessage(struct MQTTAsync_message **msg);
+extern "C" void MQTTAsync_free(void *p);
 
 static int _messageArrived(void *context, char *topicName, int topicLen, struct MQTTAsync_message *message) {
     char *topic = strndup(topicName, topicLen);
@@ -99,6 +101,8 @@ static int _messageArrived(void *context, char *topicName, int topicLen, struct 
     if (passthrough) {
         return messageArrived(context, topicName, topicLen, message);
     } else {
+        MQTTAsync_freeMessage(&message);
+        MQTTAsync_free(topicName);
         return true;
     }
 }
