@@ -34,4 +34,7 @@ class SensorsService(X1PlusDBusService):
         self.sensors[name] = data
 
         await self.emit_signal("SensorUpdate", { name: data })
-        # XXX: publish to MQTT also, at some point
+        
+        # use the "synthesize_report" mechanism in mqtt_reroute.cpp to make
+        # device_gate publish both to the local mqtt broker and to the cloud
+        await self.daemon.mqtt.publish_request({ "x1plus": { "synthesize_report": { "x1plus": { "sensor": { name: data } } } } })
