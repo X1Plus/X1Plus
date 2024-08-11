@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include <iostream>
 #include <set>
@@ -54,6 +55,34 @@ extern "C" int MQTTAsync_sendMessage(void *handle, const char *topic, const stru
 extern "C" void MQTTAsync_freeMessage(struct MQTTAsync_message **msg);
 extern "C" void MQTTAsync_free(void *p);
 
+struct message_to_send {
+    char *topic;
+    char *msg;
+};
+
+static void *_send_one_message(void *ctx) {
+    struct message_to_send *msgbuf = (struct message_to_send *)ctx;
+    for (auto it = mqtt_connections.begin(); it != mqtt_connections.end(); it++) {
+        void *handle = *it;
+        if (!MQTTAsync_isConnected(handle))
+            continue;
+        
+        MQTTAsync_message msg = {
+            .struct_id = {'M', 'Q', 'T', 'M'},
+            .struct_version = 0,
+            .payloadlen = (int)strlen(msgbuf->msg),
+            .payload = (void *)msgbuf->msg,
+            .qos = 0
+        };
+        
+        MQTTAsync_sendMessage(handle, msgbuf->topic, &msg, NULL);
+    }    
+    free(msgbuf->topic);
+    free(msgbuf->msg);
+    free(msgbuf);
+    return NULL;
+}
+
 static int _messageArrived(void *context, char *topicName, int topicLen, struct MQTTAsync_message *message) {
     char *topic = strndup(topicName, topicLen);
     char *s = strndup((const char *)message->payload, message->payloadlen);
@@ -67,29 +96,22 @@ static int _messageArrived(void *context, char *topicName, int topicLen, struct 
             std::string synthesized = synthesize.dump();
             const char *synthesized_s = synthesized.c_str();
             std::cout << "MQTTAsync: synthesizing report " << synthesized << "\n";
-            for (auto it = mqtt_connections.begin(); it != mqtt_connections.end(); it++) {
-                void *handle = *it;
-                if (!MQTTAsync_isConnected(handle))
-                    continue;
-                
-                MQTTAsync_message msg = {
-                    .struct_id = {'M', 'Q', 'T', 'M'},
-                    .struct_version = 0,
-                    .payloadlen = (int)strlen(synthesized_s),
-                    .payload = (void *)synthesized_s,
-                    .qos = 0
-                };
-                
-                /* In theory, we should not reentrantly call MQTTAsync from
-                 * inside MQTTAsync, and should, like, defer this to later
-                 * or something.  It will complain on the console:
-                 *
-                 *   device_gate[816]: [trace_callback][98] Trace: 5, 20240802 061222.150 Error Resource deadlock avoided locking mutex
-                 *
-                 * In practice, this seems harmless.
-                 */
-                MQTTAsync_sendMessage(handle, topic, &msg, NULL);
-            }
+            
+            /* we cannot MQTTAsync_sendMessage inside the messageArrived
+             * callback; we cheesily spinup a single-use thread for this,
+             * since we cannot punt this to the main loop since we don't
+             * have access to that from here 
+             */
+            struct message_to_send *msg = (struct message_to_send *)malloc(sizeof(*msg));
+            msg->topic = strdup(topic);
+            msg->msg = strdup(synthesized_s);
+            pthread_t pth;
+            pthread_attr_t attr;
+            pthread_attr_init(&attr);
+            pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+            pthread_create(&pth, &attr, _send_one_message, msg);
+            pthread_attr_destroy(&attr);
+            
             passthrough = false;
         } catch(...) {
             /* simply pass it through */
