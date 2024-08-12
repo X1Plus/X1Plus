@@ -1,6 +1,4 @@
-import os
-import copy
-from pathlib import Path
+import re
 import json
 
 import struct
@@ -227,12 +225,58 @@ class MCProtoParser():
     def __init__(self, daemon):
         self.daemon = daemon
         self.rdbuf = bytearray()
+        self.gcode_last_seq = None
+        self.gcode_remaining = b''
+        self.gcode_x1plus_defs = {}
+    
+    GCODE_X1PLUS_DEF_RE = re.compile(rb";\s*x1plus define\s*(\d+)\s+(.+)")
+
+    async def handle_msg(self, msg):
+        if msg.decoded and msg.decoded.should_log():
+            logger.info(f"MC message: {msg}")
+
+        if type(msg.decoded) == MC_gcode_request:
+            if msg.flags_is_initiator:
+                # request from MC to AP for Gcode
+                return
+            # AP is sending Gcode to MC
+
+            if msg.decoded.seq == 0:
+                # this is the first Gcode chunk, clear all Gcode parsing state
+                self.gcode_last_seq = None
+                self.gcode_remaining = b''
+                self.gcode_x1plus_defs = {}
+            
+            if msg.decoded.seq == self.gcode_last_seq:
+                # retransmission, ignore
+                return
+            
+            lines = (self.gcode_remaining + msg.payload).split(b'\n')
+            self.gcode_remaining = lines[-1]
+            for line in lines[:-1]:
+                m = self.GCODE_X1PLUS_DEF_RE.match(line)
+                if not m:
+                    continue
+                id = int(m[1])
+                try:
+                    val = json.loads(m[2])
+                except Exception as e:
+                    logger.error(f"x1plus define {id} (\"{m[2]}\") had invalid JSON: {e.__class__.__name__}: \"{e}\"")
+                    continue
+                logger.info(f"found x1plus define {id} -> {val}")
+                self.gcode_x1plus_defs[id] = val
+        
+        if type(msg.decoded) == MC_M976:
+            if msg.decoded.cmd != 99:
+                return
+            if msg.decoded.num not in self.gcode_x1plus_defs:
+                logger.error(f"M976 {msg.decoded.num} did not have corresponding x1plus define")
+                return
+            logger.info(f"M976 X1Plus event triggered {self.gcode_x1plus_defs[msg.decoded.num]}")
 
     async def handle_serial_port_write(self, data):
         try:
-            msg = MCMessage(data)
-            if msg.decoded and msg.decoded.should_log():
-                logger.info(f"MC outgoing message: {msg}")
+            await self.handle_msg(MCMessage(data))
         except Exception as e:
             logger.error(f"exception parsing outgoing MC message: {e.__class__.__name__}: \"{e}\"")
     
@@ -265,9 +309,7 @@ class MCProtoParser():
             self.rdbuf = self.rdbuf[packet_len:]
             
             try:
-                msg = MCMessage(packet)
-                if msg.decoded and msg.decoded.should_log():
-                    logger.info(f"MC incoming message: {msg}")
+                await self.handle_msg(MCMessage(packet))
             except Exception as e:
                 logger.error(f"exception parsing incoming MC message: {e.__class__.__name__}: \"{e}\"")
 
