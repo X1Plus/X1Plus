@@ -307,6 +307,10 @@ class MCProtoParser():
             
             packet = self.rdbuf[:packet_len]
             self.rdbuf = self.rdbuf[packet_len:]
+
+            if packet_len < 15:
+                logger.warning(f"incoming MC protocol desync (packet too short); skipping a header")
+                continue
             
             try:
                 await self.handle_msg(MCMessage(packet))
