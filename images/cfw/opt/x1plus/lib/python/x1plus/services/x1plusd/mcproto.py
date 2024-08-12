@@ -70,7 +70,9 @@ class MC_M971:
     #   O1 xx: online capture
     # xx C10 or xx C11: "offline capture timeline image idx="
     # xx C12: "offline capture chamber image"
-
+    #
+    # M971 C99 could work, but sometimes the MC reports all M971s as C0 O0,
+    # which definitely is not going to fly
     def __init__(self, msg):
         if msg.flags_is_initiator:
             (self.seq, self.sty, self.on, self.num) = struct.unpack("<HBBL", msg.payload)
@@ -81,6 +83,33 @@ class MC_M971:
     def __str__(self):
         return f"<M971 seq {self.seq}, C{self.sty} O{self.on} P{self.num}, response {self.rv}>"
 
+class MC_M976:
+    # "detection control"
+    # M976 S1 P1 ; scan model before printing 2nd layer
+    # S0 = stop scanning inner layer
+    # S1 = start scanning normal layer
+    # S2 = first layer inspection
+    # S3 = void printing detection
+    # S4 = enable nozzlecam capture
+    # hotbed scan before print: M976 S2 P1
+    # register void printing detection: M976 S3 P2
+    #
+    # M976 S99 does work but could cause a hiccup?
+    def __init__(self, msg):
+        if msg.flags_is_initiator:
+            (self.seq, self.cmd, self.num) = struct.unpack("<HBL", msg.payload)
+            self.rv = None
+        else:
+            (self.seq, self.rv) = struct.unpack("<HL", msg.payload)
+            self.cmd = None
+            self.num = None
+    
+    def __str__(self):
+        return f"<M976 seq {self.seq}, S{self.cmd} P{self.num}, response {self.rv}>"
+    
+    def should_log(self):
+        return True
+
 class MC_gcode_request:
     def __init__(self, msg):
         (self.seq, ) = struct.unpack("<L", msg.payload[:4])
@@ -88,6 +117,19 @@ class MC_gcode_request:
     
     def __str__(self):
         return f"<gcode_request seq {self.seq}, buf {self.buf}>"
+
+    def should_log(self):
+        return True
+
+class MC_mcu_display_message:
+    def __init__(self, msg):
+        self.msg = msg.payload #.decode()
+    
+    def __str__(self):
+        return f"<mcu_display_message: \"{self.msg}\">"
+
+    def should_log(self):
+        return False
 
 MCMessage.COMMANDS = {
     (1, 1): "ping",
@@ -98,7 +140,7 @@ MCMessage.COMMANDS = {
     (1, 9): "factory_reset",
     (2, 5): "gcode_execute_state",
     (2, 6): MC_gcode_request, # no official name for this
-    (2, 9): "mcu_display_message",
+    (2, 9): MC_mcu_display_message,
     (2, 10): "vosync",
     (2, 11): "gcode_ctx",
     (2, 12): "mc_state",
@@ -138,18 +180,7 @@ MCMessage.COMMANDS = {
       # M973 S2 P0
       # M973 S4 ; turn off scanner
     (3, 14): "M965", # "calculate heatbed height measurement" or "calculate baseline heatbed measurement"
-    (3, 49): "M976",
-      # "detection control"
-      # M976 S1 P1 ; scan model before printing 2nd layer
-      # hotbed scan before print: M976 S2 P1
-      # register void printing detection: M976 S3 P2
-      # publishes a topic_ctasks to xcam/ctask_request, passed through directly as:
-      #   b0_cmd = 3
-      #   b0_id = 49
-      #   ctask_cmd = 3
-      #   ctask_cmd = 1
-      #   seq = payload[0]
-      #   data = payload
+    (3, 49): MC_M976,
     (3, 50): "M977",
       # "detection single layer registration"
     (3, 51): "M978",
@@ -173,24 +204,87 @@ MCMessage.COMMANDS = {
     (4, 10): "inject_productcode",
     (4, 11): "get_productcode",
 }
- 
+
+###
 
 class MCProtoParser():
+    """
+    MC protocol parser service.
+    
+    MCProtoParser handles DBus signals sent over by forward, as glued in by
+    forward_shim.  It parses all outbound messages to the MC, as well as
+    inbound messages, and parcels out things that it needs to care about --
+    for instance, it does its own parsing on all outbound Gcode (to find
+    x1plus metadata), and listens for M976s to trigger X1Plus-specific
+    behavior.
+    
+    This comes at a cost -- about 15% of a core of CPU (ugh!).  But luckily
+    we seem to have a fair bit of that to spare.  Some day, some of this
+    parsing may want to move to forward_shim to filter only the packets that
+    we want...
+    """
+    
     def __init__(self, daemon):
         self.daemon = daemon
+        self.rdbuf = bytearray()
+
+    async def handle_serial_port_write(self, data):
+        try:
+            msg = MCMessage(data)
+            if msg.decoded and msg.decoded.should_log():
+                logger.info(f"MC outgoing message: {msg}")
+        except Exception as e:
+            logger.error(f"exception parsing outgoing MC message: {e.__class__.__name__}: \"{e}\"")
+    
+    async def handle_serial_port_read(self, data):
+        self.rdbuf += data
+        while len(self.rdbuf) > 0:
+            if self.rdbuf[0] != 0x3D:
+                try:
+                    first_byte = self.rdbuf.index(b'\x3d')
+                    logger.warning(f"incoming MC protocol desync; skipped {first_byte} bytes, {self.rdbuf[:first_byte]}")
+                    self.rdbuf = self.rdbuf[first_byte:]
+                except:
+                    logger.warning(f"incoming MC protocol desync; skipping at least {len(self.rdbuf)} bytes, {self.rdbuf}")
+                    self.rdbuf = bytearray()
+                    break
+            
+            assert self.rdbuf[0] == 0x3D
+            if len(self.rdbuf) < 7:
+                # not enough data to even read the packet header
+                break
+            packet_len = self.rdbuf[4] | (self.rdbuf[5] << 8)
+            if len(self.rdbuf) < packet_len:
+                # we do not have a full packet yet
+                break
+
+            # XXX: should check CRC on packet header to more quickly recover
+            # from certain types of desync
+            
+            packet = self.rdbuf[:packet_len]
+            self.rdbuf = self.rdbuf[packet_len:]
+            
+            try:
+                msg = MCMessage(packet)
+                if msg.decoded and msg.decoded.should_log():
+                    logger.info(f"MC incoming message: {msg}")
+            except Exception as e:
+                logger.error(f"exception parsing incoming MC message: {e.__class__.__name__}: \"{e}\"")
 
     async def task(self):
         match = MatchRule(
-            interface="x1plus.forward", member="MCSerialPortWrite", type="signal"
+            interface="x1plus.forward.mc", type="signal"
         )
+        
         await Proxy(message_bus, self.daemon.router).AddMatch(match)
         with self.daemon.router.filter(match, bufsize=0) as queue:
             while True:
                 dbus_msg = await queue.get()
                 try:
-                    msg = MCMessage(dbus_msg.body[0])
-                    if msg.decoded:
-                        logger.info(f"MC message: {msg}")
+                    if dbus_msg.header.fields[HeaderFields.member] == "SerialPortWrite":
+                        await self.handle_serial_port_write(dbus_msg.body[0])
+                    elif dbus_msg.header.fields[HeaderFields.member] == "SerialPortRead":
+                        await self.handle_serial_port_read(dbus_msg.body[0])
                 except Exception as e:
-                    logger.error(f"exception parsing MC message: {e.__class__.__name__}: \"{e}\"")
+                    logger.error(f"exception handling signal {dbus_msg.header.fields[HeaderFields.member]}: {e.__class__.__name__}: \"{e}\"")
                 
