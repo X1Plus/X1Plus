@@ -580,8 +580,20 @@ class PolarPrintService(X1PlusDBusService):
         # self._cloud_print_info = info
         # self._status_now = True
 
-    def dbus_PrintFile(self, file_name):
-        pass
+    def _print_file(self, path, file_name):
+        location = os.path.join(path, file_name)
+        logger.info(f"_print_file {location}")
+        dbus_call = [
+            "dbus-send",
+            "--system",
+            "--print-reply",
+            "--dest=bbl.service.screen",
+            "/bbl/service/screen",
+            "bbl.screen.x1plus.printGcodeFile",
+            ('string: {"filePath": ' f'"{location}"' "}"),
+        ]
+        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        logger.info(done)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
