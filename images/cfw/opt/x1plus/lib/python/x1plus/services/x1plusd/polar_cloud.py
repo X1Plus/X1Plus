@@ -49,6 +49,12 @@ class PolarPrintService(X1PlusDBusService):
         self.socket = None
         self.status = 0 # Idle
         self.job_id = ""
+        self.temps = {} # Will hold six temp values. Set in _status_update().
+        """
+        self.downloading will allow me to update status when printer doesn't realize
+        it's busy.
+        """
+        self.downloading = False
         """
         self.downloading will allow me to update status when printer doesn't realize
         it's busy.
@@ -289,84 +295,6 @@ class PolarPrintService(X1PlusDBusService):
         Several of these output states will be ignored for now.
         Todo: 15 **really, really** needs to be dealt with.
         """
-
-        """ Sample code, but see this link:
-        https://github.com/X1Plus/X1Plus/commit/b0495c528d1a05e76f7ce6ffc00aa57e5e6d2a98?diff=unified&w=0#diff-6528af1f39b80d6774161464e2c4a65a16e2b72e5ff2b2cf79662b040aea0550R75-R88
-
-        Joshua: I believe object path should
-        be bbl.service.screen,
-        bus name /bbl/service/screen,
-        interface bbl.screen.x1plus
-
-        try:
-            addr = DBusAddress("/x1plus/polar",
-                   bus_name="x1plus.polar",
-                   interface="x1plus.polar"
-            )
-            method = "getStatus"
-            params =
-        except Exception as e:
-            # deal with this
-        # Get a json string back.
-        msg = new_method_call(addr, method, 'x', body=())
-
-        Return fn from .js:
-        See Ping fn to see how this should actually be done.
-        // Return a json string.
-        function checkNow() {
-            return '{"stage": "' + X1Plus.curTask.stage + '", "state": "' + X1Plus.curTask.state + '"}';
-        }
-
-        Also see here: https://github.com/X1Plus/X1Plus/blob/main/bbl_screen-patch/patches/printerui/qml/X1Plus.js#L167-L170
-        """
-
-        """
-        status_translation: {
-            "0": 0, # Idle and ready
-            "1": 2, #
-            "2": 2,
-            "3": 3,
-            "4": 7,
-            "5": 5,
-            "6": 4,
-        }
-        rv = {'jsonrpc': '2.0', 'id': 1}
-        try:
-            addr = DBusAddress(
-                "bbl.service.screen",
-                bus_name="/bbl/service/screen",
-                interface="bbl.screen.x1plus"
-            )
-            method = "getStatus"
-            params = {"text": "getStatus"}
-        except Exception as e:
-            logger.error(f"Something failed in status call: {e}")
-            return
-        dbus_msg = new_method_call(addr, method, 's', (dumps(params), ))
-        reply = await self.router.send_and_get_reply(dbus_msg)
-        if reply.header.message_type == MessageType.error:
-            rv['error'] = {
-                'code': 1,
-                'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error')
-            }
-        else:
-            rv['result'] = loads(reply.body[0])
-        # except Exception as e:
-        #     # pkt['error'] = {'code': -32602, 'message': str(e)}
-        #     await ws.send_json(rv)
-        #     # continue
-        dmsg = new_method_call(addr, method, 's', (dumps(params), ))
-        reply = await self.router.send_and_get_reply(dmsg)
-        if reply.header.message_type == MessageType.error:
-            rv['error'] = {
-                'code': 1,
-                'message': reply.header.fields.get(HeaderFields.error_name, 'unknown-error')
-            }
-        else:
-            rv['result'] = loads(reply.body[0])
-        logger.info(f"**** result: {rv['result']}")
-        """
-
         # This is a total ugly hack.
         dbus_call = [
             "dbus-send",
@@ -383,13 +311,20 @@ class PolarPrintService(X1PlusDBusService):
         output = loads(stage_and_state_json)
         task_state = output["state"]
         task_stage = output["stage"]
-        logger.info(
+        for temp in [
+            "tip_cur_temp",
+            "tip_target_temp",
+            "bed_cur_temp",
+            "bed_target_temp",
+            "chamber_cur_temp",
+            "chamber_target_temp",
+        ]:
+            self.temps[temp] = output[temp]
+        logger.debug(
             f"  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
-        self.status = 0  # Default to idle.
-        if self.downloading:
-            self.status = 2
-        elif task_state > 0 and task_state < 4:
+        self.status = 0
+        if task_state > 0 and task_state < 4:
             if not self.job_id:
                 self.status = 1
             else:
@@ -436,15 +371,20 @@ class PolarPrintService(X1PlusDBusService):
             if not self.is_connected:
                 return
             if (datetime.datetime.now() - self.last_ping).total_seconds() <= 5:
-                # No extra status updates.
+                # Don't do extra status updates.
                 return
             data = {
+                "tool0": self.temps["tip_cur_temp"],
+                "bed": self.temps["bed_cur_temp"],
+                "chamber": self.temps["chamber_cur_temp"],
+                "targetTool0": self.temps["tip_target_temp"],
+                "targetBed": self.temps["bed_target_temp"],
+                "targetChamber": self.temps["chamber_target_temp"],
                 "serialNumber": self.polar_settings.get("polar.sn"),
                 "status": self.status,
             }
             try:
                 await self.socket.emit("status", data)
-                # logger.debug(f"status data {data}")
                 logger.info(f"Status update {self.status} {datetime.datetime.now()}")
                 self.last_ping = datetime.datetime.now()
             except Exception as e:
@@ -460,7 +400,7 @@ class PolarPrintService(X1PlusDBusService):
                     logger.info("Reconnecting.")
                     await self.socket.connect(self.server_url, transports=["websocket"])
                     self.is_connected = True
-                    return # Or else we'll starting sending too many updates.
+                    return  # Or else we'll starting sending too many updates.
             await asyncio.sleep(10)
             # try:
             #     await asyncio.wait_for(self.status_task_wake.wait(), timeout=50)
@@ -503,6 +443,7 @@ class PolarPrintService(X1PlusDBusService):
             # This means that .env file must formatted correctly, with var names
             # `username` and `pin`.
             from pathlib import Path
+
             env_file = Path(__file__).resolve().parents[0] / ".env"
         else:
             env_file = os.path.join("/sdcard", ".env")
@@ -526,7 +467,7 @@ class PolarPrintService(X1PlusDBusService):
         data = {
             "serialNumber": self.polar_settings.get("polar.sn"),
             "jobId": self.job_id,
-            "state": status, # "completed" | "canceled"
+            "state": status,  # "completed" | "canceled"
             # Next two when we get more features implemented
             # "printSeconds": integer,              // integer, optional
             # "filamentUsed": integer               // integer, optional
@@ -544,41 +485,19 @@ class PolarPrintService(X1PlusDBusService):
             return
         # Todo: add recovery here if still printing.
 
-        print_file = ''
-        if 'gcodeFile' not in data:
+        if "gcodeFile" not in data:
             logger.error("PolarCloud sent non-gcode file.")
             await self._job("canceled")
             return
 
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
-        await self._download_file(path, f"{data['jobName']}.gcode", data["gcodeFile"])
-        # try:
-        #     info['file'] = print_file
-        #     req_stl = requests.get(print_file, timeout=5)
-        #     req_stl.raise_for_status()
-        # except Exception:
-        #     logger.exception(f"Could not retrieve print file from PolarCloud: {print_file}")
-        #     await self._job("canceled")
-        #     return
-
+        file_name = data["jobName"]
+        if not file_name.endswith(".gcode"):
+            file_name += ".gcode"
+        await self._download_file(path, file_name, data["gcodeFile"])
+        self._print_file(path, file_name)
 
         self.job_id = ""
-        # self._file_manager.add_file(FileDestinations.LOCAL, path, StreamWrapper(path, BytesIO(req_stl.content)), allow_overwrite=True)
-        # self.job_id = data['jobId'] if 'jobId' in data else "123"
-        # logger.debug(f"print jobId is {self.jobId}")
-        # logger.debug(f"print data is {data}")
-
-        # if self._printer.is_closed_or_error():
-        #     self._printer.disconnect()
-        #     self._printer.connect()
-
-        # self._cloud_print = True
-        # await self._job_pending = True
-        # self._job_id = job_id
-        # self._pstate_counter = 0
-        # self._pstate = self.PSTATE_PREPARING
-        # self._cloud_print_info = info
-        # self._status_now = True
 
     def _print_file(self, path, file_name):
         location = os.path.join(path, file_name)

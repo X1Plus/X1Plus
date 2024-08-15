@@ -14,6 +14,7 @@
 .import "./x1plus/TempGraph.js" as X1PlusTempGraph
 .import "./x1plus/OTA.js" as X1PlusOTA
 .import "./x1plus/Network.js" as X1PlusNetwork
+.import "./x1plus/Polar.js" as X1PlusPolar
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -63,6 +64,8 @@ X1Plus.OTA = X1PlusOTA;
 var OTA = X1PlusOTA;
 X1Plus.Network = X1PlusNetwork;
 var Network = X1PlusNetwork;
+X1Plus.Polar = X1PlusPolar;
+var Polar = X1PlusPolar;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -74,6 +77,7 @@ Settings.X1Plus = X1Plus;
 TempGraph.X1Plus = X1Plus;
 OTA.X1Plus = X1Plus;
 Network.X1Plus = X1Plus;
+Polar.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -131,6 +135,16 @@ function sendGcode(gcode_line,seq_id = 0){
 }
 X1Plus.sendGcode = sendGcode;
 
+// function printGcodeFile(fileName){
+//   var payload = {
+//     command: "gcode_file",
+//     param: fileName,
+//   };
+//   DDS.publish("device/request/print", payload);
+//   console.log("[x1p] Gcode published:", JSON.stringify(payload));
+// }
+// X1Plus.printGcodeFile = printGcodeFile;
+
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
         	year: 'numeric',
@@ -170,6 +184,7 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	GpioKeys.awaken();
 	TempGraph.awaken();
 	Network.awaken();
+	Polar.awaken();
 	console.log("X1Plus.js is awake");
 }
 
@@ -180,6 +195,12 @@ X1Plus.DBus.registerMethod("ping", (param) => {
 X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["stage"] = PrintManager.currentTask.stage;
 	param["state"] = PrintManager.currentTask.state;
+	param["tip_cur_temp"] = X1Plus.PrintManager.heaters.hotend.currentTemp;
+	param["tip_target_temp"] = X1Plus.PrintManager.heaters.hotend.targetTemp;
+	param["bed_cur_temp"] = X1Plus.PrintManager.heaters.heatbed.currentTemp;
+	param["bed_target_temp"] = X1Plus.PrintManager.heaters.heatbed.targetTemp;
+  param["chamber_cur_temp"] = X1Plus.PrintManager.heaters.chamber.currentTemp;
+	param["chamber_target_temp"] = X1Plus.PrintManager.heaters.chamber.targetTemp;
 	return param;
 });
 X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
