@@ -26,17 +26,7 @@ var _Unregister = null;
 var _Register = null;
 var _Update = null;
 
-function checkNow() {
-    return '{"stage": "' + X1Plus.curTask.stage + '", "state": "' + X1Plus.curTask.state + '"}';
-}
 
-function download(base_firmware = false) {
-    _Download({'base_firmware': base_firmware});
-}
-
-function update() {
-    return _Update({});
-}
 
 function awaken() {
     const curStatus = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "GetStatus")({});
@@ -52,6 +42,6 @@ function awaken() {
 }
 
 
-PrintManager.currentTask.stage
+// PrintManager.currentTask.stage
 
-gcode_file
+// gcode_file

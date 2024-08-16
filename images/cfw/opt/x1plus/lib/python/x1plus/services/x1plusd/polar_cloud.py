@@ -553,15 +553,51 @@ class PolarPrintService(X1PlusDBusService):
         logger.info(f"_download_file success: {os.path.getsize(dest)}")
 
     async def _on_pause(self):
-        self.status = 4
-        pass
+        logger.debug("_on_pause")
+        dbus_call = [
+            "dbus-send",
+            "--system",
+            "--print-reply",
+            "--dest=bbl.service.screen",
+            "/bbl/service/screen",
+            "bbl.screen.x1plus.pausePrint",
+            (""),
+        ]
+        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        logger.info(done)
 
     async def _on_resume(self):
         pass
 
-    async def _on_cancel(self):
-        self.status = 6
-        pass
+    async def _on_cancel(self, data, *args, **kwargs) -> None:
+        logger.debug("_on_cancel")
+        print_action("")
+        dbus_call = [
+            "dbus-send",
+            "--system",
+            "--print-reply",
+            "--dest=bbl.service.screen",
+            "/bbl/service/screen",
+            "bbl.screen.x1plus.stopPrint",
+            (""),
+        ]
+        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        logger.info(done)
+
+     def printer_action(self, which_action, print_file) -> None:
+         """Make dbus call to print, pause, cancel, resume."""
+         dbus_call = [
+            "dbus-send",
+            "--system",
+            "--print-reply",
+            "--dest=bbl.service.screen",
+            "/bbl/service/screen",
+            "bbl.screen.x1plus.stopPrint",
+            ('string: {"filePath": ' f'"{location}" "action": "}"),
+        ]
+        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        logger.info(done)
+
 
     def set_interface(self) -> None:
         """

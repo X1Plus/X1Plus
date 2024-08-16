@@ -14,7 +14,7 @@
 .import "./x1plus/TempGraph.js" as X1PlusTempGraph
 .import "./x1plus/OTA.js" as X1PlusOTA
 .import "./x1plus/Network.js" as X1PlusNetwork
-.import "./x1plus/Polar.js" as X1PlusPolar
+.import "./x1plus/PolarCloud.js" as X1PlusPolar
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -123,7 +123,7 @@ function atomicSaveJson(path, json) {
 }
 X1Plus.atomicSaveJson = atomicSaveJson;
 
-function sendGcode(gcode_line,seq_id = 0){
+function sendGcode(gcode_line,seq_id = 0) {
 
 	var payload = {
 		command: "gcode_line",
@@ -184,6 +184,7 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	GpioKeys.awaken();
 	TempGraph.awaken();
 	Network.awaken();
+  console.log("Polar Cloud is about to wake.")
 	Polar.awaken();
 	console.log("X1Plus.js is awake");
 }
@@ -209,6 +210,31 @@ X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
   param["finished"] = "File printed.";
   return param;
 });
+X1Plus.DBus.registerMethod("polarPrint", (param) => {
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
+  console.log("[x1p] Print:" + param["action"] + ": ", JSON.stringify(payload));
+  param["finished"] = "Print" + param["action"] + ".";
+  return param;
+});
+X1Plus.DBus.registerMethod("pausePrint", (param) => {
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": "pause", "param": "" });
+  console.log("[x1p] Print paused:", JSON.stringify(payload));
+  param["finished"] = "Print paused.";
+  return param;
+});
+X1Plus.DBus.registerMethod("resumePrint", (param) => {
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": "resume", "param": "" });
+  console.log("[x1p] Print resumed:", JSON.stringify(payload));
+  param["finished"] = "Print resumed.";
+  return param;
+});
+X1Plus.DBus.registerMethod("stopPrint", (param) => {
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": "stop", "param": "" });
+  console.log("[x1p] Print stopped:", JSON.stringify(payload));
+  param["finished"] = "Print stopped";
+  return param;
+});
+
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
 X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	console.log("trying an RPC to x1plus hello daemon");
