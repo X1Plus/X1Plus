@@ -80,6 +80,9 @@ class MC_M971:
     
     def __str__(self):
         return f"<M971 seq {self.seq}, C{self.sty} O{self.on} P{self.num}, response {self.rv}>"
+    
+    def should_log(self):
+        return True
 
 class MC_M976:
     # "detection control"
