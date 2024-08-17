@@ -12,6 +12,7 @@ from .mqtt import MQTTClient
 from .expansion import ExpansionManager
 from .sensors import SensorsService
 from .mcproto import MCProtoParser
+from .actions import ActionHandler
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ class X1PlusDaemon:
         self.sensors = SensorsService(router=self.router, daemon=self)
         self.expansion = ExpansionManager(router=self.router, daemon=self)
         self.mcproto = MCProtoParser(daemon=self)
+        self.actions = ActionHandler(daemon=self)
         if not self.settings.get("polar_cloud", False):
             self.polar_cloud = None
         else:

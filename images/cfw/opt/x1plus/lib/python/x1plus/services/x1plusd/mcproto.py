@@ -1,5 +1,6 @@
 import re
 import json
+import asyncio
 
 import struct
 import logging
@@ -231,8 +232,20 @@ class MCProtoParser():
         self.gcode_last_seq = None
         self.gcode_remaining = b''
         self.gcode_x1plus_defs = {}
+        self.active_action = None
     
     GCODE_X1PLUS_DEF_RE = re.compile(rb";\s*x1plus define\s*(\d+)\s+(.+)")
+
+    async def trigger_action(self, action):
+        """
+        Trigger an action to execute in the background, with only one MC protocol action allowed to run at a time.
+        """
+        if self.active_action:
+            if not self.active_action.done():
+                logger.warning("new mcproto action being triggered, but the previous action is not complete; canceling it!")
+            self.active_action.cancel()
+            self.active_action = None
+        self.active_action = asyncio.create_task(self.daemon.actions.execute(action))
 
     async def handle_msg(self, msg):
         if msg.decoded and msg.decoded.should_log():
@@ -276,6 +289,7 @@ class MCProtoParser():
                 logger.error(f"M976 {msg.decoded.num} did not have corresponding x1plus define")
                 return
             logger.info(f"M976 X1Plus event triggered {self.gcode_x1plus_defs[msg.decoded.num]}")
+            await self.trigger_action(self.gcode_x1plus_defs[msg.decoded.num])
 
     async def handle_serial_port_write(self, data):
         try:
