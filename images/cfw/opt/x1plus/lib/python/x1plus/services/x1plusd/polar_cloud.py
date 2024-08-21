@@ -49,7 +49,7 @@ class PolarPrintService(X1PlusDBusService):
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
         self.status = 0  # Idle
-        self.job_id = ""
+        self.job_id = "123" # Defaults to serial if Polar Cloud hasn't sent anything.
         self.temps = {}  # Will hold six temp values. Set in _status_update().
         """
         self.downloading will allow me to update status when printer doesn't realize
@@ -103,6 +103,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("cancel", self._on_cancel)
         self.socket.on("delete", self._on_delete)
         await super().task()
+        logger.info("Polar Cloud is running.")
 
     async def unregister(self):
         """
@@ -112,7 +113,7 @@ class PolarPrintService(X1PlusDBusService):
         non-volatile memory (i.e. the SD card), so additional arguments will
         be needed for this to work.
         """
-        await self.socket.emit("unregister", self.daemon.get("polar.sn"))
+        await self.socket.emit("unregister", self.daemon.settings.get("polar.sn"))
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
@@ -123,19 +124,19 @@ class PolarPrintService(X1PlusDBusService):
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
-        if self.daemon.get("polar.sn", "") and self.daemon.get(
+        if self.daemon.settings.get("polar.sn", "") and self.daemon.settings.get(
             "polar.private_key", ""
         ):
             logger.debug(f"challenge: {response['challenge']}")
             # The printer has been registered.
             # Remember that "polar.sn" is the serial number assigned by the server.
             # First, encode challenge string with the private key.
-            private_key = self.daemon.get("polar.private_key").encode("utf-8")
+            private_key = self.daemon.settings.get("polar.private_key").encode("utf-8")
             rsa_key = RSA.import_key(private_key)
             hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
             key = pkcs1_15.new(rsa_key)
             data = {
-                "serialNumber": self.daemon.get(
+                "serialNumber": self.daemon.settings.get(
                     "polar.sn"
                 ),  # Don't need a default here.
                 "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
@@ -154,14 +155,14 @@ class PolarPrintService(X1PlusDBusService):
             "camUrl": "URL for printer's live camera feed"     // string, optional
             """
             await self.socket.emit("hello", data)
-        elif not self.daemon.get(
+        elif not self.daemon.settings.get(
             "polar.sn", ""
-        ) and not self.daemon.get("polar.public_key", ""):
+        ) and not self.daemon.settings.get("polar.public_key", ""):
             # We need to get an RSA key pair before we can go further.
             # Todo: This needs to be moved locally rather than being remote, so
             # private key isn't transmitted.
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        elif not self.daemon.get("polar.sn", ""):
+        elif not self.daemon.settings.get("polar.sn", ""):
             # We already have a key: just register.
             # Todo: There might be a race condition here or maybe server is sending
             # a lot of welcome requests. Dealt with it by adding self.last_ping.
@@ -193,8 +194,8 @@ class PolarPrintService(X1PlusDBusService):
         out to interface for new email or pin.
         """
         if response["status"] == "SUCCESS":
-            await self.daemon.put("polar.public_key", response["public"])
-            await self.daemon.put("polar.private_key", response["private"])
+            await self.daemon.settings.put("polar.public_key", response["public"])
+            await self.daemon.settings.put("polar.private_key", response["private"])
             # We have keys, but still need to register. First disconnect.
             logger.info("_on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
@@ -218,7 +219,7 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] == "SUCCESS":
             logger.info("_on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
-            await self.daemon.put("polar.sn", response["serialNumber"])
+            await self.daemon.settings.put("polar.sn", response["serialNumber"])
             logger.info("Polar Cloud connected.")
 
         else:
@@ -247,9 +248,9 @@ class PolarPrintService(X1PlusDBusService):
         logger.info("_register.")
         data = {
             "mfg": "bambu",
-            "email": self.daemon.get("polar.username"),
+            "email": self.daemon.settings.get("polar.username"),
             "pin": self.pin,
-            "publicKey": self.daemon.get("polar.public_key"),
+            "publicKey": self.daemon.settings.get("polar.public_key"),
             "mfgSn": self.serial_number(),
             "myInfo": {"MAC": self.mac},
         }
@@ -323,7 +324,7 @@ class PolarPrintService(X1PlusDBusService):
         )
         self.status = 0
         if task_state > 0 and task_state < 4:
-            if not self.job_id:
+            if self.job_id == "123":
                 self.status = 1
             else:
                 self.status = 3
@@ -332,7 +333,6 @@ class PolarPrintService(X1PlusDBusService):
             self.status = 6
         elif self.status == 7:
             await self._job("completed")
-            self.job_id = ""
 
     async def _status(self) -> None:
         """
@@ -365,7 +365,7 @@ class PolarPrintService(X1PlusDBusService):
         """
         while True:
             await self._status_update()
-            # self.daemon.on("status", lambda:self._status_update)
+            # self.daemon.settings.on("status", lambda:self._status_update)
             if not self.is_connected:
                 return
             if (datetime.datetime.now() - self.last_ping).total_seconds() <= 5:
@@ -378,7 +378,7 @@ class PolarPrintService(X1PlusDBusService):
                 "targetTool0": self.temps["tip_target_temp"],
                 "targetBed": self.temps["bed_target_temp"],
                 "targetChamber": self.temps["chamber_target_temp"],
-                "serialNumber": self.daemon.get("polar.sn"),
+                "serialNumber": self.daemon.settings.get("polar.sn"),
                 "status": self.status,
             }
             try:
@@ -424,7 +424,7 @@ class PolarPrintService(X1PlusDBusService):
                 "polar.public_key": "",
                 "polar.private_key": "",
             }
-            await self.daemon.put_multiple(to_remove)
+            await self.daemon.settings.put_multiple(to_remove)
             await self.socket.disconnect()
             self.is_connected = False
 
@@ -458,18 +458,25 @@ class PolarPrintService(X1PlusDBusService):
                     self.username = v
                 elif k == "pin":
                     self.pin = v
-        await self.daemon.put("polar.username", self.username)
+        await self.daemon.settings.put("polar.username", self.username)
 
     async def _job(self, status):
+        """
+        Send job response to Polar Cloud, letting it know a job has finished.
+        Also reset job_id to "123", which is the default.
+        """
         logger.info(f"_job {status} {self.job_id}")
         data = {
-            "serialNumber": self.daemon.get("polar.sn"),
+            "serialNumber": self.daemon.settings.get("polar.sn"),
             "jobId": self.job_id,
             "state": status,  # "completed" | "canceled"
             # Next two when we get more features implemented
             # "printSeconds": integer,              // integer, optional
             # "filamentUsed": integer               // integer, optional
         }
+        # I can reset job_id here because I only call _job() when a job
+        # has completed.
+        self.job_id = "123"
         await self.socket.emit("job", data)
 
     async def _on_print(self, data, *args, **kwargs):
@@ -497,7 +504,7 @@ class PolarPrintService(X1PlusDBusService):
         location = os.path.join(path, file_name)
         printer_action("print", location)
 
-        self.job_id = ""
+        # self.job_id = "123"
 
     # def _print_file(self, path, file_name):
     #     logger.info(f"_print_file {location}")

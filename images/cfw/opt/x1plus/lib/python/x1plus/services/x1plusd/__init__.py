@@ -46,6 +46,5 @@ class X1PlusDaemon:
         asyncio.create_task(self.expansion.task())
         if self.polar_cloud:
             asyncio.create_task(self.polar_cloud.task())
-            logger.info("Polar Cloud is running.")
 
         logger.info("x1plusd is running")
