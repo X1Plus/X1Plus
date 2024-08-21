@@ -47,9 +47,9 @@ class PolarPrintService(X1PlusDBusService):
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
-        self.status = 0 # Idle
+        self.status = 0  # Idle
         self.job_id = ""
-        self.temps = {} # Will hold six temp values. Set in _status_update().
+        self.temps = {}  # Will hold six temp values. Set in _status_update().
         """
         self.downloading will allow me to update status when printer doesn't realize
         it's busy.
@@ -74,9 +74,7 @@ class PolarPrintService(X1PlusDBusService):
         # self.polar_settings.on("polarprint.enabled", self.sync_startstop())
         # self.polar_settings.on("self.pin", self.set_pin())
         self.socket = None
-        super().__init__(
-            dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs
-        )
+        super().__init__(dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs)
 
     async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
@@ -275,22 +273,22 @@ class PolarPrintService(X1PlusDBusService):
           6: PAUSE
 
         Codes to return to the server:
-        0     Ready; printer is idle and ready to print
-        1     Serial; printer is printing a local print over its serial connection
-        2     Preparing; printer is preparing a cloud print (e.g., slicing)
-        3     Printing; printer is printing a cloud print
-        4     Paused; printer has paused a print
-        5     Postprocessing; printer is performing post-printing operations
-        6     Canceling; printer is canceling a print from the cloud
-        7     Complete; printer has completed a print job from the cloud
-        8     Updating; printer is updating its software
-        9     Cold pause; printer is in a "cold pause" state
-        10    Changing filament; printer is in a "change filament" state
-        11    TCP/IP; printer is printing a local print over a TCP/IP connection
-        12    Error; printer is in an error state
-        13    Disconnected; controller's USB is disconnected from the printer
-        14    Door open; unable to start or resume a print
-        15    Clear build plate; unable to start a new print
+        0   Ready; printer is idle and ready to print
+        1   Serial; printer is printing a local print over its serial connection
+        2   Preparing; printer is preparing a cloud print (e.g., slicing)
+        3   Printing; printer is printing a cloud print
+        4   Paused; printer has paused a print
+        5   Postprocessing; printer is performing post-printing operations
+        6   Canceling; printer is canceling a print from the cloud
+        7   Complete; printer has completed a print job from the cloud
+        8   Updating; printer is updating its software
+        9   Cold pause; printer is in a "cold pause" state
+        10  Changing filament; printer is in a "change filament" state
+        11  TCP/IP; printer is printing a local print over a TCP/IP connection
+        12  Error; printer is in an error state
+        13  Disconnected; controller's USB is disconnected from the printer
+        14  Door open; unable to start or resume a print
+        15  Clear build plate; unable to start a new print
 
         Several of these output states will be ignored for now.
         Todo: 15 **really, really** needs to be dealt with.
@@ -475,6 +473,7 @@ class PolarPrintService(X1PlusDBusService):
         await self.socket.emit("job", data)
 
     async def _on_print(self, data, *args, **kwargs):
+        """Download file to printer, then send to print."""
         logger.debug("_on_print")
         self.job_id = data["jobId"]
         if not data["serialNumber"] or data["serialNumber"] != data.get(
@@ -495,24 +494,26 @@ class PolarPrintService(X1PlusDBusService):
         if not file_name.endswith(".gcode"):
             file_name += ".gcode"
         await self._download_file(path, file_name, data["gcodeFile"])
-        self._print_file(path, file_name)
+        location = os.path.join(path, file_name)
+        printer_action("print", location)
 
         self.job_id = ""
 
-    def _print_file(self, path, file_name):
-        location = os.path.join(path, file_name)
-        logger.info(f"_print_file {location}")
-        dbus_call = [
-            "dbus-send",
-            "--system",
-            "--print-reply",
-            "--dest=bbl.service.screen",
-            "/bbl/service/screen",
-            "bbl.screen.x1plus.printGcodeFile",
-            ('string: {"filePath": ' f'"{location}"' "}"),
-        ]
-        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-        logger.info(done)
+    # def _print_file(self, path, file_name):
+    #     logger.info(f"_print_file {location}")
+    #     location = os.path.join(path, file_name)
+    #     printer_action("print", location)
+    #     dbus_call = [
+    #         "dbus-send",
+    #         "--system",
+    #         "--print-reply",
+    #         "--dest=bbl.service.screen",
+    #         "/bbl/service/screen",
+    #         "bbl.screen.x1plus.printGcodeFile",
+    #         ('string: {"filePath": ' f'"{location}"' "}"),
+    #     ]
+    #     done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+    #     logger.info(done)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -552,52 +553,31 @@ class PolarPrintService(X1PlusDBusService):
             raise
         logger.info(f"_download_file success: {os.path.getsize(dest)}")
 
-    async def _on_pause(self):
-        logger.debug("_on_pause")
-        dbus_call = [
-            "dbus-send",
-            "--system",
-            "--print-reply",
-            "--dest=bbl.service.screen",
-            "/bbl/service/screen",
-            "bbl.screen.x1plus.pausePrint",
-            (""),
-        ]
-        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-        logger.info(done)
+    async def _on_pause(self, data, *args, **kwargs) -> None:
+        logger.info("_on_pause")
+        printer_action("stop")
 
-    async def _on_resume(self):
-        pass
+    async def _on_resume(self, data, *args, **kwargs) -> None:
+        logger.info("_on_resume")
+        printer_action("resume")
 
     async def _on_cancel(self, data, *args, **kwargs) -> None:
-        logger.debug("_on_cancel")
-        print_action("")
+        logger.info("_on_cancel")
+        printer_action("stop")
+
+    def printer_action(self, which_action, print_file="") -> None:
+        """Make dbus call to print, pause, cancel, resume."""
         dbus_call = [
             "dbus-send",
             "--system",
             "--print-reply",
             "--dest=bbl.service.screen",
             "/bbl/service/screen",
-            "bbl.screen.x1plus.stopPrint",
-            (""),
+            "bbl.screen.x1plus.polarPrint",
+            ('string: {"filePath": ' f'"{location}"", "action": "{which_action}"' "}"),
         ]
         done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
         logger.info(done)
-
-     def printer_action(self, which_action, print_file) -> None:
-         """Make dbus call to print, pause, cancel, resume."""
-         dbus_call = [
-            "dbus-send",
-            "--system",
-            "--print-reply",
-            "--dest=bbl.service.screen",
-            "/bbl/service/screen",
-            "bbl.screen.x1plus.stopPrint",
-            ('string: {"filePath": ' f'"{location}" "action": "}"),
-        ]
-        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-        logger.info(done)
-
 
     def set_interface(self) -> None:
         """

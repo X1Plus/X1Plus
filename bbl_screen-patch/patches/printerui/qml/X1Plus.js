@@ -14,7 +14,7 @@
 .import "./x1plus/TempGraph.js" as X1PlusTempGraph
 .import "./x1plus/OTA.js" as X1PlusOTA
 .import "./x1plus/Network.js" as X1PlusNetwork
-.import "./x1plus/PolarCloud.js" as X1PlusPolar
+// .import "./x1plus/PolarCloud.js" as X1PlusPolar
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -24,7 +24,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,8 +36,8 @@
 console.log("X1Plus.js starting up");
 
 var X1Plus = X1Plus || {};
-/* Reexport all our imports.  If you name them Stats and then attempt to
- * shadow them with a var, you will lose in bizarre ways.  */
+/* Reexport all our imports.	If you name them Stats and then attempt to
+ * shadow them with a var, you will lose in bizarre ways.	*/
 X1Plus.Stats = X1PlusStats;
 var Stats = X1PlusStats;
 X1Plus.Binding = X1PlusBinding;
@@ -53,7 +53,7 @@ var BedMeshCalibration = X1PlusBedMeshCalibration;
 X1Plus.ShaperCalibration = X1PlusShaperCalibration;
 var ShaperCalibration = X1PlusShaperCalibration;
 X1Plus.GpioKeys = X1PlusGpioKeys;
-var GpioKeys  = X1PlusGpioKeys;
+var GpioKeys	= X1PlusGpioKeys;
 X1Plus.DBus = X1PlusDBus;
 var DBus = X1PlusDBus;
 X1Plus.Settings = X1PlusSettings;
@@ -64,8 +64,8 @@ X1Plus.OTA = X1PlusOTA;
 var OTA = X1PlusOTA;
 X1Plus.Network = X1PlusNetwork;
 var Network = X1PlusNetwork;
-X1Plus.Polar = X1PlusPolar;
-var Polar = X1PlusPolar;
+// X1Plus.Polar = X1PlusPolar;
+// var Polar = X1PlusPolar;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -77,7 +77,7 @@ Settings.X1Plus = X1Plus;
 TempGraph.X1Plus = X1Plus;
 OTA.X1Plus = X1Plus;
 Network.X1Plus = X1Plus;
-Polar.X1Plus = X1Plus;
+// Polar.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -136,29 +136,29 @@ function sendGcode(gcode_line,seq_id = 0) {
 X1Plus.sendGcode = sendGcode;
 
 // function printGcodeFile(fileName){
-//   var payload = {
-//     command: "gcode_file",
-//     param: fileName,
-//   };
-//   DDS.publish("device/request/print", payload);
-//   console.log("[x1p] Gcode published:", JSON.stringify(payload));
+// 	var payload = {
+// 		command: "gcode_file",
+// 		param: fileName,
+// 	};
+// 	DDS.publish("device/request/print", payload);
+// 	console.log("[x1p] Gcode published:", JSON.stringify(payload));
 // }
 // X1Plus.printGcodeFile = printGcodeFile;
 
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
-        	year: 'numeric',
-        	month: 'short',
-        	day: 'numeric',
-        	hour: '2-digit',
-        	minute: '2-digit',
-        	hour12: false
+					year: 'numeric',
+					month: 'short',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit',
+					hour12: false
 	});
 }
 X1Plus.formatTime = formatTime;
 
 function fileExists(fPath) {
-    return _X1PlusNative.popen(`test -f ${fPath} && echo 1 || echo 0`) == "1";
+		return _X1PlusNative.popen(`test -f ${fPath} && echo 1 || echo 0`) == "1";
 }
 X1Plus.fileExists = fileExists;
 
@@ -184,8 +184,8 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	GpioKeys.awaken();
 	TempGraph.awaken();
 	Network.awaken();
-  console.log("Polar Cloud is about to wake.")
-	Polar.awaken();
+	// console.log("Polar Cloud is about to wake.")
+	// Polar.awaken();
 	console.log("X1Plus.js is awake");
 }
 
@@ -200,40 +200,40 @@ X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["tip_target_temp"] = X1Plus.PrintManager.heaters.hotend.targetTemp;
 	param["bed_cur_temp"] = X1Plus.PrintManager.heaters.heatbed.currentTemp;
 	param["bed_target_temp"] = X1Plus.PrintManager.heaters.heatbed.targetTemp;
-  param["chamber_cur_temp"] = X1Plus.PrintManager.heaters.chamber.currentTemp;
+	param["chamber_cur_temp"] = X1Plus.PrintManager.heaters.chamber.currentTemp;
 	param["chamber_target_temp"] = X1Plus.PrintManager.heaters.chamber.targetTemp;
 	return param;
 });
 X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
-  DDS.publish("device/request/print", { "sequence_id": "0", "command": "gcode_file", "param": param["filePath"] });
-  console.log("[x1p] Gcode printed:", JSON.stringify(payload));
-  param["finished"] = "File printed.";
-  return param;
+	DDS.publish("device/request/print", { "sequence_id": "0", "command": "gcode_file", "param": param["filePath"] });
+	console.log("[x1p] Gcode printed:", JSON.stringify(payload));
+	param["finished"] = "File printed.";
+	return param;
 });
 X1Plus.DBus.registerMethod("polarPrint", (param) => {
-  DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
-  console.log("[x1p] Print:" + param["action"] + ": ", JSON.stringify(payload));
-  param["finished"] = "Print" + param["action"] + ".";
-  return param;
+	DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
+	console.log("[x1p] Print:" + param["action"] + ": ", JSON.stringify(payload));
+	param["finished"] = "Print" + param["action"] + ".";
+	return param;
 });
-X1Plus.DBus.registerMethod("pausePrint", (param) => {
-  DDS.publish("device/request/print", { "sequence_id": "0", "command": "pause", "param": "" });
-  console.log("[x1p] Print paused:", JSON.stringify(payload));
-  param["finished"] = "Print paused.";
-  return param;
-});
-X1Plus.DBus.registerMethod("resumePrint", (param) => {
-  DDS.publish("device/request/print", { "sequence_id": "0", "command": "resume", "param": "" });
-  console.log("[x1p] Print resumed:", JSON.stringify(payload));
-  param["finished"] = "Print resumed.";
-  return param;
-});
-X1Plus.DBus.registerMethod("stopPrint", (param) => {
-  DDS.publish("device/request/print", { "sequence_id": "0", "command": "stop", "param": "" });
-  console.log("[x1p] Print stopped:", JSON.stringify(payload));
-  param["finished"] = "Print stopped";
-  return param;
-});
+// X1Plus.DBus.registerMethod("pausePrint", (param) => {
+// 	DDS.publish("device/request/print", { "sequence_id": "0", "command": "pause", "param": "" });
+// 	console.log("[x1p] Print paused:", JSON.stringify(payload));
+// 	param["finished"] = "Print paused.";
+// 	return param;
+// });
+// X1Plus.DBus.registerMethod("resumePrint", (param) => {
+// 	DDS.publish("device/request/print", { "sequence_id": "0", "command": "resume", "param": "" });
+// 	console.log("[x1p] Print resumed:", JSON.stringify(payload));
+// 	param["finished"] = "Print resumed.";
+// 	return param;
+// });
+// X1Plus.DBus.registerMethod("stopPrint", (param) => {
+// 	DDS.publish("device/request/print", { "sequence_id": "0", "command": "stop", "param": "" });
+// 	console.log("[x1p] Print stopped:", JSON.stringify(payload));
+// 	param["finished"] = "Print stopped";
+// 	return param;
+// });
 
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
 X1Plus.DBus.registerMethod("TryRpc", (param) => {

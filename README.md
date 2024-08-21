@@ -52,7 +52,9 @@ ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
 ```
 
 Clone down the X1Plus repo and build the Docker image from the Dockerfile in
-`scripts/docker`:
+`scripts/docker`. *Please note*: if you're using ARM or Apple Silicon you need to add
+`--platform=linux/amd64` to your commands. In that case, use the second set of 
+commands below:
 
 ```
 $ git clone ...
@@ -60,15 +62,34 @@ $ cd X1Plus
 $ docker build -t x1plusbuild scripts/docker/
 ```
 
+For Apple Silicon:
+
+```
+$ git clone ...
+$ cd X1Plus
+$ docker buildx build --platform=linux/amd64 -t x1plusbuild scripts/docker/
+```
+
 In order to `make` on the Docker container a safe directory must be added to
 the git config. As that will only persist for one run the Docker container
-must be run in interactive mode.
+must be run in interactive mode. As above, `run` should be called with the
+`--platform` flag if you're running on an ARM or Apple Silicon chip. See the
+second command.
 
 ```
 $ docker run -dit -v `pwd`:/work --name x1plusmake x1plusbuild
 ```
 
-Now, `exec` into the Docker container and run the make commands. For Mac users:
+Apple Silicon:
+
+```
+$ docker run --platform=linux/amd64 -dit -v `pwd`:/work --name x1plusmake x1plusbuild
+```
+
+Now, `exec` into the Docker container and run the make commands. These commands 
+vary depending on your platform: 
+
+###For Mac users:
 
 ```
 $ docker exec -w /work x1plusmake bash -c 'git config --global \
@@ -77,7 +98,7 @@ $ docker exec -w /work x1plusmake make scripts
 $ docker exec -w /work x1plusmake make
 ```
 
-Now, `exec` into the Docker container and run the make commands. For Linux users:
+###For Linux users:
 
 ```
 $ docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global \
