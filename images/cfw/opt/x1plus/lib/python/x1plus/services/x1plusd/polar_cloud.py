@@ -38,6 +38,7 @@ class PolarPrintService(X1PlusDBusService):
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
         """
+        logger.info("Polar cloud initing.")
         self.daemon = daemon
         self.mac = ""
         # The username can be stored in non-volatile memory, but the PIN must be
@@ -75,11 +76,13 @@ class PolarPrintService(X1PlusDBusService):
         # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
         super().__init__(dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs)
+        logger.info("Polar cloud inited")
 
     async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
         self.socket = socketio.AsyncClient(http_session=http_session)
         self.set_interface()
+        logger.info("Polar cloud task started")
         try:
             await self.get_creds()
         except Exception as e:
@@ -88,9 +91,9 @@ class PolarPrintService(X1PlusDBusService):
         try:
             await self.socket.connect(self.server_url, transports=["websocket"])
         except Exception as e:
-            logger.debug(f"Socket connection failed: {e}")
+            logger.debug(f"Polar socket connection failed: {e}")
             return
-        logger.info("Socket created!")
+        logger.info("Polar socket created!")
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -120,7 +123,7 @@ class PolarPrintService(X1PlusDBusService):
         Check to see if printer has already been registered. If it has, we can
         ignore this. Otherwise, must get a key pair, then call register.
         """
-        logger.info("_on_welcome.")
+        logger.info("Polar _on_welcome.")
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
@@ -180,7 +183,7 @@ class PolarPrintService(X1PlusDBusService):
         the printer is connected and ready to print.
         """
         if response["status"] == "SUCCESS":
-            logger.info("_on_hello_response success")
+            logger.info("Polar _on_hello_response success")
             logger.info("Polar Cloud connected.")
             self.is_connected = True
         elif response["message"] != "Printer has been deleted":
@@ -197,12 +200,12 @@ class PolarPrintService(X1PlusDBusService):
             await self.daemon.settings.put("polar.public_key", response["public"])
             await self.daemon.settings.put("polar.private_key", response["private"])
             # We have keys, but still need to register. First disconnect.
-            logger.info("_on_keypair_response success. Disconnecting.")
+            logger.info("Polar _on_keypair_response success. Disconnecting.")
             # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
             self.is_connected = False
             # After the next request the server will respond with `welcome`.
-            logger.info("Reconnecting.")
+            logger.info("Polar Reconnecting.")
             await self.socket.connect(self.server_url, transports=["websocket"])
             self.is_connected = True
         else:
@@ -217,7 +220,7 @@ class PolarPrintService(X1PlusDBusService):
         When this fn completes, printer will be ready to receive print calls.
         """
         if response["status"] == "SUCCESS":
-            logger.info("_on_register_response success.")
+            logger.info("Polar _on_register_response success.")
             logger.debug(f"Serial number: {response['serialNumber']}")
             await self.daemon.settings.put("polar.sn", response["serialNumber"])
             logger.info("Polar Cloud connected.")
@@ -245,7 +248,7 @@ class PolarPrintService(X1PlusDBusService):
         Send register request. Note this can only be called after a keypair
         has been received and stored.
         """
-        logger.info("_register.")
+        logger.info("Polar _register.")
         data = {
             "mfg": "bambu",
             "email": self.daemon.settings.get("polar.username"),
@@ -392,10 +395,10 @@ class PolarPrintService(X1PlusDBusService):
                     # This seems to be a python socketio bug/feature?
                     # In any case, recover by reconnecting.
                     await self.socket.disconnect()
-                    logger.info("Disconnecting.")
+                    logger.info("Polar Disconnecting.")
                     self.is_connected = False
                     # After the next request the server will respond with `welcome`.
-                    logger.info("Reconnecting.")
+                    logger.info("Polar Reconnecting.")
                     await self.socket.connect(self.server_url, transports=["websocket"])
                     self.is_connected = True
                     return  # Or else we'll starting sending too many updates.
@@ -413,7 +416,7 @@ class PolarPrintService(X1PlusDBusService):
         from card. The current print should finish. Disconnect socket so that
         username and PIN don't keep being requested and printer doesn't reregister.
         """
-        logger.info("_on_delete")
+        logger.info("Polar _on_delete")
         if response["serialNumber"] == self.daemon.settings.get("polar.sn"):
             self.pin = ""
             self.mac = ""
@@ -530,7 +533,7 @@ class PolarPrintService(X1PlusDBusService):
             except:
                 logger.info(f"_download_file. {path} already exists.")
             dest = os.path.join(path, file)
-            logger.info("_download_file")
+            logger.info("Polar _download_file")
             logger.debug(f"downloading {url} to {dest}")
             download_bytes = 0
             download_bytes_total = -1
@@ -561,15 +564,15 @@ class PolarPrintService(X1PlusDBusService):
         logger.info(f"_download_file success: {os.path.getsize(dest)}")
 
     async def _on_pause(self, data, *args, **kwargs) -> None:
-        logger.info("_on_pause")
+        logger.info("Polar _on_pause")
         printer_action("stop")
 
     async def _on_resume(self, data, *args, **kwargs) -> None:
-        logger.info("_on_resume")
+        logger.info("Polar _on_resume")
         printer_action("resume")
 
     async def _on_cancel(self, data, *args, **kwargs) -> None:
-        logger.info("_on_cancel")
+        logger.info("Polar _on_cancel")
         printer_action("stop")
 
     def printer_action(self, which_action, print_file="") -> None:
