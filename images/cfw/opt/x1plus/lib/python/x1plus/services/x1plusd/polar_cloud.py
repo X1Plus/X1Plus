@@ -33,7 +33,7 @@ http_session = aiohttp.ClientSession(connector=connector)
 
 
 class PolarPrintService(X1PlusDBusService):
-    def __init__(self, daemon, **kwargs):
+    def __init__(self, router, daemon, **kwargs):
         """
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
@@ -75,14 +75,14 @@ class PolarPrintService(X1PlusDBusService):
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
-        super().__init__(dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs)
+        super().__init__(router=router, dbus_interface=POLAR_INTERFACE, dbus_path=POLAR_PATH, **kwargs)
         logger.info("Polar cloud inited")
 
     async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
+        logger.info("Polar cloud task started")
         self.socket = socketio.AsyncClient(http_session=http_session)
         self.set_interface()
-        logger.info("Polar cloud task started")
         try:
             await self.get_creds()
         except Exception as e:

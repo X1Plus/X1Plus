@@ -31,8 +31,8 @@ class X1PlusDaemon:
         self.expansion = ExpansionManager(router=self.router, daemon=self)
 
         from .polar_cloud import PolarPrintService
-        self.polar_cloud = PolarPrintService(daemon=self)
-        logger.info("Polar Cloud created init file.")
+        self.polar_cloud = PolarPrintService(router=self.router, daemon=self)
+        logger.info("PolarPrintService object created.")
 
         return self
 
@@ -44,9 +44,9 @@ class X1PlusDaemon:
         asyncio.create_task(self.sensors.task())
         asyncio.create_task(self.expansion.task())
         if self.polar_cloud:
-            logger.info("Polar attempted to start")
+            logger.info("Polar has attempted to start.")
             asyncio.create_task(self.polar_cloud.task())
         else:
-            logger.info("Polar never attempted")
+            logger.info("Polar never attempted to start.")
 
         logger.info("x1plusd is running")
