@@ -130,7 +130,7 @@ class PolarPrintService(X1PlusDBusService):
         if self.daemon.settings.get("polar.sn", "") and self.daemon.settings.get(
             "polar.private_key", ""
         ):
-            logger.debug(f"challenge: {response['challenge']}")
+            logger.debug(f"Polar challenge: {response['challenge']}")
             # The printer has been registered.
             # Remember that "polar.sn" is the serial number assigned by the server.
             # First, encode challenge string with the private key.
@@ -221,7 +221,7 @@ class PolarPrintService(X1PlusDBusService):
         """
         if response["status"] == "SUCCESS":
             logger.info("Polar _on_register_response success.")
-            logger.debug(f"Serial number: {response['serialNumber']}")
+            logger.debug(f"Polar serial number: {response['serialNumber']}")
             await self.daemon.settings.put("polar.sn", response["serialNumber"])
             logger.info("Polar Cloud connected.")
 
@@ -323,7 +323,7 @@ class PolarPrintService(X1PlusDBusService):
         ]:
             self.temps[temp] = output[temp]
         logger.debug(
-            f"  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
+            f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
         self.status = 0
         if task_state > 0 and task_state < 4:
@@ -386,19 +386,19 @@ class PolarPrintService(X1PlusDBusService):
             }
             try:
                 await self.socket.emit("status", data)
-                logger.info(f"Status update {self.status} {datetime.datetime.now()}")
+                logger.info(f"Polar status update {self.status} {datetime.datetime.now()}")
                 self.last_ping = datetime.datetime.now()
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
                 if str(e) == "/ is not a connected namespace.":
-                    logger.debug('Got "/ is not a connected namespace." error.')
+                    logger.debug('Polar got "/ is not a connected namespace." error.')
                     # This seems to be a python socketio bug/feature?
                     # In any case, recover by reconnecting.
                     await self.socket.disconnect()
-                    logger.info("Polar Disconnecting.")
+                    logger.info("Polar disconnecting.")
                     self.is_connected = False
                     # After the next request the server will respond with `welcome`.
-                    logger.info("Polar Reconnecting.")
+                    logger.info("Polar reconnecting.")
                     await self.socket.connect(self.server_url, transports=["websocket"])
                     self.is_connected = True
                     return  # Or else we'll starting sending too many updates.
@@ -408,7 +408,7 @@ class PolarPrintService(X1PlusDBusService):
             # except TimeoutError as e:
             #     logger.error(e)
             # self.status_task_wake.clear()
-        logger.debug("Status ending.")
+        logger.debug("Polar status ending.")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -468,7 +468,7 @@ class PolarPrintService(X1PlusDBusService):
         Send job response to Polar Cloud, letting it know a job has finished.
         Also reset job_id to "123", which is the default.
         """
-        logger.info(f"_job {status} {self.job_id}")
+        logger.info(f"Polar _job {status} {self.job_id}")
         data = {
             "serialNumber": self.daemon.settings.get("polar.sn"),
             "jobId": self.job_id,
@@ -484,12 +484,12 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _on_print(self, data, *args, **kwargs):
         """Download file to printer, then send to print."""
-        logger.debug("_on_print")
+        logger.info("Polar _on_print")
         self.job_id = data["jobId"]
         if not data["serialNumber"] or data["serialNumber"] != data.get(
             "serialNumber", ""
         ):
-            logger.debug("Serial numbers don't match.")
+            logger.debug("Polar serial numbers don't match.")
             await self._job("canceled")
             return
         # Todo: add recovery here if still printing.
@@ -531,14 +531,14 @@ class PolarPrintService(X1PlusDBusService):
             try:
                 os.mkdir(path)
             except:
-                logger.info(f"_download_file. {path} already exists.")
+                logger.info(f"Polar _download_file. {path} already exists.")
             dest = os.path.join(path, file)
             logger.info("Polar _download_file")
-            logger.debug(f"downloading {url} to {dest}")
+            logger.debug(f"Polar downloading {url} to {dest}")
             download_bytes = 0
             download_bytes_total = -1
             with open(dest, "wb") as f:
-                logger.debug("Opened file to write.")
+                logger.debug("Polar opened file to write.")
                 timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
                 async with aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout
@@ -561,7 +561,7 @@ class PolarPrintService(X1PlusDBusService):
             except:
                 pass
             raise
-        logger.info(f"_download_file success: {os.path.getsize(dest)}")
+        logger.info(f"Polar _download_file success: {os.path.getsize(dest)}")
 
     async def _on_pause(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_pause")
