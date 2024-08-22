@@ -31,7 +31,7 @@ class X1PlusDaemon:
         self.expansion = ExpansionManager(router=self.router, daemon=self)
 
         from .polar_cloud import PolarPrintService
-        self.polar_cloud = PolarPrintService(router=self.router, daemon=self)
+        self.polar_cloud = PolarPrintService(daemon=self)
         logger.info("Polar Cloud created init file.")
 
         return self
