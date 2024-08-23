@@ -43,10 +43,7 @@ class X1PlusDaemon:
         asyncio.create_task(self.httpd.task())
         asyncio.create_task(self.sensors.task())
         asyncio.create_task(self.expansion.task())
-        if self.polar_cloud:
-            logger.info("Polar has attempted to start.")
-            asyncio.create_task(self.polar_cloud.task())
-        else:
-            logger.info("Polar never attempted to start.")
+        logger.info("Polar is attempting to start.")
+        asyncio.create_task(self.polar_cloud.task())
 
         logger.info("x1plusd is running")

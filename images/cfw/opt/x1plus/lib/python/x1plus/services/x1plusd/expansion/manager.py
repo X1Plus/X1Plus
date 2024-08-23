@@ -73,6 +73,9 @@ class ExpansionManager(X1PlusDBusService):
         self.expansion = _detect_x1p_002_b01()
         if not self.expansion:
             logger.info("no X1Plus expansion board detected")
+            super().__init__(
+                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+            )
             return
         
         logger.info(f"found X1Plus expansion board serial {self.expansion.serial}")
