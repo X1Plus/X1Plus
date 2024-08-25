@@ -331,11 +331,19 @@ class PolarPrintService(X1PlusDBusService):
                 self.status = 1
             else:
                 self.status = 3
-        elif self.status == 6:
-            await self._job("canceled")
-            self.status = 6
-        elif self.status == 7:
+        elif task_state == 4:
+            # Finished
             await self._job("completed")
+            self.status == 0
+        elif task_state == 5:
+            # Failed
+            if self.status != 0:
+                await self._job("canceled")
+                self.status = 0
+        elif task_state == 6:
+            # Paused
+            # await self._job("canceled")
+            self.status = 4
 
     async def _status(self) -> None:
         """
@@ -403,11 +411,6 @@ class PolarPrintService(X1PlusDBusService):
                     self.is_connected = True
                     return  # Or else we'll starting sending too many updates.
             await asyncio.sleep(10)
-            # try:
-            #     await asyncio.wait_for(self.status_task_wake.wait(), timeout=50)
-            # except TimeoutError as e:
-            #     logger.error(e)
-            # self.status_task_wake.clear()
         logger.debug("Polar status ending.")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
@@ -454,6 +457,7 @@ class PolarPrintService(X1PlusDBusService):
             if not self.daemon.settings.get("polar.username", ""):
                 # Get it from the interface.
                 pass
+        # For now must use .env. eventually kill this.
         with open(env_file) as env:
             for line in env.readlines():
                 k, v = line.strip().split("=")
@@ -505,25 +509,7 @@ class PolarPrintService(X1PlusDBusService):
             file_name += ".gcode"
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
-        printer_action("print", location)
-
-        # self.job_id = "123"
-
-    # def _print_file(self, path, file_name):
-    #     logger.info(f"_print_file {location}")
-    #     location = os.path.join(path, file_name)
-    #     printer_action("print", location)
-    #     dbus_call = [
-    #         "dbus-send",
-    #         "--system",
-    #         "--print-reply",
-    #         "--dest=bbl.service.screen",
-    #         "/bbl/service/screen",
-    #         "bbl.screen.x1plus.printGcodeFile",
-    #         ('string: {"filePath": ' f'"{location}"' "}"),
-    #     ]
-    #     done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-    #     logger.info(done)
+        self._printer_action("gcode_file", location)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -531,7 +517,7 @@ class PolarPrintService(X1PlusDBusService):
             try:
                 os.mkdir(path)
             except:
-                logger.info(f"Polar _download_file. {path} already exists.")
+                logger.error(f"Polar _download_file. {path} already exists.")
             dest = os.path.join(path, file)
             logger.info("Polar _download_file")
             logger.debug(f"Polar downloading {url} to {dest}")
@@ -565,18 +551,22 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _on_pause(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_pause")
-        printer_action("stop")
+        self._printer_action("pause")
 
     async def _on_resume(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_resume")
-        printer_action("resume")
+        self._printer_action("resume")
 
     async def _on_cancel(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_cancel")
-        printer_action("stop")
+        self._printer_action("stop")
 
-    def printer_action(self, which_action, print_file="") -> None:
+    def _printer_action(self, which_action, print_file="") -> None:
         """Make dbus call to print, pause, cancel, resume."""
+        logger.info(f"Polar _printer_action {which_action} {print_file}")
+        logger.debug(
+            f'Polar dbus json string: string: \'{{"filePath": "{print_file}", "action": "{which_action}"}}\''
+        )
         dbus_call = [
             "dbus-send",
             "--system",
@@ -584,10 +574,10 @@ class PolarPrintService(X1PlusDBusService):
             "--dest=bbl.service.screen",
             "/bbl/service/screen",
             "bbl.screen.x1plus.polarPrint",
-            ('string: {"filePath": ' f'"{location}"", "action": "{which_action}"' "}"),
+            f'string: {{"filePath": "{print_file}", "action": "{which_action}"}}',
         ]
         done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-        logger.info(done)
+        logger.debug(done)
 
     def set_interface(self) -> None:
         """
