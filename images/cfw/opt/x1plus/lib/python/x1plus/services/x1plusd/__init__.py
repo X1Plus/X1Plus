@@ -29,7 +29,6 @@ class X1PlusDaemon:
         self.httpd = HTTPService(router=self.router, daemon=self)
         self.sensors = SensorsService(router=self.router, daemon=self)
         self.expansion = ExpansionManager(router=self.router, daemon=self)
-
         from .polar_cloud import PolarPrintService
         self.polar_cloud = PolarPrintService(router=self.router, daemon=self)
         logger.info("PolarPrintService object created.")

@@ -131,16 +131,6 @@ function sendGcode(gcode_line,seq_id = 0) {
 }
 X1Plus.sendGcode = sendGcode;
 
-// function printGcodeFile(fileName){
-// 	var payload = {
-// 		command: "gcode_file",
-// 		param: fileName,
-// 	};
-// 	DDS.publish("device/request/print", payload);
-// 	console.log("[x1p] Gcode published:", JSON.stringify(payload));
-// }
-// X1Plus.printGcodeFile = printGcodeFile;
-
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
 					year: 'numeric',
@@ -198,37 +188,12 @@ X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["chamber_target_temp"] = X1Plus.PrintManager.heaters.chamber.targetTemp;
 	return param;
 });
-X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
-	DDS.publish("device/request/print", { "sequence_id": "0", "command": "gcode_file", "param": param["filePath"] });
-	console.log("[x1p] Gcode printed:", JSON.stringify(payload));
-	param["finished"] = "File printed.";
-	return param;
-});
 X1Plus.DBus.registerMethod("polarPrint", (param) => {
 	DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
-	console.log("[x1p] Print:" + param["action"] + ": ", JSON.stringify(payload));
-	param["finished"] = "Print" + param["action"] + ".";
+	console.log("[x1p] Print:" + param["action"] + ": ");
+	param["finished"] = "Print " + param["action"] + ".";
 	return param;
 });
-// X1Plus.DBus.registerMethod("pausePrint", (param) => {
-// 	DDS.publish("device/request/print", { "sequence_id": "0", "command": "pause", "param": "" });
-// 	console.log("[x1p] Print paused:", JSON.stringify(payload));
-// 	param["finished"] = "Print paused.";
-// 	return param;
-// });
-// X1Plus.DBus.registerMethod("resumePrint", (param) => {
-// 	DDS.publish("device/request/print", { "sequence_id": "0", "command": "resume", "param": "" });
-// 	console.log("[x1p] Print resumed:", JSON.stringify(payload));
-// 	param["finished"] = "Print resumed.";
-// 	return param;
-// });
-// X1Plus.DBus.registerMethod("stopPrint", (param) => {
-// 	DDS.publish("device/request/print", { "sequence_id": "0", "command": "stop", "param": "" });
-// 	console.log("[x1p] Print stopped:", JSON.stringify(payload));
-// 	param["finished"] = "Print stopped";
-// 	return param;
-// });
-
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
 X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	console.log("trying an RPC to x1plus hello daemon");
