@@ -56,7 +56,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from .env.
         self.username = ""
         # Todo: Check to see if this is the correct server.
-        self.server_url = "https://printer2.polar3d.com"
+        self.server_url = "https://printer4.polar3d.com"
         self.socket = None
         self.status = 0  # Idle
         self.job_id = "123"  # Defaults to serial if Polar Cloud hasn't sent anything.
@@ -524,8 +524,6 @@ class PolarPrintService(X1PlusDBusService):
 
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
         file_name = data["jobName"]
-        if not file_name.endswith(".gcode"):
-            file_name += ".gcode"
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
         self._printer_action("gcode_file", location)
