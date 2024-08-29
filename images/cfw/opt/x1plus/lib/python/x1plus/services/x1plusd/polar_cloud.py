@@ -27,7 +27,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        # logging.FileHandler("/var/log/polar_debug.log"),
+        logging.FileHandler("/var/log/polar_debug.log"),
         logging.StreamHandler(),
     ]
 )
@@ -56,7 +56,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from .env.
         self.username = ""
         # Todo: Check to see if this is the correct server.
-        self.server_url = "https://printer4.polar3d.com"
+        self.server_url = "https://printer2.polar3d.com"
         self.socket = None
         self.status = 0  # Idle
         self.job_id = "123"  # Defaults to serial if Polar Cloud hasn't sent anything.
@@ -106,7 +106,9 @@ class PolarPrintService(X1PlusDBusService):
             return
         time.sleep(45)
         try:
-            await self.socket.connect(self.server_url, transports=["websocket"], wait_timeout=10)
+            await self.socket.connect(
+                self.server_url, transports=["websocket"], wait_timeout=10
+            )
         except Exception as e:
             logger.debug(f"Polar socket connection failed: {e}")
             return
