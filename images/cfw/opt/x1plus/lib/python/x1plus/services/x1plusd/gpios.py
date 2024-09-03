@@ -1,4 +1,9 @@
 from abc import ABC, abstractmethod
+import logging
+
+from . import actions
+
+logger = logging.getLogger(__name__)
 
 class Gpio(ABC):
     @property
@@ -17,6 +22,27 @@ class Gpio(ABC):
     @abstractmethod
     def read(self):
         pass
+
+class MockGpio(Gpio):
+    def __init__(self, id, attrs):
+        self._attrs = attrs
+        self._id = id
+        self._on = False
+    
+    @property
+    def attributes(self):
+        return self._attrs
+    
+    def output(self, on):
+        logger.info(f"mock GPIO {self._id}: output({on})")
+        self._on = on
+    
+    def tristate(self):
+        logger.info(f"mock GPIO {self._id}: tristate()")
+    
+    def read(self):
+        logger.info(f"mock GPIO {self._id}: read() -> {self._on}")
+        return self._on
 
 class GpioManager:
     """
@@ -58,11 +84,18 @@ class GpioManager:
     "class Gpio", if specified in the driver's GPIO configuration.
     """
 
-    def __init__(self):
+    def __init__(self, daemon):
+        self.daemon = daemon
         self.gpios = set()
+        
+        if self.daemon.settings.get("gpio.mock", False):
+            self.register(MockGpio("mock_1", { "type": "mock", "gpio": "1", "function": "buzzer" }))
+            self.register(MockGpio("mock_2", { "type": "mock", "gpio": "2", "function": "shutter" }))
+            self.register(MockGpio("mock_3", { "type": "mock", "gpio": "3" }))
+            self.register(MockGpio("mock_4", { "type": "mock", "gpio": "4" }))
     
     def find(self, **kwargs):
-        return set(filter(lambda gpio: all(hasattr(gpio, k) and getattr(gpio, k) == v for k,v in items(kwargs)), self.gpios))
+        return set(filter(lambda gpio: all(k in gpio.attributes and gpio.attributes[k] == v for k,v in kwargs.items()), self.gpios))
     
     def port_properties(self, port):
         # XXX
@@ -76,6 +109,7 @@ class GpioManager:
         assert len(self.find(**gpio.attributes)) == 0
         assert gpio not in self.gpios
         self.gpios.add(gpio)
+        logger.info(f"registered GPIO with attributes {gpio.attributes}")
     
     def unregister(self, gpio):
         self.gpios.remove(gpio) # asserts if not registered
@@ -84,21 +118,21 @@ class GpioManager:
     def output(self, on, **kwargs):
         gpios = self.find(**kwargs)
         if len(gpios) == 0:
-            raise KeyError
+            raise KeyError(kwargs)
         for g in gpios:
             g.output(on)
     
     def tristate(self, **kwargs):
         gpios = self.find(**kwargs)
         if len(gpios) == 0:
-            raise KeyError
+            raise KeyError(kwargs)
         for g in gpios:
             g.tristate()
     
     def read(self, **kwargs):
         gpios = self.find(**kwargs)
         if len(gpios) != 1:
-            raise KeyError
+            raise KeyError(kwargs)
         return gpios.pop().read()
         
     # convenience wrappers around output
@@ -107,3 +141,27 @@ class GpioManager:
 
     def off(self, **kwargs):
         self.output(on = False, **kwargs)
+
+
+@actions.register_action("gpio")
+async def _action_gpio(handler, subconfig):
+    if type(subconfig) != dict:
+        raise TypeError(f"gpio parameter {subconfig} was not dict")
+    if 'action' not in subconfig:
+        raise ValueError(f"gpio parameter did not have action key")
+    if 'gpio' not in subconfig or type(subconfig['gpio']) != dict:
+        raise ValueError(f"gpio parameter did not have gpio key or key was not dict")
+    if subconfig['action'] == 'on':
+        handler.daemon.gpios.on(**subconfig['gpio'])
+    elif subconfig['action'] == 'off':
+        handler.daemon.gpios.off(**subconfig['gpio'])
+    elif subconfig['action'] == 'tristate':
+        handler.daemon.gpios.tristate(**subconfig['gpio'])
+    elif subconfig['action'] == 'pulse':
+        duration = float(subconfig['duration'])
+        handler.daemon.gpios.on(**subconfig['gpio'])
+        await asyncio.sleep(duration)
+        handler.daemon.gpios.off(**subconfig['gpio'])
+    else:
+        raise ValueError(f"unknown gpio action {subconfig['action']}")
+    # to implement: action: wait

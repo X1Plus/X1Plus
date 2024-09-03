@@ -13,6 +13,7 @@ from .expansion import ExpansionManager
 from .sensors import SensorsService
 from .mcproto import MCProtoParser
 from .actions import ActionHandler
+from .gpios import GpioManager
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class X1PlusDaemon:
         self.ssh = SSHService(daemon=self)
         self.httpd = HTTPService(router=self.router, daemon=self)
         self.sensors = SensorsService(router=self.router, daemon=self)
+        self.gpios = GpioManager(daemon=self)
         self.expansion = ExpansionManager(router=self.router, daemon=self)
         self.mcproto = MCProtoParser(daemon=self)
         self.actions = ActionHandler(daemon=self)
