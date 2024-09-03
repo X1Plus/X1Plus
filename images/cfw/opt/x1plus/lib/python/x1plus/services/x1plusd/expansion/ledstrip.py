@@ -7,6 +7,8 @@ from collections import namedtuple
 
 import pyftdi.spi
 
+from ..gpios import Gpio
+
 logger = logging.getLogger(__name__)
 
 LedType = namedtuple('LedType', [ 'frequency', 'zero', 'one' ])
@@ -29,6 +31,17 @@ class LedStripDriver():
         
         self.spi = pyftdi.spi.SpiController()
         self.spi.configure(ftdi_path, frequency = self.led.frequency)
+        self.gpio = self.spi.get_gpio()
+        self.gpio_out = 0
+        
+        # XXX: error check this
+        self.gpio_instances = []
+        # XXX: type check this
+        for gpio_def in self.config.get('gpios', []):
+            # XXX: add port information to GPIO definition
+            inst = LedStripGpio(self, 1 << gpio_def['pin'], gpio_def)
+            self.daemon.gpios.register(inst)
+            self.gpio_instances.append(inst)
 
         self.lut = {}
         for i in range(256):
@@ -67,6 +80,8 @@ class LedStripDriver():
         self.spi.exchange(self.led.frequency, obs, readlen=0)
     
     def disconnect(self):
+        for inst in self.gpio_instances:
+            self.daemon.gpios.unregister(inst)
         if self.anim_task:
             self.anim_task.cancel()
             self.anim_task = None
@@ -110,6 +125,33 @@ class LedStripDriver():
             if ph > 1:
                 ph -= 1
             await asyncio.sleep(0.05)
+
+###############
+
+class LedStripGpio(Gpio):
+    def __init__(self, ledstrip, pin, attr):
+        # pin: 1 << x
+        self.ledstrip = ledstrip
+        self.pin = pin
+        self.attr = attr
+    
+    @property
+    def attributes(self):
+        return self.attr
+    
+    def output(self, val):
+        self.ledstrip.gpio.set_direction(self.pin, self.pin)
+        if val:
+            self.ledstrip.gpio_out |= self.pin
+        else:
+            self.ledstrip.gpio_out &= ~self.pin
+        self.ledstrip.gpio.write(self.ledstrip.gpio_out)
+    
+    def tristate(self):
+        self.ledstrip.gpio.set_direction(self.pin, 0)
+    
+    def read(self):
+        return (self.ledstrip.gpio.read() & self.pin) == self.pin
 
 ###############
 
