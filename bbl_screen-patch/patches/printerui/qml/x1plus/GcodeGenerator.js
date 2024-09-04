@@ -490,62 +490,96 @@ const Tramming = {
 };
 
 
-/* Bambu print speed parameters */
-var speed_presets = {
-    "Silent": { speed: 50, speed_fraction: 2, accelerationMagnitude: 0.3, feedRate: 0.7 , level: 4},
-    "Normal": { speed: 100, speed_fraction: 1, accelerationMagnitude: 1, feedRate: 1, level: 5 },
-    "Sport": { speed: 125, speed_fraction: 0.8, accelerationMagnitude: 1.4, feedRate: 1.4, level: 6 },
-    "Ludicrous": { speed: 166, speed_fraction: 0.6, accelerationMagnitude: 1.6, feedRate: 2, level: 7 }
-};
-
-/** 
- * Interpolation of Bambu print speed parameters. Details about this process at here:
- * https://github.com/jphannifan/x1plus-testing/blob/main/BL-speed-adjust.md
- * We can modify this readme and turn it into Wiki content.
- * */
-var speed_interpolation = {
-    speed_fraction: (speedPercentage) => { return Math.floor(10000/speedPercentage)/100},
-    acceleration_magnitude: (speedFraction) => {return Math.exp((speedFraction - 1.0191) / -0.814)},
-    feed_rate: (speedPercentage) => {return (0.00006426)*speedPercentage ** 2 + (-0.002484)*speedPercentage + 0.654},
-    level: (accelerationMagnitude) => {return (1.549 * accelerationMagnitude ** 2 - 0.7032 * accelerationMagnitude + 4.0834)}
-}
 
 /**
- * Print speed Gcode - M204.2 (acceleration magnitude), M220 (feed rate), and 
- * M73.2 (time remaining parameter)
+ * Print speed adjustment Gcode
  * 
- * Usage: Input a string ["Silent", "Normal", "Sport", "Ludicrous"] to generate
- * Gcode for OEM speed profiles. Input an integer between 30 and 180 to generate
- * Gcode with interpolated parameters.
+ * M204.2 K - sets acceleration magnitude
+ * M220 K - sets feed rate
+ * M73.2 R - updates timeline and time estimate
+ * 
+ * Usage: input an even integer between 30 and 180 to generate speed adjustment Gcode
+ * OEM speed profiles: Silent=50%, Normal=100%, Sport=124%, Ludicrous=166%
  */
+
 function printSpeed(inputSpeed) {
-    let config;
-    if (typeof inputSpeed === 'string') {
-        config = speed_presets[inputSpeed];
-        if (!config) {
-            return "";
-        }
-    } else if (typeof inputSpeed === 'number') {
-        if (inputSpeed < 30 || inputSpeed > 180) {
-            inputSpeed = 100;
-        }
-        var speedFraction = speed_interpolation.speed_fraction(inputSpeed);
-        var accelerationMagnitude = speed_interpolation.acceleration_magnitude(speedFraction);
-        var feedRate = speed_interpolation.feed_rate(inputSpeed);
-        var level = speed_interpolation.level(accelerationMagnitude);
-        config = {
-            speed_fraction: speedFraction,
-            accelerationMagnitude: accelerationMagnitude,
-            feedRate: feedRate,
-            level: level > 7 ? 7 : level
-        };
-    } else {
-        return "";
+    const bambuParams = {
+        speed: [50, 100, 124, 166],
+        acceleration: [0.3, 1.0, 1.4, 1.6],
+        feedRate: [0.7, 1.0, 1.4, 2.0],
+        labels: ["Silent", "Normal", "Sport", "Ludicrous"]
+    };
+
+    function speedFraction(speedPercent) {
+        return Math.floor(10000 / speedPercent) / 100;
     }
-    return [
-        `M204.2 K${config.accelerationMagnitude.toFixed(2)}`, // Set acceleration magnitude
-        `M220 K${config.feedRate.toFixed(2)}`, // Set feed rate
-        `M73.2 R${config.speed_fraction}`, //time remaining parameter
-        M1002.set_gcode_claim_speed_level(Math.round(config.level)) // Set speed level
+
+    function accelerationMagnitude(speedPercent) {
+        const sf = speedFraction(speedPercent);
+        return Math.exp((sf - 1.0191) / -0.8139);
+    }
+
+    function feedRate(speedPercent) {
+        return 6.426e-5 * speedPercent * speedPercent - 2.484e-3 * speedPercent + 0.654;
+    }
+
+    function interpolate(x, xPoints, yPoints) {
+        if (x <= xPoints[0]) return yPoints[0];
+        if (x >= xPoints[xPoints.length - 1]) return yPoints[yPoints.length - 1];
+        
+        for (let i = 0; i < xPoints.length - 1; i++) {
+            if (xPoints[i] <= x && x < xPoints[i+1]) {
+                const t = (x - xPoints[i]) / (xPoints[i+1] - xPoints[i]);
+                return yPoints[i] * (1 - t) + yPoints[i+1] * t;
+            }
+        }
+    }
+
+    function scaleFn(func, dataPoints) {
+        return (x) => {
+            const speeds = dataPoints.map(point => point[0]);
+            const values = dataPoints.map(point => point[1]);
+            const scalingFactor = interpolate(x, speeds, values) / func(x);
+            return func(x) * scalingFactor;
+        };
+    }
+
+    const accMagScaled = scaleFn(
+        accelerationMagnitude, 
+        bambuParams.speed.map((s, i) => [s, bambuParams.acceleration[i]])
+    );
+
+    const feedRateScaled = scaleFn(
+        feedRate, 
+        bambuParams.speed.map((s, i) => [s, bambuParams.feedRate[i]])
+    );
+
+    if (typeof inputSpeed !== 'number' || inputSpeed < 30 || inputSpeed > 180) {
+        return { gcode: "", params: null };
+    }
+    
+    const sf = speedFraction(inputSpeed);
+    const am = accMagScaled(inputSpeed);
+    const fr = feedRateScaled(inputSpeed);
+    const level = Math.min(7, 1.549 * am * am - 0.7032 * am + 4.0834);
+    
+
+    return {
+            inputSpeed: inputSpeed,
+            speedFraction: sf,
+            accelerationMagnitude: am,
+            feedRate: fr,
+            level: level
+    };
+}
+
+function printSpeedGcode(inputSpeed){
+    speedParams = printSpeed(inputSpeed);
+    const gcode = [
+        `M204.2 K${speedParams.accelerationMagnitude.toFixed(2)}`, // acceleration magnitude
+        `M220 K${speedParams.feedRate.toFixed(2)}`, // feed rate
+        `M73.2 R${speedParams.speedFraction}`, // time remaining parameter
+        `M1002 set_gcode_claim_speed_level ${Math.round(speedParams.level)}` // speed profile
     ].join("\n") + "\n";
+    return gcode;
 }

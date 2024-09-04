@@ -53,9 +53,7 @@ Item {
         }
         return 3 - closestIndex; 
     }
-    function speed_fraction(speed){
-        return gcode.speed_interpolation.speed_fraction(speed)
-    }
+
     onTargetChanged:{
         if (target != null){
             dial.value = currentSpeed;
@@ -292,11 +290,11 @@ Item {
         
         Text { 
             id: txtParams //displays the parameters that will be applied
-            property var speedParams: gcode.speed_interpolation
+            property var speedParams: gcode.printSpeed(dial.value)
             text:qsTr("Acceleration:\n%1\nFeed rate:\n%2\nTime:\n%3")
-                .arg(speedParams.acceleration_magnitude(speed_fraction(dial.value)).toFixed(2))
-                .arg(speedParams.feed_rate(dial.value).toFixed(2))
-                .arg(speed_fraction(dial.value).toFixed(1)) 
+                .arg(speedParams.accelerationMagnitude.toFixed(2))
+                .arg(speedParams.feedRate.toFixed(2))
+                .arg(speedParams.speedFraction.toFixed(1)) 
             color: "white"
             font.pixelSize: 18
             anchors.verticalCenter: parent.verticalCenter
@@ -376,7 +374,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            X1Plus.sendGcode(gcode.printSpeed(targetSpeed));
+                            X1Plus.sendGcode(gcode.printSpeedGcode(targetSpeed));
                             parent.parent.parent.parent.parent.parent.target = null;
                         }
                     }
