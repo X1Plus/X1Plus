@@ -528,7 +528,10 @@ class PolarPrintService(X1PlusDBusService):
         file_name = data["jobName"]
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
-        self._printer_action("gcode_file", location)
+        if file_name.endswith("gcode"):
+            self._printer_action("gcode_file", location)
+        elif file_name.endswith("3mf"):
+            self._printer_action("3mf", location)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -586,16 +589,28 @@ class PolarPrintService(X1PlusDBusService):
         logger.debug(
             f'Polar dbus json string: string: \'{{"filePath": "{print_file}", "action": "{which_action}"}}\''
         )
-        dbus_call = [
-            "dbus-send",
-            "--system",
-            "--print-reply",
-            "--dest=bbl.service.screen",
-            "/bbl/service/screen",
-            "bbl.screen.x1plus.polarPrint",
-            f'string: {{"filePath": "{print_file}", "action": "{which_action}"}}',
-        ]
-        done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        if which_action == "3mf":
+            dbus_call = [
+                "dbus-send",
+                "--system",
+                "--print-reply",
+                "--dest=bbl.service.screen",
+                "/bbl/service/screen",
+                "bbl.screen.x1plus.print3mf",
+                f'string: {{"filePath": "{print_file}"}}',
+            ]
+            done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
+        else:
+            dbus_call = [
+                "dbus-send",
+                "--system",
+                "--print-reply",
+                "--dest=bbl.service.screen",
+                "/bbl/service/screen",
+                "bbl.screen.x1plus.polarPrint",
+                f'string: {{"filePath": "{print_file}", "action": "{which_action}"}}',
+            ]
+            done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
         logger.debug(done)
 
     def _set_interface(self) -> None:
