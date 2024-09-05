@@ -37,10 +37,15 @@ class LedStripDriver():
         self.gpio_dir = 0x03
         self.gpio_out = 0
         
-        # XXX: error check this
         self.gpio_instances = []
-        # XXX: type check this
+        gpios = self.config.get('gpios', [])
+        if type(gpios) != list:
+            raise TypeError("gpios config item was not a list")
         for gpio_def in self.config.get('gpios', []):
+            if type(gpio_def) != dict:
+                raise TypeError("gpio configuration item was not an object")
+            if 'pin' not in gpio_def or type(gpio_def['pin']) != int:
+                raise TypeError("gpio configuration item did not have a pin defined, or pin was not an int")
             gpio_def = { **self.daemon.gpios.port_properties(port_name), **gpio_def }
             inst = LedStripGpio(self, 1 << gpio_def['pin'], gpio_def)
             self.daemon.gpios.register(inst)
