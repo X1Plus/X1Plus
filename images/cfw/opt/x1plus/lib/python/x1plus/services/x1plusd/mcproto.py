@@ -267,7 +267,7 @@ class MCProtoParser():
                 # retransmission, ignore
                 return
             
-            lines = (self.gcode_remaining + msg.payload).split(b'\n')
+            lines = (self.gcode_remaining + msg.decoded.buf).split(b'\n')
             self.gcode_remaining = lines[-1]
             for line in lines[:-1]:
                 m = self.GCODE_X1PLUS_DEF_RE.match(line)
