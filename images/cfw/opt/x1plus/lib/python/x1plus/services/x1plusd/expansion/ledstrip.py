@@ -2,10 +2,11 @@ import os
 import logging
 import asyncio
 import time
+import struct
 
 from collections import namedtuple
 
-import pyftdi.spi
+from pyftdi.ftdi import Ftdi
 
 from ..gpios import Gpio
 
@@ -29,9 +30,11 @@ class LedStripDriver():
         self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]
         self.n_leds = int(self.config['leds'])
         
-        self.spi = pyftdi.spi.SpiController()
-        self.spi.configure(ftdi_path, frequency = self.led.frequency)
-        self.gpio = self.spi.get_gpio()
+        self.ftdi = Ftdi()
+        self.ftdi.open_mpsse_from_url(ftdi_path, frequency = self.led.frequency, direction = 0x03) # DO | SCK
+        self.ftdi.enable_adaptive_clock(False)
+        
+        self.gpio_dir = 0x03
         self.gpio_out = 0
         
         # XXX: error check this
@@ -74,10 +77,14 @@ class LedStripDriver():
 
         self.last_gcode_state = None
         self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
+
+    def update_gpio(self):
+        self.ftdi.write_data(bytes([Ftdi.SET_BITS_LOW, self.gpio_out, self.gpio_dir]))
             
     def put(self, bs):
         obs = bytearray(b'').join([self.lut[b] for b in bs])
-        self.spi.exchange(self.led.frequency, obs, readlen=0)
+        obs = struct.pack('<BH', Ftdi.WRITE_BYTES_NVE_MSB, len(obs) - 1) + obs
+        self.ftdi.write_data(obs)
     
     def disconnect(self):
         for inst in self.gpio_instances:
@@ -86,7 +93,7 @@ class LedStripDriver():
             self.anim_task.cancel()
             self.anim_task = None
         self.anim_watcher.cancel()
-        self.spi.close()
+        self.ftdi.close()
     
     async def anim_watcher_task(self):
         with self.daemon.mqtt.report_messages() as report_queue:
@@ -140,18 +147,23 @@ class LedStripGpio(Gpio):
         return self.attr
     
     def output(self, val):
-        self.ledstrip.gpio.set_direction(self.pin, self.pin)
+        self.ledstrip.gpio_dir |= self.pin
         if val:
             self.ledstrip.gpio_out |= self.pin
         else:
             self.ledstrip.gpio_out &= ~self.pin
-        self.ledstrip.gpio.write(self.ledstrip.gpio_out)
+        self.ledstrip.update_gpio()
     
     def tristate(self):
-        self.ledstrip.gpio.set_direction(self.pin, 0)
+        self.ledstrip.gpio_dir &= ~self.pin
+        self.ledstrip.update_gpio()
     
     def read(self):
-        return (self.ledstrip.gpio.read() & self.pin) == self.pin
+        self.ledstrip.ftdi.write_data(bytes([Ftdi.GET_BITS_LOW, Ftdi.SEND_IMMEDIATE]))
+        data = self.ledstrip.ftdi.read_data_bytes(1, 4)
+        if len(data) != 1:
+            raise IOError('FTDI did not read bytes back')
+        return (data[0] & self.pin) == self.pin
 
 ###############
 
