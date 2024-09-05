@@ -68,6 +68,9 @@ class ExpansionManager(X1PlusDBusService):
     def __init__(self, daemon, **kwargs):
         self.daemon = daemon
 
+        self.eeproms = {}
+        self.drivers = {}
+
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
         self.expansion = _detect_x1p_002_b01()
@@ -87,7 +90,6 @@ class ExpansionManager(X1PlusDBusService):
             self.ftdi_nports = 2
             logger.warning(f"FTDI product ID {self.expansion.ftdidev.idProduct:x} unrecognized")
 
-        self.eeproms = {}
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
             self.eeproms[port_name] = None
@@ -105,14 +107,15 @@ class ExpansionManager(X1PlusDBusService):
             self.daemon.settings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
 
         self.last_configs = {}
-        self.drivers = {}
-
-        self._update_drivers()
 
         super().__init__(
             dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
         )
 
+    
+    async def task(self):
+        self._update_drivers()
+        await super().task()
     
     def _update_drivers(self):
         # Workaround https://github.com/eblot/pyftdi/issues/261 by resetting
@@ -164,7 +167,7 @@ class ExpansionManager(X1PlusDBusService):
                 continue
             
             try:
-                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", config = subconfig, daemon = self.daemon)
+                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", port_name = port_name, config = subconfig, daemon = self.daemon)
                 self.last_configs[port_name] = config
             except Exception as e:
                 logger.error(f"{port_name} driver {driver} initialization failed: {e.__class__.__name__}: {e}")

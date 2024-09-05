@@ -97,12 +97,16 @@ class GpioManager:
     def find(self, **kwargs):
         return set(filter(lambda gpio: all(k in gpio.attributes and gpio.attributes[k] == v for k,v in kwargs.items()), self.gpios))
     
-    def port_properties(self, port):
-        # XXX
+    def port_properties(self, port_name):
+        if port_name not in self.daemon.expansion.eeproms:
+            return {
+                "port": "unknown"
+            }
+
         return {
-            "port": "a",
-            "board_type": "X1P-005",
-            "board_serial": "X1P-005-A02-0123",
+            "port": port_name.split('_')[-1],
+            "board_type": self.daemon.expansion.eeproms[port_name]['model'],
+            "board_serial": '-'.join(self.daemon.expansion.eeproms[port_name][k] for k in ['model', 'revision', 'serial']),
         }
 
     def register(self, gpio):

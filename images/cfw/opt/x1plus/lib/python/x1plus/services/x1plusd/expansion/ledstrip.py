@@ -22,7 +22,7 @@ class LedStripDriver():
     ANIMATIONS = {}
     DEFAULT_ANIMATIONS = [ 'running', 'finish', 'paused', 'failed', 'rainbow' ]
 
-    def __init__(self, daemon, config, ftdi_path):
+    def __init__(self, daemon, config, ftdi_path, port_name):
         self.daemon = daemon
         self.ftdi_path = ftdi_path
         self.config = config
@@ -41,7 +41,7 @@ class LedStripDriver():
         self.gpio_instances = []
         # XXX: type check this
         for gpio_def in self.config.get('gpios', []):
-            # XXX: add port information to GPIO definition
+            gpio_def = { **self.daemon.gpios.port_properties(port_name), **gpio_def }
             inst = LedStripGpio(self, 1 << gpio_def['pin'], gpio_def)
             self.daemon.gpios.register(inst)
             self.gpio_instances.append(inst)
