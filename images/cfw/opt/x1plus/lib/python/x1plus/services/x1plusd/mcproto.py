@@ -121,7 +121,7 @@ class MC_gcode_request:
         return f"<gcode_request seq {self.seq}, buf {self.buf}>"
 
     def should_log(self):
-        return True
+        return False
 
 class MC_mcu_display_message:
     def __init__(self, msg):
