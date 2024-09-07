@@ -574,7 +574,7 @@ function printSpeed(inputSpeed) {
 }
 
 function printSpeedGcode(inputSpeed){
-    speedParams = printSpeed(inputSpeed);
+    var speedParams = printSpeed(inputSpeed);
     const gcode = [
         `M204.2 K${speedParams.accelerationMagnitude.toFixed(2)}`, // acceleration magnitude
         `M220 K${speedParams.feedRate.toFixed(2)}`, // feed rate
