@@ -28,6 +28,7 @@ import ".."
 */
 
 Item {
+    signal speedApplied
     id: speedDial
     width: parent.width
     height: parent.height
@@ -375,7 +376,7 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             X1Plus.sendGcode(gcode.printSpeedGcode(targetSpeed));
-                            parent.parent.parent.parent.parent.parent.target = null;
+                            speedApplied();
                         }
                     }
                 }
