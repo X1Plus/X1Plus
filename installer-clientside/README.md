@@ -1,13 +1,13 @@
 # Building the installer
 
-This is sort of a mess.  Make sure to do things in roughly exactly this
-order.  Otherwise things will go wrong.  If you understand Node release
-engineering I want to hear from you.  Actually I don't, I just want a PR for
-it.  Thanks.
+This is sort of a mess. Make sure to do things in exactly this order. Otherwise
+things will go wrong. If you understand Node release engineering I want to hear
+from you. Actually I don't, I just want a PR for it. Thanks. Make sure to build
+the docker image first.
 
-* `pushd x1p-js; npm i; npm run build; popd`
-* `pushd ../; make; ln -s ...whatever.../latest.x1p; popd`
-* `pushd install-gui; npm i; bash pack-em-all.sh; popd`
+* ```docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'cd installer-clientside/x1p-js && npm i && npm run build'```
+* ```docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'make && ln -s "$(jq -r '.cfwVersion' ota.json).x1p" latest.x1p'```
+* ```docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'cd installer-clientside/install-gui && npm i && bash pack-em-all.sh'```
 
 # Local MQTT test server
 
