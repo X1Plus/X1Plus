@@ -205,14 +205,14 @@ X1Plus.DBus.registerMethod("print3mf", (param) => {
   DDS.publish("device/request/print", {
     "sequence_id": "0",
     "command": "project_file",
-    "param": "Metadata/plate_X.gcode",
+    "param": "Metadata/plate_1.gcode",
     "project_id": "0", // Always 0 for local prints
     "profile_id": "0", // Always 0 for local prints
     "task_id": "0", // Always 0 for local prints
     "subtask_id": "0", // Always 0 for local prints
     "subtask_name": "",
-    "file": param["filePath"], // Filename to print, not needed when "url" is specified with filepath
-    //"url": "file:///mnt/sdcard/" + param["fileName"], // URL to print. Root path, protocol can vary. E.g. if sd card, "ftp:///myfile.3mf", "ftp:///cache/myotherfile.3mf"
+    //"file": param["filePath"], // Filename to print, not needed when "url" is specified with filepath
+    "url": "file:///mnt" + param["filePath"], // URL to print. Root path, protocol can vary. E.g. if sd card, "ftp:///myfile.3mf", "ftp:///cache/myotherfile.3mf"
     "md5": "",
     "timelapse": true,
     "bed_type": "auto", // Always "auto" for local prints

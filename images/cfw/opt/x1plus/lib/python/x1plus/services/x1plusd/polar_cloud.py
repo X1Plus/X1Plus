@@ -523,15 +523,12 @@ class PolarPrintService(X1PlusDBusService):
             logger.error("PolarCloud sent non-gcode file.")
             await self._job("canceled")
             return
-
+        logger.info(f"Polar print incoming data: {data}")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
         file_name = data["jobName"]
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
-        if file_name.endswith("gcode"):
-            self._printer_action("gcode_file", location)
-        elif file_name.endswith("3mf"):
-            self._printer_action("3mf", location)
+        self._printer_action("gcode_file", location)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -589,7 +586,7 @@ class PolarPrintService(X1PlusDBusService):
         logger.debug(
             f'Polar dbus json string: string: \'{{"filePath": "{print_file}", "action": "{which_action}"}}\''
         )
-        if which_action == "3mf":
+        if print_file.endswith("3mf"):
             dbus_call = [
                 "dbus-send",
                 "--system",
