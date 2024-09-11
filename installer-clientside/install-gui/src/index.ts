@@ -410,6 +410,32 @@ const legacyInstallSteps: InstallStep[] = [
 
 const firmwareRInstallSteps: InstallStep[] = [
   {
+    label: "SD card validation",
+    fn: async () => {
+      // Get the format of the sd card (expecting FAT32)
+      console.log("install: checking sd card format...");
+      props.intraStatus = "Checking SD card format...";
+      let result = await printer.sshClient.execCommand("SDCARDDEV=$(df -Th /mnt/sdcard | awk 'NR==2 {print $1}') ; fsck.vfat -n $SDCARDDEV | grep -q FAT32");
+      if (result.code != 0) {
+        console.log("SD card is NOT FAT32 formatted!");
+        throw `SD card is NOT FAT32 formatted!`;
+      }
+      console.log("install: sd card is FAT32 formatted");
+
+      // confirm there is enough free space on the card
+      console.log("install: checking free space on sd card...");
+      props.intraStatus = "Checking free space on sd card...";
+      let numGB = 2 // number of GB
+      let gigabytes = 1048576 // bytes in a GB
+      result = await printer.sshClient.execCommand(`[ $(df -k /mnt/sdcard | awk 'NR==2 {print $4}') -gt ${numGB * gigabytes} ]`);
+      if (result.code != 0) {
+        console.log("Not enough space on card!");
+        throw `Not enough free space on card (>${numGB}GB required)!`;
+      }
+      console.log(`install: sd card has enough free space(>${numGB}GB required)`);
+    }
+  },
+  {
     label: "Copying X1Plus setup files",
     fn: async () => {
       // probably should add installer gui button option to allow toggling this - "printer wifi power [ high | low ]"
