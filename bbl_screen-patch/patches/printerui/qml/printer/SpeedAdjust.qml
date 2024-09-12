@@ -36,8 +36,9 @@ Item {
     property alias speed: dial.value
     property var targetSpeed:100
     property var currentSpeed: PrintManager.currentTask.printSpeed
-    property var speedLabel:  (Math.abs(currentSpeed-targetSpeed) > 0) ? `${targetSpeed} / ${currentSpeed}%` : `${currentSpeed}%`
+    property var speedLabel: `${currentSpeed}%`
     property bool printIdle: (X1Plus.emulating)? false : PrintManager.currentTask.stage < PrintTask.WORKING
+    property var speedValues: [50,100,124,166]
     property var target: parent.target
     property var gcode: X1Plus.GcodeGenerator
     property alias stepSize: dial.stepSize
@@ -136,9 +137,9 @@ Item {
             id: dial
             width: 300
             height: width
-            from: 30
+            from: 50
             stepSize:2
-            to:180
+            to:166
             value: PrintManager.currentTask.printSpeed;
             anchors.centerIn: parent
             Component.onCompleted: {

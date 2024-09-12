@@ -498,7 +498,7 @@ const Tramming = {
  * M220 K - sets feed rate
  * M73.2 R - updates timeline and time estimate
  * 
- * Usage: input an even integer between 30 and 180 to generate speed adjustment Gcode
+ * Usage: input an even integer between 50 and 166 to generate speed adjustment Gcode
  * OEM speed profiles: Silent=50%, Normal=100%, Sport=124%, Ludicrous=166%
  */
 
