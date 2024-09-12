@@ -417,8 +417,8 @@ const firmwareRInstallSteps: InstallStep[] = [
       props.intraStatus = "Checking SD card format...";
       let result = await printer.sshClient.execCommand("SDCARDDEV=$(df -Th /mnt/sdcard | awk 'NR==2 {print $1}') ; fsck.vfat -n $SDCARDDEV | grep -q FAT32");
       if (result.code != 0) {
-        console.log("SD card is NOT FAT32 formatted!");
-        throw `SD card is NOT FAT32 formatted!`;
+        console.log("The SD card's partition scheme is unsupported. Format the SD card from the on-printer menu, then restart the installer.");
+        throw `The SD card's partition scheme is unsupported. Format the SD card from the on-printer menu, then restart the installer.`;
       }
       console.log("install: sd card is FAT32 formatted");
 
