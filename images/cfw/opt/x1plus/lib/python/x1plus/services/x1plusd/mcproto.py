@@ -10,7 +10,7 @@ from .dbus import *
 logger = logging.getLogger(__name__)
 
 class MCMessage():
-    COMMANDS = None # to be overridden below
+    COMMANDS = {}
     DEVICES = {
         3: "MC",
         6: "AP",
@@ -21,6 +21,22 @@ class MCMessage():
         0xF: "EXT",
         0x13: "CTC",
     }
+    
+    @classmethod
+    def register(cls, cmd_set, cmd_id, handler = None):
+        """
+        Can either be used as a simple register function, or as a decorator
+        if target is not passed in.
+        """
+        
+        def decorator(handler):
+            cls.COMMANDS[(cmd_set, cmd_id)] = handler
+            return handler
+
+        if handler is None:
+            return decorator
+        else:
+            decorator(handler)
 
     def __init__(self, raw):
         if raw[0] != 0x3D:
@@ -58,6 +74,57 @@ class MCMessage():
             self.decoded if self.decoded else self.COMMANDS.get((self.cmd_set, self.cmd_id), f'unknown cmd ({self.cmd_set}, {self.cmd_id})')
         )
 
+
+MCMessage.register(1, 1, "ping")
+MCMessage.register(1, 3, "get_version")
+MCMessage.register(1, 4, "sync_timestamp")
+MCMessage.register(1, 6, "mcu_upgrade")
+MCMessage.register(1, 8, "mcu_hms")
+MCMessage.register(1, 9, "factory_reset")
+
+MCMessage.register(2, 5, "gcode_execute_state")
+
+@MCMessage.register(2, 6)
+class MC_gcode_request: # no official name for this one!
+    def __init__(self, msg):
+        (self.seq, ) = struct.unpack("<L", msg.payload[:4])
+        self.buf = msg.payload[4:]
+    
+    def __str__(self):
+        return f"<gcode_request seq {self.seq}, buf {self.buf}>"
+
+    def should_log(self):
+        return False
+
+@MCMessage.register(2, 9)
+class MC_mcu_display_message:
+    def __init__(self, msg):
+        self.msg = msg.payload #.decode()
+    
+    def __str__(self):
+        return f"<mcu_display_message: \"{self.msg}\">"
+
+    def should_log(self):
+        return False
+
+MCMessage.register(2, 10, "vosync")
+MCMessage.register(2, 11, "gcode_ctx")
+MCMessage.register(2, 12, "mc_state")
+MCMessage.register(2, 15, "link_ams_report")
+MCMessage.register(2, 17, "ack_tray_info")
+MCMessage.register(2, 22, "gcode_line_handle")
+MCMessage.register(2, 23, "ams_mapping")
+MCMessage.register(2, 24, "ams_tray_info_write_ack")
+MCMessage.register(2, 25, "ams_user_settings")
+MCMessage.register(2, 27, "hw_info_voltage")
+MCMessage.register(2, 28, "link_ams_tray_consumption_ack")
+MCMessage.register(2, 29, "pack_get_part_info_ack")
+MCMessage.register(2, 34, "extrusion_result_update")
+MCMessage.register(2, 36, "fila_ams_get")
+MCMessage.register(2, 37, "mc_get_skipped_obj_list")
+
+
+@MCMessage.register(3, 1)
 class MC_M971:
     # C7 O0 or C8 O0: "offline rgb fusion"
     # C9 O0: offline bgr image
@@ -85,6 +152,31 @@ class MC_M971:
     def should_log(self):
         return True
 
+MCMessage.register(3, 2, "M972")
+      # has to do with camera clarity, "calculate intrinsic params"
+      # payload_len < 6
+      #   0, 1: seq
+      #   2: "on"
+      #   3: "data_num"
+MCMessage.register(3, 5, "M963")
+      # during handeye calibration sequence, syntax "M963 S1"
+      # "calculate extrinsic params"
+MCMessage.register(3, 7, "M969")
+      # syntax "M969 S1 N3 A2000" or "M969 S0 ; turn off scanning"
+      # "calculate extruder bandwidth"
+MCMessage.register(3, 6, "M965_b")
+MCMessage.register(3, 9, "M967")
+MCMessage.register(3, 11, "M973") # "ctask set camera exposure"
+      # M973 S6 P0; use auto exposure for horizontal laser by xcam
+      # M973 S6 P1; use auto exposure for vertical laser by xcam
+      # M973 S3 P14
+      # M973 S3 P1 ; camera start stream
+      # M973 S1
+      # M973 S2 P0
+      # M973 S4 ; turn off scanner
+MCMessage.register(3, 14, "M965") # "calculate heatbed height measurement" or "calculate baseline heatbed measurement"
+
+@MCMessage.register(3, 49)
 class MC_M976:
     # "detection control"
     # M976 S1 P1 ; scan model before printing 2nd layer
@@ -112,100 +204,29 @@ class MC_M976:
     def should_log(self):
         return True
 
-class MC_gcode_request:
-    def __init__(self, msg):
-        (self.seq, ) = struct.unpack("<L", msg.payload[:4])
-        self.buf = msg.payload[4:]
-    
-    def __str__(self):
-        return f"<gcode_request seq {self.seq}, buf {self.buf}>"
-
-    def should_log(self):
-        return False
-
-class MC_mcu_display_message:
-    def __init__(self, msg):
-        self.msg = msg.payload #.decode()
-    
-    def __str__(self):
-        return f"<mcu_display_message: \"{self.msg}\">"
-
-    def should_log(self):
-        return False
-
-MCMessage.COMMANDS = {
-    (1, 1): "ping",
-    (1, 3): "get_version",
-    (1, 4): "sync_timestamp",
-    (1, 6): "mcu_upgrade",
-    (1, 8): "mcu_hms",
-    (1, 9): "factory_reset",
-    (2, 5): "gcode_execute_state",
-    (2, 6): MC_gcode_request, # no official name for this
-    (2, 9): MC_mcu_display_message,
-    (2, 10): "vosync",
-    (2, 11): "gcode_ctx",
-    (2, 12): "mc_state",
-    (2, 15): "link_ams_report",
-    (2, 17): "ack_tray_info",
-    (2, 22): "gcode_line_handle",
-    (2, 23): "ams_mapping",
-    (2, 24): "ams_tray_info_write_ack",
-    (2, 25): "ams_user_settings",
-    (2, 27): "hw_info_voltage",
-    (2, 28): "link_ams_tray_consumption_ack",
-    (2, 29): "pack_get_part_info_ack",
-    (2, 34): "extrusion_result_update",
-    (2, 36): "fila_ams_get",
-    (2, 37): "mc_get_skipped_obj_list",
-    (3, 1): MC_M971,
-    (3, 2): "M972",
-      # has to do with camera clarity, "calculate intrinsic params"
-      # payload_len < 6
-      #   0, 1: seq
-      #   2: "on"
-      #   3: "data_num"
-    (3, 5): "M963",
-      # during handeye calibration sequence, syntax "M963 S1"
-      # "calculate extrinsic params"
-    (3, 7): "M969",
-      # syntax "M969 S1 N3 A2000" or "M969 S0 ; turn off scanning"
-      # "calculate extruder bandwidth"
-    (3, 6): "M965_b",
-    (3, 9): "M967",
-    (3, 11): "M973", # "ctask set camera exposure"
-      # M973 S6 P0; use auto exposure for horizontal laser by xcam
-      # M973 S6 P1; use auto exposure for vertical laser by xcam
-      # M973 S3 P14
-      # M973 S3 P1 ; camera start stream
-      # M973 S1
-      # M973 S2 P0
-      # M973 S4 ; turn off scanner
-    (3, 14): "M965", # "calculate heatbed height measurement" or "calculate baseline heatbed measurement"
-    (3, 49): MC_M976,
-    (3, 50): "M977",
+MCMessage.register(3, 50, "M977")
       # "detection single layer registration"
-    (3, 51): "M978",
+MCMessage.register(3, 51, "M978")
       # "calculate continuous layer detection"
-    (3, 52): "M981",
+MCMessage.register(3, 52, "M981")
       # "calculate spaghetti detection"
       # M981 S1 P20000 ;open spaghetti detector
-    (3, 53): "M991",
+MCMessage.register(3, 53, "M991")
       # "layer change event"
-    (3, 81): "M987",
-    (3, 82): "SENSORCHECK",
+MCMessage.register(3, 81, "M987")
+MCMessage.register(3, 82, "SENSORCHECK")
       # "set sensor detection"
-    (4, 1): "set_module_sn",
-    (4, 2): "get_module_sn",
-    (4, 3): "inject_module_key",
-    (4, 4): "get_inject_status",
-    (4, 5): "mcu_reboot",
-    (4, 6): "send_to_amt_core",
-    (4, 7): "set_module_lifecycle",
-    (4, 8): "get_module_lifecycle",
-    (4, 10): "inject_productcode",
-    (4, 11): "get_productcode",
-}
+
+MCMessage.register(4, 1, "set_module_sn")
+MCMessage.register(4, 2, "get_module_sn")
+MCMessage.register(4, 3, "inject_module_key")
+MCMessage.register(4, 4, "get_inject_status")
+MCMessage.register(4, 5, "mcu_reboot")
+MCMessage.register(4, 6, "send_to_amt_core")
+MCMessage.register(4, 7, "set_module_lifecycle")
+MCMessage.register(4, 8, "get_module_lifecycle")
+MCMessage.register(4, 10, "inject_productcode")
+MCMessage.register(4, 11, "get_productcode")
 
 ###
 
