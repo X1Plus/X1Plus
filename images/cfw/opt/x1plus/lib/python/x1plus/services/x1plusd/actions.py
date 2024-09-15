@@ -40,9 +40,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+_registered_actions = {}
+
 class ActionHandler():
-    ACTIONS = {}
-    
     def __init__(self, daemon):
         self.daemon = daemon
     
@@ -55,9 +55,9 @@ class ActionHandler():
             if len(actionobj) != 1:
                 raise ValueError(f"action object {actionobj} had too many keys")
             (action, subconfig) = next(iter(actionobj.items()))
-            if action not in self.ACTIONS:
+            if action not in _registered_actions:
                 raise ValueError(f"action object {actionobj} had invalid action")
-            await self.ACTIONS[action](self, subconfig)
+            await _registered_actions[action](self, subconfig)
         else:
             raise TypeError(f"action object {actionobj} had incorrect type")
     
@@ -67,24 +67,40 @@ class ActionHandler():
         except Exception as e:
             logger.error(f"action execution failed: {e.__class__.__name__}: {e}")
 
+def register_action(name, handler = None):
+    """
+    Register an action by name with the actions subsystem.
+    
+    If used with handler == None, then behaves like a decorator.
+    """
+    def decorator(handler):
+        assert name not in _registered_actions
+        _registered_actions[name] = handler
+        return handler
+
+    if handler is None:
+        return decorator
+    else:
+        decorator(handler)
+
 ###
 
+@register_action("syslog")
 async def _action_syslog(handler, subconfig):
     logger.info(f"syslog action: {subconfig}")
-ActionHandler.ACTIONS['syslog'] = _action_syslog
 
 
+@register_action("gcode")
 async def _action_gcode(handler, subconfig):
     logger.debug(f"gcode action: {subconfig}")
     if type(subconfig) != str:
         raise TypeError(f"gcode parameter {subconfig} was not str")
     await handler.daemon.mqtt.publish_request({ "print": { "command": "gcode_line", "sequence_id": "0", "param": subconfig } })
-ActionHandler.ACTIONS['gcode'] = _action_gcode
 
 
+@register_action("delay")
 async def _action_delay(handler, subconfig):
     logger.debug(f"delay action: {subconfig}")
     if type(subconfig) != int and type(subconfig) != float:
         raise TypeError(f"delay parameter {subconfig} was not str")
     await asyncio.sleep(subconfig)
-ActionHandler.ACTIONS['delay'] = _action_delay
