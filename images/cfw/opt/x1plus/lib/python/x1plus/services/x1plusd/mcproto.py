@@ -322,6 +322,16 @@ class MCProtoParser():
             # XXX: should check CRC on packet header to more quickly recover
             # from certain types of desync
             
+            if packet_len < 1:
+                # if packet_len were *zero*, we definitely were desynced;
+                # consume the first byte in the hopes of getting back in
+                # sync ASAP (maybe the sync was inside of the stuff that we
+                # otherwise would consume if we consumed more than that). 
+                # otherwise, since we consume packet_len bytes, we would end
+                # up consuming no bytes at all and ending up in an infinite
+                # loop!
+                packet_len = 1
+            
             packet = self.rdbuf[:packet_len]
             self.rdbuf = self.rdbuf[packet_len:]
 
