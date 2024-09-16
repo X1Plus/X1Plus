@@ -502,83 +502,132 @@ const Tramming = {
  * OEM speed profiles: Silent=50%, Normal=100%, Sport=124%, Ludicrous=166%
  */
 
-function printSpeed(inputSpeed) {
-    const bambuParams = {
-        speed: [50, 100, 124, 166],
-        acceleration: [0.3, 1.0, 1.4, 1.6],
-        feedRate: [0.7, 1.0, 1.4, 2.0],
-        labels: ["Silent", "Normal", "Sport", "Ludicrous"]
-    };
-
-    function speedFraction(speedPercent) {
-        return Math.floor(10000 / speedPercent) / 100;
+function cubicSpline(x, y) {
+    const n = x.length;
+    if (n < 3) {
+        throw new Error("At least 3 points are required");
     }
 
-    function accelerationMagnitude(speedPercent) {
-        const sf = speedFraction(speedPercent);
-        return Math.exp((sf - 1.0191) / -0.8139);
+    const h = x.slice(1).map((xi, i) => xi - x[i]);
+    const dy = y.slice(1).map((yi, i) => yi - y[i]);
+
+    const A = Array(n).fill().map(() => Array(n).fill(0));
+    A[0][0] = 1;
+    A[n-1][n-1] = 1;
+    for (let i = 1; i < n-1; i++) {
+        A[i][i-1] = h[i-1];
+        A[i][i] = 2 * (h[i-1] + h[i]);
+        A[i][i+1] = h[i];
     }
-
-    function feedRate(speedPercent) {
-        return 6.426e-5 * speedPercent * speedPercent - 2.484e-3 * speedPercent + 0.654;
+    const b = Array(n).fill(0);
+    for (let i = 1; i < n-1; i++) {
+        b[i] = 3 * (dy[i] / h[i] - dy[i-1] / h[i-1]);
     }
+    const c = solveTridiagonal(A, b);
+    const a = y.slice(0, -1);
+    const bCoeffs = dy.map((dyi, i) => dyi / h[i] - h[i] * (2 * c[i] + c[i+1]) / 3);
+    const d = c.slice(1).map((ci, i) => (ci - c[i]) / (3 * h[i]));
 
-    function interpolate(x, xPoints, yPoints) {
-        if (x <= xPoints[0]) return yPoints[0];
-        if (x >= xPoints[xPoints.length - 1]) return yPoints[yPoints.length - 1];
-        
-        for (let i = 0; i < xPoints.length - 1; i++) {
-            if (xPoints[i] <= x && x < xPoints[i+1]) {
-                const t = (x - xPoints[i]) / (xPoints[i+1] - xPoints[i]);
-                return yPoints[i] * (1 - t) + yPoints[i+1] * t;
-            }
-        }
-    }
-
-    function scaleFn(func, dataPoints) {
-        return (x) => {
-            const speeds = dataPoints.map(point => point[0]);
-            const values = dataPoints.map(point => point[1]);
-            const scalingFactor = interpolate(x, speeds, values) / func(x);
-            return func(x) * scalingFactor;
-        };
-    }
-
-    const accMagScaled = scaleFn(
-        accelerationMagnitude, 
-        bambuParams.speed.map((s, i) => [s, bambuParams.acceleration[i]])
-    );
-
-    const feedRateScaled = scaleFn(
-        feedRate, 
-        bambuParams.speed.map((s, i) => [s, bambuParams.feedRate[i]])
-    );
-
-    if (typeof inputSpeed !== 'number' || inputSpeed < 30 || inputSpeed > 180) {
-        return { gcode: "", params: null };
-    }
-    
-    const sf = speedFraction(inputSpeed);
-    const am = accMagScaled(inputSpeed);
-    const fr = feedRateScaled(inputSpeed);
-    const level = Math.min(7, 1.549 * am * am - 0.7032 * am + 4.0834);
-    
-
-    return {
-            inputSpeed: inputSpeed,
-            speedFraction: sf,
-            accelerationMagnitude: am,
-            feedRate: fr,
-            level: level
-    };
+    return [a, bCoeffs, c.slice(0, -1), d];
 }
 
-function printSpeedGcode(inputSpeed){
-    var speedParams = printSpeed(inputSpeed);
+function solveTridiagonal(A, d) {
+    const n = A.length;
+    const c = Array(n).fill(0);
+    const b = Array(n).fill(0);
+
+    c[0] = A[0][1] / A[0][0];
+    for (let i = 1; i < n - 1; i++) {
+        c[i] = A[i][i+1] / (A[i][i] - A[i][i-1] * c[i-1]);
+    }
+
+    b[0] = d[0] / A[0][0];
+    for (let i = 1; i < n; i++) {
+        b[i] = (d[i] - A[i][i-1] * b[i-1]) / (A[i][i] - A[i][i-1] * c[i-1]);
+    }
+
+    const x = Array(n).fill(0);
+    x[n-1] = b[n-1];
+    for (let i = n - 2; i >= 0; i--) {
+        x[i] = b[i] - c[i] * x[i+1];
+    }
+
+    return x;
+}
+
+function evaluateSpline(x, xNew, a, b, c, d) {
+    if (typeof xNew !== 'number') {
+        throw new Error("xNew must be a scalar value");
+    }
+
+    let idx = x.findIndex(xi => xi > xNew) - 1;
+    if (idx < 0) idx = 0;
+    if (idx > x.length - 2) idx = x.length - 2;
+
+    const dx = xNew - x[idx];
+    return a[idx] + b[idx] * dx + c[idx] * dx**2 + d[idx] * dx**3;
+}
+
+function linearExtrapolate(x1, y1, x2, y2, x) {
+    const slope = (y2 - y1) / (x2 - x1);
+    return y1 + slope * (x - x1);
+}
+
+const bambuParams = {
+    speed: [50, 100, 124, 166],
+    acceleration: [0.3, 1.0, 1.4, 1.6],
+    feedRate: [0.7, 1.0, 1.4, 2.0],
+    speedFraction: [2, 1, 0.8, 0.6],
+    level: [4,5,6,7]
+};
+
+const splineCoeffs = {};
+['acceleration', 'feedRate'].forEach(param => {
+    splineCoeffs[param] = cubicSpline(bambuParams.speed, bambuParams[param]);
+});
+
+
+function printSpeed(speed) {
+    if (speed < 30 || speed > 166) {
+        throw new Error("Speed must be between 30 and 166");
+    }
+
+    let results = {};
+
+    if (speed < 50) {
+        ['acceleration', 'feedRate'].forEach(param => {
+            results[param] = linearExtrapolate(50, bambuParams[param][0], 100, bambuParams[param][1], speed);
+        });
+    } else {
+        const idx = bambuParams.speed.indexOf(speed);
+        if (idx !== -1) {
+            return {
+                acceleration: bambuParams.acceleration[idx],
+                feedRate: bambuParams.feedRate[idx],
+                speedFraction: bambuParams.speedFraction[idx],
+                level: bambuParams.level[idx]
+            };
+        }
+        ['acceleration', 'feedRate'].forEach(param => {
+            const [a, b, c, d] = splineCoeffs[param];
+            results[param] = evaluateSpline(bambuParams.speed, speed, a, b, c, d);
+        });
+    }
+
+    results.speedFraction = Math.floor(10000 / speed) / 100;
+    results.level = Math.min(7, 1.549 * results.acceleration * results.acceleration - 0.7032 * results.acceleration + 4.0834);
+
+    return results;
+}
+
+
+
+function printSpeedGcode(inputSpeed) {
+    const speedParams = printSpeed(inputSpeed);
     const gcode = [
-        `M204.2 K${speedParams.accelerationMagnitude.toFixed(2)}`, // acceleration magnitude
+        `M204.2 K${speedParams.acceleration.toFixed(2)}`, // acceleration magnitude
         `M220 K${speedParams.feedRate.toFixed(2)}`, // feed rate
-        `M73.2 R${speedParams.speedFraction}`, // time remaining parameter
+        `M73.2 R${speedParams.speedFraction.toFixed(2)}`, // time remaining parameter
         `M1002 set_gcode_claim_speed_level ${Math.round(speedParams.level)}` // speed profile
     ].join("\n") + "\n";
     return gcode;

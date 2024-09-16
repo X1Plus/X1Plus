@@ -137,9 +137,9 @@ Item {
             id: dial
             width: 300
             height: width
-            from: 50
+            from: 30
             stepSize:2
-            to:166
+            to:170
             value: PrintManager.currentTask.printSpeed;
             anchors.centerIn: parent
             Component.onCompleted: {
@@ -147,6 +147,8 @@ Item {
                 curValArc.requestPaint();
             }
             onValueChanged: {
+                if (dial.value > 166)
+                    dial.value = 166;
                 targetSpeed = dial.value;
                 curValArc.requestPaint();
             }
@@ -161,7 +163,7 @@ Item {
                     try {
                         let remainTime = (X1Plus.emulating) ? 10080 : PrintManager.currentTask.remainTime
                         let target = (printIdle) ? 0 : remainTime*currentSpeed/dial.value;
-                        timeRemaining.text = (target > 0) ? qsTr("Estimate:") + "\n" + Printer.durationString(target) : "";
+                        timeRemaining.text = (target > 0) ? qsTr("Print time:\n") + Printer.durationString(target) : "";
                         
                     } catch (e) {
                         console.log("SpeedAdjust - error calculating time estimate. ", e)
@@ -294,7 +296,7 @@ Item {
             id: txtParams //displays the parameters that will be applied
             property var speedParams: gcode.printSpeed(dial.value)
             text:qsTr("Acceleration:\n%1\nFeed rate:\n%2\nTime:\n%3")
-                .arg(speedParams.accelerationMagnitude.toFixed(2))
+                .arg(speedParams.acceleration.toFixed(2))
                 .arg(speedParams.feedRate.toFixed(2))
                 .arg(speedParams.speedFraction.toFixed(1)) 
             color: "white"
@@ -310,7 +312,7 @@ Item {
             font.pixelSize: 24
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: dial.left
-            anchors.rightMargin: 10
+            anchors.rightMargin: 7
             horizontalAlignment: Text.AlignHCenter    
         }
        
