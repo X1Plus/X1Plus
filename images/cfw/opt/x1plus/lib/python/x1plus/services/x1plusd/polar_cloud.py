@@ -19,7 +19,7 @@ from Crypto.Hash import SHA256
 from base64 import b64encode
 
 from .dbus import X1PlusDBusService
-from x1plus.utils import get_IP, get_MAC, is_emulating
+from x1plus.utils import get_IP, get_MAC, is_emulating, capture_frames
 from x1plus.utils import serial_number as utils_sn
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ logging.basicConfig(
     handlers=[
         logging.FileHandler("/var/log/polar_debug.log"),
         logging.StreamHandler(),
-    ]
+    ],
 )
 
 POLAR_INTERFACE = "x1plus.polar"
@@ -84,6 +84,7 @@ class PolarPrintService(X1PlusDBusService):
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
+        self.url_expiration_countdown = 0
         super().__init__(
             router=router,
             dbus_interface=POLAR_INTERFACE,
@@ -113,6 +114,8 @@ class PolarPrintService(X1PlusDBusService):
             logger.debug(f"Polar socket connection failed: {e}")
             return
         logger.info("Polar socket created!")
+        self._get_url("idle")
+        self._get_url("printing")
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -124,6 +127,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("resume", self._on_resume)
         self.socket.on("cancel", self._on_cancel)
         self.socket.on("delete", self._on_delete)
+        self.socket.on("getUrlResponse", self._on_url_response)
         await super().task()
         logger.info("Polar Cloud is running.")
 
@@ -416,6 +420,22 @@ class PolarPrintService(X1PlusDBusService):
                     f"Polar status update {self.status} {datetime.datetime.now()}"
                 )
                 self.last_ping = datetime.datetime.now()
+                if capture == True:
+                    # Capture and upload a new image every other status update.
+                    capture = False
+                    capture_frames(
+                        device_path="/dev/video20",
+                        output_dir="ipcam",
+                        num_frames=1,
+                        interval=1
+                    )
+                    if self.status in [0, 8, 9, 10, 15]:
+                        # In these cases send idle image.
+                        # (Todo: are these all the cases for idle?)
+                        self._upload_jpeg("idle")
+                    elif self.status != 11:
+                        self._upload_jpeg("printing")
+
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
                 if str(e) == "/ is not a connected namespace.":
@@ -430,8 +450,17 @@ class PolarPrintService(X1PlusDBusService):
                     await self.socket.connect(self.server_url, transports=["websocket"])
                     self.is_connected = True
                     return  # Or else we'll starting sending too many updates.
+
             await asyncio.sleep(10)
         logger.debug("Polar status ending.")
+
+    async def _upload_jpeg(which_state="idle"):
+        if which_action == "idle":
+            # Send to idle image url.
+            "frame_1.jpg"
+        else:
+            # send to printing url.
+            pass
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -579,6 +608,58 @@ class PolarPrintService(X1PlusDBusService):
     async def _on_cancel(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_cancel")
         self._printer_action("stop")
+
+    async def _on_url_response(self, data, *args, **kwargs) -> None:
+        """Upon receiving url response set appropriate instance variables."""
+        """
+        {
+            "serialNumber": "printer-serial-number",     // string
+            "type": "idle" | "printing" | "timelapse",   // string
+            "expires": seconds-until-url-expires,        // integer
+            "maxSize": max-file-size-in-bytes,           // integer
+            "contentType": "image/jpeg" | "video/mp4",   // string
+            "method": "post",                            // string
+            "url": "string",                             // string
+            "fields": {                                  // POST form data
+                "bucket": "S3-bucket-name",              // string
+                "key": "bucket-key-name",                // string
+                "acl": "public-read",                    // string
+                "X-Amz-Algorithm": "AWS4-HMAC-SHA256",   // string
+                "X-Amz-Credential": "AWS-credential",    // string
+                "X-Amz-Date": "time-stamp",              // string
+                "Policy": "encrypted-policy",            // string
+                "X-Amz-Signature": "policy-signature"    // string
+            }
+        }
+        """
+        logger.info("Polar _on_url_response")
+        if data["status"] == "SUCCESS" and data[
+            "serialNumber"
+        ] == self.daemon.settings.get("polar.sn", ""):
+            self.cam_stream_url_expiration_countdown = int(data["expires"])
+            self.cam_stream_url = data["url"]
+            # Todo: capture
+        # Todo: need to deal with failures on these two:
+        elif data["message"] == "FAILED":
+            logger.error(f"Polar get_url failed: {data['message']}")
+        else:
+            logger.error("Polar get_url failed wrong serial number.")
+
+    async def _get_url(idle_or_print="printing"):
+        """
+        Request the image upload url from Polar Cloud. `idle_or_print` _must_
+        be either "printing" or "idle".
+        """
+        logger.info(f"Polar _get_url {idle_or_print}")
+        if idle_or_print not in ["idle", "printing"]:
+            logger.error("Neither idle not printing was specified in getUrl request.")
+        request_data = {
+            "serialNumber": self.daemon.settings.get("polar.sn"),
+            "method": "post",
+            "type": idle_or_print,
+            "jobId": self.job_id,
+        }
+        await self.socket.emit("getUrl", request_data)
 
     def _printer_action(self, which_action, print_file="") -> None:
         """Make dbus call to print, pause, cancel, resume."""
