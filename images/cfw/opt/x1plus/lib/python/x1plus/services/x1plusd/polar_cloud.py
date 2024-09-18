@@ -84,7 +84,14 @@ class PolarPrintService(X1PlusDBusService):
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
-        self.url_expiration_countdown = 0
+        """
+        Next two variables are for sending camera images to Polar Cloud. None of
+        this should be persistent, especially the urls, since they expire, so all
+        saved as instance vars. The first set is for sending images while printing,
+        the second set for printing when idle.
+        """
+        self.printing_cam_stream = {"expiration_time": time.time(), "url": "", "fields": ""}
+        self.idle_cam_stream = {"expiration_time": time.time(), "url": "", "fields": ""}
         super().__init__(
             router=router,
             dbus_interface=POLAR_INTERFACE,
@@ -369,8 +376,10 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _status(self) -> None:
         """
-        Should send several every 10 seconds. All fields but serialNumber
-        and status are optional.
+        Send a status message every 10 seconds. Also trigger sending of image
+        every 20 seconds.
+
+        All fields but serialNumber and status are optional.
         {
             "serialNumber": "string",
             "status": integer,
@@ -455,12 +464,32 @@ class PolarPrintService(X1PlusDBusService):
         logger.debug("Polar status ending.")
 
     async def _upload_jpeg(which_state="idle"):
-        if which_action == "idle":
-            # Send to idle image url.
-            "frame_1.jpg"
+        """
+        Upload an image, for now always /ipcam/frame_1.jpg, to the appropriate
+        url. The url varies for idle or printing images.
+        """
+        """
+        curl -X POST \
+         -F 'key=files/printer/P3D99979/snapshot.jpg' \
+         -F 'bucket=polar3d.com' \
+         -F 'acl=public-read' \
+         -F 'X-Amz-Algorithm=AWS4-HMAC-SHA256' \
+         -F 'X-Amz-Credential=AKIAJKCJDY6DKKJSKFD7A/20170521/us-east-1/s3/aws4_request' \
+         -F 'X-Amz-Date=20170521T234827Z' \
+         -F 'Policy=eyJleHBpcmF0aW9uIjoiMj=' \
+         -F 'X-Amz-Signature=972b7428be734f2ad3f8b3f6c895087436ae1651a' \
+         -F 'file=@/Users/bob/Desktop/camera-image.jpg;type=image/jpeg' \
+         'https://s3.amazonaws.com/polar3d.com'
+         """
+        if which_state == "idle":
+            this_vars = self.idle_cam_stream
         else:
-            # send to printing url.
-            pass
+            this_vars = self.printing_cam_stream
+        if self.cam_stream_url_expiration_time - time.time() < 300:
+            # There are fewer than five mins before the upload url expires;
+            # get a new one.
+            await self._get_url(which_state)
+
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -610,25 +639,27 @@ class PolarPrintService(X1PlusDBusService):
         self._printer_action("stop")
 
     async def _on_url_response(self, data, *args, **kwargs) -> None:
-        """Upon receiving url response set appropriate instance variables."""
         """
+        Upon receiving url response set appropriate instance variables. Response
+        object is as follows:
+
         {
-            "serialNumber": "printer-serial-number",     // string
-            "type": "idle" | "printing" | "timelapse",   // string
-            "expires": seconds-until-url-expires,        // integer
-            "maxSize": max-file-size-in-bytes,           // integer
-            "contentType": "image/jpeg" | "video/mp4",   // string
-            "method": "post",                            // string
-            "url": "string",                             // string
-            "fields": {                                  // POST form data
-                "bucket": "S3-bucket-name",              // string
-                "key": "bucket-key-name",                // string
-                "acl": "public-read",                    // string
-                "X-Amz-Algorithm": "AWS4-HMAC-SHA256",   // string
-                "X-Amz-Credential": "AWS-credential",    // string
-                "X-Amz-Date": "time-stamp",              // string
-                "Policy": "encrypted-policy",            // string
-                "X-Amz-Signature": "policy-signature"    // string
+            "serialNumber": "printer-serial-number",
+            "type": "idle" | "printing" | "timelapse",
+            "expires": seconds-until-url-expires,
+            "maxSize": max-file-size-in-bytes,
+            "contentType": "image/jpeg" | "video/mp4",
+            "method": "post",
+            "url": "string",
+            "fields": { // POST form data
+                "bucket": "S3-bucket-name",
+                "key": "bucket-key-name",
+                "acl": "public-read",
+                "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+                "X-Amz-Credential": "AWS-credential",
+                "X-Amz-Date": "time-stamp",
+                "Policy": "encrypted-policy",
+                "X-Amz-Signature": "policy-signature"
             }
         }
         """
@@ -636,9 +667,14 @@ class PolarPrintService(X1PlusDBusService):
         if data["status"] == "SUCCESS" and data[
             "serialNumber"
         ] == self.daemon.settings.get("polar.sn", ""):
-            self.cam_stream_url_expiration_countdown = int(data["expires"])
-            self.cam_stream_url = data["url"]
-            # Todo: capture
+            if data["type"] == "idle":
+                self.idle_cam_stream["expiration_time"] = time.time() + int(data["expires"])
+                self.idle_cam_stream["url"] = data["url"]
+                self.idle_cam_stream["fields"] = data["fields"]
+            elif data["type"] == "printing":
+                self.printing_cam_stream["expiration_time"] = time.time() + int(data["expires"])
+                self.printing_cam_stream["url"] = data["url"]
+                self.printing_cam_stream["fields"] = data["fields"]
         # Todo: need to deal with failures on these two:
         elif data["message"] == "FAILED":
             logger.error(f"Polar get_url failed: {data['message']}")
@@ -665,7 +701,8 @@ class PolarPrintService(X1PlusDBusService):
         """Make dbus call to print, pause, cancel, resume."""
         logger.info(f"Polar _printer_action {which_action} {print_file}")
         logger.debug(
-            f'Polar dbus json string: string: \'{{"filePath": "{print_file}", "action": "{which_action}"}}\''
+            'Polar dbus json string: string: '
+            f'\'{{"filePath": "{print_file}", "action": "{which_action}"}}\''
         )
         if print_file.endswith("3mf"):
             dbus_call = [
