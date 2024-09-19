@@ -147,8 +147,10 @@ Item {
                 curValArc.requestPaint();
             }
             onValueChanged: {
-                if (dial.value > 166)
-                    dial.value = 166;
+                let adjustedValue = Math.floor(166 / stepSize) * stepSize; 
+                if (dial.value > adjustedValue) {
+                    dial.value = adjustedValue;
+                }
                 targetSpeed = dial.value;
                 curValArc.requestPaint();
             }
