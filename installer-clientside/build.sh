@@ -3,6 +3,10 @@
 ### THIS ONLY WORKS IF THE USER HAS BEEN ADDED TO THE DOCKER GROUP
 ### RUNNING THIS WITH `sudo ./build.sh` RESULTS IN DUBIOUS OWNERSHIP
 ### ERRORS WHEN BUILDING THE FIRMWARE
+if [ "$EUID" -eq 0 ]; then 
+    echo "Please do not run as root/with sudo. Exiting..."
+    exit 1
+fi
 
 cd ..
 # check if x1plusbuild docker image exists
