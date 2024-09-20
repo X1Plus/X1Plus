@@ -38,13 +38,29 @@ them to JSON before embedding them in G-code.
 import asyncio
 import logging
 
+from .dbus import *
+
 logger = logging.getLogger(__name__)
 
 _registered_actions = {}
 
-class ActionHandler():
-    def __init__(self, daemon):
+ACTIONS_INTERFACE = "x1plus.actions"
+ACTIONS_PATH = "/x1plus/actions"
+
+class ActionHandler(X1PlusDBusService):
+    def __init__(self, daemon, **kwargs):
         self.daemon = daemon
+        super().__init__(
+            dbus_interface=ACTIONS_INTERFACE, dbus_path=ACTIONS_PATH, **kwargs
+        )
+
+    async def dbus_Execute(self, req):
+        async def subtask():
+            logger.info("starting ExecuteAction from dbus")
+            await self.execute(req)
+            logger.info("action execution complete")
+        asyncio.create_task(subtask())
+        return None
     
     # actionobj is a parsed json object.  execute is cancellable!
     async def execute_step(self, actionobj):
@@ -102,5 +118,5 @@ async def _action_gcode(handler, subconfig):
 async def _action_delay(handler, subconfig):
     logger.debug(f"delay action: {subconfig}")
     if type(subconfig) != int and type(subconfig) != float:
-        raise TypeError(f"delay parameter {subconfig} was not str")
+        raise TypeError(f"delay parameter {subconfig} was not numberish")
     await asyncio.sleep(subconfig)
