@@ -185,12 +185,3 @@ class ExpansionManager(X1PlusDBusService):
                 'serial': eeprom['serial'],
             } if eeprom else None for port_name, eeprom in self.eeproms.items() },
         }
-    
-    # XXX: probably should go in actions later
-    async def dbus_ExecuteAction(self, req):
-        async def subtask():
-            logger.info("starting ExecuteAction from dbus")
-            await self.daemon.actions.execute(req)
-            logger.info("action execution complete")
-        asyncio.create_task(subtask())
-        return None

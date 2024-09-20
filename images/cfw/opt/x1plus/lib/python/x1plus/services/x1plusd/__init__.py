@@ -34,7 +34,7 @@ class X1PlusDaemon:
         self.gpios = GpioManager(daemon=self)
         self.expansion = ExpansionManager(router=self.router, daemon=self)
         self.mcproto = MCProtoParser(daemon=self)
-        self.actions = ActionHandler(daemon=self)
+        self.actions = ActionHandler(router=self.router, daemon=self)
         if not self.settings.get("polar_cloud", False):
             self.polar_cloud = None
         else:
@@ -51,6 +51,7 @@ class X1PlusDaemon:
         asyncio.create_task(self.sensors.task())
         asyncio.create_task(self.expansion.task())
         asyncio.create_task(self.mcproto.task())
+        asyncio.create_task(self.actions.task())
         if self.polar_cloud:
             asyncio.create_task(self.polar_cloud.begin())
 
