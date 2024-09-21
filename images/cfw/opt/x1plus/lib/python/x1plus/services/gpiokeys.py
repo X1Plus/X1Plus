@@ -5,17 +5,21 @@ import re
 import x1plus.dds
 import json
 import time 
-from evdev import InputDevice, categorize, ecodes
-from x1plus.logger.custom_logger import CustomLogger
- 
+from fcntl import ioctl
+import logging
+import struct 
+
+MONITORED_PINS = {116: "KEY_POWER", 128: "KEY_STOP", 134: "KEY_OPEN"}
+EVIOCGRAB = 0x40044590
+EV_SYN = 0x00
+EV_KEY = 0x01
 LONG_PRESS_THRESHOLD = 0.850 # seconds
 KEY_POWER = 116
 KEY_STOP = 128
-#KEY_DOOR = 134 #DOOR SENSOR
-
+KEY_DOOR = 134
 
 gpio_dds_publisher = x1plus.dds.publisher('device/x1plus')
-gpio_log = CustomLogger("gpiokeys", "/tmp/gpiokeys.log",500000,1)  
+gpio_log = logging.getLogger(__name__)
 
 def send_dds(name, press_type):
     dds_payload = json.dumps({
@@ -45,32 +49,42 @@ class Button:
 buttons = [
     Button(scancode = KEY_POWER, name = "power"),
     Button(scancode = KEY_STOP,  name = "estop"),
+    Button(scancode = KEY_DOOR,  name = "door"),
 ]
 
 
 def main():
-    device = InputDevice("/dev/input/by-path/platform-gpio-keys-event")
-    device.grab()
-
-    try:
-        for event in device.read_loop():
-            if event.type != ecodes.EV_KEY:
-                continue
-        
-            data = categorize(event)
-            for button in buttons:
-                if button.scancode == data.scancode:
-                    if data.keystate:
-                        button.press()
-                    else:
-                        button.release()
-                        gpio_log.info(data)
-    except:
-        x1plus.dds.shutdown()
-        raise
-    finally:
-        device.ungrab()
-
+    while True:
+        try:
+            with open(gpio_device_path, 'rb') as dev:
+                try:
+                    ioctl(dev, EVIOCGRAB, 1)
+                except Exception as e:
+                    print(f"Error: {e}")
+                while True:
+                    try:
+                        r, _, _ = select.select([dev], [], [], 1)
+                        if dev in r:
+                            event = dev.read(16)
+                            if event:
+                                try:
+                                    (tv_sec, tv_usec, type, code, value) = struct.unpack('LLHHI', event)
+                                    if type == EV_KEY and code in MONITORED_PINS:
+                                        button = next((b for b in buttons if b.scancode == code), None)
+                                        if button:
+                                            if value == 1:
+                                                button.press()
+                                            elif value == 0:
+                                                button.release()
+                                except struct.error as e:
+                                    print(e)
+                    except Exception as e:
+                        print(f"error: {str(e)}")
+                        break
+        except Exception as e:
+            print(f"Error opening device: {str(e)}")
+            time.sleep(5) #retry?
+            
 if __name__ == "__main__":
     import setproctitle
     setproctitle.setproctitle(__spec__.name)
