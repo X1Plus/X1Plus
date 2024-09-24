@@ -51,7 +51,7 @@ if is_already_running():
     exit(1)
 
 # Create the PID file
-with open('/var/run/fabrad.pid', 'w') as f:
+with open('/var/run/x1plusd.pid', 'w') as f:
     f.write(str(os.getpid()))
 
 loop = asyncio.new_event_loop()
