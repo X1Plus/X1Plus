@@ -99,9 +99,9 @@ class GpioManager:
         return set(filter(lambda gpio: all(k in gpio.attributes and gpio.attributes[k] == v for k,v in kwargs.items()), self.gpios))
     
     def port_properties(self, port_name):
-        if port_name not in self.daemon.expansion.eeproms:
+        if self.daemon.expansion.eeproms.get(port_name, None) is None:
             return {
-                "port": "unknown"
+                "port": port_name.split('_')[-1],
             }
 
         return {
