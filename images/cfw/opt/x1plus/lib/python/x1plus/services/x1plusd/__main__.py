@@ -1,5 +1,6 @@
 import asyncio
 import logging, logging.handlers
+import os
 import setproctitle
 
 from . import X1PlusDaemon, logger
@@ -32,7 +33,27 @@ async def start():
     x1plusd = await X1PlusDaemon.create()
     await x1plusd.start()
 
-# TODO: check if we are already running
+
+def is_already_running():
+    pid_file = '/var/run/x1plusd.pid'
+    try:
+        with open(pid_file, 'r') as f:
+            pid = int(f.read().strip())
+        os.kill(pid, 0)  # Check if the process is still running
+        return True
+    except (IOError, ValueError, OSError):
+        return False
+
+
+# Check if we are already running
+if is_already_running():
+    logger.error("x1plusd is already running. Exiting.")
+    exit(1)
+
+# Create the PID file
+with open('/var/run/fabrad.pid', 'w') as f:
+    f.write(str(os.getpid()))
+
 loop = asyncio.new_event_loop()
 loop.set_exception_handler(exceptions)
 loop.create_task(start())
@@ -41,4 +62,5 @@ try:
 finally:
     logger.error("x1plusd event loop has terminated!")
     loop.run_until_complete(loop.shutdown_asyncgens())
+    os.unlink('/var/run/x1plusd.pid')
     loop.close()
