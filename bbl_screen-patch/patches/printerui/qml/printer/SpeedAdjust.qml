@@ -58,19 +58,34 @@ Item {
 
     onTargetChanged:{
         if (target != null){
-            dial.value = currentSpeed;
-            dialCanvas.requestPaint();
-            curValArc.requestPaint();
+            updateSpeed();
         }
     }
     Component.onCompleted: {
         if (target != null){
             stepSize = X1Plus.Settings.get("printerui.speedadjust.stepSize", 2);
-            dial.value = currentSpeed;
-            dialCanvas.requestPaint();
-            curValArc.requestPaint();
+            updateSpeed();
         }
     }
+    onCurrentSpeedChanged: {
+        updateSpeed();
+    }
+    function updateTime(){
+        if (!printIdle) {
+            let remainTime = (X1Plus.emulating) ? 10080 : PrintManager.currentTask.remainTime;
+            let target = remainTime*currentSpeed/dial.value;
+            timeRemaining.text = (target > 0) ? qsTr("Print time:\n") + Printer.durationString(target) : "";
+        } else {
+            timeRemaining.text = "";
+        } 
+    }
+    function updateSpeed() {
+        dial.value = currentSpeed;
+        dialCanvas.requestPaint();
+        curValArc.requestPaint();        
+        updateTime();
+    }
+
     
     /* Button for switching to stepbar */
     Rectangle {
@@ -162,14 +177,7 @@ Item {
                     updateDialValue(mouse.x, mouse.y);
                 }
                 onReleased:{
-                    try {
-                        let remainTime = (X1Plus.emulating) ? 10080 : PrintManager.currentTask.remainTime
-                        let target = (printIdle) ? 0 : remainTime*currentSpeed/dial.value;
-                        timeRemaining.text = (target > 0) ? qsTr("Print time:\n") + Printer.durationString(target) : "";
-                        
-                    } catch (e) {
-                        console.log("SpeedAdjust - error calculating time estimate. ", e)
-                    }
+                    updateTime();
                 }
                 onPositionChanged: {
                     updateDialValue(mouse.x, mouse.y);
@@ -206,12 +214,21 @@ Item {
                     onPaint: {
                         var ctx = getContext("2d");
                         ctx.clearRect(0, 0, width, height);
-                        
-                        // Draw arc for the current value
-                        ctx.beginPath();
+                    
                         var stepAngle = (-280/(dial.to - dial.from));
-                        var currentAngle = 130 - ((dial.value - dial.from) * stepAngle);
-                        ctx.arc(width/2, height/2, width/2 - 15,  currentAngle * Math.PI / 180, 130 * Math.PI / 180, true);
+                    
+                        // Draw arc for the current speed
+                        ctx.beginPath();
+                        var currentAngle = 130 - ((currentSpeed - dial.from) * stepAngle);
+                        ctx.arc(width/2, height/2, width/2 - 15, currentAngle * Math.PI / 180, 130 * Math.PI / 180, true);
+                        ctx.strokeStyle = "rgba(170, 170, 170, 0.15)";
+                        ctx.lineWidth = 20;
+                        ctx.stroke();
+
+                        // Draw arc for the target speed
+                        ctx.beginPath();
+                        var targetAngle = 130 - ((targetSpeed - dial.from) * stepAngle);
+                        ctx.arc(width/2, height/2, width/2 - 15, targetAngle * Math.PI / 180, 130 * Math.PI / 180, true);
                         ctx.strokeStyle = "rgba(180, 180, 180, 0.25)";
                         ctx.lineWidth = 20;
                         ctx.stroke();
@@ -311,7 +328,7 @@ Item {
         Text { 
             id: timeRemaining
             color: "white"
-            font.pixelSize: 24
+            font.pixelSize: 20
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: dial.left
             anchors.rightMargin: 7
