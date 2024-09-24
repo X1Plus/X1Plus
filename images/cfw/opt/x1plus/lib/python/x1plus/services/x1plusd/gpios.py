@@ -7,10 +7,29 @@ from . import actions
 logger = logging.getLogger(__name__)
 
 class Gpio(ABC):
+    def __init__(self):
+        super().__init__()
+        self.on_change = None
+    
+    @property
+    @abstractmethod
+    def polling(self):
+        """
+        Whether the GpioManager must poll this Gpio to get interrupts (true
+        causes GpioManager to poll and call the on_change on its own, false
+        means that the GpioManager assumes that the GPIO driver will handle
+        this in a more optimized way).
+        """
+        pass
+    
     @property
     @abstractmethod
     def attributes(self):
         pass
+    
+    def matches(self, attributes):
+        myattrs = self.attributes
+        return all(k in myattrs and myattrs[k] == v for k,v in attributes.items())
     
     @abstractmethod
     def output(self, on):
@@ -26,9 +45,14 @@ class Gpio(ABC):
 
 class MockGpio(Gpio):
     def __init__(self, id, attrs):
+        super().__init__()
         self._attrs = attrs
         self._id = id
         self._on = False
+    
+    @property
+    def polling(self):
+        return False
     
     @property
     def attributes(self):
@@ -37,6 +61,8 @@ class MockGpio(Gpio):
     def output(self, on):
         logger.info(f"mock GPIO {self._id}: output({on})")
         self._on = on
+        if self.on_change:
+            self.on_change(on)
     
     def tristate(self):
         logger.info(f"mock GPIO {self._id}: tristate()")
@@ -84,10 +110,15 @@ class GpioManager:
     buzzers may be active-low).  This is expected to be handled by the
     "class Gpio", if specified in the driver's GPIO configuration.
     """
+    
+    POLLING_INTERVAL_MS = 50
 
     def __init__(self, daemon):
         self.daemon = daemon
         self.gpios = set()
+        self.polling_gpios = {}
+        self.poll_task = None
+        self.event_handlers = set()
         
         if self.daemon.settings.get("gpio.mock", False):
             self.register(MockGpio("mock_1", { "type": "mock", "gpio": "1", "function": "buzzer" }))
@@ -96,7 +127,7 @@ class GpioManager:
             self.register(MockGpio("mock_4", { "type": "mock", "gpio": "4" }))
     
     def find(self, **kwargs):
-        return set(filter(lambda gpio: all(k in gpio.attributes and gpio.attributes[k] == v for k,v in kwargs.items()), self.gpios))
+        return set(filter(lambda gpio: gpio.matches(kwargs), self.gpios))
     
     def port_properties(self, port_name):
         if self.daemon.expansion.eeproms.get(port_name, None) is None:
@@ -110,14 +141,38 @@ class GpioManager:
             "board_serial": '-'.join(self.daemon.expansion.eeproms[port_name][k] for k in ['model', 'revision', 'serial']),
         }
 
+    async def _poll(self):
+        while True:
+            for gpio,oldstate in self.polling_gpios.items():
+                newstate = gpio.read()
+                if newstate != oldstate:
+                    if gpio.on_change:
+                        gpio.on_change(newstate)
+                    self.polling_gpios[gpio] = newstate
+            await asyncio.sleep(self.POLLING_INTERVAL_MS / 1000) # we may get cancelled here, that is fine
+
     def register(self, gpio):
         assert len(self.find(**gpio.attributes)) == 0
         assert gpio not in self.gpios
         self.gpios.add(gpio)
         logger.info(f"registered GPIO with attributes {gpio.attributes}")
+        if gpio.polling:
+            self.polling_gpios[gpio] = None # last state
+        if len(self.polling_gpios) == 1: # Was this the first?
+            self.poll_task = asyncio.create_task(self._poll())
+        
+        def _on_change(newstate):
+            logger.info(f"on_change: GPIO {gpio} changed, new state {newstate}")
+        gpio.on_change = _on_change
     
     def unregister(self, gpio):
+        gpio.on_change = None
         self.gpios.remove(gpio) # asserts if not registered
+        if gpio in self.polling_gpios:
+            del self.polling_gpios[gpio]
+        if len(self.polling_gpios) == 0:
+            self.poll_task.cancel()
+            self.poll_task = None
     
     # convenience wrappers around find and output/tristate/read
     def output(self, on, **kwargs):

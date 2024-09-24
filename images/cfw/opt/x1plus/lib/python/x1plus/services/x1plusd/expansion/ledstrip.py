@@ -150,6 +150,10 @@ class LedStripGpio(Gpio):
     @property
     def attributes(self):
         return self.attr
+
+    @property
+    def polling(self):
+        return True
     
     def output(self, val):
         self.ledstrip.gpio_dir |= self.pin
