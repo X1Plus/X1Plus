@@ -14,7 +14,7 @@ from .sensors import SensorsService
 from .mcproto import MCProtoParser
 from .actions import ActionHandler
 from .gpios import GpioManager
-from .gpiokeys import InputHandler
+from .gpiokeys import GpiokeysHandler
 
 logger = logging.getLogger(__name__)
 

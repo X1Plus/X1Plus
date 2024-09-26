@@ -4,19 +4,21 @@ import struct
 import time
 from .gpios import Gpio
 from . import actions
+import fcntl 
 
 logger = logging.getLogger(__name__)
 
 EV_KEY = 0x01
 LONG_PRESS_THRESHOLD = 0.850  # seconds
-MONITORED_PINS = {116: "KEY_POWER", 128: "KEY_STOP", 134: "KEY_OPEN"}
 
-#temporary config
+EVIOCGRAB = 0x40044590
+
 conf = {
     "gpiokeys": {
         "116": {
             "name": "power",
             "type": "push_button",
+            "action": "button_event",
             "actions": {
                 "shortPress": {
                     "action": "button_press",
@@ -33,6 +35,7 @@ conf = {
         "128": {
             "name": "estop",
             "type": "push_button",
+            "action": "button_event",
             "actions": {
                 "shortPress": {
                     "action": "button_press",
@@ -49,6 +52,7 @@ conf = {
         "134": {
             "name": "door",
             "type": "door_sensor",
+            "action": "door_event",
             "actions": {
                 "open": {
                     "action": "door_action",
@@ -73,16 +77,17 @@ class GpiokeysHandler:
         self.loop = None
         self._running = asyncio.Event()
         self.config = conf['gpiokeys']
+        self.is_grabbed = False
         
-        for code, name in MONITORED_PINS.items():
-            gpio = GpiokeysGpio(f"input_{name}", {
+        for code, config in self.config.items():
+            gpio = GpiokeysGpio(f"input_{config['name']}", {
                 "type": "input",
-                "gpio": str(code),
-                "function": "button",
-                "name": name
+                "gpio": code,
+                "function": config['type'],
+                "name": config['name']
             })
-            self.input_gpios[code] = gpio
-            #self.daemon.gpio.register(gpio)
+            self.input_gpios[int(code)] = gpio
+            
 
     async def setup(self):
         try:
@@ -91,6 +96,9 @@ class GpiokeysHandler:
             self.loop.add_reader(self.event_file.fileno(), self.event_callback)
             logger.info("gpiokeys setup complete")
             self._running.set()
+            fcntl.ioctl(self.event_file, EVIOCGRAB, 1)
+            self.is_grabbed = True
+            
         except IOError as e:
             logger.error(f"Failed to open event file: {e}")
             raise
@@ -122,7 +130,7 @@ class GpiokeysHandler:
         try:
             logger.info("gpiokeys task started")
             while self._running.is_set():
-                await asyncio.sleep(1)  
+                await asyncio.sleep(1)
         except asyncio.CancelledError:
             logger.info("gpiokeys task cancelled")
         finally:
@@ -132,6 +140,12 @@ class GpiokeysHandler:
         if self.event_file:
             if self.loop:
                 self.loop.remove_reader(self.event_file.fileno())
+            if self.is_grabbed:
+                try:
+                    fcntl.ioctl(self.event_file, EVIOCGRAB, 0)
+                    logger.info("ungrabbed gpiokeys")
+                except Exception as e:
+                    logger.error(f"Error ungrabbing gpiokeys: {e}")
             self.event_file.close()
         logger.info("gpiokeys cleaned up")
         
