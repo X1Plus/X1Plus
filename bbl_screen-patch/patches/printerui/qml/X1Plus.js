@@ -178,6 +178,7 @@ X1Plus.DBus.registerMethod("ping", (param) => {
 	return param;
 });
 X1Plus.DBus.registerMethod("getStatus", (param) => {
+  console.log(PrintManager);
 	param["stage"] = PrintManager.currentTask.stage;
 	param["state"] = PrintManager.currentTask.state;
 	param["tip_cur_temp"] = X1Plus.PrintManager.heaters.hotend.currentTemp;
@@ -188,7 +189,7 @@ X1Plus.DBus.registerMethod("getStatus", (param) => {
 	param["chamber_target_temp"] = X1Plus.PrintManager.heaters.chamber.targetTemp;
 	return param;
 });
-X1Plus.DBus.registerMethod("polarPrint", (param) => {
+X1Plus.DBus.registerMethod("polarPrintGcode", (param) => {
 	DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
 	console.log("[x1p] Print:" + param["action"] + ": ");
 	param["finished"] = "Print " + param["action"] + ".";
@@ -201,18 +202,20 @@ X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	param["resp"] = f("hello");
 	return param;
 });
-X1Plus.DBus.registerMethod("print3mf", (param) => {
+X1Plus.DBus.registerMethod("polarPrint3mf", (param) => {
   DDS.publish("device/request/print", {
     "sequence_id": "0",
     "command": "project_file",
-    "param": "Metadata/plate_1.gcode",
+    "param": "Metadata/" + param["plate"],
     "project_id": "0", // Always 0 for local prints
     "profile_id": "0", // Always 0 for local prints
     "task_id": "0", // Always 0 for local prints
     "subtask_id": "0", // Always 0 for local prints
     "subtask_name": "",
     //"file": param["filePath"], // Filename to print, not needed when "url" is specified with filepath
-    "url": "file:///mnt" + param["filePath"], // URL to print. Root path, protocol can vary. E.g. if sd card, "ftp:///myfile.3mf", "ftp:///cache/myotherfile.3mf"
+    // Next is URL to print. Root path, protocol can vary. E.g. if sd card,
+    //"ftp:///myfile.3mf", "ftp:///cache/myotherfile.3mf"
+    "url": "file:///mnt" + param["filePath"],
     "md5": "",
     "timelapse": true,
     "bed_type": "auto", // Always "auto" for local prints

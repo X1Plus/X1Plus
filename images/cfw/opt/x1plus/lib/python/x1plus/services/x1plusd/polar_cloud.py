@@ -11,7 +11,7 @@ import socketio
 import ssl
 import subprocess
 import time
-from json import dumps, loads
+from json import loads
 from jeepney import DBusAddress, new_method_call, MessageType
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
@@ -19,7 +19,7 @@ from Crypto.Hash import SHA256
 from base64 import b64encode
 
 from .dbus import X1PlusDBusService
-from x1plus.utils import get_IP, get_MAC, is_emulating, capture_frames
+from x1plus.utils import get_IP, get_MAC, is_emulating
 from x1plus.utils import serial_number as utils_sn
 
 logger = logging.getLogger(__name__)
@@ -39,6 +39,8 @@ POLAR_PATH = "/x1plus/polar"
 ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
 connector = aiohttp.TCPConnector(ssl=ssl_ctx)
 http_session = aiohttp.ClientSession(connector=connector)
+aws_connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+aws_http_session = aiohttp.ClientSession(connector=aws_connector)
 
 
 class PolarPrintService(X1PlusDBusService):
@@ -53,7 +55,8 @@ class PolarPrintService(X1PlusDBusService):
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
         self.pin = ""
-        # username is here only for emulation mode when reading from .env.
+        # username is here only for emulation mode when reading from `env`.
+        # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
         # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
@@ -90,8 +93,8 @@ class PolarPrintService(X1PlusDBusService):
         saved as instance vars. The first set is for sending images while printing,
         the second set for printing when idle.
         """
-        self.printing_cam_stream = {"expiration_time": time.time(), "url": "", "fields": ""}
-        self.idle_cam_stream = {"expiration_time": time.time(), "url": "", "fields": ""}
+        self.printing_cam_stream = {"expiration_time": time.time(), "form_data": dict(), "curl_call": ""}
+        self.idle_cam_stream = {"expiration_time": time.time(), "form_data": dict(), "curl_call": ""}
         super().__init__(
             router=router,
             dbus_interface=POLAR_INTERFACE,
@@ -405,6 +408,7 @@ class PolarPrintService(X1PlusDBusService):
             "config": "string"
         }
         """
+        capture_image = True
         while True:
             await self._status_update()
             # self.daemon.settings.on("status", lambda:self._status_update)
@@ -429,21 +433,22 @@ class PolarPrintService(X1PlusDBusService):
                     f"Polar status update {self.status} {datetime.datetime.now()}"
                 )
                 self.last_ping = datetime.datetime.now()
-                if capture == True:
+                if capture_image == True:
                     # Capture and upload a new image every other status update.
-                    capture = False
-                    capture_frames(
+                    self.capture_frames(
                         device_path="/dev/video20",
                         output_dir="ipcam",
                         num_frames=1,
-                        interval=1
+                        interval=1,
                     )
                     if self.status in [0, 8, 9, 10, 15]:
                         # In these cases send idle image.
                         # (Todo: are these all the cases for idle?)
-                        self._upload_jpeg("idle")
+                        await self._upload_jpeg("idle")
                     elif self.status != 11:
-                        self._upload_jpeg("printing")
+                        await self._upload_jpeg("printing")
+                # Next time through loop it will capture (or not).
+                capture_image = not capture_image
 
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
@@ -463,33 +468,32 @@ class PolarPrintService(X1PlusDBusService):
             await asyncio.sleep(10)
         logger.debug("Polar status ending.")
 
-    async def _upload_jpeg(which_state="idle"):
+    async def _upload_jpeg(self, which_state="printing") -> None:
         """
-        Upload an image, for now always /ipcam/frame_1.jpg, to the appropriate
-        url. The url varies for idle or printing images.
+        Upload an image to Polar Cloud's S3. The url varies for idle or printing
+        images. All the connection info is stored in self.printing_cam_stream
+        and self.idle_cam_stream.
         """
-        """
-        curl -X POST \
-         -F 'key=files/printer/P3D99979/snapshot.jpg' \
-         -F 'bucket=polar3d.com' \
-         -F 'acl=public-read' \
-         -F 'X-Amz-Algorithm=AWS4-HMAC-SHA256' \
-         -F 'X-Amz-Credential=AKIAJKCJDY6DKKJSKFD7A/20170521/us-east-1/s3/aws4_request' \
-         -F 'X-Amz-Date=20170521T234827Z' \
-         -F 'Policy=eyJleHBpcmF0aW9uIjoiMj=' \
-         -F 'X-Amz-Signature=972b7428be734f2ad3f8b3f6c895087436ae1651a' \
-         -F 'file=@/Users/bob/Desktop/camera-image.jpg;type=image/jpeg' \
-         'https://s3.amazonaws.com/polar3d.com'
-         """
+        logger.info("Polar _upload_jpeg")
+        if which_state not in ["idle", "printing"]:
+            # We can't send images. Todo: Fail ugly for now.
+            return
         if which_state == "idle":
             this_vars = self.idle_cam_stream
         else:
             this_vars = self.printing_cam_stream
-        if self.cam_stream_url_expiration_time - time.time() < 300:
+        if this_vars["expiration_time"] - time.time() < 300:
             # There are fewer than five mins before the upload url expires;
             # get a new one.
             await self._get_url(which_state)
-
+        # Now do actual upload.
+        logger.debug(f"Polar AWS form data {this_vars['form_data']}")
+        logger.debug(f"Polar curl call {this_vars['curl_call']}")
+        response_data = subprocess.run(this_vars["curl_call"], capture_output=True, shell=True).stdout.strip()
+        # async with aws_http_session.post(this_vars["url"], data=this_vars["form_data"]) as response:
+        #     # Process the response
+        #     response_data = await response.text()
+        logger.debug(f"Attempted image uploaded\n{response_data}")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -520,16 +524,17 @@ class PolarPrintService(X1PlusDBusService):
         """
         logger.info("Polar _get_creds")
         if is_emulating():
-            # I need to use actual account creds to connect, so we're using .env
-            # for testing, until there's an interface.
-            # dotenv isn't installed, so just open the .env file and parse it.
-            # This means that .env file must formatted correctly, with var names
+            # I need to use actual account creds to connect, so we're using env
+            # for testing, until there's an interface. Not it's env and not .env
+            # so users can more easily edit the file.
+            # Just open the env file and parse it.
+            # This means that env file must formatted correctly, with var names
             # `username` and `pin`.
             from pathlib import Path
 
-            env_file = Path(__file__).resolve().parents[0] / ".env"
+            env_file = Path(__file__).resolve().parents[0] / "env"
         else:
-            env_file = os.path.join("/sdcard", ".env")
+            env_file = os.path.join("/sdcard", "env")
             if not self.pin:
                 # Get it from the interface.
                 pass
@@ -583,10 +588,11 @@ class PolarPrintService(X1PlusDBusService):
             return
         logger.info(f"Polar print incoming data: {data}")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
+        plate_name = data["name"]
         file_name = data["jobName"]
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
-        self._printer_action("gcode_file", location)
+        self._printer_action("gcode_file", location, plate_name)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -668,20 +674,29 @@ class PolarPrintService(X1PlusDBusService):
             "serialNumber"
         ] == self.daemon.settings.get("polar.sn", ""):
             if data["type"] == "idle":
-                self.idle_cam_stream["expiration_time"] = time.time() + int(data["expires"])
-                self.idle_cam_stream["url"] = data["url"]
-                self.idle_cam_stream["fields"] = data["fields"]
+                cam_dict = self.idle_cam_stream
             elif data["type"] == "printing":
-                self.printing_cam_stream["expiration_time"] = time.time() + int(data["expires"])
-                self.printing_cam_stream["url"] = data["url"]
-                self.printing_cam_stream["fields"] = data["fields"]
+                cam_dict = self.printing_cam_stream
+            cam_dict["expiration_time"] = time.time() + int(data["expires"])
+            # cam_dict["url"] = data["url"]
+            # cam_dict["form_data"] = data["fields"].copy()
+            # cam_dict["form_data"]["file"] = "@/sdcard/ipcam/frame_0.jpg;type=image/jpeg"
+            # cam_dict["form_data"]["X-Amz-Expires"] = data["expires"]
+            # curl_form_string = " ".join([f"-F '{x}={y}'" for (x, y) in data["fields"].items()])
+            curl_list = ["curl", "-X", "POST"]
+            for k, v in data["fields"].items():
+                curl_list += ["-F", f"'{k}={v}'"]
+            curl_list += ["-F", "'file=@/sdcard/ipcam/frame_0.jpg;type=image/jpeg'"]
+            curl_list.append(f"'{data["url"]}'")
+            cam_dict["curl_call"] = " ".join(curl_list)
         # Todo: need to deal with failures on these two:
         elif data["message"] == "FAILED":
             logger.error(f"Polar get_url failed: {data['message']}")
         else:
             logger.error("Polar get_url failed wrong serial number.")
+        logger.info(f"\nPolar S3 info \n{data['fields']}\n\n")
 
-    async def _get_url(idle_or_print="printing"):
+    async def _get_url(self, idle_or_print="printing"):
         """
         Request the image upload url from Polar Cloud. `idle_or_print` _must_
         be either "printing" or "idle".
@@ -697,12 +712,16 @@ class PolarPrintService(X1PlusDBusService):
         }
         await self.socket.emit("getUrl", request_data)
 
-    def _printer_action(self, which_action, print_file="") -> None:
-        """Make dbus call to print, pause, cancel, resume."""
+    def _printer_action(self, which_action, print_file="", plate_name="") -> None:
+        """
+        Make dbus call to print, pause, cancel, resume. If printing a 3mf file
+        we need the print_file name and the plate to print.
+        """
         logger.info(f"Polar _printer_action {which_action} {print_file}")
         logger.debug(
             'Polar dbus json string: string: '
-            f'\'{{"filePath": "{print_file}", "action": "{which_action}"}}\''
+            f'\'{{"filePath": "{print_file}", "action": "{which_action}", '
+            f'"plate": "{plate_name}.gcode"}}\''
         )
         if print_file.endswith("3mf"):
             dbus_call = [
@@ -711,8 +730,9 @@ class PolarPrintService(X1PlusDBusService):
                 "--print-reply",
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
-                "bbl.screen.x1plus.print3mf",
-                f'string: {{"filePath": "{print_file}"}}',
+                "bbl.screen.x1plus.PolarPrint3mf",
+                f'string: {{"filePath": "{print_file}", "action": "{which_action}", "plate": "{plate_name}.gcode"}}',
+
             ]
             done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
         else:
@@ -722,7 +742,7 @@ class PolarPrintService(X1PlusDBusService):
                 "--print-reply",
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
-                "bbl.screen.x1plus.polarPrint",
+                "bbl.screen.x1plus.polarPrintGcode",
                 f'string: {{"filePath": "{print_file}", "action": "{which_action}"}}',
             ]
             done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
@@ -747,3 +767,62 @@ class PolarPrintService(X1PlusDBusService):
             return "123456789"
         else:
             return utils_sn()
+
+    def capture_frames(self, device_path="/dev/video20", output_dir="ipcam", num_frames=10, interval=2):
+        """
+        Capture num_frames single frame images from camera at interval of `interval`
+        seconds and save to /sdcard/ipcam directory.
+
+        To capture from nozzle cam, set `device_path` to /dev/video13.
+
+        Note that many franes may be captured, that they will be overwritten on
+        the next call to capture_frames, and that at no point are the captured
+        frames deleted from the SD card, so use with caution.
+        """
+        logger.info("Polar capture_frames")
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            pixel_format = "--set-fmt-video=width=1280,height=720,pixelformat=MJPG"
+            if device_path == "/dev/video13":
+                # Note I defaulted to YUYV here. Could also be NV12.
+                pixel_format = "--set-fmt-video=width=640,height=480,pixelformat=YUYV"
+
+            # cap_cmd = ["v4l2-ctl", "--device", device_path, "--all"]
+            # result = subprocess.run(cap_cmd, capture_output=True, text=True)
+            # logger.info(f"{result.stdout}")
+
+            logger.debug("Setting video format.")
+            fmt_cmd = [
+                "v4l2-ctl",
+                "--device",
+                device_path,
+                pixel_format,
+            ]
+            subprocess.run(fmt_cmd, check=True)
+
+            for i in range(num_frames):
+                output_file = os.path.join("/sdcard", output_dir, f"frame_{i}.jpg")
+                capture_cmd = [
+                    "v4l2-ctl",
+                    "--device",
+                    device_path,
+                    "--stream-mmap=3",
+                    "--stream-count=1",
+                    "--stream-to",
+                    output_file,
+                ]
+
+                result = subprocess.run(capture_cmd, capture_output=True, text=True)
+
+                if result.returncode == 0:
+                    logger.info(f"Saved frame_{i}.jpg")
+                else:
+                    logger.error(f"Failed to capture frame {i}. Error: {result.stderr}")
+
+                if i < num_frames - 1:
+                    time.sleep(interval)
+
+        except subprocess.CalledProcessError as e:
+            logger.error(f"An error occurred during capture: {str(e)}")
+        except Exception as e:
+            logger.error(f"unexpected error occurred: {str(e)}", exc_info=True)
