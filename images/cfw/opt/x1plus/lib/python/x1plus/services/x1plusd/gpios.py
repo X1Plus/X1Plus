@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import asyncio
+import contextlib
 import logging
 
 from . import actions
@@ -42,6 +43,9 @@ class Gpio(ABC):
     @abstractmethod
     def read(self):
         pass
+    
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.attributes})"
 
 class MockGpio(Gpio):
     def __init__(self, id, attrs):
@@ -116,15 +120,17 @@ class GpioManager:
     def __init__(self, daemon):
         self.daemon = daemon
         self.gpios = set()
-        self.polling_gpios = {}
+        self.gpio_poll_state = {}
+        self.polling_gpios = set()
         self.poll_task = None
-        self.event_handlers = set()
+        self.event_handlers = []
         
         if self.daemon.settings.get("gpio.mock", False):
             self.register(MockGpio("mock_1", { "type": "mock", "gpio": "1", "function": "buzzer" }))
             self.register(MockGpio("mock_2", { "type": "mock", "gpio": "2", "function": "shutter" }))
             self.register(MockGpio("mock_3", { "type": "mock", "gpio": "3" }))
             self.register(MockGpio("mock_4", { "type": "mock", "gpio": "4" }))
+            self.on_event({"function": "button"}, lambda gpio, value: logger.info(f"gpio {gpio} changed to value {value}!"))
     
     def find(self, **kwargs):
         return set(filter(lambda gpio: gpio.matches(kwargs), self.gpios))
@@ -143,36 +149,85 @@ class GpioManager:
 
     async def _poll(self):
         while True:
-            for gpio,oldstate in self.polling_gpios.items():
+            for gpio in self.polling_gpios:
+                oldstate = self.gpio_poll_state[gpio]
                 newstate = gpio.read()
                 if newstate != oldstate:
                     if gpio.on_change:
                         gpio.on_change(newstate)
-                    self.polling_gpios[gpio] = newstate
+                    self.gpio_poll_state[gpio] = newstate
             await asyncio.sleep(self.POLLING_INTERVAL_MS / 1000) # we may get cancelled here, that is fine
+    
+    def _update_poll_task(self):
+        # we only want to bother to poll GPIOs that anybody is actually
+        # listening for events on!
+        self.polling_gpios.clear()
+        for gpio in self.gpios:
+            if gpio.polling and any(gpio.matches(m) for m,_ in self.event_handlers):
+                self.polling_gpios.add(gpio)
+        if len(self.polling_gpios) == 0 and self.poll_task:
+            # nobody cares anymore, shut down the polling task
+            self.poll_task.cancel()
+            self.poll_task = None
+        elif len(self.polling_gpios) != 0 and not self.poll_task:
+            # someone begins to care, so we need to start it up
+            self.poll_task = asyncio.create_task(self._poll())
 
     def register(self, gpio):
         assert len(self.find(**gpio.attributes)) == 0
         assert gpio not in self.gpios
         self.gpios.add(gpio)
         logger.info(f"registered GPIO with attributes {gpio.attributes}")
-        if gpio.polling:
-            self.polling_gpios[gpio] = None # last state
-        if len(self.polling_gpios) == 1: # Was this the first?
-            self.poll_task = asyncio.create_task(self._poll())
         
         def _on_change(newstate):
-            logger.info(f"on_change: GPIO {gpio} changed, new state {newstate}")
+            for (match, callback) in self.event_handlers:
+                if gpio.matches(match):
+                    callback(gpio, newstate)
         gpio.on_change = _on_change
-    
+
+        if gpio.polling:
+            self.gpio_poll_state[gpio] = None # last state
+        self._update_poll_task()
+
     def unregister(self, gpio):
         gpio.on_change = None
         self.gpios.remove(gpio) # asserts if not registered
-        if gpio in self.polling_gpios:
-            del self.polling_gpios[gpio]
-        if len(self.polling_gpios) == 0:
-            self.poll_task.cancel()
-            self.poll_task = None
+        if gpio in self.gpio_poll_state:
+            del self.gpio_poll_state[gpio]
+        self._update_poll_task()
+    
+    def on_event(self, match, callback):
+        """
+        Register a callback for events on GPIOs matching `match`.  The
+        callback takes two parameters: the GPIO that changed, and the new
+        state.
+        
+        For convenience, returns a context manager, for event matches that
+        need to last only a short while.  If no callback is specified, the
+        context manager returns a queue with events that the callback would
+        be called with (similar to mqtt.request_messages /
+        mqtt.report_messages).
+        """
+        
+        q = None
+        if callback == None:
+            q = asyncio.Queue()
+            def _handle(gpio, st):
+                q.put_nowait((gpio, st, ))
+            callback = _handle
+
+        handler_entry = (match, callback, )
+        self.event_handlers.append(handler_entry)
+        self._update_poll_task()
+        
+        @contextlib.contextmanager
+        def _mkctx():
+            try:
+                yield q
+            finally:
+                self.event_handlers.remove(handler_entry)
+                self._update_poll_task()
+        return _mkctx()
     
     # convenience wrappers around find and output/tristate/read
     def output(self, on, **kwargs):
