@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class I2cDriver():
     DEVICE_DRIVERS = {}
     
-    def __init__(self, daemon, config, ftdi_path):
+    def __init__(self, daemon, config, ftdi_path, port_name):
         self.ftdi_path = ftdi_path
 
         self.i2c = pyftdi.i2c.I2cController()

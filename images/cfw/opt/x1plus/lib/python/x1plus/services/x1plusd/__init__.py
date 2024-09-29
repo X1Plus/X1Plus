@@ -11,6 +11,9 @@ from .httpd import HTTPService
 from .mqtt import MQTTClient
 from .expansion import ExpansionManager
 from .sensors import SensorsService
+from .mcproto import MCProtoParser
+from .actions import ActionHandler
+from .gpios import GpioManager
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +31,13 @@ class X1PlusDaemon:
         self.ssh = SSHService(daemon=self)
         self.httpd = HTTPService(router=self.router, daemon=self)
         self.sensors = SensorsService(router=self.router, daemon=self)
+        self.gpios = GpioManager(daemon=self)
         self.expansion = ExpansionManager(router=self.router, daemon=self)
+        self.mcproto = MCProtoParser(daemon=self)
+        self.actions = ActionHandler(router=self.router, daemon=self)
         from .polar_cloud import PolarPrintService
         self.polar_cloud = PolarPrintService(router=self.router, daemon=self)
         logger.info("PolarPrintService object created.")
-
         return self
 
     async def start(self):
@@ -42,6 +47,8 @@ class X1PlusDaemon:
         asyncio.create_task(self.httpd.task())
         asyncio.create_task(self.sensors.task())
         asyncio.create_task(self.expansion.task())
+        asyncio.create_task(self.mcproto.task())
+        asyncio.create_task(self.actions.task())
         logger.info("Polar is attempting to start.")
         asyncio.create_task(self.polar_cloud.task())
 

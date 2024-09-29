@@ -2,10 +2,13 @@ import os
 import logging
 import asyncio
 import time
+import struct
 
 from collections import namedtuple
 
-import pyftdi.spi
+from pyftdi.ftdi import Ftdi
+
+from ..gpios import Gpio
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +22,7 @@ class LedStripDriver():
     ANIMATIONS = {}
     DEFAULT_ANIMATIONS = [ 'running', 'finish', 'paused', 'failed', 'rainbow' ]
 
-    def __init__(self, daemon, config, ftdi_path):
+    def __init__(self, daemon, config, ftdi_path, port_name):
         self.daemon = daemon
         self.ftdi_path = ftdi_path
         self.config = config
@@ -27,8 +30,26 @@ class LedStripDriver():
         self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]
         self.n_leds = int(self.config['leds'])
         
-        self.spi = pyftdi.spi.SpiController()
-        self.spi.configure(ftdi_path, frequency = self.led.frequency)
+        self.ftdi = Ftdi()
+        self.ftdi.open_mpsse_from_url(ftdi_path, frequency = self.led.frequency, direction = 0x03) # DO | SCK
+        self.ftdi.enable_adaptive_clock(False)
+        
+        self.gpio_dir = 0x03
+        self.gpio_out = 0
+        
+        self.gpio_instances = []
+        gpios = self.config.get('gpios', [])
+        if type(gpios) != list:
+            raise TypeError("gpios config item was not a list")
+        for gpio_def in self.config.get('gpios', []):
+            if type(gpio_def) != dict:
+                raise TypeError("gpio configuration item was not an object")
+            if 'pin' not in gpio_def or type(gpio_def['pin']) != int:
+                raise TypeError("gpio configuration item did not have a pin defined, or pin was not an int")
+            gpio_def = { **self.daemon.gpios.port_properties(port_name), **gpio_def }
+            inst = LedStripGpio(self, 1 << gpio_def['pin'], gpio_def)
+            self.daemon.gpios.register(inst)
+            self.gpio_instances.append(inst)
 
         self.lut = {}
         for i in range(256):
@@ -61,17 +82,23 @@ class LedStripDriver():
 
         self.last_gcode_state = None
         self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
+
+    def update_gpio(self):
+        self.ftdi.write_data(bytes([Ftdi.SET_BITS_LOW, self.gpio_out, self.gpio_dir]))
             
     def put(self, bs):
         obs = bytearray(b'').join([self.lut[b] for b in bs])
-        self.spi.exchange(self.led.frequency, obs, readlen=0)
+        obs = struct.pack('<BH', Ftdi.WRITE_BYTES_NVE_MSB, len(obs) - 1) + obs
+        self.ftdi.write_data(obs)
     
     def disconnect(self):
+        for inst in self.gpio_instances:
+            self.daemon.gpios.unregister(inst)
         if self.anim_task:
             self.anim_task.cancel()
             self.anim_task = None
         self.anim_watcher.cancel()
-        self.spi.close()
+        self.ftdi.close()
     
     async def anim_watcher_task(self):
         with self.daemon.mqtt.report_messages() as report_queue:
@@ -110,6 +137,38 @@ class LedStripDriver():
             if ph > 1:
                 ph -= 1
             await asyncio.sleep(0.05)
+
+###############
+
+class LedStripGpio(Gpio):
+    def __init__(self, ledstrip, pin, attr):
+        # pin: 1 << x
+        self.ledstrip = ledstrip
+        self.pin = pin
+        self.attr = attr
+    
+    @property
+    def attributes(self):
+        return self.attr
+    
+    def output(self, val):
+        self.ledstrip.gpio_dir |= self.pin
+        if val:
+            self.ledstrip.gpio_out |= self.pin
+        else:
+            self.ledstrip.gpio_out &= ~self.pin
+        self.ledstrip.update_gpio()
+    
+    def tristate(self):
+        self.ledstrip.gpio_dir &= ~self.pin
+        self.ledstrip.update_gpio()
+    
+    def read(self):
+        self.ledstrip.ftdi.write_data(bytes([Ftdi.GET_BITS_LOW, Ftdi.SEND_IMMEDIATE]))
+        data = self.ledstrip.ftdi.read_data_bytes(1, 4)
+        if len(data) != 1:
+            raise IOError('FTDI did not read bytes back')
+        return (data[0] & self.pin) == self.pin
 
 ###############
 
