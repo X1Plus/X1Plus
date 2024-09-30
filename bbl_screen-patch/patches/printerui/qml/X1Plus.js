@@ -181,12 +181,6 @@ X1Plus.DBus.registerMethod("getStatus", (param) => {
   console.log(PrintManager);
 	param["stage"] = PrintManager.currentTask.stage;
 	param["state"] = PrintManager.currentTask.state;
-	param["tip_cur_temp"] = X1Plus.PrintManager.heaters.hotend.currentTemp;
-	param["tip_target_temp"] = X1Plus.PrintManager.heaters.hotend.targetTemp;
-	param["bed_cur_temp"] = X1Plus.PrintManager.heaters.heatbed.currentTemp;
-	param["bed_target_temp"] = X1Plus.PrintManager.heaters.heatbed.targetTemp;
-	param["chamber_cur_temp"] = X1Plus.PrintManager.heaters.chamber.currentTemp;
-	param["chamber_target_temp"] = X1Plus.PrintManager.heaters.chamber.targetTemp;
 	return param;
 });
 X1Plus.DBus.registerMethod("polarPrintGcode", (param) => {

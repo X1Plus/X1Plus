@@ -343,17 +343,8 @@ class PolarPrintService(X1PlusDBusService):
         # should actually decode next line, but I'm in a hurry.
         stage_and_state_json = str(stage_and_state).split("string ")[1][1:-2]
         output = loads(stage_and_state_json)
-        task_state = output["state"]
-        task_stage = output["stage"]
-        for temp in [
-            "tip_cur_temp",
-            "tip_target_temp",
-            "bed_cur_temp",
-            "bed_target_temp",
-            "chamber_cur_temp",
-            "chamber_target_temp",
-        ]:
-            self.temps[temp] = output[temp]
+        task_state = output["state"] # self.daemon.mqtt.get("gcode_state", )
+        task_stage = output["stage"] # self.daemon.mqtt.get("mc_print_stage", )
         logger.debug(
             f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
@@ -410,6 +401,9 @@ class PolarPrintService(X1PlusDBusService):
         """
         capture_image = True
         while True:
+            logger.info("mqtt latest print status:")
+            for k, v in self.daemon.mqtt.latest_print_status.items():
+                logger.info(f"{k}: {v}")
             await self._status_update()
             # self.daemon.settings.on("status", lambda:self._status_update)
             if not self.is_connected:
@@ -418,14 +412,17 @@ class PolarPrintService(X1PlusDBusService):
                 # Don't do extra status updates.
                 return
             data = {
-                "tool0": self.temps["tip_cur_temp"],
-                "bed": self.temps["bed_cur_temp"],
-                "chamber": self.temps["chamber_cur_temp"],
-                "targetTool0": self.temps["tip_target_temp"],
-                "targetBed": self.temps["bed_target_temp"],
-                "targetChamber": self.temps["chamber_target_temp"],
+                "tool0": self.daemon.mqtt.latest_print_status.get("nozzle_temper", "0"),
+                "bed": self.daemon.mqtt.latest_print_status.get("bed_temper", "0"),
+                "chamber": self.daemon.mqtt.latest_print_status.get("chamber_temper", "0"),
+                "targetTool0": self.daemon.mqtt.latest_print_status.get("nozzle_target_temper", "0"),
+                "targetBed": self.daemon.mqtt.latest_print_status.get("bed_target_temper", "0"),
+                # "targetChamber": self.daemon.mqtt.latest_print_status.get("", "0"), # isn't in mqtt?
                 "serialNumber": self.daemon.settings.get("polar.sn"),
                 "status": self.status,
+                "startTime": self.daemon.mqtt.latest_print_status.get('mc_remaining_time', 0),
+                "estimatedTime": self.daemon.mqtt.latest_print_status.get('mc_remaining_time', 0),
+                # "printSeconds":
             }
             try:
                 await self.socket.emit("status", data)
@@ -433,22 +430,24 @@ class PolarPrintService(X1PlusDBusService):
                     f"Polar status update {self.status} {datetime.datetime.now()}"
                 )
                 self.last_ping = datetime.datetime.now()
-                if capture_image == True:
-                    # Capture and upload a new image every other status update.
-                    self.capture_frames(
-                        device_path="/dev/video20",
-                        output_dir="ipcam",
-                        num_frames=1,
-                        interval=1,
-                    )
-                    if self.status in [0, 8, 9, 10, 15]:
-                        # In these cases send idle image.
-                        # (Todo: are these all the cases for idle?)
-                        await self._upload_jpeg("idle")
-                    elif self.status != 11:
-                        await self._upload_jpeg("printing")
-                # Next time through loop it will capture (or not).
-                capture_image = not capture_image
+                # Todo: turn capture_image back on.
+                # if capture_image == True:
+                #     # Capture and upload a new image every other status update.
+                #     self.capture_frames(
+                #         device_path="/dev/video20",
+                #         output_dir="ipcam",
+                #         num_frames=1,
+                #         interval=1,
+                #     )
+                #     # Todo: turn upload jpeg back on.
+                #     # if self.status in [0, 8, 9, 10, 15]:
+                #     #     # In these cases send idle image.
+                #     #     # (Todo: are these all the cases for idle?)
+                #     #     await self._upload_jpeg("idle")
+                #     # elif self.status != 11:
+                #     #     await self._upload_jpeg("printing")
+                # # Next time through loop it will capture (or not).
+                # capture_image = not capture_image
 
             except Exception as e:
                 logger.error(f"emit status failed: {e}")
@@ -487,8 +486,8 @@ class PolarPrintService(X1PlusDBusService):
             # get a new one.
             await self._get_url(which_state)
         # Now do actual upload.
-        logger.debug(f"Polar AWS form data {this_vars['form_data']}")
-        logger.debug(f"Polar curl call {this_vars['curl_call']}")
+        # logger.debug(f"Polar AWS form data {this_vars['form_data']}")
+        # logger.debug(f"Polar curl call {this_vars['curl_call']}")
         response_data = subprocess.run(this_vars["curl_call"], capture_output=True, shell=True).stdout.strip()
         # async with aws_http_session.post(this_vars["url"], data=this_vars["form_data"]) as response:
         #     # Process the response
@@ -582,17 +581,19 @@ class PolarPrintService(X1PlusDBusService):
             return
         # Todo: add recovery here if still printing.
 
-        if "gcodeFile" not in data:
-            logger.error("PolarCloud sent non-gcode file.")
-            await self._job("canceled")
-            return
-        logger.info(f"Polar print incoming data: {data}")
+        # if "gcodeFile" not in data:
+        #     logger.error("PolarCloud sent non-gcode file.")
+        #     await self._job("canceled")
+        #     return
+        logger.info("")
+        logger.info(f"*** Polar print incoming data: {data}")
+        logger.info("")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
-        plate_name = data["name"]
+        # plate_name = data["name"]
         file_name = data["jobName"]
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
-        self._printer_action("gcode_file", location, plate_name)
+        # self._printer_action("gcode_file", location, plate_name)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -718,10 +719,10 @@ class PolarPrintService(X1PlusDBusService):
         we need the print_file name and the plate to print.
         """
         logger.info(f"Polar _printer_action {which_action} {print_file}")
-        logger.debug(
-            'Polar dbus json string: string: '
+        logger.info(
+            '\n\n***\nPolar dbus json string: string: '
             f'\'{{"filePath": "{print_file}", "action": "{which_action}", '
-            f'"plate": "{plate_name}.gcode"}}\''
+            f'"plate": "{plate_name}.gcode"}}\'\n**\n\n'
         )
         if print_file.endswith("3mf"):
             dbus_call = [
