@@ -168,11 +168,13 @@ class LedStripGpio(Gpio):
         self.ledstrip.update_gpio()
     
     def read(self):
+        # XXX: probably should cache reads some
         self.ledstrip.ftdi.write_data(bytes([Ftdi.GET_BITS_LOW, Ftdi.SEND_IMMEDIATE]))
         data = self.ledstrip.ftdi.read_data_bytes(1, 4)
         if len(data) != 1:
             raise IOError('FTDI did not read bytes back')
-        return (data[0] & self.pin) == self.pin
+        inverted = self.attr.get('inverted', False)
+        return ((data[0] & self.pin) == self.pin) ^ inverted
 
 ###############
 

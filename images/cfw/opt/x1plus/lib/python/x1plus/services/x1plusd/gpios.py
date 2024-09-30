@@ -179,6 +179,14 @@ class GpioManager:
         self.gpios.add(gpio)
         logger.info(f"registered GPIO with attributes {gpio.attributes}")
         
+        if 'default' in gpio.attributes:
+            if gpio.attributes['default'] == 1 or gpio.attributes['default'] == True:
+                gpio.output(1)
+            elif gpio.attributes['default'] == 0 or gpio.attributes['default'] == False:
+                gpio.output(0)
+            else:
+                gpio.tristate()
+        
         def _on_change(newstate):
             for (match, callback) in self.event_handlers:
                 if gpio.matches(match):
@@ -266,17 +274,42 @@ async def _action_gpio(handler, subconfig):
         raise ValueError(f"gpio parameter did not have action key")
     if 'gpio' not in subconfig or type(subconfig['gpio']) != dict:
         raise ValueError(f"gpio parameter did not have gpio key or key was not dict")
+
     if subconfig['action'] == 'on':
         handler.daemon.gpios.on(**subconfig['gpio'])
+
     elif subconfig['action'] == 'off':
         handler.daemon.gpios.off(**subconfig['gpio'])
+
     elif subconfig['action'] == 'tristate':
         handler.daemon.gpios.tristate(**subconfig['gpio'])
+
     elif subconfig['action'] == 'pulse':
         duration = float(subconfig['duration'])
         handler.daemon.gpios.on(**subconfig['gpio'])
         await asyncio.sleep(duration)
         handler.daemon.gpios.off(**subconfig['gpio'])
+
+    elif subconfig['action'] == 'wait':
+        # maybe it is already in the state that we hoped for?
+        try:
+            if handler.daemon.gpios.read(**subconfig['gpio']) == subconfig['value']:
+                return
+        except KeyError:
+            # could be that there was no 'value'; could be that there were
+            # too many gpios that matched; either of those is ok, and now we
+            # just wait for the event
+            pass
+        
+        ev = asyncio.Event()
+        def _callback(gpio, newvalue):
+            if newvalue == subconfig.get('value', newvalue):
+                ev.set()
+        with handler.daemon.gpios.on_event(subconfig['gpio'], _callback):
+            try:
+                await asyncio.wait_for(ev.wait(), subconfig.get('timeout', None))
+            except TimeoutError:
+                logger.info(f"action timed out waiting for gpio {subconfig['gpio']}")
+
     else:
         raise ValueError(f"unknown gpio action {subconfig['action']}")
-    # to implement: action: wait
