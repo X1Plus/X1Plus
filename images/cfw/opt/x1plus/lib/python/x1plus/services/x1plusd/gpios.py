@@ -123,6 +123,7 @@ class GpioManager:
         self.gpio_poll_state = {}
         self.polling_gpios = set()
         self.poll_task = None
+        self.action_task = None
         self.event_handlers = []
         
         if self.daemon.settings.get("gpio.mock", False):
@@ -131,6 +132,9 @@ class GpioManager:
             self.register(MockGpio("mock_3", { "type": "mock", "gpio": "3" }))
             self.register(MockGpio("mock_4", { "type": "mock", "gpio": "4" }))
             self.on_event({"function": "button"}, lambda gpio, value: logger.info(f"gpio {gpio} changed to value {value}!"))
+        
+        self.daemon.settings.on("gpio.actions", self._update_action_settings)
+        self._update_action_settings()
     
     def find(self, **kwargs):
         return set(filter(lambda gpio: gpio.matches(kwargs), self.gpios))
@@ -236,6 +240,57 @@ class GpioManager:
                 self.event_handlers.remove(handler_entry)
                 self._update_poll_task()
         return _mkctx()
+
+    def _update_action_settings(self):
+        actions = self.daemon.settings.get("gpio.actions", [])
+        if type(actions) != list:
+            logger.error("gpio.actions was not a list?")
+            return
+        
+        # If a gpio.action is in progress, it will also be canceled!
+        if self.action_task:
+            self.action_task.cancel()
+            self.action_task = None
+        
+        if len(actions) == 0: 
+            # no actions, nothing to do
+            return
+        
+        async def _action_worker():
+            with contextlib.ExitStack() as stack:
+                action_queue = asyncio.Queue()
+                
+                # set up all the things that could push actions into the Queue
+                for gpio_action in actions:
+                    # callback for each individual gpio action in the
+                    # setting list, dispatches by 'event' type
+                    def _handle(gpio, newvalue,gpio_action=gpio_action):
+                        should_trigger = False
+                        if gpio_action.get('event', 'change') == 'change': # if not otherwise specified
+                            should_trigger = True
+                        elif gpio_action['event'] == 'rising':
+                            if newvalue:
+                                should_trigger = True
+                        elif gpio_action['event'] == 'falling':
+                            if not newvalue:
+                                should_trigger = True
+                        else:
+                            # TODO: short, long
+                            logger.error(f"gpio.action {gpio_action} has unknown event type!")
+                        
+                        if should_trigger:
+                            logger.info(f"gpio.actions {gpio_action} fired on gpio {gpio} with value {newvalue}")
+                            action_queue.put_nowait(gpio_action['action'])
+                    
+                    # tear down all callbacks when the action worker is canceled
+                    stack.enter_context(self.on_event(gpio_action['gpio'], _handle))
+                
+                # now execute actions as they come
+                while True:
+                    action = await action_queue.get()
+                    await self.daemon.actions.execute(action)
+        
+        self.action_task = asyncio.create_task(_action_worker())
     
     # convenience wrappers around find and output/tristate/read
     def output(self, on, **kwargs):
