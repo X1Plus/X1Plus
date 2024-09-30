@@ -153,6 +153,7 @@ class LedStripGpio(Gpio):
         self.ledstrip = ledstrip
         self.pin = pin
         self.attr = attr
+        super().__init__()
     
     @property
     def attributes(self):

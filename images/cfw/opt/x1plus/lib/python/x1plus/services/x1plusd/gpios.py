@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import asyncio
 import contextlib
 import logging
+import time
 
 from . import actions
 
@@ -11,6 +12,7 @@ class Gpio(ABC):
     def __init__(self):
         super().__init__()
         self.on_change = None
+        self.press_time = None
     
     @property
     @abstractmethod
@@ -116,6 +118,7 @@ class GpioManager:
     """
     
     POLLING_INTERVAL_MS = 50
+    LONG_PRESS_THRESHOLD_MS = 850
 
     def __init__(self, daemon):
         self.daemon = daemon
@@ -192,6 +195,8 @@ class GpioManager:
                 gpio.tristate()
         
         def _on_change(newstate):
+            if newstate:
+                gpio.press_time = time.time()
             for (match, callback) in self.event_handlers:
                 if gpio.matches(match):
                     callback(gpio, newstate)
@@ -274,8 +279,14 @@ class GpioManager:
                         elif gpio_action['event'] == 'falling':
                             if not newvalue:
                                 should_trigger = True
+                        elif gpio_action['event'] == 'short_press' or gpio_action['event'] == 'long_press':
+                            if not newvalue and gpio.press_time:
+                                press_duration = time.time() - gpio.press_time
+                                if gpio_action['event'] == 'short_press' and press_duration < self.LONG_PRESS_THRESHOLD_MS / 1000:
+                                    should_trigger = True
+                                elif gpio_action['event'] == 'long_press' and press_duration > self.LONG_PRESS_THRESHOLD_MS / 1000:
+                                    should_trigger = True
                         else:
-                            # TODO: short, long
                             logger.error(f"gpio.action {gpio_action} has unknown event type!")
                         
                         if should_trigger:
