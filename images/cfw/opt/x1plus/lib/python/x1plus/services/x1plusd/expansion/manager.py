@@ -70,6 +70,7 @@ class ExpansionManager(X1PlusDBusService):
 
         self.eeproms = {}
         self.drivers = {}
+        self.ftdi_nports = 0
 
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.

@@ -177,18 +177,6 @@ X1Plus.DBus.registerMethod("ping", (param) => {
 	param["pong"] = "from QML";
 	return param;
 });
-X1Plus.DBus.registerMethod("getStatus", (param) => {
-  console.log(PrintManager);
-	param["stage"] = PrintManager.currentTask.stage;
-	param["state"] = PrintManager.currentTask.state;
-	return param;
-});
-X1Plus.DBus.registerMethod("polarPrintGcode", (param) => {
-	DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
-	console.log("[x1p] Print:" + param["action"] + ": ");
-	param["finished"] = "Print " + param["action"] + ".";
-	return param;
-});
 X1Plus.DBus.onSignal("x1plus.screen", "log", (param) => console.log(param.text));
 X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	console.log("trying an RPC to x1plus hello daemon");
@@ -196,11 +184,17 @@ X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	param["resp"] = f("hello");
 	return param;
 });
+X1Plus.DBus.registerMethod("polarPrintGcode", (param) => {
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
+  console.log("[x1p] Print:" + param["action"] + ": ");
+  param["finished"] = "Print " + param["action"] + ".";
+  return param;
+});
 X1Plus.DBus.registerMethod("polarPrint3mf", (param) => {
   DDS.publish("device/request/print", {
     "sequence_id": "0",
     "command": "project_file",
-    "param": "Metadata/" + param["plate"],
+    "param": "Metadata/plate_1.gcode",
     "project_id": "0", // Always 0 for local prints
     "profile_id": "0", // Always 0 for local prints
     "task_id": "0", // Always 0 for local prints

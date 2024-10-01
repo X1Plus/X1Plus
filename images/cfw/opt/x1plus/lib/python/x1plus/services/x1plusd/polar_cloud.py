@@ -63,7 +63,6 @@ class PolarPrintService(X1PlusDBusService):
         self.socket = None
         self.status = 0  # Idle
         self.job_id = "123"  # Defaults to serial if Polar Cloud hasn't sent anything.
-        self.temps = {}  # Will hold six temp values. Set in _status_update().
         """
         self.downloading will allow me to update status when printer doesn't realize
         it's busy.
@@ -87,6 +86,21 @@ class PolarPrintService(X1PlusDBusService):
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
+        # status_lookup will be used in _status_update() to interpret job states
+        # coming from mqtt.
+        self.status_lookup = {
+            "IDLE": 0,
+            "SLICING": 1,
+            "PREPARE": 2,
+            "RUNNING": 3,
+            "FINISH": 4,
+            "FAILED": 5,
+            "PAUSE": 6,
+        }
+        self.start_time = datetime.datetime.now() # Start time for each print job.
+        # How long the job will take in seconds. This is set in _status_() and
+        # reset in _job().
+        self.estimated_print_time = 0
         """
         Next two variables are for sending camera images to Polar Cloud. None of
         this should be persistent, especially the urls, since they expire, so all
@@ -124,8 +138,8 @@ class PolarPrintService(X1PlusDBusService):
             logger.debug(f"Polar socket connection failed: {e}")
             return
         logger.info("Polar socket created!")
-        self._get_url("idle")
-        self._get_url("printing")
+        await self._get_url("idle")
+        await self._get_url("printing")
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -329,22 +343,8 @@ class PolarPrintService(X1PlusDBusService):
         Several of these output states will be ignored for now.
         Todo: 15 **really, really** needs to be dealt with.
         """
-        # This is a total ugly hack.
-        dbus_call = [
-            "dbus-send",
-            "--system",
-            "--print-reply",
-            "--dest=bbl.service.screen",
-            "/bbl/service/screen",
-            "bbl.screen.x1plus.getStatus",
-            'string: {"text": "hello"}',
-        ]
-        stage_and_state = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-        # should actually decode next line, but I'm in a hurry.
-        stage_and_state_json = str(stage_and_state).split("string ")[1][1:-2]
-        output = loads(stage_and_state_json)
-        task_state = output["state"] # self.daemon.mqtt.get("gcode_state", )
-        task_stage = output["stage"] # self.daemon.mqtt.get("mc_print_stage", )
+        task_state = self.status_lookup[self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")]
+        task_stage = self.daemon.mqtt.latest_print_status.get("mc_print_stage", )
         logger.debug(
             f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
@@ -401,28 +401,29 @@ class PolarPrintService(X1PlusDBusService):
         """
         capture_image = True
         while True:
-            logger.info("mqtt latest print status:")
-            for k, v in self.daemon.mqtt.latest_print_status.items():
-                logger.info(f"{k}: {v}")
             await self._status_update()
-            # self.daemon.settings.on("status", lambda:self._status_update)
             if not self.is_connected:
                 return
+            if self.daemon.mqtt.latest_print_status.get("mc_percent", 100) < 5:
+                # At this point we can guess the total print time. It'll possibly
+                # be off by a little. But the mqtt doesn't have a value for total
+                # time that I can find.
+                self.estimated_print_time = self.daemon.mqtt.latest_print_status.get('mc_remaining_time', 0)
             if (datetime.datetime.now() - self.last_ping).total_seconds() <= 5:
                 # Don't do extra status updates.
                 return
             data = {
-                "tool0": self.daemon.mqtt.latest_print_status.get("nozzle_temper", "0"),
-                "bed": self.daemon.mqtt.latest_print_status.get("bed_temper", "0"),
-                "chamber": self.daemon.mqtt.latest_print_status.get("chamber_temper", "0"),
-                "targetTool0": self.daemon.mqtt.latest_print_status.get("nozzle_target_temper", "0"),
-                "targetBed": self.daemon.mqtt.latest_print_status.get("bed_target_temper", "0"),
+                "tool0": self.daemon.mqtt.latest_print_status.get("nozzle_temper", 0),
+                "bed": self.daemon.mqtt.latest_print_status.get("bed_temper", 0),
+                "chamber": self.daemon.mqtt.latest_print_status.get("chamber_temper", 0),
+                "targetTool0": self.daemon.mqtt.latest_print_status.get("nozzle_target_temper", 0),
+                "targetBed": self.daemon.mqtt.latest_print_status.get("bed_target_temper", 0),
                 # "targetChamber": self.daemon.mqtt.latest_print_status.get("", "0"), # isn't in mqtt?
                 "serialNumber": self.daemon.settings.get("polar.sn"),
                 "status": self.status,
-                "startTime": self.daemon.mqtt.latest_print_status.get('mc_remaining_time', 0),
-                "estimatedTime": self.daemon.mqtt.latest_print_status.get('mc_remaining_time', 0),
-                # "printSeconds":
+                "startTime": self.start_time.isoformat(),
+                "estimatedTime": self.estimated_print_time,
+                "printSeconds": (datetime.datetime.now() - self.start_time).total_seconds()
             }
             try:
                 await self.socket.emit("status", data)
@@ -564,6 +565,8 @@ class PolarPrintService(X1PlusDBusService):
             # "printSeconds": integer,              // integer, optional
             # "filamentUsed": integer               // integer, optional
         }
+        self.start_time = datetime.datetime.now()
+        self.estimated_print_time = 0
         # I can reset job_id here because I only call _job() when a job
         # has completed.
         self.job_id = "123"
@@ -581,19 +584,15 @@ class PolarPrintService(X1PlusDBusService):
             return
         # Todo: add recovery here if still printing.
 
-        # if "gcodeFile" not in data:
-        #     logger.error("PolarCloud sent non-gcode file.")
-        #     await self._job("canceled")
-        #     return
         logger.info("")
         logger.info(f"*** Polar print incoming data: {data}")
         logger.info("")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
-        # plate_name = data["name"]
         file_name = data["jobName"]
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
-        # self._printer_action("gcode_file", location, plate_name)
+        self.start_time = datetime.datetime.now()
+        self._printer_action("gcode_file", location)
 
     async def _download_file(self, path, file, url):
         """Adapted/stolen from ota.py. Maybe could move to utils?"""
@@ -695,7 +694,7 @@ class PolarPrintService(X1PlusDBusService):
             logger.error(f"Polar get_url failed: {data['message']}")
         else:
             logger.error("Polar get_url failed wrong serial number.")
-        logger.info(f"\nPolar S3 info \n{data['fields']}\n\n")
+        # logger.info(f"\nPolar S3 info \n{data['fields']}\n\n")
 
     async def _get_url(self, idle_or_print="printing"):
         """
@@ -713,7 +712,7 @@ class PolarPrintService(X1PlusDBusService):
         }
         await self.socket.emit("getUrl", request_data)
 
-    def _printer_action(self, which_action, print_file="", plate_name="") -> None:
+    def _printer_action(self, which_action, print_file="") -> None:
         """
         Make dbus call to print, pause, cancel, resume. If printing a 3mf file
         we need the print_file name and the plate to print.
@@ -721,8 +720,7 @@ class PolarPrintService(X1PlusDBusService):
         logger.info(f"Polar _printer_action {which_action} {print_file}")
         logger.info(
             '\n\n***\nPolar dbus json string: string: '
-            f'\'{{"filePath": "{print_file}", "action": "{which_action}", '
-            f'"plate": "{plate_name}.gcode"}}\'\n**\n\n'
+            f'\'{{"filePath": "{print_file}", "action": "{which_action}"}}\'\n**\n\n'
         )
         if print_file.endswith("3mf"):
             dbus_call = [
@@ -732,7 +730,7 @@ class PolarPrintService(X1PlusDBusService):
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
                 "bbl.screen.x1plus.PolarPrint3mf",
-                f'string: {{"filePath": "{print_file}", "action": "{which_action}", "plate": "{plate_name}.gcode"}}',
+                f'string: {{"filePath": "{print_file}"}}',
 
             ]
             done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
