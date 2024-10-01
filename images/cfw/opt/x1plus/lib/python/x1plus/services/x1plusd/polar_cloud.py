@@ -588,7 +588,7 @@ class PolarPrintService(X1PlusDBusService):
         logger.info(f"*** Polar print incoming data: {data}")
         logger.info("")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
-        file_name = data["jobName"]
+        file_name = data["jobName"].replace(" ", "_")
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
         self.start_time = datetime.datetime.now()
@@ -729,8 +729,8 @@ class PolarPrintService(X1PlusDBusService):
                 "--print-reply",
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
-                "bbl.screen.x1plus.PolarPrint3mf",
-                f'string: {{"filePath": "{print_file}"}}',
+                "bbl.screen.x1plus.print3mf",
+                f'string:\'{{"filePath": "{print_file}"}}\'',
 
             ]
             done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
@@ -741,7 +741,7 @@ class PolarPrintService(X1PlusDBusService):
                 "--print-reply",
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
-                "bbl.screen.x1plus.polarPrintGcode",
+                "bbl.screen.x1plus.printGcodeFile",
                 f'string: {{"filePath": "{print_file}", "action": "{which_action}"}}',
             ]
             done = subprocess.run(dbus_call, capture_output=True).stdout.strip()

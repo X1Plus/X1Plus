@@ -184,13 +184,15 @@ X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	param["resp"] = f("hello");
 	return param;
 });
-X1Plus.DBus.registerMethod("polarPrintGcode", (param) => {
+X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
+  console.log("Print gcode file: " + param["filePath"]);
   DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
   console.log("[x1p] Print:" + param["action"] + ": ");
   param["finished"] = "Print " + param["action"] + ".";
   return param;
 });
-X1Plus.DBus.registerMethod("polarPrint3mf", (param) => {
+X1Plus.DBus.registerMethod("print3mf", (param) => {
+  console.log("Print 3mf: " + param["filePath"]);
   DDS.publish("device/request/print", {
     "sequence_id": "0",
     "command": "project_file",
@@ -205,7 +207,7 @@ X1Plus.DBus.registerMethod("polarPrint3mf", (param) => {
     //"ftp:///myfile.3mf", "ftp:///cache/myotherfile.3mf"
     "url": "file:///mnt" + param["filePath"],
     "md5": "",
-    "timelapse": true,
+    "timelapse": false,
     "bed_type": "auto", // Always "auto" for local prints
     "bed_levelling": true,
     "flow_cali": true,
@@ -214,7 +216,6 @@ X1Plus.DBus.registerMethod("polarPrint3mf", (param) => {
     "ams_mapping": "",
     "use_ams": false
   });
-  console.log("Polar print3mf: " + param["filePath"]);
-  param["finished"] = "Polar print3mf " + param["filePath"];
+  param["finished"] = "Print 3mf " + param["filePath"];
   return param;
 });
