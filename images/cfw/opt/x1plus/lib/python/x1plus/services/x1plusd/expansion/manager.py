@@ -70,6 +70,9 @@ class ExpansionManager(X1PlusDBusService):
 
         self.eeproms = {}
         self.drivers = {}
+        self.ftdi_nports = 0
+        self.ftdi_path = None
+        self.last_configs = {}
 
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
@@ -118,6 +121,9 @@ class ExpansionManager(X1PlusDBusService):
         await super().task()
     
     def _update_drivers(self):
+        if not self.expansion:
+            return
+
         # Workaround https://github.com/eblot/pyftdi/issues/261 by resetting
         # all drivers on the FTDI every time.
         did_change = False
