@@ -184,13 +184,22 @@ X1Plus.DBus.registerMethod("TryRpc", (param) => {
 	param["resp"] = f("hello");
 	return param;
 });
-X1Plus.DBus.registerMethod("printGcodeFile", (param) => {
+X1Plus.DBus.registerMethod("polarPrintGcode", (param) => {
   console.log("Print gcode file: " + param["filePath"]);
   DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": param["filePath"] });
   console.log("[x1p] Print:" + param["action"] + ": ");
   param["finished"] = "Print " + param["action"] + ".";
   return param;
 });
+/*
+X1Plus.DBus.registerMethod("printPauseStop", (param) => {
+  console.log("Printer action: " + param["action"]);
+  DDS.publish("device/request/print", { "sequence_id": "0", "command": param["action"], "param": "" });
+  console.log("[x1p] Print:" + param["action"] + ": ");
+  param["finished"] = "Print " + param["action"] + ".";
+  return param;
+});
+*/
 X1Plus.DBus.registerMethod("print3mf", (param) => {
   console.log("Print 3mf: " + param["filePath"]);
   DDS.publish("device/request/print", {

@@ -97,7 +97,7 @@ class PolarPrintService(X1PlusDBusService):
             "FAILED": 5,
             "PAUSE": 6,
         }
-        self.start_time = datetime.datetime.now() # Start time for each print job.
+        self.start_time = datetime.datetime.now()  # Start time for each print job.
         # How long the job will take in seconds. This is set in _status_() and
         # reset in _job().
         self.estimated_print_time = 0
@@ -107,8 +107,16 @@ class PolarPrintService(X1PlusDBusService):
         saved as instance vars. The first set is for sending images while printing,
         the second set for printing when idle.
         """
-        self.printing_cam_stream = {"expiration_time": time.time(), "form_data": dict(), "curl_call": ""}
-        self.idle_cam_stream = {"expiration_time": time.time(), "form_data": dict(), "curl_call": ""}
+        self.printing_cam_stream = {
+            "expiration_time": time.time(),
+            "form_data": dict(),
+            "curl_call": "",
+        }
+        self.idle_cam_stream = {
+            "expiration_time": time.time(),
+            "form_data": dict(),
+            "curl_call": "",
+        }
         super().__init__(
             router=router,
             dbus_interface=POLAR_INTERFACE,
@@ -343,8 +351,12 @@ class PolarPrintService(X1PlusDBusService):
         Several of these output states will be ignored for now.
         Todo: 15 **really, really** needs to be dealt with.
         """
-        task_state = self.status_lookup[self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")]
-        task_stage = self.daemon.mqtt.latest_print_status.get("mc_print_stage", )
+        task_state = self.status_lookup[
+            self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
+        ]
+        task_stage = self.daemon.mqtt.latest_print_status.get(
+            "mc_print_stage",
+        )
         logger.debug(
             f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
@@ -408,22 +420,32 @@ class PolarPrintService(X1PlusDBusService):
                 # At this point we can guess the total print time. It'll possibly
                 # be off by a little. But the mqtt doesn't have a value for total
                 # time that I can find.
-                self.estimated_print_time = self.daemon.mqtt.latest_print_status.get('mc_remaining_time', 0)
+                self.estimated_print_time = self.daemon.mqtt.latest_print_status.get(
+                    "mc_remaining_time", 0
+                )
             if (datetime.datetime.now() - self.last_ping).total_seconds() <= 5:
                 # Don't do extra status updates.
                 return
             data = {
                 "tool0": self.daemon.mqtt.latest_print_status.get("nozzle_temper", 0),
                 "bed": self.daemon.mqtt.latest_print_status.get("bed_temper", 0),
-                "chamber": self.daemon.mqtt.latest_print_status.get("chamber_temper", 0),
-                "targetTool0": self.daemon.mqtt.latest_print_status.get("nozzle_target_temper", 0),
-                "targetBed": self.daemon.mqtt.latest_print_status.get("bed_target_temper", 0),
+                "chamber": self.daemon.mqtt.latest_print_status.get(
+                    "chamber_temper", 0
+                ),
+                "targetTool0": self.daemon.mqtt.latest_print_status.get(
+                    "nozzle_target_temper", 0
+                ),
+                "targetBed": self.daemon.mqtt.latest_print_status.get(
+                    "bed_target_temper", 0
+                ),
                 # "targetChamber": self.daemon.mqtt.latest_print_status.get("", "0"), # isn't in mqtt?
                 "serialNumber": self.daemon.settings.get("polar.sn"),
                 "status": self.status,
                 "startTime": self.start_time.isoformat(),
                 "estimatedTime": self.estimated_print_time,
-                "printSeconds": (datetime.datetime.now() - self.start_time).total_seconds()
+                "printSeconds": (
+                    datetime.datetime.now() - self.start_time
+                ).total_seconds(),
             }
             try:
                 await self.socket.emit("status", data)
@@ -489,7 +511,9 @@ class PolarPrintService(X1PlusDBusService):
         # Now do actual upload.
         # logger.debug(f"Polar AWS form data {this_vars['form_data']}")
         # logger.debug(f"Polar curl call {this_vars['curl_call']}")
-        response_data = subprocess.run(this_vars["curl_call"], capture_output=True, shell=True).stdout.strip()
+        response_data = subprocess.run(
+            this_vars["curl_call"], capture_output=True, shell=True
+        ).stdout.strip()
         # async with aws_http_session.post(this_vars["url"], data=this_vars["form_data"]) as response:
         #     # Process the response
         #     response_data = await response.text()
@@ -588,20 +612,33 @@ class PolarPrintService(X1PlusDBusService):
         logger.info(f"*** Polar print incoming data: {data}")
         logger.info("")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
-        file_name = data["jobName"].replace(" ", "_")
+        # Get extension from url, then make sure the file name has the correct
+        # extension. If extension is missing print will fail.
+        file_name = data["jobName"]
+        extension = os.path.splitext(data["gcodeFile"])[1]
+        logger.info(f"Polar print file extension: {extension}")
+        printer_action = "gcode_file"
+        if extension == ".3mf":
+            printer_action = "3mf_file"
+        if not file_name.endswith(extension):
+            file_name += extension
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
         self.start_time = datetime.datetime.now()
-        self._printer_action("gcode_file", location)
+        self._printer_action(printer_action, location)
 
-    async def _download_file(self, path, file, url):
-        """Adapted/stolen from ota.py. Maybe could move to utils?"""
+    async def _download_file(self, path, file_name, url):
+        """
+        Adapted/stolen from ota.py. Maybe could move to utils?
+        `path` is the path to write to. `file_name` is the file name of the
+        saved file. `url` is the url of the upstream file.
+        """
         try:
             try:
                 os.mkdir(path)
             except:
                 logger.error(f"Polar _download_file. {path} already exists.")
-            dest = os.path.join(path, file)
+            dest = os.path.join(path, file_name)
             logger.info("Polar _download_file")
             logger.debug(f"Polar downloading {url} to {dest}")
             download_bytes = 0
@@ -687,7 +724,7 @@ class PolarPrintService(X1PlusDBusService):
             for k, v in data["fields"].items():
                 curl_list += ["-F", f"'{k}={v}'"]
             curl_list += ["-F", "'file=@/sdcard/ipcam/frame_0.jpg;type=image/jpeg'"]
-            curl_list.append(f"'{data["url"]}'")
+            curl_list.append(f'\'{data["url"]}\'')
             cam_dict["curl_call"] = " ".join(curl_list)
         # Todo: need to deal with failures on these two:
         elif data["message"] == "FAILED":
@@ -718,11 +755,11 @@ class PolarPrintService(X1PlusDBusService):
         we need the print_file name and the plate to print.
         """
         logger.info(f"Polar _printer_action {which_action} {print_file}")
-        logger.info(
-            '\n\n***\nPolar dbus json string: string: '
-            f'\'{{"filePath": "{print_file}", "action": "{which_action}"}}\'\n**\n\n'
-        )
-        if print_file.endswith("3mf"):
+        # logger.info(
+        #     "Polar dbus json string: "
+        #     f'\'{{"filePath":"{print_file}","action":"{which_action}"}}\''
+        # )
+        if which_action == "3mf_file":
             dbus_call = [
                 "dbus-send",
                 "--system",
@@ -730,22 +767,23 @@ class PolarPrintService(X1PlusDBusService):
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
                 "bbl.screen.x1plus.print3mf",
-                f'string:\'{{"filePath": "{print_file}"}}\'',
-
+                f'string:\'{{"filePath":"{print_file}"}}\'',
             ]
-            done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
         else:
+            # Print gcode, resume, pause, stop.
             dbus_call = [
                 "dbus-send",
                 "--system",
                 "--print-reply",
                 "--dest=bbl.service.screen",
                 "/bbl/service/screen",
-                "bbl.screen.x1plus.printGcodeFile",
-                f'string: {{"filePath": "{print_file}", "action": "{which_action}"}}',
+                "bbl.screen.x1plus.polarPrintGcode",
+                f'string:\'{{"filePath":"{print_file}","action":"{which_action}"}}\'',
             ]
-            done = subprocess.run(dbus_call, capture_output=True).stdout.strip()
-        logger.debug(done)
+        done = subprocess.run(dbus_call, capture_output=True, text=True).stdout.strip()
+        logger.info("\nPolar dbus call:")
+        logger.info(" ".join(dbus_call) + "\n")
+        logger.debug(done.decode("utf-8"))
 
     def _set_interface(self) -> None:
         """
@@ -767,7 +805,9 @@ class PolarPrintService(X1PlusDBusService):
         else:
             return utils_sn()
 
-    def capture_frames(self, device_path="/dev/video20", output_dir="ipcam", num_frames=10, interval=2):
+    def capture_frames(
+        self, device_path="/dev/video20", output_dir="ipcam", num_frames=10, interval=2
+    ):
         """
         Capture num_frames single frame images from camera at interval of `interval`
         seconds and save to /sdcard/ipcam directory.
