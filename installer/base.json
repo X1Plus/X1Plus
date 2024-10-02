@@ -21,9 +21,9 @@
         "xm": { "version": "00.01.02.02", "paths": {
             "": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/xm/00.01.02.02/product/xm_v00.01.02.02-20230328103404_product.rknn.sig", "md5": "50c4487de44fec31d63dd8f8c3464446" }
         } },
-        "ams": { "version": "00.00.06.40", "paths": {
-            "ams07": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-A001/00.00.06.40/product/ams_rev7-firmware-v00.00.06.40-20230906130758_product.bin.sig", "md5": "5b94fcf898d949531efa437e9d2f15c8" },
-            "ams08": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-A001/00.00.06.40/product/ams_rev8-firmware-v00.00.06.40-20230906130910_product.bin.sig", "md5": "8219313049f13339cfec8917826628c1" }
+        "ams": { "version": "00.00.06.44", "paths": {
+            "ams07": { "url": "https://public-cdn.bblmw.com/upgrade/device/BL-A001/00.00.06.44/product/8a38ace450/ams_rev7-firmware-v00.00.06.44-20240703093253_product.bin.sig", "md5": "9f52c896f0a349fc054290315db63e20" },
+            "ams08": { "url": "https://public-cdn.bblmw.com/upgrade/device/BL-A001/00.00.06.44/product/8a38ace450/ams_rev8-firmware-v00.00.06.44-20240703093110_product.bin.sig", "md5": "9be1ccccd3ee5e0e63ef9214b322ad5e" }
         } }
     }
 }
