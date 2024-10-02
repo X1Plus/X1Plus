@@ -379,6 +379,10 @@ class PolarPrintService(X1PlusDBusService):
             # Paused
             # await self._job("canceled")
             self.status = 4
+        if self.status == 4 or self.status == 5:
+            self.job_id = "123"
+            self.start_time = datetime.datetime.now()
+            self.estimated_print_time = 0
 
     async def _status(self) -> None:
         """
@@ -449,9 +453,9 @@ class PolarPrintService(X1PlusDBusService):
             }
             try:
                 await self.socket.emit("status", data)
-                logger.info(
-                    f"Polar status update {self.status} {datetime.datetime.now()}"
-                )
+                # logger.info(
+                #     f"Polar status update {self.status} {datetime.datetime.now()}"
+                # )
                 self.last_ping = datetime.datetime.now()
                 # Todo: turn capture_image back on.
                 # if capture_image == True:
@@ -625,7 +629,7 @@ class PolarPrintService(X1PlusDBusService):
         await self._download_file(path, file_name, data["gcodeFile"])
         location = os.path.join(path, file_name)
         self.start_time = datetime.datetime.now()
-        self._printer_action(printer_action, location)
+        await self._printer_action(printer_action, location)
 
     async def _download_file(self, path, file_name, url):
         """
@@ -671,15 +675,15 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _on_pause(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_pause")
-        self._printer_action("pause")
+        await self._printer_action("pause")
 
     async def _on_resume(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_resume")
-        self._printer_action("resume")
+        await self._printer_action("resume")
 
     async def _on_cancel(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_cancel")
-        self._printer_action("stop")
+        await self._printer_action("stop")
 
     async def _on_url_response(self, data, *args, **kwargs) -> None:
         """
@@ -749,7 +753,7 @@ class PolarPrintService(X1PlusDBusService):
         }
         await self.socket.emit("getUrl", request_data)
 
-    def _printer_action(self, which_action, print_file="") -> None:
+    async def _printer_action(self, which_action, print_file="") -> None:
         """
         Make dbus call to print, pause, cancel, resume. If printing a 3mf file
         we need the print_file name and the plate to print.
@@ -759,31 +763,53 @@ class PolarPrintService(X1PlusDBusService):
         #     "Polar dbus json string: "
         #     f'\'{{"filePath":"{print_file}","action":"{which_action}"}}\''
         # )
+        request_json = {}
         if which_action == "3mf_file":
-            dbus_call = [
-                "dbus-send",
-                "--system",
-                "--print-reply",
-                "--dest=bbl.service.screen",
-                "/bbl/service/screen",
-                "bbl.screen.x1plus.print3mf",
-                f'string:\'{{"filePath":"{print_file}"}}\'',
-            ]
+            request_json = {
+                "print": {
+                    "sequence_id": "0",
+                    "command": "project_file",
+                    "param": "Metadata/plate_1.gcode",
+                    "project_id": "0",
+                    "profile_id": "0",
+                    "task_id": "0",
+                    "subtask_id": "0",
+                    "subtask_name": "",
+                    "url": f"file:///mnt{print_file}",
+                    "md5": "",
+                    "timelapse": False,
+                    "bed_type": "auto",
+                    "bed_levelling": True,
+                    "flow_cali": True,
+                    "vibration_cali": True,
+                    "layer_inspect": True,
+                    "ams_mapping": "",
+                    "use_ams": False,
+                }
+            }
         else:
             # Print gcode, resume, pause, stop.
-            dbus_call = [
-                "dbus-send",
-                "--system",
-                "--print-reply",
-                "--dest=bbl.service.screen",
-                "/bbl/service/screen",
-                "bbl.screen.x1plus.polarPrintGcode",
-                f'string:\'{{"filePath":"{print_file}","action":"{which_action}"}}\'',
-            ]
-        done = subprocess.run(dbus_call, capture_output=True, text=True).stdout.strip()
-        logger.info("\nPolar dbus call:")
-        logger.info(" ".join(dbus_call) + "\n")
-        logger.debug(done.decode("utf-8"))
+            # dbus_call = [
+            #     "dbus-send",
+            #     "--system",
+            #     "--print-reply",
+            #     "--dest=bbl.service.screen",
+            #     "/bbl/service/screen",
+            #     "bbl.screen.x1plus.polarPrintGcode",
+            #     f'string:\'{{"filePath":"{print_file}","action":"{which_action}"}}\'',
+            # ]
+            request_json = {
+                "print": {
+                    "sequence_id": "0",
+                    "command": f"{which_action}",
+                    "param": f"{print_file}",
+                }
+            }
+        await self.daemon.mqtt.publish_request(request_json)
+        # done = subprocess.run(dbus_call, capture_output=True, text=True).stdout.strip()
+        # logger.info("\nPolar dbus call:")
+        # logger.info(" ".join(dbus_call) + "\n")
+        # logger.debug(done.decode("utf-8"))
 
     def _set_interface(self) -> None:
         """
