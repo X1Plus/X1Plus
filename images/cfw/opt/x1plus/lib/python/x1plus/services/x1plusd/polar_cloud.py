@@ -355,7 +355,7 @@ class PolarPrintService(X1PlusDBusService):
             self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
         ]
         task_stage = self.daemon.mqtt.latest_print_status.get(
-            "mc_print_stage",
+            "mc_print_stage", "0"
         )
         logger.debug(
             f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
@@ -420,13 +420,22 @@ class PolarPrintService(X1PlusDBusService):
             await self._status_update()
             if not self.is_connected:
                 return
-            if self.daemon.mqtt.latest_print_status.get("mc_percent", 100) < 5:
+            if self.daemon.mqtt.latest_print_status.get("mc_percent", 0) < 5:
                 # At this point we can guess the total print time. It'll possibly
                 # be off by a little. But the mqtt doesn't have a value for total
                 # time that I can find.
                 self.estimated_print_time = self.daemon.mqtt.latest_print_status.get(
                     "mc_remaining_time", 0
                 )
+            # TODO: the logic around time is complicated. Maybe I should move
+            # this to another fn? All these weird things that rely on the status
+            # bug me. There's got to be a better way.
+            time_used = datetime.datetime.now() - self.start_time
+            if self.status == 0:
+                # In this case there's no print so these numbers should be resset.
+                self.estimated_print_time = 0
+                self.start_time = datetime.datetime.now()
+                time_used = datetime.timedelta(seconds=0)
             if (datetime.datetime.now() - self.last_ping).total_seconds() <= 5:
                 # Don't do extra status updates.
                 return
@@ -447,9 +456,7 @@ class PolarPrintService(X1PlusDBusService):
                 "status": self.status,
                 "startTime": self.start_time.isoformat(),
                 "estimatedTime": self.estimated_print_time,
-                "printSeconds": (
-                    datetime.datetime.now() - self.start_time
-                ).total_seconds(),
+                "printSeconds": time_used.total_seconds(),
             }
             try:
                 await self.socket.emit("status", data)
