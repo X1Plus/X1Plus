@@ -37,6 +37,8 @@ them to JSON before embedding them in G-code.
 
 import asyncio
 import logging
+import json
+import yaml
 
 from .dbus import *
 
@@ -120,3 +122,28 @@ async def _action_delay(handler, subconfig):
     if type(subconfig) != int and type(subconfig) != float:
         raise TypeError(f"delay parameter {subconfig} was not numberish")
     await asyncio.sleep(subconfig)
+
+
+@register_action("file")
+async def _action_file(handler, subconfig):
+    if type(subconfig) != str:
+        raise TypeError(f"parameter {subconfig} to 'file' action was not a string")
+    if subconfig[0] != "/":
+        subconfig = f"/sdcard/{subconfig}"
+    with open(subconfig) as f:
+        contents_raw = f.read()
+    
+    contents = None
+    if contents is None:
+        try:
+            contents = json.loads(contents_raw)
+        except:
+            pass
+    if contents is None:
+        try:
+            contents = yaml.safe_load(contents_raw)
+        except:
+            pass
+    if contents is None:
+        raise ValueError(f"file {subconfig} seemed to be neither a yaml file nor a json file")
+    return await handler.execute_step(contents)
