@@ -36,6 +36,8 @@ class LedStripDriver():
         
         self.gpio_dir = 0x03
         self.gpio_out = 0
+        self.gpio_last_read_time = 0
+        self.gpio_last_read_data = None
         
         self.gpio_instances = []
         gpios = self.config.get('gpios', [])
@@ -141,15 +143,25 @@ class LedStripDriver():
 ###############
 
 class LedStripGpio(Gpio):
+    # do not actually submit a read more frequently than this: use the
+    # cached result, if the system is polling multiple GPIOs in one polling
+    # cycle
+    READ_CACHE_INTERVAL_MS = 50
+
     def __init__(self, ledstrip, pin, attr):
         # pin: 1 << x
         self.ledstrip = ledstrip
         self.pin = pin
         self.attr = attr
+        super().__init__()
     
     @property
     def attributes(self):
         return self.attr
+
+    @property
+    def polling(self):
+        return True
     
     def output(self, val):
         self.ledstrip.gpio_dir |= self.pin
@@ -164,11 +176,18 @@ class LedStripGpio(Gpio):
         self.ledstrip.update_gpio()
     
     def read(self):
-        self.ledstrip.ftdi.write_data(bytes([Ftdi.GET_BITS_LOW, Ftdi.SEND_IMMEDIATE]))
-        data = self.ledstrip.ftdi.read_data_bytes(1, 4)
-        if len(data) != 1:
-            raise IOError('FTDI did not read bytes back')
-        return (data[0] & self.pin) == self.pin
+        now = time.time()
+        if (now - self.ledstrip.gpio_last_read_time) < (self.READ_CACHE_INTERVAL_MS / 1000.0):
+            data = self.ledstrip.gpio_last_read_data
+        else:
+            self.ledstrip.ftdi.write_data(bytes([Ftdi.GET_BITS_LOW, Ftdi.SEND_IMMEDIATE]))
+            data = self.ledstrip.ftdi.read_data_bytes(1, 4)
+            if len(data) != 1:
+                raise IOError('FTDI did not read bytes back')
+            self.ledstrip.gpio_last_read_time = now
+            self.ledstrip.gpio_last_read_data = data
+        inverted = self.attr.get('inverted', False)
+        return ((data[0] & self.pin) == self.pin) ^ inverted
 
 ###############
 
