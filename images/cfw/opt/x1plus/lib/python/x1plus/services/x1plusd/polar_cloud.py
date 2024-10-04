@@ -39,8 +39,9 @@ POLAR_PATH = "/x1plus/polar"
 ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
 connector = aiohttp.TCPConnector(ssl=ssl_ctx)
 http_session = aiohttp.ClientSession(connector=connector)
-aws_connector = aiohttp.TCPConnector(ssl=ssl_ctx)
-aws_http_session = aiohttp.ClientSession(connector=aws_connector)
+# TODO: uncomment when camera capture is ready.
+# aws_connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+# aws_http_session = aiohttp.ClientSession(connector=aws_connector)
 
 
 class PolarPrintService(X1PlusDBusService):
@@ -66,16 +67,6 @@ class PolarPrintService(X1PlusDBusService):
         # on changes to this value.
         self.job_id = "0"
         self.file_name = ""
-        """
-        self.downloading will allow me to update status when printer doesn't realize
-        it's busy.
-        """
-        self.downloading = False
-        """
-        self.downloading will allow me to update status when printer doesn't realize
-        it's busy.
-        """
-        self.downloading = False
         """
         last_ping will hold time of last ping, so we're not sending status
         more than once every 10 seconds.
@@ -143,7 +134,8 @@ class PolarPrintService(X1PlusDBusService):
         except Exception as e:
             logger.debug(f"Polar _get_creds failed: {e}")
             return
-        time.sleep(45)
+        # Used to need to wait 45 secs or connection would fail. Now don't have to?        
+        # time.sleep(45)
         try:
             await self.socket.connect(
                 self.server_url, transports=["websocket"], wait_timeout=10
@@ -152,8 +144,9 @@ class PolarPrintService(X1PlusDBusService):
             logger.debug(f"Polar socket connection failed: {e}")
             return
         logger.info("Polar socket created!")
-        await self._get_url("idle")
-        await self._get_url("printing")
+        # TODO: uncomment when camera capture is ready.
+        # await self._get_url("idle")
+        # await self._get_url("printing")
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -165,7 +158,8 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("resume", self._on_resume)
         self.socket.on("cancel", self._on_cancel)
         self.socket.on("delete", self._on_delete)
-        self.socket.on("getUrlResponse", self._on_url_response)
+        # TODO: uncomment when camera capture is ready.
+#         self.socket.on("getUrlResponse", self._on_url_response)
         await super().task()
         logger.info("Polar Cloud is running.")
 
@@ -398,8 +392,8 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _status(self) -> None:
         """
-        Send a status message every 10 seconds. Also trigger sending of image
-        every 20 seconds.
+        Send a status message every 10 seconds when printing. Also trigger 
+        sending of image every 20 seconds.
 
         All fields but serialNumber and status are optional.
         {
@@ -481,7 +475,7 @@ class PolarPrintService(X1PlusDBusService):
                 #     f"Polar status update {self.status} {datetime.datetime.now()}"
                 # )
                 self.last_ping = datetime.datetime.now()
-                # Todo: turn capture_image back on.
+                # TODO: turn capture_image back on.
                 # if capture_image == True:
                 #     # Capture and upload a new image every other status update.
                 #     self.capture_frames(
@@ -514,8 +508,11 @@ class PolarPrintService(X1PlusDBusService):
                     await self.socket.connect(self.server_url, transports=["websocket"])
                     self.is_connected = True
                     return  # Or else we'll starting sending too many updates.
-
-            await asyncio.sleep(10)
+            if self.status != "0":
+                await asyncio.sleep(10)
+            else:
+                # Longer pause when idle.
+                await asyncio.sleep(30)            
         logger.debug("Polar status ending.")
 
     async def _upload_jpeg(self, which_state="printing") -> None:
@@ -657,8 +654,8 @@ class PolarPrintService(X1PlusDBusService):
     async def _download_file(self, path, file_name, url):
         """
         Adapted/stolen from ota.py. Maybe could move to utils?
-        `path` is the path to write to. `file_name` is the file name of the
-        saved file. `url` is the url of the upstream file.
+        `path` is the path where `file_name` will exist. `file_name` is the 
+        file name of the saved file. `url` is the url of the upstream S3 file.
         """
         try:
             try:
@@ -782,10 +779,6 @@ class PolarPrintService(X1PlusDBusService):
         we need the print_file name and the plate to print.
         """
         logger.info(f"Polar _printer_action {which_action} {print_file}")
-        # logger.info(
-        #     "Polar dbus json string: "
-        #     f'\'{{"filePath":"{print_file}","action":"{which_action}"}}\''
-        # )
         request_json = {}
         if which_action == "3mf_file":
             request_json = {
@@ -811,16 +804,6 @@ class PolarPrintService(X1PlusDBusService):
                 }
             }
         else:
-            # Print gcode, resume, pause, stop.
-            # dbus_call = [
-            #     "dbus-send",
-            #     "--system",
-            #     "--print-reply",
-            #     "--dest=bbl.service.screen",
-            #     "/bbl/service/screen",
-            #     "bbl.screen.x1plus.polarPrintGcode",
-            #     f'string:\'{{"filePath":"{print_file}","action":"{which_action}"}}\'',
-            # ]
             request_json = {
                 "print": {
                     "sequence_id": "0",
@@ -829,10 +812,6 @@ class PolarPrintService(X1PlusDBusService):
                 }
             }
         await self.daemon.mqtt.publish_request(request_json)
-        # done = subprocess.run(dbus_call, capture_output=True, text=True).stdout.strip()
-        # logger.info("\nPolar dbus call:")
-        # logger.info(" ".join(dbus_call) + "\n")
-        # logger.debug(done.decode("utf-8"))
 
     def _set_interface(self) -> None:
         """
