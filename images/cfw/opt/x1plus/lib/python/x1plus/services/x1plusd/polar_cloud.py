@@ -65,6 +65,7 @@ class PolarPrintService(X1PlusDBusService):
         # job_id defaults to 0 when not printing. See _status_update for logic
         # on changes to this value.
         self.job_id = "0"
+        self.file_name = ""
         """
         self.downloading will allow me to update status when printer doesn't realize
         it's busy.
@@ -102,7 +103,7 @@ class PolarPrintService(X1PlusDBusService):
             "FAILED": 12,  # 5
             "PAUSE": 4,  # 6
         }
-        self.start_time = datetime.time(0, 0, 0)  # Start time for each print job.
+        self.start_time = datetime.datetime.now()  # Start time for each print job.
         # How long the job will take in seconds. This is set in _status_() and
         # reset in _job().
         self.estimated_print_time = 0
@@ -363,9 +364,8 @@ class PolarPrintService(X1PlusDBusService):
         there's no failed state for Polar we'll send 0.
         """
         prev_status = self.status
-        self.status = self.status_lookup[
-            self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
-        ]
+        task_state = self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
+        self.status = self.status_lookup[task_state]
         task_stage = self.daemon.mqtt.latest_print_status.get("mc_print_stage", "0")
         logger.debug(
             f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
@@ -471,7 +471,7 @@ class PolarPrintService(X1PlusDBusService):
                 "estimatedTime": self.estimated_print_time,
                 "printSeconds": time_used.total_seconds(),
                 "progressDetail": (
-                    f"Printing Job: {job_name} "
+                    f"Printing Job: {self.file_name} "
                     f"Percent Complete: {self.daemon.mqtt.latest_print_status.get('mc_percent', 0)}%"
                 ),
             }
@@ -622,6 +622,7 @@ class PolarPrintService(X1PlusDBusService):
         # I can reset job_id here because I only call _job() when a job
         # has completed.
         self.job_id = "0"
+        self.file_name = ""
         await self.socket.emit("job", data)
 
     async def _on_print(self, data, *args, **kwargs):
@@ -640,16 +641,16 @@ class PolarPrintService(X1PlusDBusService):
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
         # Get extension from url, then make sure the file name has the correct
         # extension. If extension is missing print will fail.
-        file_name = data["jobName"]
+        self.file_name = data["jobName"]
         extension = os.path.splitext(data["gcodeFile"])[1]
         logger.info(f"Polar print file extension: {extension}")
         printer_action = "gcode_file"
         if extension == ".3mf":
             printer_action = "3mf_file"
-        if not file_name.endswith(extension):
-            file_name += extension
-        await self._download_file(path, file_name, data["gcodeFile"])
-        location = os.path.join(path, file_name)
+        # if not self.file_name.endswith(extension):
+        #     self.file_name += extension
+        await self._download_file(path, self.file_name, data["gcodeFile"])
+        location = os.path.join(path, self.file_name)
         self.start_time = datetime.datetime.now()
         await self._printer_action(printer_action, location)
 
