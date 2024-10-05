@@ -1,0 +1,25 @@
+--- printer_ui-orig/printerui/qml/wizard/ConnectPage.qml
++++ printer_ui/printerui/qml/wizard/ConnectPage.qml
+@@ -5,6 +5,7 @@
+ 
+ import ".."
+ import "qrc:/uibase/qml/widgets"
++import "../X1Plus.js" as X1Plus
+ 
+ Item {
+ 
+@@ -14,12 +15,12 @@
+     property var wifiListModel: NetworkManager.wifiList
+     property bool skipable: true
+     property bool finished: wifiNetwork.ssid !== ""
+-    property bool hasWried: NetworkManager.wiredNetwork !== undefined
++    property bool hasWried: X1Plus.Network.wiredNetwork() !== undefined
+     property bool hasCertificate: NetworkManager.certificateList !== null
+ 
+     property bool current: SwipeView.isCurrentItem
+     property var network: NetworkManager.network
+-    property var wiredNetwork: NetworkManager.wiredNetwork
++    property var wiredNetwork: X1Plus.Network.wiredNetwork()
+     property bool hasNetworkSubCard: NetworkManager.networkSubCardState
+ 
+     onCurrentChanged: {
