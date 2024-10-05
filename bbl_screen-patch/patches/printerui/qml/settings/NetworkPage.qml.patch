@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/NetworkPage.qml
 +++ printer_ui/printerui/qml/settings/NetworkPage.qml
-@@ -5,17 +5,19 @@
+@@ -5,18 +5,21 @@
  
  import "qrc:/uibase/qml/widgets"
  import ".."
@@ -21,9 +21,11 @@
 -    property bool hasWried: NetworkManager.wiredNetwork !== undefined
 +    property bool hasWried: X1Plus.Network.wiredNetwork() !== undefined
      property bool hasCertificate: NetworkManager.certificateList !== null
++    property bool hasExpansion: X1Plus.Expansion.status() !== null
  //    property var currentNetwork: NetworkManager.currentRoute
  
-@@ -29,10 +31,16 @@
+     property bool visible2: visible // avoid initial change to false
+@@ -29,10 +32,16 @@
  
      MarginPanel {
          id: wifiPanel
@@ -43,7 +45,7 @@
  
          Item {
              id: wlanTitle
-@@ -281,13 +289,16 @@
+@@ -281,13 +290,16 @@
  
      MarginPanel {
          id: rightPanel
@@ -65,7 +67,55 @@
          visible: hasNetworkSubCard
  
          Item {
-@@ -439,7 +450,7 @@
+@@ -368,10 +380,37 @@
+                     color: wiredNetwork.powerState ? Colors.brand : Colors.warning
+                 }
+             }
++            
++            Item {
++                id: x1PlusLogoItem
++                visible: hasExpansion
++                anchors.left: wiredNetworkItem.left
++                anchors.top: wiredNetworkItem.bottom
++                anchors.topMargin: -19
++                width: 468
++                height: 48
++                
++                ZImage {
++                    id: x1PlusLogo
++                    anchors.left: x1PlusText.right
++                    anchors.leftMargin: 5
++                    width: 48
++                    height: 48
++                    originSource: "../../icon/components/cfw.png"
++                }
++                
++                Text {
++                    id: x1PlusText
++                    font: Fonts.body_28
++                    anchors.verticalCenter: x1PlusLogo.verticalCenter
++                    text: X1Plus.Expansion.productName()
++                    color: Colors.gray_300
++                }
++            }
+ 
+             Item {
+                 id: connectItem
+-                anchors.top: wiredNetworkItem.bottom
++                anchors.top: hasExpansion ? x1PlusLogoItem.bottom : wiredNetworkItem.bottom
+                 anchors.bottom: line3.top
+                 anchors.left: wiredNetworkItem.left
+                 width: 468
+@@ -401,7 +440,7 @@
+             ZLineSplitter {
+                 id: line3
+                 anchors.top: parent.top
+-                anchors.topMargin: 160
++                anchors.topMargin: 193
+                 alignment: Qt.AlignTop
+                 padding: 36
+                 visible: wiredIsOn
+@@ -439,7 +478,7 @@
  
              Item {
                  id: infoPanel2
