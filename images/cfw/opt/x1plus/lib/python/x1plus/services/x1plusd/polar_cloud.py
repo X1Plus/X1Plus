@@ -83,7 +83,7 @@ class PolarPrintService(X1PlusDBusService):
         """
         status_lookup will be used in _status_update() to interpret job states
         coming from mqtt and translate them into self.status. Values of printer
-        status enums are in line comments.
+        status enums are in in-line comments.
         """
         self.status_lookup = {
             "IDLE": 0,
@@ -385,10 +385,13 @@ class PolarPrintService(X1PlusDBusService):
             await self._job("completed")
             self.status == 0
         elif self.status == 12:
+            # May have to treat this as a special situation. See original code below.
+            # For now pass.
+            pass
             # Failed. Send a cancelled message and reset to IDLE.
-            if prev_status != 0:
-                await self._job("canceled")
-                self.status = 0
+            # if prev_status != 0:
+            #     await self._job("canceled")
+            #     self.status = 0
 
     async def _status(self) -> None:
         """
