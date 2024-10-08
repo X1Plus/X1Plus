@@ -84,14 +84,17 @@ class PolarPrintService(X1PlusDBusService):
         status_lookup will be used in _status_update() to interpret job states
         coming from mqtt and translate them into self.status. Values of printer
         status enums are in in-line comments.
+
+        TODO: in the future, FAILED and FINISH should actually report 15, which is
+        Clear build plate; unable to start a new print.
         """
         self.status_lookup = {
             "IDLE": 0,
-            "SLICING": 2,  # 1
+            "SLICING": 1,  # 1
             "PREPARE": 2,
             "RUNNING": 3,
-            "FINISH": 7,  # 4
-            "FAILED": 12,  # 5
+            "FINISH": 0,  # 4
+            "FAILED": 0,  # 5
             "PAUSE": 4,  # 6
         }
         self.start_time = datetime.datetime.now()  # Start time for each print job.
@@ -135,7 +138,7 @@ class PolarPrintService(X1PlusDBusService):
             logger.debug(f"Polar _get_creds failed: {e}")
             return
         # Used to need to wait 45 secs or connection would fail. Now don't have to?        
-        # time.sleep(45)
+        time.sleep(45)
         try:
             await self.socket.connect(
                 self.server_url, transports=["websocket"], wait_timeout=10
@@ -349,49 +352,40 @@ class PolarPrintService(X1PlusDBusService):
         15  Clear build plate; unable to start a new print
 
         For now, states 5, 6, 8, 9, 10, 11, 13, 14, and 15 will be ignored.
-        There's no equivalent to "cancelling", so forget 6.
+        There's no equivalent to "canceling", so forget 6.
         11 is the same as 1
-        TODO: 14 should now be capturable?
+        TODO: 14 should soon be capturable?
         TODO: 15 **really, really** needs to be dealt with.
 
         When a print is cancelled it goes to FAILED and doesn't return, and since
         there's no failed state for Polar we'll send 0.
         """
-        prev_status = self.status
         task_state = self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
         self.status = self.status_lookup[task_state]
         task_stage = self.daemon.mqtt.latest_print_status.get("mc_print_stage", "0")
         logger.debug(
             f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
         )
-        if self.status > 0 and self.status < 4:
-            # Printing or preparing
-            if self.job_id == "0" or self.job_id == "123":
-                """
-                This is a local job.
-                _on_print() sets job_id to BAMBU0000. If it wasn't set there
-                it's a local job. Set job_id to "123" bc eventually _job() will
-                need to send back a job_id. job_id will be reset to "0" in _job().
-                """
-                self.status = 1  # Local print
-                self.job_id = "123"
-            else:
-                self.status = 3  # Cloud print
-        elif self.status == 4:
-            # Paused. Do nothing; here for completeness.
-            pass
-        elif self.status == 7:
-            # Finished
-            await self._job("completed")
-            self.status == 0
-        elif self.status == 12:
-            # May have to treat this as a special situation. See original code below.
-            # For now pass.
-            pass
-            # Failed. Send a cancelled message and reset to IDLE.
-            # if prev_status != 0:
-            #     await self._job("canceled")
-            #     self.status = 0
+        match self.status:
+            case 1 | 2 | 3:
+                # Printing or preparing
+                if self.job_id == "0" or self.job_id == "123":
+                    """
+                    This is a local job.
+                    _on_print() sets job_id to BAMBUxxxx. If it wasn't set, then
+                    it's a local job. Set job_id to "123" bc eventually _job() will
+                    need to send back a job_id. job_id will be reset to "0" in _job().
+                    """
+                    self.status = 1  # Local print
+                    self.job_id = "123"
+                else:
+                    self.status = 3  # Cloud print
+            case 4:
+                # Paused. Do nothing; here for completeness.
+                pass
+            case 0 | 7 | 12:
+                await self._job("completed")
+                self.status == 0
 
     async def _status(self) -> None:
         """
@@ -441,7 +435,7 @@ class PolarPrintService(X1PlusDBusService):
             # bug me. There's got to be a better way.
             time_used = datetime.datetime.now() - self.start_time
             if self.status == 0:
-                # In this case there's no print so these numbers should be resset.
+                # In this case there's no print so these numbers should be reset.
                 self.estimated_print_time = 0
                 self.start_time = datetime.datetime.now()
                 time_used = datetime.timedelta(seconds=0)
@@ -465,7 +459,7 @@ class PolarPrintService(X1PlusDBusService):
                 "serialNumber": self.daemon.settings.get("polar.sn"),
                 "status": self.status,
                 "startTime": self.start_time.isoformat(),
-                "estimatedTime": self.estimated_print_time,
+                "estimatedTime": int(self.estimated_print_time) * 60,
                 "printSeconds": time_used.total_seconds(),
                 "progressDetail": (
                     f"Printing Job: {self.file_name} "
