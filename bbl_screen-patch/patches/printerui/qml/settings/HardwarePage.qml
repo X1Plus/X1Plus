@@ -131,14 +131,15 @@ Rectangle {
         ZLineSplitter{
             id: line2
             alignment: Qt.AlignTop
-            y: 253
+            anchors.top: typeCB.bottom
+            anchors.topMargin: 16
             padding: 24
             color: Colors.gray_600
         }
         ZText {
             id: fanTx
             anchors.top: line2.bottom
-            anchors.topMargin: 26
+            anchors.topMargin: 16
             anchors.left: accessoriesTx.left
             maxWidth: line2.width
             color: Colors.gray_400
@@ -150,7 +151,7 @@ Rectangle {
             width: 240
             height: 68
             anchors.top: line2.bottom
-            anchors.topMargin: 79
+            anchors.topMargin: 59
             anchors.left: typeCB.left
             textFont: Fonts.body_26
             listTextFont: Fonts.body_24
@@ -176,14 +177,75 @@ Rectangle {
                 originSource: "../../icon/roundHook.svg"
             }
         }
-        Image {
-            anchors.top: line2.bottom
-            anchors.topMargin: 82
+
+        ZLineSplitter{
+            id: expansionLine
+            alignment: Qt.AlignTop
+            anchors.top: fanCB.bottom
+            anchors.topMargin: 16
+            padding: 24
+            color: Colors.gray_600
+        }
+        ZText {
+            id: expansionTx
+            anchors.top: expansionLine.bottom
+            anchors.topMargin: 16
+            anchors.left: accessoriesTx.left
+            maxWidth: expansionLine.width
+            color: Colors.gray_400
+            font: Fonts.body_30
+            text: qsTr("Expansion")
+        }
+        
+        // UI for no expander detected
+        Text {
+            id: expansionLabelNoHardware
+            visible: X1Plus.Expansion.status() == null
+            anchors.top: expansionLine.bottom
+            anchors.topMargin: 59
+            anchors.left: accessoriesTx.left
             anchors.right: parent.right
             anchors.rightMargin: 32
-            fillMode: Image.Pad
-            cache: false
-            source: "../../icon/auxPartCoolFan_"+ fanCB.currentIndex +".svg"
+            color: Colors.gray_100
+            font: Fonts.body_24
+            wrapMode: Text.Wrap
+            text: qsTr("No compatible expansion hardware detected.")
+        }
+        
+        // UI for yes expander detected
+        ZImage {
+            id: expansionLabelHappyImage
+            visible: X1Plus.Expansion.status() != null
+            anchors.top: expansionLine.bottom
+            anchors.topMargin: 59
+            anchors.left: accessoriesTx.left
+            anchors.leftMargin: -9
+            width: 57
+            height: 57
+            originSource: "../../icon/components/cfw.png"
+        }
+
+        Text {
+            id: expansionLabelHardwareFound
+            visible: X1Plus.Expansion.status() != null
+            anchors.top: expansionLabelHappyImage.top
+            anchors.left: expansionLabelHappyImage.right
+            anchors.leftMargin: 0
+            anchors.right: parent.right
+            anchors.rightMargin: 32
+            color: Colors.gray_100
+            font: Fonts.body_24
+            wrapMode: Text.Wrap
+            text: qsTr("%1\nSerial: %2").arg(X1Plus.Expansion.productName()).arg(X1Plus.Expansion.status().expansion_serial)
+        }
+        
+        ZButton {
+            text: "Configure..."
+            visible: X1Plus.Expansion.status() != null
+            anchors.top: expansionLabelHappyImage.bottom
+            anchors.topMargin: 10
+            anchors.left: accessoriesTx.left
+            textSize: 24
         }
     }
     
