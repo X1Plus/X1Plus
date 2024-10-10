@@ -240,12 +240,15 @@ Rectangle {
         }
         
         ZButton {
-            text: "Configure..."
+            text: qsTr("Configure...")
             visible: X1Plus.Expansion.status() != null
             anchors.top: expansionLabelHappyImage.bottom
             anchors.topMargin: 10
             anchors.left: accessoriesTx.left
             textSize: 24
+            onClicked: {
+                pageStack.push("Expansion.qml")
+            }
         }
     }
     
