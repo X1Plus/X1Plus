@@ -1,0 +1,54 @@
+{
+  "expansions": {
+    "X1P-002-B": {
+      "name": "X1Plus Expansion Board",
+      "driver": "ft2232",
+      "ports": 2,
+      "image": "x1p-002.png"
+    }
+  },
+  "modules": {
+    "generic_i2c": {
+      "name": "I²C",
+      "configuration": {
+        "i2c": []
+      },
+      "configuration_ui": "I2c.qml"
+    },
+    "X1P-004-A": {
+      "name": "LED strip",
+      "configuration": {
+        "ledstrip": {}
+      },
+      "configuration_ui": "LedStrip.qml"
+    },
+    "X1P-005-B": {
+      "name": "Andon module",
+      "configuration": {
+        "ledstrip": {
+          "leds": 25,
+          "gpios": [
+            { "pin": 3, "function": "buzzer", "default": 0 },
+            { "pin": 5, "default": 1 },
+            { "pin": 6, "function": "button", "inverted": true },
+            { "pin": 7, "function": "button", "inverted": true }
+          ]
+        }
+      },
+      "configuration_ui": "X1P-005.qml"
+    },
+    "X1P-006-B": {
+      "name": "Shutter release",
+      "configuration": {
+        "ledstrip": {
+          "leds": 0,
+          "gpios": [
+            { "pin": 3, "function": "shutter", "default": 0 },
+            { "pin": 5, "function": "shutter", "default": 0 }
+          ]
+        }
+      },
+      "configuration_ui": "X1P-006.qml"
+    }
+  }
+}
