@@ -4,6 +4,7 @@ localconfig.mk
 installer/info.json
 bbl_screen-patch/interpose.moc.h
 .env
+env
 
 # Build artifacts
 *.x1p

@@ -11,16 +11,16 @@ import socketio
 import ssl
 import subprocess
 import time
-from json import loads
 from jeepney import DBusAddress, new_method_call, MessageType
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
 
-from .dbus import X1PlusDBusService
 from x1plus.utils import get_IP, get_MAC, is_emulating
 from x1plus.utils import serial_number as utils_sn
+
+from .dbus import X1PlusDBusService
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -59,7 +59,6 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from `env`.
         # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
-        # Todo: Check to see if this is the correct server.
         self.server_url = "https://printer2.polar3d.com"
         self.socket = None
         self.status = 0  # Idle
@@ -76,7 +75,7 @@ class PolarPrintService(X1PlusDBusService):
         self.ip = ""  # This will be used for sending camera images.
         # status_task_awake is for awaits between status updates to server.
         self.status_task_wake = asyncio.Event()
-        # Todo: Fix two "on" fn calls below.
+        # TODO: Fix two "on" fn calls below.
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
         self.socket = None
@@ -93,11 +92,12 @@ class PolarPrintService(X1PlusDBusService):
             "SLICING": 1,  # 1
             "PREPARE": 2,
             "RUNNING": 3,
-            "FINISH": 0,  # 4
-            "FAILED": 0,  # 5
+            "FINISH": 7,  # 4
+            "FAILED": 12,  # 5
             "PAUSE": 4,  # 6
         }
         self.start_time = datetime.datetime.now()  # Start time for each print job.
+        self.time_finished = datetime.datetime.now()  # Used in _status_update().
         # How long the job will take in seconds. This is set in _status_() and
         # reset in _job().
         self.estimated_print_time = 0
@@ -109,12 +109,12 @@ class PolarPrintService(X1PlusDBusService):
         """
         self.printing_cam_stream = {
             "expiration_time": time.time(),
-            "form_data": dict(),
+            "form_data": {},
             "curl_call": "",
         }
         self.idle_cam_stream = {
             "expiration_time": time.time(),
-            "form_data": dict(),
+            "form_data": {},
             "curl_call": "",
         }
         super().__init__(
@@ -127,25 +127,24 @@ class PolarPrintService(X1PlusDBusService):
     async def task(self) -> None:
         """Create Socket.IO client and connect to server."""
         logger.info("Polar task")
-        # Set socketio to use Python's logger object.
-        self.socket = socketio.AsyncClient(
-            http_session=http_session, logger=logger, engineio_logger=logger
-        )
+        # Set socketio to use Python's logger object by adding these params:
+        # logger=logger, engineio_logger=logger
+        self.socket = socketio.AsyncClient(http_session=http_session)
         self._set_interface()
         try:
             await self._get_creds()
         except Exception as e:
             logger.debug(f"Polar _get_creds failed: {e}")
             return
-        # Used to need to wait 45 secs or connection would fail. Now don't have to?        
-        time.sleep(45)
-        try:
-            await self.socket.connect(
-                self.server_url, transports=["websocket"], wait_timeout=10
-            )
-        except Exception as e:
-            logger.debug(f"Polar socket connection failed: {e}")
-            return
+        # Try until netService comes up:
+        while True:
+            try:
+                await self.socket.connect(
+                    self.server_url, transports=["websocket"], wait_timeout=10
+                )
+                break
+            except Exception as e:
+                time.sleep(5)
         logger.info("Polar socket created!")
         # TODO: uncomment when camera capture is ready.
         # await self._get_url("idle")
@@ -162,7 +161,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("cancel", self._on_cancel)
         self.socket.on("delete", self._on_delete)
         # TODO: uncomment when camera capture is ready.
-#         self.socket.on("getUrlResponse", self._on_url_response)
+        #         self.socket.on("getUrlResponse", self._on_url_response)
         await super().task()
         logger.info("Polar Cloud is running.")
 
@@ -220,13 +219,11 @@ class PolarPrintService(X1PlusDBusService):
             "polar.sn", ""
         ) and not self.daemon.settings.get("polar.public_key", ""):
             # We need to get an RSA key pair before we can go further.
-            # Todo: This needs to be moved locally rather than being remote, so
+            # TODO: This needs to be moved locally rather than being remote, so
             # private key isn't transmitted.
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
         elif not self.daemon.settings.get("polar.sn", ""):
             # We already have a key: just register.
-            # Todo: There might be a race condition here or maybe server is sending
-            # a lot of welcome requests. Dealt with it by adding self.last_ping.
             await self._register()
         else:
             # It's not possible to have a serial number and no key, so this
@@ -245,7 +242,7 @@ class PolarPrintService(X1PlusDBusService):
             self.is_connected = True
         elif response["message"] != "Printer has been deleted":
             logger.error(f"_on_hello_response failure: {response['message']}")
-            # Todo: send error to interface.
+            # TODO: send any errors to interface.
         await self._status()
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
@@ -258,7 +255,6 @@ class PolarPrintService(X1PlusDBusService):
             await self.daemon.settings.put("polar.private_key", response["private"])
             # We have keys, but still need to register. First disconnect.
             logger.info("Polar _on_keypair_response success. Disconnecting.")
-            # Todo: I'm not creating a race condition with the next three fn calls, am I?
             await self.socket.disconnect()
             self.is_connected = False
             # After the next request the server will respond with `welcome`.
@@ -268,8 +264,7 @@ class PolarPrintService(X1PlusDBusService):
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
-            # Todo: communicate with dbus to fix this!
-            # Todo: deal with error using interface.
+            # TODO: deal with error using interface.
 
     async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
@@ -284,7 +279,7 @@ class PolarPrintService(X1PlusDBusService):
 
         else:
             logger.error(f"_on_register_response failure: {response['reason']}")
-            # Todo: deal with various failure modes here. Most can be dealt
+            # TODO: deal with various failure modes here. Most can be dealt
             # with in interface. First three report as server erros? Modes are
             # "SERVER_ERROR": Report this?
             # "MFG_UNKNOWN": Again, should be impossible.
@@ -293,7 +288,7 @@ class PolarPrintService(X1PlusDBusService):
             # "EMAIL_PIN_ERROR": Send it to the interface.
             # "FORBIDDEN": There's an issue with the MAC address.
             if response["reason"].lower() == "forbidden":
-                # Todo: Must communicate with dbus to debug this!
+                # TODO: Must communicate with screen to debug this!
                 logger.error(
                     f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
                     f"{self.mac}\n\n"
@@ -318,6 +313,9 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _status_update(self):
         """
+        Translate status code from printer into status code to return. Set
+        self.status appropriately.
+
         Codes from the printer:
         TaskStage: We'll ignore this; just here for completeness.
           0: INITING
@@ -357,19 +355,34 @@ class PolarPrintService(X1PlusDBusService):
         TODO: 14 should soon be capturable?
         TODO: 15 **really, really** needs to be dealt with.
 
-        When a print is cancelled it goes to FAILED and doesn't return, and since
-        there's no failed state for Polar we'll send 0.
+        When a print is cancelled it goes to FAILED or if there's an error we'll
+        report an error for 2 mins. then return to IDLE.
+
+        Likewise, FINISHED returns to IDLE after two mins.
         """
+        prev_status = self.status
         task_state = self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
-        self.status = self.status_lookup[task_state]
-        task_stage = self.daemon.mqtt.latest_print_status.get("mc_print_stage", "0")
-        logger.debug(
-            f"Polar  *** job id: {self.job_id}, stage: {task_stage}, status: {task_state}"
+        # task_stage = self.daemon.mqtt.latest_print_status.get("mc_print_stage", "0")
+        # logger.debug(f"Polar  *** job id: {self.job_id}, status: {task_state}")
+        logger.info(
+            f"Polar prev status: {self.status}; "
+            f"task_state: {task_state}; "
+            f"time finished: {datetime.datetime.now() - self.time_finished}"
         )
-        match self.status:
+        # Note we don't change self.status until after we've determined the printer
+        # state because we're tracking the previous status.
+        match self.status_lookup[task_state]:
+            case 0:
+                if self.status != 0:
+                    logger.info(
+                        f"Polar calling _job; prev status: {self.status}; "
+                        f"task_state: {task_state}"
+                    )
+                    await self._job("completed")
+                self.status == 0
             case 1 | 2 | 3:
                 # Printing or preparing
-                if self.job_id == "0" or self.job_id == "123":
+                if self.job_id in {"0", "123"}:
                     """
                     This is a local job.
                     _on_print() sets job_id to BAMBUxxxx. If it wasn't set, then
@@ -381,15 +394,46 @@ class PolarPrintService(X1PlusDBusService):
                 else:
                     self.status = 3  # Cloud print
             case 4:
-                # Paused. Do nothing; here for completeness.
-                pass
-            case 0 | 7 | 12:
-                await self._job("completed")
-                self.status == 0
+                # Printer is paused.
+                self.status = 4
+            case 7 | 12:
+                if self.status not in {0, 7, 12}:
+                    # We just switched to an error or finished state from printing.
+                    # In that case track when we made the switch.
+                    # Switch status to match current.
+                    # Note that 0 is a special case, where we're reporting IDLE
+                    # but the printer thinks it's failed.
+                    self.time_finished = datetime.datetime.now()
+                    self.status = self.status_lookup[task_state]
+                    logger.info(
+                        "Polar: just switched to failed. "
+                        f"{self.time_finished}"
+                    )
+                elif (
+                    self.status in {7, 12}
+                    and datetime.datetime.now() - self.time_finished
+                    > datetime.timedelta(seconds=120)
+                ):
+                    # We've been in an error or finished state for two mins. Send
+                    # job completed and switch status to idle.
+                    logger.info(
+                        "Polar: end failed state. "
+                        f"{datetime.datetime.now() - self.time_finished}"
+                    )
+                    self.status = 0
+                    await self._job("completed")
+                elif self.status == 0:
+                    # Printer has been returning IDLE even though its internal
+                    # state is FAILED or FINISHED. Remain in IDLE.
+                    if self.status_lookup[task_state] == 7:
+                        logger.info("Polar: printer in FINISHED; remain in IDLE.")
+                    else:
+                        logger.info("Polar: printer in FAILED; remain in IDLE.")
+                # Do nothing if we're in 7 or 12 and time isn't yet elapsed.
 
     async def _status(self) -> None:
         """
-        Send a status message every 10 seconds when printing. Also trigger 
+        Send a status message every 10 seconds when printing. Also trigger
         sending of image every 20 seconds.
 
         All fields but serialNumber and status are optional.
@@ -430,7 +474,7 @@ class PolarPrintService(X1PlusDBusService):
                 self.estimated_print_time = self.daemon.mqtt.latest_print_status.get(
                     "mc_remaining_time", 0
                 )
-            # TODO: the logic around time is complicated. Maybe I should move
+            # Notes: The logic around time is complicated. Maybe I should move
             # this to another fn? All these weird things that rely on the status
             # bug me. There's got to be a better way.
             time_used = datetime.datetime.now() - self.start_time
@@ -463,7 +507,8 @@ class PolarPrintService(X1PlusDBusService):
                 "printSeconds": time_used.total_seconds(),
                 "progressDetail": (
                     f"Printing Job: {self.file_name} "
-                    f"Percent Complete: {self.daemon.mqtt.latest_print_status.get('mc_percent', 0)}%"
+                    "Percent Complete: "
+                    f"{self.daemon.mqtt.latest_print_status.get('mc_percent', 0)}%"
                 ),
             }
             try:
@@ -481,13 +526,13 @@ class PolarPrintService(X1PlusDBusService):
                 #         num_frames=1,
                 #         interval=1,
                 #     )
-                #     # Todo: turn upload jpeg back on.
-                #     # if self.status in [0, 8, 9, 10, 15]:
-                #     #     # In these cases send idle image.
-                #     #     # (Todo: are these all the cases for idle?)
-                #     #     await self._upload_jpeg("idle")
-                #     # elif self.status != 11:
-                #     #     await self._upload_jpeg("printing")
+                # TODO: turn upload jpeg back on.
+                # if self.status in [0, 8, 9, 10, 15]:
+                #     # In these cases send idle image.
+                #     # (TODO: are these all the cases for idle?)
+                #     await self._upload_jpeg("idle")
+                # elif self.status != 11:
+                #     await self._upload_jpeg("printing")
                 # # Next time through loop it will capture (or not).
                 # capture_image = not capture_image
 
@@ -509,7 +554,7 @@ class PolarPrintService(X1PlusDBusService):
                 await asyncio.sleep(10)
             else:
                 # Longer pause when idle.
-                await asyncio.sleep(30)            
+                await asyncio.sleep(30)
         logger.debug("Polar status ending.")
 
     async def _upload_jpeg(self, which_state="printing") -> None:
@@ -520,7 +565,6 @@ class PolarPrintService(X1PlusDBusService):
         """
         logger.info("Polar _upload_jpeg")
         if which_state not in ["idle", "printing"]:
-            # We can't send images. Todo: Fail ugly for now.
             return
         if which_state == "idle":
             this_vars = self.idle_cam_stream
@@ -553,7 +597,7 @@ class PolarPrintService(X1PlusDBusService):
             self.mac = ""
             self.username = ""
             to_remove = {
-                # "polar.sn", "", # Todo: add this back in after interface is done.
+                # "polar.sn", "", # TODO: add this back in after interface is done.
                 "polar.username": "",
                 "polar.public_key": "",
                 "polar.private_key": "",
@@ -566,7 +610,7 @@ class PolarPrintService(X1PlusDBusService):
         """
         If PIN and username are not set, open Polar Cloud interface window and
         get them.
-        Todo: This works only during emulation.
+        TODO: Eventually send to screen.
         """
         logger.info("Polar _get_creds")
         if is_emulating():
@@ -602,7 +646,7 @@ class PolarPrintService(X1PlusDBusService):
         Send job response to Polar Cloud, letting it know a job has finished.
         Also reset job_id to "0", which is the default when nothing's printing.
         """
-        logger.info(f"Polar _job {status} {self.job_id}")
+        logger.info(f"\n\n*** Polar _job {status} {self.job_id} ***\n")
         data = {
             "serialNumber": self.daemon.settings.get("polar.sn"),
             "jobId": self.job_id,
@@ -629,7 +673,7 @@ class PolarPrintService(X1PlusDBusService):
             logger.debug("Polar serial numbers don't match.")
             await self._job("canceled")
             return
-        # Todo: add recovery here if still printing.
+        # TODO: add recovery here if still printing?
 
         logger.info(f"Polar print incoming data: {data}")
         path = "/tmp/x1plus" if is_emulating() else "/sdcard"
@@ -651,7 +695,7 @@ class PolarPrintService(X1PlusDBusService):
     async def _download_file(self, path, file_name, url):
         """
         Adapted/stolen from ota.py. Maybe could move to utils?
-        `path` is the path where `file_name` will exist. `file_name` is the 
+        `path` is the path where `file_name` will exist. `file_name` is the
         file name of the saved file. `url` is the url of the upstream S3 file.
         """
         try:
@@ -706,7 +750,6 @@ class PolarPrintService(X1PlusDBusService):
         """
         Upon receiving url response set appropriate instance variables. Response
         object is as follows:
-
         {
             "serialNumber": "printer-serial-number",
             "type": "idle" | "printing" | "timelapse",
@@ -747,7 +790,7 @@ class PolarPrintService(X1PlusDBusService):
             curl_list += ["-F", "'file=@/sdcard/ipcam/frame_0.jpg;type=image/jpeg'"]
             curl_list.append(f'\'{data["url"]}\'')
             cam_dict["curl_call"] = " ".join(curl_list)
-        # Todo: need to deal with failures on these two:
+        # TODO: need to deal with failures on these two:
         elif data["message"] == "FAILED":
             logger.error(f"Polar get_url failed: {data['message']}")
         else:
