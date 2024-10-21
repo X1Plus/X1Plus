@@ -152,18 +152,18 @@ class Aht20Driver():
     
 I2cDriver.DEVICE_DRIVERS['aht20'] = Aht20Driver
 
-class Pm25Driver():
+class Pmsa003iDriver():
     
     def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
 
-        self.pm25 = i2c_driver.i2c.get_port(address)
+        self.pmsa003i = i2c_driver.i2c.get_port(address)
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/pm25")
+        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/pmsa003i")
         
         self.task = asyncio.create_task(self._task())
-        logger.info(f"probed PM25 sensor at 0x{address:2x}")
+        logger.info(f"probed PMSA003I sensor at 0x{address:2x}")
 
     def disconnect(self):
         if self.task:
@@ -178,13 +178,13 @@ class Pm25Driver():
                 did_read = False
                 da = None
                 for i in range(20):
-                    da = self.pm25.read(readlen = 32)
+                    da = self.pmsa003i.read(readlen = 32)
                     if da[0] == 0x42 and da[1] == 0x4D:
                         did_read = True
                         break
                     await asyncio.sleep(0.01)
                 if not did_read or da is None:
-                    raise Exception("PM25 did not finish measuring")
+                    raise Exception("PMSA003I did not finish measuring")
 
                 # Standard Concentration µg/m^3
                 pm1_0_ugm3_std = (da[4] << 8) | da[5]
@@ -204,14 +204,14 @@ class Pm25Driver():
                 pm5_0_conc = (da[24] << 8) | da[25]
                 pm10_conc = (da[26] << 8) | da[27]
                      
-                await self.sensors.publish(self.name, type = 'pm25',
+                await self.sensors.publish(self.name, type = 'pmsa003i',
                     pm1_0_ugm3_std = pm1_0_ugm3_std, pm2_5_ugm3_std = pm2_5_ugm3_std, pm10_ugm3_std = pm10_ugm3_std,
                     pm1_0_ugm3 = pm1_0_ugm3_env, pm2_5_ugm3 = pm2_5_ugm3_env, pm10_ugm3 = pm10_ugm3_env, 
                     pm0_3_conc = pm0_3_conc, pm0_5_conc = pm0_5_conc, pm1_0_conc = pm1_0_conc, 
                     pm2_5_conc = pm2_5_conc, pm5_0_conc = pm5_0_conc, pm10_conc = pm10_conc)
             except Exception as e:
-                await self.sensors.publish(self.name, type = 'pm25', inop = { 'exception': f"{e.__class__.__name__}: {e}" })
+                await self.sensors.publish(self.name, type = 'pmsa003i', inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
 
-I2cDriver.DEVICE_DRIVERS['pm25'] = Pm25Driver
+I2cDriver.DEVICE_DRIVERS['pmsa003i'] = Pmsa003iDriver
