@@ -19,6 +19,8 @@ ch.setLevel(logging.DEBUG)
 ch.setFormatter(logging.Formatter("[%(asctime)s] %(name)s: %(levelname)s: %(message)s"))
 logger.addHandler(ch)
 
+PID_FILE = '/var/run/x1plusd.pid'
+
 
 def exceptions(loop, ctx):
     logger.error(f"exception in coroutine: {ctx['message']} {ctx.get('exception', '')}")
@@ -35,9 +37,8 @@ async def start():
 
 
 def is_already_running():
-    pid_file = '/var/run/x1plusd.pid'
     try:
-        with open(pid_file, 'r') as f:
+        with open(PID_FILE, 'r') as f:
             pid = int(f.read().strip())
         os.kill(pid, 0)  # Check if the process is still running
         return True
@@ -51,7 +52,7 @@ if is_already_running():
     exit(1)
 
 # Create the PID file
-with open('/var/run/x1plusd.pid', 'w') as f:
+with open(PID_FILE, 'w') as f:
     f.write(str(os.getpid()))
 
 loop = asyncio.new_event_loop()
@@ -62,5 +63,5 @@ try:
 finally:
     logger.error("x1plusd event loop has terminated!")
     loop.run_until_complete(loop.shutdown_asyncgens())
-    os.unlink('/var/run/x1plusd.pid')
+    os.unlink(PID_FILE)
     loop.close()
