@@ -46,20 +46,23 @@ def is_already_running():
         return False
 
 
-# Check if we are already running
-if is_already_running():
-    logger.error("x1plusd is already running. Exiting.")
-    exit(1)
-
-# Create the PID file
-with open(PID_FILE, 'w') as f:
-    f.write(str(os.getpid()))
-
-loop = asyncio.new_event_loop()
-loop.set_exception_handler(exceptions)
-loop.create_task(start())
+# catchall exception
 try:
+    # Check if we are already running
+    if is_already_running():
+        logger.error("x1plusd is already running. Exiting.")
+        exit(1)
+
+    # Create the PID file
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+
+    loop = asyncio.new_event_loop()
+    loop.set_exception_handler(exceptions)
+    loop.create_task(start())
     loop.run_forever()
+except Exception as e:
+    logger.error(f"Exception occurred: {e}")
 finally:
     logger.error("x1plusd event loop has terminated!")
     loop.run_until_complete(loop.shutdown_asyncgens())
