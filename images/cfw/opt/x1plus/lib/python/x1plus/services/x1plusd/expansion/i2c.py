@@ -203,7 +203,19 @@ class Pmsa003iDriver():
                 pm2_5_conc = (da[22] << 8) | da[23]
                 pm5_0_conc = (da[24] << 8) | da[25]
                 pm10_conc = (da[26] << 8) | da[27]
-                     
+                
+                # Overflow correction from 16bit limit
+                while pm5_0_conc < pm10_conc:
+                    pm5_0_conc += 65535
+                while pm2_5_conc < pm5_0_conc:
+                    pm2_5_conc += 65535
+                while pm1_0_conc < pm2_5_conc:
+                    pm1_0_conc += 65535
+                while pm0_5_conc < pm1_0_conc:
+                    pm0_5_conc += 65535
+                while pm0_3_conc < pm0_5_conc:
+                    pm0_3_conc += 65535
+
                 await self.sensors.publish(self.name, type = 'pmsa003i',
                     pm1_0_ugm3_std = pm1_0_ugm3_std, pm2_5_ugm3_std = pm2_5_ugm3_std, pm10_ugm3_std = pm10_ugm3_std,
                     pm1_0_ugm3 = pm1_0_ugm3_env, pm2_5_ugm3 = pm2_5_ugm3_env, pm10_ugm3 = pm10_ugm3_env, 
