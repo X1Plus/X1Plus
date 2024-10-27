@@ -153,6 +153,8 @@ class Aht20Driver():
 I2cDriver.DEVICE_DRIVERS['aht20'] = Aht20Driver
 
 class Pmsa003iDriver():
+
+    device_type = 'pmsa003i'
     
     def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
@@ -160,10 +162,12 @@ class Pmsa003iDriver():
         self.pmsa003i = i2c_driver.i2c.get_port(address)
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/pmsa003i")
+        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{self.device_type}")
+        self.error_correction = config.get('error_correction', False)
+        
         
         self.task = asyncio.create_task(self._task())
-        logger.info(f"probed PMSA003I sensor at 0x{address:2x}")
+        logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x}")
 
     def disconnect(self):
         if self.task:
@@ -184,7 +188,7 @@ class Pmsa003iDriver():
                         break
                     await asyncio.sleep(0.01)
                 if not did_read or da is None:
-                    raise Exception("PMSA003I did not finish measuring")
+                    raise Exception(f"{self.device_type.upper()} did not finish measuring")
 
                 # Standard Concentration µg/m^3
                 pm1_0_ugm3_std = (da[4] << 8) | da[5]
@@ -205,25 +209,45 @@ class Pmsa003iDriver():
                 pm10_conc = (da[26] << 8) | da[27]
                 
                 # Overflow correction from 16bit limit
-                while pm5_0_conc < pm10_conc:
-                    pm5_0_conc += 65535
-                while pm2_5_conc < pm5_0_conc:
-                    pm2_5_conc += 65535
-                while pm1_0_conc < pm2_5_conc:
-                    pm1_0_conc += 65535
-                while pm0_5_conc < pm1_0_conc:
-                    pm0_5_conc += 65535
-                while pm0_3_conc < pm0_5_conc:
-                    pm0_3_conc += 65535
+                if pm5_0_conc < pm10_conc:
+                    if self.error_correction:
+                        pm5_0_conc += 65535
+                    else: 
+                        pm5_0_conc = -1
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 5.0 Concentation is out of range (>65535)")
+                if pm2_5_conc < pm5_0_conc:
+                    if self.error_correction:
+                        pm2_5_conc += 65535
+                    else: 
+                        pm2_5_conc = -1
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 2.5 Concentation is out of range (>65535)")
+                if pm1_0_conc < pm2_5_conc:
+                    if self.error_correction:
+                        pm1_0_conc += 65535
+                    else: 
+                        pm1_0_conc = -1
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 1.0 Concentation is out of range (>65535)")
+                if pm0_5_conc < pm1_0_conc:
+                    if self.error_correction:
+                        pm0_5_conc += 65535
+                    else: 
+                        pm0_5_conc = -1
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.5 Concentation is out of range (>65535)")
+                if pm0_3_conc < pm0_5_conc:
+                    if self.error_correction:
+                        pm0_3_conc += 65535
+                    else: 
+                        pm0_3_conc = -1
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.3 Concentation is out of range (>65535)")
 
-                await self.sensors.publish(self.name, type = 'pmsa003i',
+                await self.sensors.publish(self.name, type = self.device_type,
                     pm1_0_ugm3_std = pm1_0_ugm3_std, pm2_5_ugm3_std = pm2_5_ugm3_std, pm10_ugm3_std = pm10_ugm3_std,
                     pm1_0_ugm3 = pm1_0_ugm3_env, pm2_5_ugm3 = pm2_5_ugm3_env, pm10_ugm3 = pm10_ugm3_env, 
                     pm0_3_conc = pm0_3_conc, pm0_5_conc = pm0_5_conc, pm1_0_conc = pm1_0_conc, 
-                    pm2_5_conc = pm2_5_conc, pm5_0_conc = pm5_0_conc, pm10_conc = pm10_conc)
+                    pm2_5_conc = pm2_5_conc, pm5_0_conc = pm5_0_conc, pm10_conc = pm10_conc, error_correction=self.error_correction)
             except Exception as e:
-                await self.sensors.publish(self.name, type = 'pmsa003i', inop = { 'exception': f"{e.__class__.__name__}: {e}" })
+                await self.sensors.publish(self.name, type = self.device_type, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
 
-I2cDriver.DEVICE_DRIVERS['pmsa003i'] = Pmsa003iDriver
+I2cDriver.DEVICE_DRIVERS[Pmsa003iDriver.device_type] = Pmsa003iDriver
