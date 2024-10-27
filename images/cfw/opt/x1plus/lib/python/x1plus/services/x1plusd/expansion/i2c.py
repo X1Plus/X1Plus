@@ -163,7 +163,7 @@ class Pmsa003iDriver():
         
         self.interval_ms = int(config.get('interval_ms', 1000))
         self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{self.device_type}")
-        self.error_correction = config.get('error_correction', False)
+        self.overflow_mitigation = config.get('overflow_mitigation', False)
         
         
         self.task = asyncio.create_task(self._task())
@@ -208,33 +208,33 @@ class Pmsa003iDriver():
                 pm5_0_conc = (da[24] << 8) | da[25]
                 pm10_conc = (da[26] << 8) | da[27]
                 
-                # Overflow correction from 16bit limit
+                # Overflow mitigation from 16bit limit
                 if pm5_0_conc < pm10_conc:
-                    if self.error_correction:
+                    if self.overflow_mitigation:
                         pm5_0_conc += 65535
                     else: 
                         pm5_0_conc = -1
                         logger.info(f"{self.device_type.upper()} {self.name} value for PM > 5.0 Concentation is out of range (>65535)")
                 if pm2_5_conc < pm5_0_conc:
-                    if self.error_correction:
+                    if self.overflow_mitigation:
                         pm2_5_conc += 65535
                     else: 
                         pm2_5_conc = -1
                         logger.info(f"{self.device_type.upper()} {self.name} value for PM > 2.5 Concentation is out of range (>65535)")
                 if pm1_0_conc < pm2_5_conc:
-                    if self.error_correction:
+                    if self.overflow_mitigation:
                         pm1_0_conc += 65535
                     else: 
                         pm1_0_conc = -1
                         logger.info(f"{self.device_type.upper()} {self.name} value for PM > 1.0 Concentation is out of range (>65535)")
                 if pm0_5_conc < pm1_0_conc:
-                    if self.error_correction:
+                    if self.overflow_mitigation:
                         pm0_5_conc += 65535
                     else: 
                         pm0_5_conc = -1
                         logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.5 Concentation is out of range (>65535)")
                 if pm0_3_conc < pm0_5_conc:
-                    if self.error_correction:
+                    if self.overflow_mitigation:
                         pm0_3_conc += 65535
                     else: 
                         pm0_3_conc = -1
@@ -244,7 +244,7 @@ class Pmsa003iDriver():
                     pm1_0_ugm3_std = pm1_0_ugm3_std, pm2_5_ugm3_std = pm2_5_ugm3_std, pm10_ugm3_std = pm10_ugm3_std,
                     pm1_0_ugm3 = pm1_0_ugm3_env, pm2_5_ugm3 = pm2_5_ugm3_env, pm10_ugm3 = pm10_ugm3_env, 
                     pm0_3_conc = pm0_3_conc, pm0_5_conc = pm0_5_conc, pm1_0_conc = pm1_0_conc, 
-                    pm2_5_conc = pm2_5_conc, pm5_0_conc = pm5_0_conc, pm10_conc = pm10_conc, error_correction=self.error_correction)
+                    pm2_5_conc = pm2_5_conc, pm5_0_conc = pm5_0_conc, pm10_conc = pm10_conc, overflow_mitigation=self.overflow_mitigation)
             except Exception as e:
                 await self.sensors.publish(self.name, type = self.device_type, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
