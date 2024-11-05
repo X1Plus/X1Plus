@@ -126,10 +126,7 @@ class HTTPService():
                 await ws.close()
                 return ws
             
-            system_password = self.daemon.settings.get('http.password', None)
-            if system_password is None: # we have to do it the hard way, I guess
-                with open('/config/device/access_token', 'r') as f:
-                    system_password = f.read().strip()
+            system_password = utils.get_passwd(self.daemon)
             if system_password != "" and password != system_password:
                 await ws.send_json({"jsonrpc": "2.0", "error": {"code": -1, "message": "permission denied"}, "id": authpkt['id']})
                 await ws.close()

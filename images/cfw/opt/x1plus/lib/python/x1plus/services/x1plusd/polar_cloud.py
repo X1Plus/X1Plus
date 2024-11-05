@@ -17,7 +17,7 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
 
-from x1plus.utils import get_IP, get_MAC, is_emulating
+from x1plus.utils import get_IP, get_MAC, get_passwd, is_emulating
 from x1plus.utils import serial_number as utils_sn
 
 from .dbus import X1PlusDBusService
@@ -59,7 +59,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from `env`.
         # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
-        self.server_url = "https://printer2.polar3d.com"
+        self.server_url = "https://printer4.polar3d.com"
         self.socket = None
         self.status = 0  # Idle
         # job_id defaults to 0 when not printing. See _status_update for logic
@@ -98,6 +98,8 @@ class PolarPrintService(X1PlusDBusService):
         }
         self.start_time = datetime.datetime.now()  # Start time for each print job.
         self.time_finished = datetime.datetime.now()  # Used in _status_update().
+        # This password getter is from httpd.py and should be copied into there.
+        self.system_password = get_passwd(self.daemon)
         # How long the job will take in seconds. This is set in _status_() and
         # reset in _job().
         self.estimated_print_time = 0
@@ -162,6 +164,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("delete", self._on_delete)
         # TODO: uncomment when camera capture is ready.
         #         self.socket.on("getUrlResponse", self._on_url_response)
+        logger.info("Polar Attached all sockets.")
         await super().task()
         logger.info("Polar Cloud is running.")
 
@@ -372,7 +375,7 @@ class PolarPrintService(X1PlusDBusService):
         # Note we don't change self.status until after we've determined the printer
         # state because we're tracking the previous status.
         match self.status_lookup[task_state]:
-            case 0:
+            case 0: # IDLE
                 if self.status != 0:
                     logger.info(
                         f"Polar calling _job; prev status: {self.status}; "
@@ -380,7 +383,7 @@ class PolarPrintService(X1PlusDBusService):
                     )
                     await self._job("completed")
                 self.status == 0
-            case 1 | 2 | 3:
+            case 1 | 2 | 3: # SLICING, PREPARING, RUNNING
                 # Printing or preparing
                 if self.job_id in {"0", "123"}:
                     """
@@ -393,12 +396,14 @@ class PolarPrintService(X1PlusDBusService):
                     self.job_id = "123"
                 else:
                     self.status = 3  # Cloud print
-            case 4:
+            case 4: # FINISHING
                 # Printer is paused.
                 self.status = 4
-            case 7 | 12:
-                if self.status not in {0, 7, 12}:
+            case 7 | 12: # FINISH, FAIL
+                if self.status not in {0, 6, 7, 12}:
                     # We just switched to an error or finished state from printing.
+                    # Recall the error could be from cancelling, in which case
+                    # status 6 is set in `_cancel()`.
                     # In that case track when we made the switch.
                     # Switch status to match current.
                     # Note that 0 is a special case, where we're reporting IDLE
@@ -410,7 +415,7 @@ class PolarPrintService(X1PlusDBusService):
                         f"{self.time_finished}"
                     )
                 elif (
-                    self.status in {7, 12}
+                    self.status in {6, 7, 12}
                     and datetime.datetime.now() - self.time_finished
                     > datetime.timedelta(seconds=120)
                 ):
@@ -429,7 +434,7 @@ class PolarPrintService(X1PlusDBusService):
                         logger.info("Polar: printer in FINISHED; remain in IDLE.")
                     else:
                         logger.info("Polar: printer in FAILED; remain in IDLE.")
-                # Do nothing if we're in 7 or 12 and time isn't yet elapsed.
+                # Do nothing if we're in 6, 7, or 12 and time isn't yet elapsed.
 
     async def _status(self) -> None:
         """
@@ -712,8 +717,7 @@ class PolarPrintService(X1PlusDBusService):
                 logger.info("Polar opened file to write.")
                 timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
                 async with aiohttp.ClientSession(
-                    connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout
-                ) as session:
+                    connector=aiohttp.TCPConnector(ssl=ssl_ctx)) as session:
                     async with session.get(url) as response:
                         response.raise_for_status()
                         self.download_bytes_total = int(
@@ -744,6 +748,7 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _on_cancel(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_cancel")
+        self.status = 6
         await self._printer_action("stop")
 
     async def _on_url_response(self, data, *args, **kwargs) -> None:
