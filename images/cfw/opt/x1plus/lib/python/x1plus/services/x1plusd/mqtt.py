@@ -54,7 +54,7 @@ class MQTTClient():
                 
                 password = None
                 if os.path.isfile("/config/device/access_token"):
-                    password = open("/config/device/access_token", "r").read()
+                    password = open("/config/device/access_token", "r").read().strip()
                 password = self.daemon.settings.get("mqtt.override.password", password)
                 
                 self.sn = self.daemon.settings.get("mqtt.override.sn", None)
