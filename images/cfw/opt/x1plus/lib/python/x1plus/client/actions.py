@@ -10,6 +10,7 @@ def execute(action):
 ###
 
 import json, yaml
+import sys
 
 def _cmd_execute(args):
     value = args.action[0]
@@ -44,6 +45,7 @@ def _cmd_execute(args):
                 value = yaml.safe_load(value)
             except:
                 print(f"'{value}' could not be parsed as either JSON or YAML", file=sys.stderr)
+                sys.exit(1)
     
     print("executing action:")
     print(json.dumps(value, indent=4))

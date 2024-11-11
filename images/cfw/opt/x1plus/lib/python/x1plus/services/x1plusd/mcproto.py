@@ -1,4 +1,6 @@
 import re
+import base64
+import zlib
 import json
 import asyncio
 
@@ -296,10 +298,15 @@ class MCProtoParser():
                     continue
                 id = int(m[1])
                 try:
-                    val = json.loads(m[2])
-                except Exception as e:
-                    logger.error(f"x1plus define {id} (\"{m[2]}\") had invalid JSON: {e.__class__.__name__}: \"{e}\"")
-                    continue
+                    val = base64.b64decode(m[2])
+                    val = zlib.decompress(val)
+                    val = json.loads(val)
+                except Exception as e1:
+                    try:
+                        val = json.loads(m[2])
+                    except Exception as e:
+                        logger.error(f"x1plus define {id} (\"{m[2]}\") was neither valid b64zjson (\"{e1}\") nor valid JSON: {e.__class__.__name__}: \"{e}\"")
+                        continue
                 logger.info(f"found x1plus define {id} -> {val}")
                 self.gcode_x1plus_defs[id] = val
         
