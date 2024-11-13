@@ -28,7 +28,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler("/var/log/polar_debug.log"),
-        logging.StreamHandler(),
+        # logging.StreamHandler(),
     ],
 )
 
@@ -59,7 +59,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from `env`.
         # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
-        self.server_url = "https://printer4.polar3d.com"
+        self.server_url = "https://printer2.polar3d.com"
         self.socket = None
         self.status = 0  # Idle
         # job_id defaults to 0 when not printing. See _status_update for logic
@@ -131,7 +131,16 @@ class PolarPrintService(X1PlusDBusService):
         logger.info("Polar task")
         # Set socketio to use Python's logger object by adding these params:
         # logger=logger, engineio_logger=logger
-        self.socket = socketio.AsyncClient(http_session=http_session)
+        self.socket = socketio.AsyncClient(
+            # reconnection=True,          # Auto recovery from disconnections
+            # reconnection_attempts=0,    # Infinite attempts
+            # reconnection_delay=1,       # Start with 1 second between attempts
+            # reconnection_delay_max=10,   # Max 5 seconds between attempts
+            # randomization_factor=0.5,   # Randomness to avoid sync if multipule clients reconnect
+            http_session=http_session,
+            logger=logger,
+            engineio_logger=logger,
+        )
         self._set_interface()
         try:
             await self._get_creds()
@@ -183,6 +192,9 @@ class PolarPrintService(X1PlusDBusService):
         Check to see if printer has already been registered. If it has, we can
         ignore this. Otherwise, must get a key pair, then call register.
         """
+        if self.is_connected:
+            # Do nothing. Otherwise we start to spam welcomes/hellos.
+            return
         logger.info("Polar _on_welcome.")
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
@@ -217,6 +229,7 @@ class PolarPrintService(X1PlusDBusService):
             "camOff": 0 | 1,                                   // integer, optional
             "camUrl": "URL for printer's live camera feed"     // string, optional
             """
+            logger.info("\x1b[96;1mPolar Emitting hello.\x1b[0m")
             await self.socket.emit("hello", data)
         elif not self.daemon.settings.get(
             "polar.sn", ""
@@ -262,7 +275,11 @@ class PolarPrintService(X1PlusDBusService):
             self.is_connected = False
             # After the next request the server will respond with `welcome`.
             logger.info("Polar Reconnecting.")
-            await self.socket.connect(self.server_url, transports=["websocket"])
+            await self.socket.connect(
+                self.server_url,
+                transports=["websocket"],
+                wait_timeout=10
+            )
             self.is_connected = True
         else:
             # We have an error.
@@ -542,9 +559,8 @@ class PolarPrintService(X1PlusDBusService):
                 # capture_image = not capture_image
 
             except Exception as e:
-                logger.error(f"emit status failed: {e}")
+                logger.error(f"emit status failed: \x1b[31;1m{e}\x1b[0m")
                 if str(e) == "/ is not a connected namespace.":
-                    logger.debug('Polar got "/ is not a connected namespace." error.')
                     # This seems to be a python socketio bug/feature?
                     # In any case, recover by reconnecting.
                     logger.info("Polar disconnecting.")
@@ -552,7 +568,11 @@ class PolarPrintService(X1PlusDBusService):
                     self.is_connected = False
                     # After the next request the server will respond with `welcome`.
                     logger.info("Polar reconnecting.")
-                    await self.socket.connect(self.server_url, transports=["websocket"])
+                    await self.socket.connect(
+                        self.server_url,
+                        transports=["websocket"],
+                        wait_timeout=10
+                    )
                     self.is_connected = True
                     return  # Or else we'll starting sending too many updates.
             if self.status != "0":
@@ -717,7 +737,7 @@ class PolarPrintService(X1PlusDBusService):
                 logger.info("Polar opened file to write.")
                 timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
                 async with aiohttp.ClientSession(
-                    connector=aiohttp.TCPConnector(ssl=ssl_ctx)) as session:
+                    connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout) as session:
                     async with session.get(url) as response:
                         response.raise_for_status()
                         self.download_bytes_total = int(
