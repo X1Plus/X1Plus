@@ -12,10 +12,10 @@ HOST_KEYFILE = f"{CONFIG_DIR}/dropbear_ecdsa_host_key"
 PIDFILE = "/var/run/x1plus_sshd.pid"
 
 class SSHService():
-    def __init__(self, settings, **kwargs):
-        self.x1psettings = settings
-        self.x1psettings.on("ssh.enabled", lambda: self.sync_startstop())
-        self.x1psettings.on("ssh.root_password", lambda: self.set_password())
+    def __init__(self, daemon, **kwargs):
+        self.daemon = daemon
+        self.daemon.settings.on("ssh.enabled", lambda: self.sync_startstop())
+        self.daemon.settings.on("ssh.root_password", lambda: self.set_password())
         
         self.sync_startstop()
     
@@ -23,7 +23,7 @@ class SSHService():
         return subprocess.run(f"start-stop-daemon -K -q -t -p \"{PIDFILE}\"", shell=True).returncode == 0
     
     def sync_startstop(self):
-        enabled = self.x1psettings.get("ssh.enabled", False)
+        enabled = self.daemon.settings.get("ssh.enabled", False)
         running = self.sshd_is_running()
         if enabled and not running:
             self.start_sshd()
@@ -51,7 +51,7 @@ class SSHService():
             logger.error("failed to stop sshd!")
     
     def set_password(self):
-        pw = self.x1psettings.get('ssh.root_password', None)
+        pw = self.daemon.settings.get('ssh.root_password', None)
         if x1plus.utils.is_emulating():
             logger.info(f"EMULATING: would reset password to {pw}")
             return

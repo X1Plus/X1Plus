@@ -19,7 +19,9 @@
 PATH=/bin
 
 mkdir /dev
+mknod /dev/mmcblk2 b 179 96
 mknod /dev/mmcblk2p1 b 179 97
+mknod /dev/mmcblk0p13 b 179 13
 mknod /dev/loop-control c 10 237
 mknod /dev/loop0 b 7 0
 mknod /dev/loop1 b 7 1
@@ -31,6 +33,7 @@ mknod /dev/loop6 b 7 6
 mknod /dev/loop7 b 7 7
 mknod /dev/tty0 c 4 0
 mknod /dev/fb0 c 29 0
+mknod /dev/null c 1 3
 
 loadfont < /ter-i32b.psf
 echo -en "\e[8;1H" > /dev/tty0
@@ -43,6 +46,14 @@ echo "init params $*"
 
 die() {
 	echo "X1Plus startup failed. initramfs shell is available on UART at 1500000 baud." > /dev/tty0
+	echo "Dumping debug to /userdata/log/x1plus-boot-debug.log" > /dev/tty0
+	mkdir /userdata
+	mount /dev/mmcblk0p13 /userdata
+	dmesg > /userdata/log/x1plus-boot-debug.log
+	fdisk -l /dev/mmcblk2 >> /userdata/log/x1plus-boot-debug.log 2>&1
+	sync
+	umount /userdata
+	sync
 	echo "critical step failed; dropping you into a shell"
 	exec sh
 }

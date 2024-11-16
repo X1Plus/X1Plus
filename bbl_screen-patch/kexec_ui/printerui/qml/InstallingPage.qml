@@ -89,7 +89,7 @@ Rectangle {
                 // Do this as early as possible -- turn on the WiFi, so there's plenty of time for it to spool up.
              
                 X1PlusNative.system('echo 1 > /sys/class/rfkill/rfkill1/state');
-                X1PlusNative.system('wpa_supplicant_hook.sh &');
+                X1PlusNative.system('/usr/bin/netService &');
                 X1PlusNative.system('while true ; do iwconfig wlan0 power off > /dev/null 2>&1 ; sleep 4 ; done &');
             }
 

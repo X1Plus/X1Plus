@@ -4,10 +4,11 @@ FIRMWARE ?= $(shell jq -r .base.ap ../installer/info.json)
 QT5_INCL_PATH ?= /usr/include/x86_64-linux-gnu/qt5/
 TOOLCHAIN ?= arm-linux-gnueabihf-
 TARGET_CC ?= $(TOOLCHAIN)gcc
+TARGET_CXX ?= $(TOOLCHAIN)g++
 LDFLAGS = -shared -ldl
-CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
+CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 -Wno-psabi # yes, -O3 actually helps here with the VNC shenanigans
 CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
-MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so
+MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so device_gate_shim.so netService_shim.so forward_shim.so
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
@@ -63,6 +64,15 @@ base.ts: printer_ui.so kexec_ui.so
 
 %.so: %.c
 	$(TARGET_CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
+
+%.so: %.cpp
+	$(TARGET_CC) -o $@ $< $(CXXFLAGS) $(LDFLAGS)
+
+device_gate_shim.so: workaround_ifaddrs.c link_is_up.cpp mqtt_reroute.cpp
+	$(TARGET_CXX) -o $@ workaround_ifaddrs.c link_is_up.cpp mqtt_reroute.cpp $(CXXFLAGS) $(LDFLAGS)
+
+forward_shim.so: forward_shim.c
+	$(TARGET_CXX) -o $@ forward_shim.c $(CXXFLAGS) $(LDFLAGS) ../prebuilt/libdbus-1.so
 
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
 	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)

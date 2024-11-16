@@ -12,9 +12,17 @@ echo "/config/wifi/config.txt"
 echo "================"
 cat /config/wifi/config.txt
 echo "================"
+echo "ps aux | grep wpa"
+echo "================"
+ps aux | grep wpa
+echo "================"
 echo "wpa_supplicant.conf"
 echo "================"
 sed -e 's/psk=\".*\"/psk=\"######\"/g' -e 's/ssid=\".*\"/ssid=\"######\"/g' /userdata/cfg/wpa_supplicant.conf
+echo "================"
+echo "wpa_supplicant_new.conf"
+echo "================"
+sed -e 's/psk=\".*\"/psk=\"######\"/g' -e 's/ssid=\".*\"/ssid=\"######\"/g' /userdata/cfg/wpa_supplicant_new.conf
 echo "================"
 echo "iw list"
 echo "================"
