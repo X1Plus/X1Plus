@@ -1,0 +1,81 @@
+name: Build X1Plus x1p
+
+on:
+  push:
+    branches: [ "main", "tmp-001" ]
+    tags: [ "x1plus/*" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write # for release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+# github does something psychotic that results in overwriting the latest tag
+# as part of a tag push:
+#
+#  https://github.com/actions/checkout/blob/b32f140b0c872d58512e0a66172253c302617b90/src/git-source-provider.ts#L177-L182
+#
+# fix that
+    - name: workaround GitHub brain damage
+      if: startsWith(github.ref, 'refs/tags/x1plus/')
+      run: |
+        git -c protocol.version=2 fetch --tags --force
+    - name: Build an X1P
+      run: |
+        docker run \
+        -v ${{ github.workspace }}:/work \
+        -u `id -u` \
+        --env-file <(env | grep "GITHUB\|UPDATE_KEY_MATERIAL") \
+        ghcr.io/x1plus/x1plus-build:v3.1 /bin/bash -c "git config --global --add safe.directory /work; make"
+      env:
+        UPDATE_KEY_MATERIAL: ${{ secrets.UPDATE_KEY_MATERIAL }}
+    - name: Upload sources to CrowdIn
+      if: startsWith(github.ref, 'refs/heads/main')
+      uses: crowdin/github-action@v1
+      with:
+        upload_sources: true
+        upload_sources_args: '--dest=Firmware/base.ts'
+        upload_translations: false
+        download_sources: false
+        download_translations: false
+        source: bbl_screen-patch/base.ts
+        translation: '%locale%/Firmware/base.ts'
+        project_id: 659058
+        token: ${{ secrets.CROWDIN_UPLOAD_SOURCE_TOKEN }}
+    - name: upload x1p artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: x1p
+        path: |
+          *.x1p
+    - name: upload release x1p
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/x1plus/') 
+      with:
+        name: Release ${{ github.ref_name }}
+        prerelease: true
+        files: |
+          *.x1p
+    - name: upload OTA json
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      if: startsWith(github.ref, 'refs/tags/x1plus/') 
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.OTA_UPLOAD_TOKEN_GITHUB }}
+      with:
+        source_file: 'ota.json'
+        destination_repo: 'X1Plus/ota.x1plus.net'
+        destination_folder: 'stable'
+        user_email: 'x1plus@x1plus.net'
+        user_name: 'OTAUploadBot'
+        commit_message: 'feat: upload x1plus release ${{ github.ref_name }}'
+        destination_branch_create: ${{ github.ref_name }}
+        
