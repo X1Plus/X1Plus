@@ -28,7 +28,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler("/var/log/polar_debug.log"),
-        # logging.StreamHandler(),
+        # logging.StreamHandler(), # Emits to terminal anyway, when called from cli.
     ],
 )
 
@@ -59,7 +59,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from `env`.
         # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
-        self.server_url = "https://printer2.polar3d.com"
+        self.server_url = "https://printer2.polar3d.com" # "http://status-dev.polar3d.com/"
         self.socket = None
         self.status = 0  # Idle
         # job_id defaults to 0 when not printing. See _status_update for logic
@@ -196,6 +196,11 @@ class PolarPrintService(X1PlusDBusService):
             # Do nothing. Otherwise we start to spam welcomes/hellos.
             return
         logger.info("Polar _on_welcome.")
+
+        # GIANT TODO!! using daemon settings is making the SN and keys persist
+        # across restarts. We need to deal with this bc when a printer is moved
+        # to a new DB it breaks things. Also, security?
+
         # Two possibilities here. If it's already registered there should be a
         # Polar Cloud serial number and a set of RSA keys. If not, then must
         # request keys first.
