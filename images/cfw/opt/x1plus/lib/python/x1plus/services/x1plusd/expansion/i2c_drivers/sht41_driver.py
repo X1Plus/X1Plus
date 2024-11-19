@@ -1,7 +1,16 @@
+"""
+[i2c-driver]
+device_type=sht41
+class_name=Sht41Driver
+[end]
+"""
 import binascii
 
+import logging
 import asyncio
 import time
+
+logger = logging.getLogger(__name__)
 
 class Sht41Driver():
     CMD_SERIAL_NUMBER = 0x89
@@ -9,8 +18,7 @@ class Sht41Driver():
     
     device_type = 'sht41'
 
-    def __init__(self, address, i2c_driver, config, logger):
-        self.logger = logger
+    def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
 
         self.sht41 = i2c_driver.i2c.get_port(address)
@@ -23,7 +31,7 @@ class Sht41Driver():
         self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{self.device_type}/{self.sn}")
         
         self.task = asyncio.create_task(self._task())
-        self.logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x} with serial number {self.sn}")
+        logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x} with serial number {self.sn}")
 
     def disconnect(self):
         if self.task:

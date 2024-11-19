@@ -1,4 +1,13 @@
 """
+[x1plusd-module]
+name=polar_cloud
+class_name=PolarPrintService
+requires_router=false
+settings_key=polar_cloud
+start_func=begin
+default_state=false
+[end]
+
 Module to allow printing using Polar Cloud service.
 """
 

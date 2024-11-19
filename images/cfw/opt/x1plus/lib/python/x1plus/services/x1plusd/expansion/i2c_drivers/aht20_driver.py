@@ -1,5 +1,15 @@
+"""
+[i2c-driver]
+device_type=aht20
+class_name=Aht20Driver
+[end]
+"""
+
+import logging
 import asyncio
 import time
+
+logger = logging.getLogger(__name__)
 
 class Aht20Driver():
     CMD_RESET = 0xBA
@@ -8,8 +18,7 @@ class Aht20Driver():
     
     device_type = 'aht20'
 
-    def __init__(self, address, i2c_driver, config, logger):
-        self.logger = logger
+    def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
 
         self.aht20 = i2c_driver.i2c.get_port(address)
@@ -37,7 +46,7 @@ class Aht20Driver():
         self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{self.device_type}")
         
         self.task = asyncio.create_task(self._task())
-        self.logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x}")
+        logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x}")
 
     def disconnect(self):
         if self.task:

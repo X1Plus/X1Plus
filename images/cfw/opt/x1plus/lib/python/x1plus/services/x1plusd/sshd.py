@@ -1,3 +1,13 @@
+"""
+[x1plusd-module]
+name=sshd
+class_name=SSHService
+requires_router=false
+settings_key=x1plusd.modules.sshd
+start_func=null
+default_state=true
+[end]
+"""
 import base64
 import os
 import subprocess
