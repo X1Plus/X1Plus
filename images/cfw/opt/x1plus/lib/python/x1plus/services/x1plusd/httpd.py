@@ -1,3 +1,13 @@
+"""
+[x1plusd-module]
+name=httpd
+class_name=HTTPService
+requires_router=true
+settings_key=x1plusd.modules.httpd
+required_modules=mqtt
+default_state=true
+[end]
+"""
 import os
 import subprocess
 import asyncio

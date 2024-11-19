@@ -1,12 +1,20 @@
+"""
+[i2c-driver]
+device_type=pmsa003i
+class_name=Pmsa003iDriver
+[end]
+"""
+import logging
 import asyncio
 import time
+
+logger = logging.getLogger(__name__)
 
 class Pmsa003iDriver():
 
     device_type = 'pmsa003i'
     
-    def __init__(self, address, i2c_driver, config, logger):
-        self.logger = logger
+    def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
 
         self.pmsa003i = i2c_driver.i2c.get_port(address)
@@ -17,7 +25,7 @@ class Pmsa003iDriver():
         
         
         self.task = asyncio.create_task(self._task())
-        self.logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x}")
+        logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x}")
 
     def disconnect(self):
         if self.task:
@@ -64,31 +72,31 @@ class Pmsa003iDriver():
                         pm5_0_conc += 65535
                     else: 
                         pm5_0_conc = -1
-                        self.logger.info(f"{self.device_type.upper()} {self.name} value for PM > 5.0 Concentation is out of range (>65535)")
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 5.0 Concentation is out of range (>65535)")
                 if pm2_5_conc < pm5_0_conc:
                     if self.overflow_mitigation:
                         pm2_5_conc += 65535
                     else: 
                         pm2_5_conc = -1
-                        self.logger.info(f"{self.device_type.upper()} {self.name} value for PM > 2.5 Concentation is out of range (>65535)")
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 2.5 Concentation is out of range (>65535)")
                 if pm1_0_conc < pm2_5_conc:
                     if self.overflow_mitigation:
                         pm1_0_conc += 65535
                     else: 
                         pm1_0_conc = -1
-                        self.logger.info(f"{self.device_type.upper()} {self.name} value for PM > 1.0 Concentation is out of range (>65535)")
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 1.0 Concentation is out of range (>65535)")
                 if pm0_5_conc < pm1_0_conc:
                     if self.overflow_mitigation:
                         pm0_5_conc += 65535
                     else: 
                         pm0_5_conc = -1
-                        self.logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.5 Concentation is out of range (>65535)")
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.5 Concentation is out of range (>65535)")
                 if pm0_3_conc < pm0_5_conc:
                     if self.overflow_mitigation:
                         pm0_3_conc += 65535
                     else: 
                         pm0_3_conc = -1
-                        self.logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.3 Concentation is out of range (>65535)")
+                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.3 Concentation is out of range (>65535)")
 
                 await self.sensors.publish(self.name, type = self.device_type,
                     pm1_0_ugm3_std = pm1_0_ugm3_std, pm2_5_ugm3_std = pm2_5_ugm3_std, pm10_ugm3_std = pm10_ugm3_std,

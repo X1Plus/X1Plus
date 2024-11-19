@@ -1,3 +1,12 @@
+"""
+[x1plusd-module]
+name=sensors
+class_name=SensorsService
+requires_router=true
+settings_key=x1plusd.modules.sensors
+default_state=true
+[end]
+"""
 import logging
 import asyncio
 import time
@@ -35,6 +44,7 @@ class SensorsService(X1PlusDBusService):
 
         await self.emit_signal("SensorUpdate", { name: data })
         
-        # use the "synthesize_report" mechanism in mqtt_reroute.cpp to make
-        # device_gate publish both to the local mqtt broker and to the cloud
-        await self.daemon.mqtt.publish_request({ "x1plus": { "synthesize_report": { "x1plus": { "sensor": { name: data } } } } })
+        if hasattr(self.daemon, 'mqtt'):
+            # use the "synthesize_report" mechanism in mqtt_reroute.cpp to make
+            # device_gate publish both to the local mqtt broker and to the cloud
+            await self.daemon.mqtt.publish_request({ "x1plus": { "synthesize_report": { "x1plus": { "sensor": { name: data } } } } })
