@@ -35,3 +35,10 @@ cp jq /work/images/cfw/usr/bin/jq
 chmod +x /work/images/cfw/usr/bin/jq
 exit
 ```
+
+## Compile of h264tojpeg
+
+```
+git clone https://github.com/oneam/h264bsd/
+arm-linux-gnueabihf-gcc -o h264tojpeg h264tojpeg.c h264bsd/src/*.c -I.../libvncserver/src/common/ $PATH_TO_MOUNTED_BAMBU_FILESYSTEM/lol/usr/lib/libturbojpeg.so -O3
+```
