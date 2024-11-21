@@ -59,7 +59,7 @@ void savePic(u8* picData, int width, int height, int bufw, int bufh, int picNum)
   u8 *vData = uData + bufw * bufh / 4;
   const u8 *planes[3] = { yData, uData, vData };
 
-  int rv = tjCompressFromYUVPlanes(compr, planes, width, NULL, height, TJSAMP_420, &outbuf, &outsz, 90, 0);
+  int rv = tjCompressFromYUVPlanes(compr, planes, width, NULL, height, TJSAMP_420, &outbuf, &outsz, 75, 0);
   if (rv < 0) {
     perror("tjCompressFromYUVPlanes");
     exit(1);
@@ -68,8 +68,6 @@ void savePic(u8* picData, int width, int height, int bufw, int bufh, int picNum)
   tjDestroy(compr);
 
   fwrite(outbuf, outsz, 1, fd);
-  
-  printf("wrote jpeg %d, outsz %zu\n", rv, outsz);
   fclose(fd);
 }
 
@@ -114,22 +112,25 @@ void decodeContent (u8* contentBuffer, size_t contentSize) {
         }
 
         char* cropped = croppingFlag ? "(cropped) " : "";
-        printf("Decoded headers. Image size %s%dx%d, orig was %dx%d.\n", cropped, width, height, h264bsdPicWidth(&dec) * 16, h264bsdPicHeight(&dec) * 16);
+        fprintf(stderr, "decoded headers: image size %s%dx%d, orig was %dx%d\n", cropped, width, height, h264bsdPicWidth(&dec) * 16, h264bsdPicHeight(&dec) * 16);
         break;
       case H264BSD_RDY:
         break;
       case H264BSD_ERROR:
-        printf("Error\n");
+        fprintf(stderr, "h264bsd Error\n");
         exit(1);
       case H264BSD_PARAM_SET_ERROR:
-        printf("Param set error\n");
+        fprintf(stderr, "h264bsd Param set error\n");
         exit(1);
     }
   }
 
   h264bsdShutdown(&dec);
 
-  printf("Test file complete. %d pictures decoded.\n", numPics);
+  if (numPics != 1) {
+    fprintf(stderr, "decoded wrong number of pictures %d\n", numPics);
+    exit(1);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -148,4 +149,6 @@ int main(int argc, char *argv[]) {
 
   loadContent(contentPath, contentBuffer, contentSize);
   decodeContent(contentBuffer, contentSize);
+
+  return 0;
 }
