@@ -17,6 +17,7 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from base64 import b64encode
 
+from x1plus.aiocamera import AioRtspReceiver
 from x1plus.utils import get_IP, get_MAC, get_passwd, is_emulating
 from x1plus.utils import serial_number as utils_sn
 
@@ -39,9 +40,8 @@ POLAR_PATH = "/x1plus/polar"
 ssl_ctx = ssl.create_default_context(capath="/etc/ssl/certs")
 connector = aiohttp.TCPConnector(ssl=ssl_ctx)
 http_session = aiohttp.ClientSession(connector=connector)
-# TODO: uncomment when camera capture is ready.
-# aws_connector = aiohttp.TCPConnector(ssl=ssl_ctx)
-# aws_http_session = aiohttp.ClientSession(connector=aws_connector)
+aws_connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+aws_http_session = aiohttp.ClientSession(connector=aws_connector)
 
 
 class PolarPrintService(X1PlusDBusService):
@@ -157,9 +157,8 @@ class PolarPrintService(X1PlusDBusService):
             except Exception as e:
                 time.sleep(5)
         logger.info("Polar socket created!")
-        # TODO: uncomment when camera capture is ready.
-        # await self._get_url("idle")
-        # await self._get_url("printing")
+        await self._get_url("idle")
+        await self._get_url("printing")
         # Assign socket callbacks.
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
@@ -171,8 +170,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("resume", self._on_resume)
         self.socket.on("cancel", self._on_cancel)
         self.socket.on("delete", self._on_delete)
-        # TODO: uncomment when camera capture is ready.
-        #         self.socket.on("getUrlResponse", self._on_url_response)
+        self.socket.on("getUrlResponse", self._on_url_response)
         logger.info("Polar Attached all sockets.")
         await super().task()
         logger.info("Polar Cloud is running.")
@@ -544,24 +542,19 @@ class PolarPrintService(X1PlusDBusService):
                 #     f"Polar status update {self.status} {datetime.datetime.now()}"
                 # )
                 self.last_ping = datetime.datetime.now()
-                # TODO: turn capture_image back on.
-                # if capture_image == True:
-                #     # Capture and upload a new image every other status update.
-                #     self.capture_frames(
-                #         device_path="/dev/video20",
-                #         output_dir="ipcam",
-                #         num_frames=1,
-                #         interval=1,
-                #     )
-                # TODO: turn upload jpeg back on.
-                # if self.status in [0, 8, 9, 10, 15]:
-                #     # In these cases send idle image.
-                #     # (TODO: are these all the cases for idle?)
-                #     await self._upload_jpeg("idle")
-                # elif self.status != 11:
-                #     await self._upload_jpeg("printing")
-                # # Next time through loop it will capture (or not).
-                # capture_image = not capture_image
+
+                if capture_image == True:
+                    # Capture and upload a new image every other status update.
+                    cam = AioRtspReceiver()
+                    jpeg = await cam.receive_jpeg()
+                    if self.status in [0, 8, 9, 10, 15]:
+                        # In these cases send idle image.
+                        # (TODO: are these all the cases for idle?)
+                        await self._upload_jpeg("idle", jpeg)
+                    elif self.status != 11:
+                        await self._upload_jpeg("printing", jpeg)
+                # Next time through loop it will capture (or not).
+                capture_image = not capture_image
 
             except Exception as e:
                 logger.error(f"emit status failed: \x1b[31;1m{e}\x1b[0m")
@@ -587,7 +580,7 @@ class PolarPrintService(X1PlusDBusService):
                 await asyncio.sleep(30)
         logger.debug("Polar status ending.")
 
-    async def _upload_jpeg(self, which_state="printing") -> None:
+    async def _upload_jpeg(self, which_state, jpeg) -> None:
         """
         Upload an image to Polar Cloud's S3. The url varies for idle or printing
         images. All the connection info is stored in self.printing_cam_stream
@@ -600,20 +593,29 @@ class PolarPrintService(X1PlusDBusService):
             this_vars = self.idle_cam_stream
         else:
             this_vars = self.printing_cam_stream
+
         if this_vars["expiration_time"] - time.time() < 300:
             # There are fewer than five mins before the upload url expires;
             # get a new one.
             await self._get_url(which_state)
+
+        if 'url' not in this_vars:
+            logger.warning("no URL yet to upload jpeg")
+            return
+
         # Now do actual upload.
         # logger.debug(f"Polar AWS form data {this_vars['form_data']}")
-        # logger.debug(f"Polar curl call {this_vars['curl_call']}")
-        response_data = subprocess.run(
-            this_vars["curl_call"], capture_output=True, shell=True
-        ).stdout.strip()
-        # async with aws_http_session.post(this_vars["url"], data=this_vars["form_data"]) as response:
-        #     # Process the response
-        #     response_data = await response.text()
-        logger.debug(f"Attempted image uploaded\n{response_data}")
+        
+        data = aiohttp.FormData()
+        for k,v in this_vars['form_data'].items():
+            data.add_field(k, str(v))
+        data.add_field('file', jpeg, filename='frame_0.jpg', content_type='image/jpeg')
+        
+        async with aws_http_session.post(this_vars["url"], data=data) as response:
+            # Process the response
+            logger.debug(f"upload response: {response}")
+            response_data = await response.text()
+        logger.debug(f"Attempted image uploaded: {response_data}")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -809,17 +811,10 @@ class PolarPrintService(X1PlusDBusService):
             elif data["type"] == "printing":
                 cam_dict = self.printing_cam_stream
             cam_dict["expiration_time"] = time.time() + int(data["expires"])
-            # cam_dict["url"] = data["url"]
-            # cam_dict["form_data"] = data["fields"].copy()
+            cam_dict["url"] = data["url"]
+            cam_dict["form_data"] = data["fields"].copy()
             # cam_dict["form_data"]["file"] = "@/sdcard/ipcam/frame_0.jpg;type=image/jpeg"
             # cam_dict["form_data"]["X-Amz-Expires"] = data["expires"]
-            # curl_form_string = " ".join([f"-F '{x}={y}'" for (x, y) in data["fields"].items()])
-            curl_list = ["curl", "-X", "POST"]
-            for k, v in data["fields"].items():
-                curl_list += ["-F", f"'{k}={v}'"]
-            curl_list += ["-F", "'file=@/sdcard/ipcam/frame_0.jpg;type=image/jpeg'"]
-            curl_list.append(f'\'{data["url"]}\'')
-            cam_dict["curl_call"] = " ".join(curl_list)
         # TODO: need to deal with failures on these two:
         elif data["message"] == "FAILED":
             logger.error(f"Polar get_url failed: {data['message']}")
@@ -902,64 +897,3 @@ class PolarPrintService(X1PlusDBusService):
             return "123456789"
         else:
             return utils_sn()
-
-    def capture_frames(
-        self, device_path="/dev/video20", output_dir="ipcam", num_frames=10, interval=2
-    ):
-        """
-        Capture num_frames single frame images from camera at interval of `interval`
-        seconds and save to /sdcard/ipcam directory.
-
-        To capture from nozzle cam, set `device_path` to /dev/video13.
-
-        Note that many franes may be captured, that they will be overwritten on
-        the next call to capture_frames, and that at no point are the captured
-        frames deleted from the SD card, so use with caution.
-        """
-        logger.info("Polar capture_frames")
-        try:
-            os.makedirs(output_dir, exist_ok=True)
-            pixel_format = "--set-fmt-video=width=1280,height=720,pixelformat=MJPG"
-            if device_path == "/dev/video13":
-                # Note I defaulted to YUYV here. Could also be NV12.
-                pixel_format = "--set-fmt-video=width=640,height=480,pixelformat=YUYV"
-
-            # cap_cmd = ["v4l2-ctl", "--device", device_path, "--all"]
-            # result = subprocess.run(cap_cmd, capture_output=True, text=True)
-            # logger.info(f"{result.stdout}")
-
-            logger.debug("Setting video format.")
-            fmt_cmd = [
-                "v4l2-ctl",
-                "--device",
-                device_path,
-                pixel_format,
-            ]
-            subprocess.run(fmt_cmd, check=True)
-
-            for i in range(num_frames):
-                output_file = os.path.join("/sdcard", output_dir, f"frame_{i}.jpg")
-                capture_cmd = [
-                    "v4l2-ctl",
-                    "--device",
-                    device_path,
-                    "--stream-mmap=3",
-                    "--stream-count=1",
-                    "--stream-to",
-                    output_file,
-                ]
-
-                result = subprocess.run(capture_cmd, capture_output=True, text=True)
-
-                if result.returncode == 0:
-                    logger.info(f"Saved frame_{i}.jpg")
-                else:
-                    logger.error(f"Failed to capture frame {i}. Error: {result.stderr}")
-
-                if i < num_frames - 1:
-                    time.sleep(interval)
-
-        except subprocess.CalledProcessError as e:
-            logger.error(f"An error occurred during capture: {str(e)}")
-        except Exception as e:
-            logger.error(f"unexpected error occurred: {str(e)}", exc_info=True)
