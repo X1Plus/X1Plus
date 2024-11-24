@@ -1,0 +1,58 @@
+Metadata-Version: 2.1
+Name: aiortsp
+Version: 1.4.0
+Summary: An asyncio-based RTSP library
+Home-page: https://github.com/marss/aiortsp
+Author: MARSS S.A.M.
+Author-email: info@marss.com
+License: GNU Lesser General Public License v3 or later
+Keywords: asyncio,rtsp
+Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Requires-Python: ~=3.6
+License-File: LICENSE
+Requires-Dist: dpkt ~=1.9
+
+RTSP Library for asyncio
+========================
+
+.. image:: https://travis-ci.com/marss/aiortsp.svg?branch=master
+    :target: https://travis-ci.com/marss/aiortsp
+
+.. image:: https://coveralls.io/repos/github/marss/aiortsp/badge.svg?branch=master
+    :target: https://coveralls.io/github/marss/aiortsp?branch=master
+
+This is a very simple asyncio library for interacting with an
+RTSP server, with basic RTP/RTCP support.
+
+The intended use case is to provide a pretty low level control
+of what happens at RTSP connection level, all in python/asyncio.
+
+This library does not provide any decoding capability,
+it is up to the client to decide what to do with received RTP packets.
+
+One could easily decode using `OpenCV <https://pypi.org/project/opencv-python/>`_
+or `PyAV <https://pypi.org/project/av/>`_, or not at all depending on the intended
+use.
+
+See ``examples`` for how to use the lib internals, butfor quick usage:
+
+.. code-block:: python3
+
+    import asyncio
+    from aiortsp.rtsp.reader import RTSPReader
+
+    async def main():
+        # Open a reader (which means RTSP connection, then media session)
+        async with RTSPReader('rtsp://cam/video.sdp') as reader:
+            # Iterate on RTP packets
+            async for pkt in reader.iter_packets():
+                print('PKT', pkt.seq, pkt.pt, len(pkt))
+
+    asyncio.run(main())
