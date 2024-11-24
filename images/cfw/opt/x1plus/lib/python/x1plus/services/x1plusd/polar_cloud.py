@@ -62,7 +62,7 @@ class PolarPrintService(X1PlusDBusService):
         self.server_url = "https://printer2.polar3d.com" # "http://status-dev.polar3d.com/"
         self.socket = None
         self.status = 0  # Idle
-        # job_id defaults to 0 when not printing. See _status_update for logic
+        # job_id defaults to "0" when not printing. See _status_update for logic
         # on changes to this value.
         self.job_id = "0"
         self.file_name = ""
@@ -543,7 +543,7 @@ class PolarPrintService(X1PlusDBusService):
                 # )
                 self.last_ping = datetime.datetime.now()
 
-                if capture_image == True:
+                if capture_image:
                     # Capture and upload a new image every other status update.
                     cam = AioRtspReceiver()
                     jpeg = await cam.receive_jpeg()
