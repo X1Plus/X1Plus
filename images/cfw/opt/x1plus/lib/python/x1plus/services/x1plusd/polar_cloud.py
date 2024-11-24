@@ -59,7 +59,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from `env`.
         # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
-        self.server_url = "https://printer2.polar3d.com" # "http://status-dev.polar3d.com/"
+        self.server_url = "https://printer4.polar3d.com" # "http://status-dev.polar3d.com/"
         self.socket = None
         self.status = 0  # Idle
         # job_id defaults to 0 when not printing. See _status_update for logic
@@ -173,7 +173,6 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("delete", self._on_delete)
         # TODO: uncomment when camera capture is ready.
         #         self.socket.on("getUrlResponse", self._on_url_response)
-        logger.info("Polar Attached all sockets.")
         await super().task()
         logger.info("Polar Cloud is running.")
 
