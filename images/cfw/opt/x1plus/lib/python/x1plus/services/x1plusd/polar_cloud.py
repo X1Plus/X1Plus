@@ -59,7 +59,7 @@ class PolarPrintService(X1PlusDBusService):
         # username is here only for emulation mode when reading from `env`.
         # Note that we're using env and not .env so users can easily edit it.
         self.username = ""
-        self.server_url = "https://printer2.polar3d.com" # "http://status-dev.polar3d.com/"
+        self.server_url = "https://printer4.polar3d.com" # "http://status-dev.polar3d.com/"
         self.socket = None
         self.status = 0  # Idle
         # job_id defaults to "0" when not printing. See _status_update for logic
@@ -613,7 +613,7 @@ class PolarPrintService(X1PlusDBusService):
         
         async with aws_http_session.post(this_vars["url"], data=data) as response:
             # Process the response
-            logger.debug(f"upload response: {response}")
+            # logger.debug(f"upload response: {response}")
             response_data = await response.text()
         logger.debug(f"Attempted image uploaded: {response_data}")
 
