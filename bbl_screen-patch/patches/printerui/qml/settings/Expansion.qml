@@ -124,7 +124,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: 30
             
-            text: qsTr("You can customize the behavior of peripherals attached to your %1.  Never add or remove an expansion module while your printer is powered on.").arg(X1Plus.Expansion.productName())
+            text: qsTr("You can customize the behavior of peripherals attached to your %1.  Never add or remove an add-on module while your printer is powered on.").arg(X1Plus.Expansion.productName())
         }
     }
 
@@ -179,10 +179,10 @@ Item {
             }
         }
 
-        DeviceInfoItem { title: qsTr("Port A"); value: mk_port_text("port_a"); hidden: X1Plus.Expansion.status().ports["port_a"] === undefined; function onClicked() { } }
-        DeviceInfoItem { title: qsTr("Port B"); value: mk_port_text("port_b"); hidden: X1Plus.Expansion.status().ports["port_b"] === undefined; function onClicked() { } }
-        DeviceInfoItem { title: qsTr("Port C"); value: mk_port_text("port_c"); hidden: X1Plus.Expansion.status().ports["port_c"] === undefined; function onClicked() { } }
-        DeviceInfoItem { title: qsTr("Port D"); value: mk_port_text("port_d"); hidden: X1Plus.Expansion.status().ports["port_d"] === undefined; function onClicked() { } }
+        DeviceInfoItem { title: qsTr("Port A"); value: mk_port_text("port_a"); hidden: X1Plus.Expansion.status().ports["port_a"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "a" }); } }
+        DeviceInfoItem { title: qsTr("Port B"); value: mk_port_text("port_b"); hidden: X1Plus.Expansion.status().ports["port_b"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "b" }); } }
+        DeviceInfoItem { title: qsTr("Port C"); value: mk_port_text("port_c"); hidden: X1Plus.Expansion.status().ports["port_c"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "c" }); } }
+        DeviceInfoItem { title: qsTr("Port D"); value: mk_port_text("port_d"); hidden: X1Plus.Expansion.status().ports["port_d"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "d" }); } }
 
         DeviceInfoItem { title: qsTr("I²C (STEMMA)"); value: qsTr("Port in use by expansion module"); function onClicked() { } }
         

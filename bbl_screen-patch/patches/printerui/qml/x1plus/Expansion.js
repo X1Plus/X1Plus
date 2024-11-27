@@ -24,11 +24,10 @@ var X1Plus = null;
 // This probably will never change, but for consistency with other things,
 // it is a binding.
 var [status, _onStatus, _setStatus] = Binding.makeBinding(null);
-
-var defs = null;
+var [database, _onDatabase, _setDatabase] = Binding.makeBinding({});
 
 function productName() {
-	return "X1Plus Expansion Board"; // will this change?  I guess we'll know in the future!
+	return "X1Plus Expander"; // XXX: look this up in the database
 }
 
 function moduleTypeInPort(port) {
@@ -58,5 +57,5 @@ function awaken() {
 	}
 	_setStatus(curStatus);
 	
-	defs = X1Plus.loadJson("/opt/x1plus/share/expansion/expansion.json") || {"expansions": {}, "modules": {}};
+	_setDatabase(X1Plus.loadJson("/opt/x1plus/share/expansion/expansion.json") || {"expansions": {}, "modules": {}});
 }

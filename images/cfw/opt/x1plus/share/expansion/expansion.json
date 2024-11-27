@@ -1,7 +1,7 @@
 {
   "expansions": {
     "X1P-002-B": {
-      "name": "X1Plus Expansion Board",
+      "name": "X1Plus Expander",
       "driver": "ft2232",
       "ports": 2,
       "image": "x1p-002.png"
