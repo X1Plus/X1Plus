@@ -43,10 +43,13 @@ It would probably be ergonomic to write action scripts in YAML and convert
 them to JSON before embedding them in G-code.
 """
 
+import os
 import asyncio
 import logging
 import json
 import yaml
+
+from x1plus.utils import module_loader, module_docstring_parser
 
 from .dbus import *
 
@@ -63,6 +66,29 @@ class ActionHandler(X1PlusDBusService):
         super().__init__(
             dbus_interface=ACTIONS_INTERFACE, dbus_path=ACTIONS_PATH, **kwargs
         )
+        self.load_actions()
+    
+    def load_actions(self):
+        actions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./action_types")
+
+        # Load all actions from directory and register actions
+        for filename in os.listdir(actions_dir):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                module_name = filename[:-3]
+                _path = os.path.join(actions_dir, filename)
+
+                _data = module_docstring_parser(_path, "action-type")
+                if not _data or not _data.get("name", None):
+                    continue
+
+                package = "x1plus.services.x1plusd.action_types"
+
+                module, module_name = module_loader(_path, package)
+                if not module:
+                    continue
+
+                logger.info(f"Registered Actions from module: {_data.get("name")}")
+               
 
     async def dbus_Execute(self, req):
         async def subtask():
@@ -108,50 +134,3 @@ def register_action(name, handler = None):
         return decorator
     else:
         decorator(handler)
-
-###
-
-@register_action("syslog")
-async def _action_syslog(handler, subconfig):
-    logger.info(f"syslog action: {subconfig}")
-
-
-@register_action("gcode")
-async def _action_gcode(handler, subconfig):
-    logger.debug(f"gcode action: {subconfig}")
-    if type(subconfig) != str:
-        raise TypeError(f"gcode parameter {subconfig} was not str")
-    await handler.daemon.mqtt.publish_request({ "print": { "command": "gcode_line", "sequence_id": "0", "param": subconfig } })
-
-
-@register_action("delay")
-async def _action_delay(handler, subconfig):
-    logger.debug(f"delay action: {subconfig}")
-    if type(subconfig) != int and type(subconfig) != float:
-        raise TypeError(f"delay parameter {subconfig} was not numberish")
-    await asyncio.sleep(subconfig)
-
-
-@register_action("file")
-async def _action_file(handler, subconfig):
-    if type(subconfig) != str:
-        raise TypeError(f"parameter {subconfig} to 'file' action was not a string")
-    if subconfig[0] != "/":
-        subconfig = f"/sdcard/{subconfig}"
-    with open(subconfig) as f:
-        contents_raw = f.read()
-    
-    contents = None
-    if contents is None:
-        try:
-            contents = json.loads(contents_raw)
-        except:
-            pass
-    if contents is None:
-        try:
-            contents = yaml.safe_load(contents_raw)
-        except:
-            pass
-    if contents is None:
-        raise ValueError(f"file {subconfig} seemed to be neither a yaml file nor a json file")
-    return await handler.execute_step(contents)
