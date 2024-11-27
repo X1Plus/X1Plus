@@ -53,29 +53,30 @@ def module_loader(filepath, package_name):
     return module, module_name
 
 def module_docstring_parser(filepath: str, loader_type: str) -> dict:
-        content = None
-        config = {}
-        try:
-            with open(filepath, 'r') as file:
-                content = file.read()
-        except Exception as e:
-            logger.warn(f"Could not load {filepath} in {loader_type} loader. {e.__class__.__name__}: {e}")
-            return config
-        
-        docstring_match = re.match(r"^([\"']{3})(.*?)\1", content, re.DOTALL)
-        if not docstring_match:
-            logger.debug(f"No docstring found for {filepath} for {loader_type} loader")
-            return config
-        
-        docstring = docstring_match.group(2).strip()
-        definition_block_match = re.search(rf"\[{re.escape(loader_type)}\](.*?)\[end\]", docstring, re.DOTALL)
-        if not definition_block_match:
-            logger.debug(f"Could not find module definition in docstring for {filepath} for {loader_type} loader")
-            return config
-
-        definition_block = definition_block_match.group(1).strip()
-        for line in definition_block.splitlines():
-            if "=" in line:
-                key, val = map(str.strip, line.split("=", 1))
-                config[key] = val
+    """Return dict for docstring values matching in a pre-defined block"""
+    content = None
+    config = {}
+    try:
+        with open(filepath, 'r') as file:
+            content = file.read()
+    except Exception as e:
+        logger.warn(f"Could not load {filepath} in {loader_type} loader. {e.__class__.__name__}: {e}")
         return config
+    
+    docstring_match = re.match(r"^([\"']{3})(.*?)\1", content, re.DOTALL)
+    if not docstring_match:
+        logger.debug(f"No docstring found for {filepath} for {loader_type} loader")
+        return config
+    
+    docstring = docstring_match.group(2).strip()
+    definition_block_match = re.search(rf"\[{re.escape(loader_type)}\](.*?)\[end\]", docstring, re.DOTALL)
+    if not definition_block_match:
+        logger.debug(f"Could not find module definition in docstring for {filepath} for {loader_type} loader")
+        return config
+
+    definition_block = definition_block_match.group(1).strip()
+    for line in definition_block.splitlines():
+        if "=" in line:
+            key, val = map(str.strip, line.split("=", 1))
+            config[key] = val
+    return config
