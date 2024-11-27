@@ -10,6 +10,8 @@ import x1plus.utils
 from .dbus import *
 from .settings import SettingsService
 
+from x1plus.utils import module_loader, module_docstring_parser
+
 logger = logging.getLogger(__name__)
 
 class X1PlusDaemon:
@@ -60,7 +62,7 @@ class X1PlusDaemon:
                         continue
 
                     if filename.endswith(".py") and not filename.startswith("_"):
-                        module_data = self.module_parser(file_path)
+                        module_data = module_docstring_parser(file_path, "x1plusd-module")
                         if not module_data or not module_data.get("class_name", None):
                             continue
 
@@ -76,7 +78,7 @@ class X1PlusDaemon:
                         if not package:
                             continue
 
-                        module, module_name = self.load_module(file_path, package)
+                        module, module_name = module_loader(file_path, package)
                         """
                         [x1plusd-module]
                         name=name, required
@@ -88,7 +90,8 @@ class X1PlusDaemon:
                         default_state=bool, default: false. Determines its default enabled state when not present in settings
                         [end]
                         """
-                
+                        if not module:
+                            continue
                         if not hasattr(module, module_data.get("class_name")):
                             logger.warn(f"Could not load {module_name} in x1plusd module loader. Class not found: {module_data.get("class_name")}")
                             continue
@@ -123,7 +126,7 @@ class X1PlusDaemon:
                                 self.MODULES[module_data.get("name")]["loaded"] = True
 
                         except Exception as e:
-                            logger.error(f"Could not start x1plus module {module_data.get("name")}. {e.__class__.__name__}: {e}")
+                            logger.error(f"Could not start x1plusd module {module_data.get("name")}. {e.__class__.__name__}: {e}")
                             del self.MODULES[module_data.get("name")]
                 except Exception as e:
                     logger.error(f"Error loading x1plusd modules. {e.__class__.__name__}: {e}")
@@ -163,7 +166,7 @@ class X1PlusDaemon:
                             module["loaded"] = True
 
                         except Exception as e:
-                            logger.error(f"Could not start x1plus module {name}. {e.__class__.__name__}: {e}")
+                            logger.error(f"Could not start x1plusd module {name}. {e.__class__.__name__}: {e}")
                             failed_modules.append(name)
                             continue
                         continue
@@ -195,45 +198,6 @@ class X1PlusDaemon:
             logger.error(f"Error adding x1plusd modules. {e.__class__.__name__}: {e}")
 
         return self
-
-
-    def load_module(self, file_path, package_name):
-        module_name = os.path.splitext(os.path.basename(file_path))[0]
-        module = importlib.import_module(f"{package_name}.{module_name}")
-        return module, module_name
-
-
-    def module_parser(self, filepath: str) -> dict:
-        content = None
-        config = {}
-        try:
-            with open(filepath, "r") as file:
-                content = file.read()
-        except Exception as e:
-            logger.warn(f"Could not load {filepath} in module loader. {e.__class__.__name__}: {e}")
-            return config
-        
-        if not content:
-            return config
-
-        docstring_match = re.match(r"^([\"']{3})(.*?)\1", content, re.DOTALL)
-        if not docstring_match:
-            logger.debug(f"No docstring found for {filepath} for module loader")
-            return config
-        
-        docstring = docstring_match.group(2).strip()
-        module_block_match = re.search(r"\[x1plusd-module\](.*?)\[end\]", docstring, re.DOTALL)
-        if not module_block_match:
-            logger.info(f"Could not find module definition in docstring for {filepath} for module loader")
-            return config
-
-        module_block = module_block_match.group(1).strip()
-        for line in module_block.splitlines():
-            if "=" in line:
-                key, val = map(str.strip, line.split("=", 1))
-                config[key] = val
-        return config
-  
 
     async def start(self):
         asyncio.create_task(self.settings.task())

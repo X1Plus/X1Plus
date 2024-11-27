@@ -9,6 +9,8 @@ import binascii
 import asyncio
 import time
 
+from x1plus.utils import module_loader, module_docstring_parser
+
 logger = logging.getLogger(__name__)
 
 class I2cDriver():
@@ -30,19 +32,25 @@ class I2cDriver():
                 module_name = filename[:-3]
                 driver_path = os.path.join(self.DRIVER_DIR, filename)
 
-                driver_data = self.driver_parser(driver_path)
+                driver_data = module_docstring_parser(driver_path, "i2c-driver")
                 if not driver_data or not driver_data.get("class_name", None) or not driver_data.get("device_type", None):
                     continue
 
                 package = "x1plus.services.x1plusd.expansion.i2c_drivers"
 
-                module, module_name = self.load_module(driver_path, package)
+                module, module_name = module_loader(driver_path, package)
+                if not module:
+                    continue
                 if not hasattr(module, driver_data.get("class_name")):
                     logger.warn(f"Could not load {module_name} in i2c driver loader. Class not found: {driver_data.get("class_name")}")
                     continue
 
-                driver_class = getattr(module, driver_data.get("class_name"))
-                self.DEVICE_DRIVERS[driver_data.get("device_type")] = driver_class
+                try:
+                    driver_class = getattr(module, driver_data.get("class_name"))
+                    self.DEVICE_DRIVERS[driver_data.get("device_type")] = driver_class
+                    logger.info(f"Loaded I2C Driver: {driver_data.get("device_type")}")
+                except Exception as e:
+                    logger.error(f"Failed to load I2C Driver '{driver_data.get("device_type")}': {e.__class__.__name__}: {e}")
         
         # I2C config format is just a dict of addresses -> devices
         for address, devices in config.items():
@@ -64,39 +72,3 @@ class I2cDriver():
         for d in self.devices:
             d.disconnect()
         self.i2c.close()
-
-    
-    def load_module(self, file_path, package_name):
-        module_name = os.path.splitext(os.path.basename(file_path))[0]
-        module = importlib.import_module(f"{package_name}.{module_name}")
-        return module, module_name
-
-
-    def driver_parser(self, filepath: str) -> dict:
-        content = None
-        config = {}
-        try:
-            with open(filepath, 'r') as file:
-                content = file.read()
-        except Exception as e:
-            logger.warn(f"Could not load {filepath} in i2c driver loader. {e.__class__.__name__}: {e}")
-            return config
-        
-        docstring_match = re.match(r"^([\"']{3})(.*?)\1", content, re.DOTALL)
-        if not docstring_match:
-            logger.debug(f"No docstring found for {filepath} for i2c driver loader")
-            return config
-        
-        docstring = docstring_match.group(2).strip()
-        definition_block_match = re.search(r"\[i2c-driver\](.*?)\[end\]", docstring, re.DOTALL)
-        if not definition_block_match:
-            logger.info(f"Could not find driver definition in docstring for {filepath} for i2c driver loader")
-            return config
-
-        definition_block = definition_block_match.group(1).strip()
-        for line in definition_block.splitlines():
-            if "=" in line:
-                key, val = map(str.strip, line.split("=", 1))
-                config[key] = val
-        return config
-  
