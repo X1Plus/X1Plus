@@ -55,7 +55,7 @@ Item {
             Layout.rightMargin: 24
             Layout.alignment: Qt.AlignTop | Qt.AlignLeft
             fillMode: Image.PreserveAspectFit
-            source: "../../icon/components/mc-board.svg" /* XXX */
+            source: "../../icon/components/addon-module.png"
         }
         
         GridLayout {
@@ -90,7 +90,7 @@ Item {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                text: qsTr("Use port as:")
+                text: qsTr("<b>Use port as:</b>")
             }
             
             /* XXX: complain if port_stat does not match selected module */
