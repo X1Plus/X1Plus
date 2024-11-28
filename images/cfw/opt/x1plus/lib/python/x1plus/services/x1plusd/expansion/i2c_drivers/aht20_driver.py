@@ -1,6 +1,6 @@
 """
 [i2c-driver]
-device_type=aht20
+name=aht20
 class_name=Aht20Driver
 [end]
 """

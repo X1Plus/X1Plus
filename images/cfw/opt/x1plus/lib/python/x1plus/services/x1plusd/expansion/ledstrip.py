@@ -1,3 +1,9 @@
+"""
+[expansion-driver]
+name=ledstrip
+class_name=LedStripDriver
+[end]
+"""
 import os
 import logging
 import asyncio
