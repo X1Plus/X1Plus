@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.12
 import UIBase 1.0
 import Printer 1.0
 import "qrc:/uibase/qml/widgets"
+import "qrc:/printerui/qml/X1Plus.js" as X1Plus
 
 GridLayout {
     rowSpacing: 24
@@ -32,7 +33,7 @@ GridLayout {
         checked: true
         enabled: !changes_pending
         
-        onClicked: { /* XXX */; }
+        onClicked: { X1Plus.Actions.execute({ "gpio": { "action": "pulse", "duration": "0.5", "gpio": { "function": "buzzer", "port": port }}}); }
     }
 
     Text {
