@@ -16,7 +16,7 @@
       "configuration_ui": "I2c.qml"
     },
     "X1P-004-A": {
-      "name": "LED strip",
+      "name": "LED-strip level shifter module",
       "configuration": {
         "ledstrip": {}
       },
@@ -38,7 +38,7 @@
       "configuration_ui": "X1P-005.qml"
     },
     "X1P-006-B": {
-      "name": "Shutter release",
+      "name": "Shutter release module",
       "configuration": {
         "ledstrip": {
           "leds": 0,
