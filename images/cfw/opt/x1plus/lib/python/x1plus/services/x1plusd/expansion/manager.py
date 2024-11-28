@@ -19,9 +19,9 @@ import pyftdi.ftdi
 
 from ..dbus import *
 
-from .i2c import I2cDriver
-from .ledstrip import LedStripDriver
 from .detect_eeprom import detect_eeprom
+
+from x1plus.utils import module_loader, module_docstring_parser
 
 # workaround for missing ldconfig
 def find_library(lib):
@@ -73,7 +73,7 @@ EXPANSION_INTERFACE = "x1plus.expansion"
 EXPANSION_PATH = "/x1plus/expansion"
 
 class ExpansionManager(X1PlusDBusService):
-    DRIVERS = { 'i2c': I2cDriver, 'ledstrip': LedStripDriver }
+    DRIVERS = {}
 
     def __init__(self, daemon, **kwargs):
         self.daemon = daemon
@@ -103,6 +103,8 @@ class ExpansionManager(X1PlusDBusService):
             self.ftdi_nports = 2
             logger.warning(f"FTDI product ID {self.expansion.ftdidev.idProduct:x} unrecognized")
 
+        self.load_drivers()
+
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
             self.eeproms[port_name] = None
@@ -125,7 +127,36 @@ class ExpansionManager(X1PlusDBusService):
             dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
         )
 
-    
+    def load_drivers(self):
+        DRIVER_DIR = os.path.dirname(os.path.abspath(__file__))
+
+         # Load all valid driver classes from directory
+        for filename in os.listdir(DRIVER_DIR):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                module_name = filename[:-3]
+                driver_path = os.path.join(DRIVER_DIR, filename)
+
+                driver_data = module_docstring_parser(driver_path, "expansion-driver")
+                if not driver_data or not driver_data.get("class_name", None) or not driver_data.get("name", None):
+                    continue
+
+                package = "x1plus.services.x1plusd.expansion"
+
+                module, module_name = module_loader(driver_path, package)
+                if not module:
+                    continue
+                if not hasattr(module, driver_data.get("class_name")):
+                    logger.warn(f"Could not load {module_name} in expansion driver loader. Class not found: {driver_data.get("class_name")}")
+                    continue
+
+                try:
+                    driver_class = getattr(module, driver_data.get("class_name"))
+                    self.DRIVERS[driver_data.get("name")] = driver_class
+                    logger.info(f"Loaded Expansion Driver: {driver_data.get("name")}")
+                except Exception as e:
+                    logger.error(f"Failed to load Expansion Driver '{driver_data.get("name")}': {e.__class__.__name__}: {e}")
+        
+
     async def task(self):
         self._update_drivers()
         await super().task()

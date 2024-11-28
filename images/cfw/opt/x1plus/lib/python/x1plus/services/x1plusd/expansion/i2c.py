@@ -1,7 +1,13 @@
+"""
+[expansion-driver]
+name=i2c
+class_name=I2cDriver
+[end]
+"""
+
 import os
 import re
 import logging
-import importlib
 
 import pyftdi.i2c
 import binascii
@@ -33,7 +39,7 @@ class I2cDriver():
                 driver_path = os.path.join(self.DRIVER_DIR, filename)
 
                 driver_data = module_docstring_parser(driver_path, "i2c-driver")
-                if not driver_data or not driver_data.get("class_name", None) or not driver_data.get("device_type", None):
+                if not driver_data or not driver_data.get("class_name", None) or not driver_data.get("name", None):
                     continue
 
                 package = "x1plus.services.x1plusd.expansion.i2c_drivers"
@@ -47,10 +53,10 @@ class I2cDriver():
 
                 try:
                     driver_class = getattr(module, driver_data.get("class_name"))
-                    self.DEVICE_DRIVERS[driver_data.get("device_type")] = driver_class
-                    logger.info(f"Loaded I2C Driver: {driver_data.get("device_type")}")
+                    self.DEVICE_DRIVERS[driver_data.get("name")] = driver_class
+                    logger.info(f"Loaded I2C Driver: {driver_data.get("name")}")
                 except Exception as e:
-                    logger.error(f"Failed to load I2C Driver '{driver_data.get("device_type")}': {e.__class__.__name__}: {e}")
+                    logger.error(f"Failed to load I2C Driver '{driver_data.get("name")}': {e.__class__.__name__}: {e}")
         
         # I2C config format is just a dict of addresses -> devices
         for address, devices in config.items():

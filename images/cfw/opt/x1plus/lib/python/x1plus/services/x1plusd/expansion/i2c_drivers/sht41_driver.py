@@ -1,6 +1,6 @@
 """
 [i2c-driver]
-device_type=sht41
+name=sht41
 class_name=Sht41Driver
 [end]
 """

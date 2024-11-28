@@ -1,6 +1,6 @@
 """
 [i2c-driver]
-device_type=pmsa003i
+name=pmsa003i
 class_name=Pmsa003iDriver
 [end]
 """
