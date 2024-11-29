@@ -1,12 +1,3 @@
-"""
-[x1plusd-module]
-name=sensors
-class_name=SensorsService
-requires_router=true
-settings_key=x1plusd.modules.sensors
-default_state=true
-[end]
-"""
 import logging
 import asyncio
 import time

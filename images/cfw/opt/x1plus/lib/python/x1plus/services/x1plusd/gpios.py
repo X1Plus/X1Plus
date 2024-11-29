@@ -1,14 +1,3 @@
-"""
-[x1plusd-module]
-name=gpios
-class_name=GpioManager
-requires_router=false
-settings_key=x1plusd.modules.gpios
-required_modules=expansion,actions
-default_state=true
-start_func=null
-[end]
-"""
 from abc import ABC, abstractmethod
 import asyncio
 import contextlib

@@ -3,9 +3,7 @@
 name=polar_cloud
 class_name=PolarPrintService
 requires_router=false
-settings_key=polar_cloud
 start_func=begin
-default_state=false
 [end]
 
 Module to allow printing using Polar Cloud service.
@@ -48,16 +46,21 @@ class PolarPrintService:
 
     async def begin(self):
         """Create Socket.IO client and connect to server."""
-        self.socket = socketio.AsyncClient()
-        self.set_interface()
-        await self.get_creds()
-        await self.socket.connect(self.server_url, transports=["websocket"])
-        # Assign socket callbacks.
-        self.socket.on("registerResponse", self._on_register_response)
-        self.socket.on("keyPair", self._on_keypair_response)
-        self.socket.on("helloResponse", self._on_hello_response)
-        self.socket.on("welcome", self._on_welcome)
-        self.socket.on("delete", self._on_delete)
+        try: 
+            self.socket = socketio.AsyncClient()
+            self.set_interface()
+            await self.get_creds()
+            await self.socket.connect(self.server_url, transports=["websocket"])
+            # Assign socket callbacks.
+            self.socket.on("registerResponse", self._on_register_response)
+            self.socket.on("keyPair", self._on_keypair_response)
+            self.socket.on("helloResponse", self._on_hello_response)
+            self.socket.on("welcome", self._on_welcome)
+            self.socket.on("delete", self._on_delete)
+        except Exception as e:
+            logger.error(f"Failed to start polar_cloud: {e.__class__.__name__}: {e}")
+            if self.socket:
+                self.socket.disconnect()
 
 
     async def _on_welcome(self, response, *args, **kwargs):
