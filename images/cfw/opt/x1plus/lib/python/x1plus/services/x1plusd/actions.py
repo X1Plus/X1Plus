@@ -1,12 +1,4 @@
 """
-[x1plusd-module]
-name=actions
-class_name=ActionHandler
-requires_router=true
-settings_key=x1plusd.modules.actions
-default_state=true
-[end]
-
 Actions trigger mechanism
 
 Many different things on the X1 system need to take actions.  For instance,

@@ -1,12 +1,3 @@
-"""
-[x1plusd-module]
-name=ota
-class_name=OTAService
-requires_router=true
-settings_key=x1plusd.modules.ota
-default_state=true
-[end]
-"""
 import os
 import json
 import ssl

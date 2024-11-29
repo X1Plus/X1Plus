@@ -1,12 +1,3 @@
-"""
-[x1plusd-module]
-name=mqtt
-class_name=MQTTClient
-requires_router=false
-settings_key=x1plusd.modules.mqtt
-default_state=true
-[end]
-"""
 import os
 import aiomqtt
 import asyncio

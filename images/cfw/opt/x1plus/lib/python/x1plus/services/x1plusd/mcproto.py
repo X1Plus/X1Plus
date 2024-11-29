@@ -1,12 +1,3 @@
-"""
-[x1plusd-module]
-name=mcproto
-class_name=MCProtoParser
-requires_router=false
-settings_key=x1plusd.modules.mcproto
-default_state=true
-[end]
-"""
 import re
 import base64
 import zlib

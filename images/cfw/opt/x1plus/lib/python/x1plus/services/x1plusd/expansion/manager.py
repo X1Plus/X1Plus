@@ -1,13 +1,3 @@
-"""
-[x1plusd-module]
-name=expansion
-class_name=ExpansionManager
-requires_router=true
-settings_key=x1plusd.modules.expansion
-required_modules=sensors
-default_state=true
-[end]
-"""
 import asyncio
 from collections import namedtuple
 import os
@@ -128,6 +118,7 @@ class ExpansionManager(X1PlusDBusService):
         )
 
     def load_drivers(self):
+        # Same path as self
         DRIVER_DIR = os.path.dirname(os.path.abspath(__file__))
 
          # Load all valid driver classes from directory
