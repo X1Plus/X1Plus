@@ -13,10 +13,9 @@ Item {
     property var port: ("") /* "a", "b", "c", "d" */
     property var port_id: (`port_${port}`)
     property var port_stat: X1Plus.Expansion.status().ports[port_id]
-    property var detected_model: X1Plus.Expansion.moduleTypeInPort(port_id)
-    property var detected_moduledb: detected_model && X1Plus.Expansion.database().modules[detected_model]
+    property var module_detected_dbent: X1Plus.Expansion.database().modules[port_stat.module_detected] /* indexing with undefined is undefined, so we're good */
     
-    property var liveconfig: X1Plus.Settings.get(`expansion.${port_id}`, {}) /* XXX: should this be hoisted out into Expander? */
+    property var liveconfig: port_stat.config
     property var config: liveconfig /* make sure to always config = config; to trigger the binding! */
     property var proposed_module: config.meta && config.meta.module_config || ""
     property var changes_pending: false
@@ -82,8 +81,8 @@ Item {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                text: !port_stat ? qsTr("<b>No attached module detected.</b>")
-                                 : qsTr("<b>Attached module:</b> %1 (%2)").arg(detected_moduledb && qsTranslate("Expander", detected_moduledb.name) || qsTr("Unknown module")).arg(`${port_stat.model}-${port_stat.revision}-${port_stat.serial}`)
+                text: !port_stat.module_detected ? qsTr("<b>No attached module detected.</b>")
+                                                 : qsTr("<b>Attached module:</b> %1 (%2)").arg(module_detected_dbent && qsTranslate("Expander", module_detected_dbent.name) || qsTr("Unknown module")).arg(`${port_stat.model}-${port_stat.revision}-${port_stat.serial}`)
             }
 
             Text {

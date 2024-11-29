@@ -151,18 +151,23 @@ Item {
         }
     }
 
+    // this is a little annoying to compute, so store it in a cached binding
+    property var status: X1Plus.Expansion.status()
+    
+    property var i2c_port: status.ports["port_d"] === undefined ? "b" : "d"
+
     function mk_port_text(port) {
-        var portdef = X1Plus.Expansion.status().ports[port];
+        var portdef = status.ports[port];
         if (portdef === undefined)
             return null;
-        if (portdef === null)
+        if (!portdef.module_detected)
             return qsTr("No module detected");
-        return portdef.model;
+        return portdef.module_detected;
     }
 
     property var configItems: SimpleItemModel {
         DeviceInfoItem { title: qsTr("Expander hardware"); value: X1Plus.Expansion.productName()
-            function onClicked() { }
+            function onClicked() { /* XXX */ }
         }
 
         DeviceInfoItem {
@@ -179,12 +184,18 @@ Item {
             }
         }
 
-        DeviceInfoItem { title: qsTr("Port A"); value: mk_port_text("port_a"); hidden: X1Plus.Expansion.status().ports["port_a"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "a" }); } }
-        DeviceInfoItem { title: qsTr("Port B"); value: mk_port_text("port_b"); hidden: X1Plus.Expansion.status().ports["port_b"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "b" }); } }
-        DeviceInfoItem { title: qsTr("Port C"); value: mk_port_text("port_c"); hidden: X1Plus.Expansion.status().ports["port_c"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "c" }); } }
-        DeviceInfoItem { title: qsTr("Port D"); value: mk_port_text("port_d"); hidden: X1Plus.Expansion.status().ports["port_d"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "d" }); } }
+        DeviceInfoItem { title: qsTr("Port A"); value: mk_port_text("port_a"); hidden: status.ports["port_a"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "a" }); } }
+        DeviceInfoItem { title: qsTr("Port B"); value: mk_port_text("port_b"); hidden: status.ports["port_b"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "b" }); } }
+        DeviceInfoItem { title: qsTr("Port C"); value: mk_port_text("port_c"); hidden: status.ports["port_c"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "c" }); } }
+        DeviceInfoItem { title: qsTr("Port D"); value: mk_port_text("port_d"); hidden: status.ports["port_d"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "d" }); } }
 
-        DeviceInfoItem { title: qsTr("I²C (STEMMA)"); value: qsTr("Port in use by expansion module"); function onClicked() { } }
+        DeviceInfoItem {
+            title: qsTr("I²C (STEMMA)")
+            value: status.ports[`port_${i2c_port}`].module_configured === undefined ? qsTr("Port not in use") :
+                   status.ports[`port_${i2c_port}`].module_configured == "generic_i2c" ? qsTr("Configured on port %1").arg(i2c_port.toUpperCase()) :
+                   qsTr("Port in use by expansion module")
+            function onClicked() { console.log(JSON.stringify(status.ports[`port_${i2c_port}`])); dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: i2c_port }); }
+        }
         
         // there must always be at least one unhidden item at the bottom to
         // keep the line splitter looking right

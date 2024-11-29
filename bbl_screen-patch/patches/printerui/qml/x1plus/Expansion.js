@@ -23,39 +23,52 @@ var X1Plus = null;
 
 // This probably will never change, but for consistency with other things,
 // it is a binding.
-var [status, _onStatus, _setStatus] = Binding.makeBinding(null);
+var [hardware, _onHardware, _setHardware] = Binding.makeBinding(null);
 var [database, _onDatabase, _setDatabase] = Binding.makeBinding({});
 
 function productName() {
 	return "X1Plus Expander"; // XXX: look this up in the database
 }
 
-function moduleTypeInPort(port) {
-	var portStat = status();
-	if (!portStat)
-		return null;
-	portStat = portStat && portStat['ports'] && portStat['ports'][port];
-	if (!portStat)
-		return null;
-	// strip any digits from the revision, since the letter determines software compatibility
-	return `${portStat.model}-${portStat.revision}`.replace(/[0-9]*$/, '');
-}
-
-function moduleConfiguredForPort(port) {
-	var portSet = X1Plus.Settings.get(`expansion.{port}`);
-	if (!portSet)
-		return null;
-	if (portSet && portSet['meta'] && portSet['meta']['module_configured'])
-		return portSet['meta']['module_configured'];
-	return "";
+function status() {
+	// status is hardware, augmented with configuration for each port
+	var rv = JSON.parse(JSON.stringify(hardware())); /* ugh.  it is OK for this to be slow, since it's in a binding usually */
+	
+	for (var port in rv.ports) {
+		// ports in the DBus response is just EEPROM content.  but
+		// for users of Expansion internally, we augment this with
+		// some other useful status information.
+		
+		if (rv.ports[port] === null) {
+			// this is the DBus way of saying "no EEPROM", but
+			// we might have something useful to report
+			rv.ports[port] = {};
+		}
+		
+		if (rv.ports[port].model) {
+			// strip any digits from the revision, since the letter determines software compatibility
+			rv.ports[port].module_detected = `${rv.ports[port].model}-${rv.ports[port].revision}`.replace(/[0-9]*$/, '');
+		}
+		
+		rv.ports[port].config = X1Plus.Settings.get(`expansion.${port}`, {});
+		rv.ports[port].module_configured = rv.ports[port].config && rv.ports[port].config.meta && rv.ports[port].config.meta.module_config;
+	}
+	return rv;
 }
 
 function awaken() {
-	var curStatus = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetHardware")({});
-	if (X1Plus.emulating && !curStatus) {
-		curStatus = {"expansion_revision": "X1P-002-B01", "expansion_serial": "X1P-002-B01-1013", "ports": {"port_a": {"model": "X1P-005", "revision": "B01", "serial": "00000001"}, "port_b": null}};
+	var curHardware = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetHardware")({});
+	if (X1Plus.emulating && !curHardware) {
+		curHardware = {
+			"expansion_revision": "X1P-002-B01",
+			"expansion_serial": "X1P-002-B01-1013",
+			"ports": {
+				"port_a": { "model": "X1P-005", "revision": "B01", "serial": "00000001" },
+				"port_b": null
+			}
+		};
 	}
-	_setStatus(curStatus);
+	_setHardware(curHardware);
 	
 	_setDatabase(X1Plus.loadJson("/opt/x1plus/share/expansion/expansion.json") || {"expansions": {}, "modules": {}});
 }
