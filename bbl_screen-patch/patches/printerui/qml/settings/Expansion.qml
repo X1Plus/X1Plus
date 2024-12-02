@@ -85,20 +85,9 @@ Item {
         color: Colors.gray_600
 
         /* XXX: dynamically look up when we have multiple SKUs */
-
-        Text{
-            wrapMode:Text.WordWrap
-            color: Colors.gray_100
-            font: Fonts.body_28
-            height: implicitHeight+10
-            anchors.top: parent.top
-            anchors.topMargin: 30
-            anchors.left:parent.left
-            anchors.leftMargin: 30
-            anchors.right: parent.right
-            anchors.rightMargin: 30
-            
-            text: "[graphic of Expander goes here]"
+        Image {
+            anchors.centerIn: parent
+            source: "../../icon/components/x1p-002-b.png"
         }
     }
     
@@ -304,7 +293,7 @@ Item {
                     anchors.right: valueText.left
                     anchors.rightMargin: 6
                     radius: width / 2
-                    color: modelData.warning ? "red" : Colors.brand
+                    color: "red"
                     visible: modelData.dot
                 }
             }
