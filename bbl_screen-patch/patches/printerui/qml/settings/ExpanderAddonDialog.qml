@@ -19,6 +19,15 @@ Item {
     property var config: liveconfig /* make sure to always config = config; to trigger the binding! */
     property var proposed_module: config.meta && config.meta.module_config || ""
     property var changes_pending: false
+    property var did_override: null
+    
+    function switchConfig(k) {
+        var newconfig = JSON.parse(JSON.stringify(X1Plus.Expansion.database().modules[k].configuration)); /* ugh */
+        newconfig.meta = {};
+        newconfig.meta.module_config = k;
+        config = newconfig;
+        changes_pending = true;
+    }
 
     property var buttons: SimpleItemModel {
         DialogButtonItem {
@@ -26,7 +35,7 @@ Item {
             visible: changes_pending
             isDefault: defaultButton == 1
             keepDialog: true
-            onClicked: { changes_pending = false; X1Plus.Settings.put(`expansion.${port_id}`, config); }
+            onClicked: { changes_pending = false; did_override = false; X1Plus.Settings.put(`expansion.${port_id}`, config); }
         }
 
         DialogButtonItem {
@@ -84,34 +93,55 @@ Item {
                 text: !port_stat.module_detected ? qsTr("<b>No attached module detected.</b>")
                                                  : qsTr("<b>Attached module:</b> %1 (%2)").arg(module_detected_dbent && qsTranslate("Expander", module_detected_dbent.name) || qsTr("Unknown module")).arg(`${port_stat.model}-${port_stat.revision}-${port_stat.serial}`)
             }
+            
+            Component.onCompleted: {
+                if (port_stat.module_detected && (port_stat.module_detected != proposed_module) && X1Plus.Expansion.database().modules[port_stat.module_detected]) {
+                    /* XXX: make x1plusd do this on boot, too */
+                    switchConfig(port_stat.module_detected);
+                    did_override = true;
+                }
+            }
+            
+            Text {
+                font: Fonts.body_26
+                color: Colors.warning
+                wrapMode: Text.Wrap
+                visible: did_override
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                text: qsTr("<b>Port was previously not configured for this module.  Saving changes will overwrite any previous configuration.</b>")
+            }
 
             Text {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 text: qsTr("<b>Use port as:</b>")
+                visible: module_detected_dbent == null
             }
             
-            /* XXX: complain if port_stat does not match selected module */
             Choise {
-                property var modules: Object.entries(X1Plus.Expansion.database().modules)
+                property var modules: [["", null], ...Object.entries(X1Plus.Expansion.database().modules)]
                 Layout.fillWidth: true
                 textFont: Fonts.body_26
                 listTextFont: Fonts.body_26
                 backgroundColor: Colors.gray_600
                 currentIndex: modules.findIndex(([k, v]) => k == proposed_module) /* could be -1; that's ok */
-                model: modules.map(([k, v]) => `${qsTranslate("Expander", v.name)} (${k})`)
+                model: modules.map(([k, v]) => k == "" ? qsTr("None") : v ? `${qsTranslate("Expander", v.name)} (${k})` : qsTranslate("Expander", k))
+                visible: module_detected_dbent == null
 
                 onCurrentIndexChanged: {
                     let [k, v] = modules[currentIndex];
-                    if (config && config.meta && config.meta.module_config && config.meta.module_config == k) {
+                    if (k == "" && proposed_module != "") {
+                        /* special case for "none" */
+                        config = {};
+                        changes_pending = true;
                         return;
                     }
-                    var newconfig = JSON.parse(JSON.stringify(v.configuration)); /* ugh */
-                    newconfig.meta = {};
-                    newconfig.meta.module_config = k;
-                    config = newconfig;
-                    changes_pending = true;
+                    if (config && proposed_module == k) {
+                        return;
+                    }
+                    switchConfig(k);
                 }
             }
             
