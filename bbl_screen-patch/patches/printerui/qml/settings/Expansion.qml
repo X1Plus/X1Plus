@@ -84,6 +84,8 @@ Item {
         radius: 15
         color: Colors.gray_600
 
+        /* XXX: dynamically look up when we have multiple SKUs */
+
         Text{
             wrapMode:Text.WordWrap
             color: Colors.gray_100
@@ -157,12 +159,41 @@ Item {
     property var i2c_port: status.ports["port_d"] === undefined ? "b" : "d"
 
     function mk_port_text(port) {
-        var portdef = status.ports[port];
-        if (portdef === undefined)
+        var port_stat = status.ports[port];
+        if (port_stat === undefined)
             return null;
-        if (!portdef.module_detected)
-            return qsTr("No module detected");
-        return portdef.module_detected;
+        
+        if (!port_stat.module_detected) {
+            /* no module detected, but, well, what is it configured as? */
+            if (!port_stat.config || (Object.keys(port_stat.config).length == 0)) {
+                return qsTr("No module detected");
+            } else if (port_stat.config.meta && port_stat.config.meta.module_config) {
+                var dbent = X1Plus.Expansion.database().modules[port_stat.config.meta.module_config];
+                return qsTr("Configured: %1").arg(dbent && dbent.name ? qsTranslate("Expander", dbent.name) : port_stat.config.meta.module_config);
+            } else {
+                return qsTr("Custom configuration");
+            }
+        }
+        
+        if (port_stat.module_detected != (port_stat.config.meta && port_stat.config.meta.module_config || "")) {
+            return qsTr("Module configuration mismatch");
+        }
+        
+        var dbent = X1Plus.Expansion.database().modules[port_stat.module_detected];
+        if (dbent && dbent.name) {
+            return qsTr("Detected: %1").arg(qsTranslate("Expander", dbent.name));
+        } else {
+            return qsTr("Unsupported module %1").arg(port_stat.module_detected);
+        }
+    }
+    
+    function is_bad(port) {
+        var port_stat = status.ports[port];
+        if (port_stat === undefined)
+            return false;
+        if (!port_stat.module_detected)
+            return false;
+        return (port_stat.module_detected != (port_stat.config.meta && port_stat.config.meta.module_config || ""));
     }
 
     property var configItems: SimpleItemModel {
@@ -184,10 +215,10 @@ Item {
             }
         }
 
-        DeviceInfoItem { title: qsTr("Port A"); value: mk_port_text("port_a"); hidden: status.ports["port_a"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "a" }); } }
-        DeviceInfoItem { title: qsTr("Port B"); value: mk_port_text("port_b"); hidden: status.ports["port_b"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "b" }); } }
-        DeviceInfoItem { title: qsTr("Port C"); value: mk_port_text("port_c"); hidden: status.ports["port_c"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "c" }); } }
-        DeviceInfoItem { title: qsTr("Port D"); value: mk_port_text("port_d"); hidden: status.ports["port_d"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "d" }); } }
+        DeviceInfoItem { title: qsTr("Port A"); value: mk_port_text("port_a"); dot: is_bad("port_a"); hidden: status.ports["port_a"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "a" }); } }
+        DeviceInfoItem { title: qsTr("Port B"); value: mk_port_text("port_b"); dot: is_bad("port_b"); hidden: status.ports["port_b"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "b" }); } }
+        DeviceInfoItem { title: qsTr("Port C"); value: mk_port_text("port_c"); dot: is_bad("port_c"); hidden: status.ports["port_c"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "c" }); } }
+        DeviceInfoItem { title: qsTr("Port D"); value: mk_port_text("port_d"); dot: is_bad("port_d"); hidden: status.ports["port_d"] === undefined; function onClicked() { dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: "d" }); } }
 
         DeviceInfoItem {
             title: qsTr("I²C (STEMMA)")
