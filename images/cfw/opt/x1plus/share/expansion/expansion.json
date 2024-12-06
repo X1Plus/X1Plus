@@ -11,7 +11,7 @@
     "generic_i2c": {
       "name": "I²C",
       "configuration": {
-        "i2c": []
+        "i2c": {}
       },
       "configuration_ui": "I2c.qml"
     },
