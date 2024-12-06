@@ -158,7 +158,14 @@ class ExpansionManager(X1PlusDBusService):
                 # nothing has changed; do not reinitialize the port
                 continue
             
-            if type(config) != dict or len(config) != 1:
+            if type(config) != dict:
+                logger.error(f"invalid configuration for {port_name}: configuration must be dictionary with exactly one key")
+                continue
+            
+            # ignore a "meta" key, where a UI can stash information about
+            # config state; otherwise, the remaining key is a driver
+            ckey = set(config.keys()) - {'meta'}
+            if len(ckey) != 1:
                 logger.error(f"invalid configuration for {port_name}: configuration must be dictionary with exactly one key")
                 continue
             
@@ -166,7 +173,8 @@ class ExpansionManager(X1PlusDBusService):
                 self.drivers[port_name].disconnect()
                 del self.drivers[port_name]
             
-            (driver, subconfig) = next(iter(config.items()))
+            driver = ckey.pop()
+            subconfig = config[driver]
             
             if driver not in self.DRIVERS:
                 logger.error(f"{port_name} is assigned driver {driver}, which is not registered")

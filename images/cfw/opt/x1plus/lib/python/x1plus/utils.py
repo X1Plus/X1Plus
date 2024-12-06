@@ -13,6 +13,9 @@ def serial_number():
     """
     Used to get the Serial Number for the Printer
     """
+    if is_emulating():
+        return "A00000000000"
+
     return subprocess.check_output(["bbl_3dpsn"], stderr=subprocess.DEVNULL).decode(
         "utf-8"
     )
