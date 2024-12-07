@@ -4,7 +4,10 @@ name=sht41
 enabled=true
 [end]
 """
-from ..expansion.i2c import register_driver
+try:
+    from x1plus.services.x1plusd.modules.expansion.i2c import register_driver
+except ImportError:
+    from ..expansion.i2c import register_driver
 
 import binascii
 

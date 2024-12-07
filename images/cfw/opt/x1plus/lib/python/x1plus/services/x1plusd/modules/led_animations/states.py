@@ -3,7 +3,10 @@
 enabled=true
 [end]
 """
-from ..expansion.ledstrip import register_animation
+try:
+    from x1plus.services.x1plusd.modules.expansion.ledstrip import register_animation
+except ImportError:
+    from ..expansion.ledstrip import register_animation
 
 import asyncio
 import math

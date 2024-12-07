@@ -49,15 +49,32 @@ class X1PlusDaemon:
         """
         { "name": ClassInstance }
         """
+
         self.watched_keys = []
+        self.MODULES = []
 
         BASE_MODULE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "modules"))
-        self.MODULES = module_importer(BASE_MODULE_DIR, include_subdirs=True)
+        self.load_modules(BASE_MODULE_DIR)
+
+        SDCARD_MODULE_DIR = "/mnt/sdcard/x1plus/modules"
+        if not os.path.isdir(SDCARD_MODULE_DIR):
+            os.makedirs(SDCARD_MODULE_DIR)
+
+        # Custom modules are loaded after all core modules
+        # Full import paths will work if a dependency exists
+        self.load_modules(SDCARD_MODULE_DIR)
+
+        return self
+
+    def load_modules(self, module_directory: str):
+        self.MODULES.extend(module_importer(module_directory, include_subdirs=True))
 
         for scanned_module in self.MODULES:
             key = scanned_module.get('key')
             module = scanned_module.get('module', None)
-            self.watched_keys.append(key)
+            
+            if key not in self.watched_keys:
+                self.watched_keys.append(key)
 
             enabled = scanned_module.get("config", {}).get("enabled", "").lower() == "true"
             if module and self.settings.get(key, enabled) and hasattr(module, "load"):
@@ -67,7 +84,6 @@ class X1PlusDaemon:
                 except Exception as e:
                     logger.error(f"Error loading x1plusd module {name}. {e.__class__.__name__}: {e}")
 
-        return self
 
 
     async def start(self):
@@ -84,7 +100,8 @@ class X1PlusDaemon:
         for scanned_module in self.MODULES:
             key = scanned_module.get('key')
             module = scanned_module.get('module', None)
-            if module and self.settings.get(key, False) and hasattr(module, "start"):
+            enabled = scanned_module.get("config", {}).get("enabled", "").lower() == "true"
+            if module and self.settings.get(key, enabled) and hasattr(module, "start"):
                 name = scanned_module.get("name")
                 try:
                     module.start(daemon=self)

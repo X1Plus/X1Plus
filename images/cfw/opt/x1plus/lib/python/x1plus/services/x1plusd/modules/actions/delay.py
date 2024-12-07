@@ -3,7 +3,6 @@
 enabled=true
 [end]
 """
-
 from x1plus.services.x1plusd.actions import register_action
 
 import asyncio

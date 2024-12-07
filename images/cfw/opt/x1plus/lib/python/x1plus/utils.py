@@ -56,7 +56,8 @@ def get_IP() -> str:
 
 
 def module_importer(directory: str, include_subdirs: bool = False, 
-                    base_package: str = "x1plus.services.x1plusd.modules"):
+                    base_package: str = "x1plus.services.x1plusd.modules",
+                    loader_type: str = "module"):
     """Dynamically import all valid modules from a directory"""
     modules = []
 
@@ -80,7 +81,7 @@ def module_importer(directory: str, include_subdirs: bool = False,
 
             package = f"{base_package}.{pkg_extension}"
 
-            driver_data = module_docstring_parser(file_path, "module")
+            driver_data = module_docstring_parser(file_path, loader_type)
 
             if not driver_data:
                 continue
