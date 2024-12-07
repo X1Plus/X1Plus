@@ -1,11 +1,17 @@
 """
-[led-animation]
-name=rainbow
-class_name=RainbowAnimation
+[module]
+enabled=true
 [end]
 """
+from ..expansion.ledstrip import register_animation
+
 import asyncio
 import colorsys
+
+import logging
+
+logger = logging.getLogger(__name__)
+name = "rainbow"
 
 class RainbowAnimation():
     def __init__(self, leds, config):
@@ -26,3 +32,7 @@ class RainbowAnimation():
             if ph > 1:
                 ph -= 1
             await asyncio.sleep(0.05)
+
+@register_animation("rainbow")
+def _animation_rainbow(handler):
+    handler.ANIMATIONS.setdefault(name, RainbowAnimation)

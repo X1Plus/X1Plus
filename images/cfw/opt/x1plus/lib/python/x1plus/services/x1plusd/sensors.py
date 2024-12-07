@@ -16,7 +16,7 @@ class SensorsService(X1PlusDBusService):
         self.daemon = daemon
         self.sensors = {}
         super().__init__(
-            dbus_interface=SENSORS_INTERFACE, dbus_path=SENSORS_PATH, **kwargs
+            dbus_interface=SENSORS_INTERFACE, dbus_path=SENSORS_PATH, router=daemon.router, **kwargs
         )
 
     async def dbus_GetSensors(self, arg):
@@ -34,8 +34,7 @@ class SensorsService(X1PlusDBusService):
         self.sensors[name] = data
 
         await self.emit_signal("SensorUpdate", { name: data })
-        
-        if hasattr(self.daemon, 'mqtt'):
-            # use the "synthesize_report" mechanism in mqtt_reroute.cpp to make
-            # device_gate publish both to the local mqtt broker and to the cloud
-            await self.daemon.mqtt.publish_request({ "x1plus": { "synthesize_report": { "x1plus": { "sensor": { name: data } } } } })
+
+        # use the "synthesize_report" mechanism in mqtt_reroute.cpp to make
+        # device_gate publish both to the local mqtt broker and to the cloud
+        await self.daemon.mqtt.publish_request({ "x1plus": { "synthesize_report": { "x1plus": { "sensor": { name: data } } } } })

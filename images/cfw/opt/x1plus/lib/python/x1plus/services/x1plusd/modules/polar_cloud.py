@@ -1,9 +1,5 @@
 """
-[x1plusd-module]
-name=polar_cloud
-class_name=PolarPrintService
-requires_router=false
-start_func=begin
+[module]
 [end]
 
 Module to allow printing using Polar Cloud service.
@@ -297,3 +293,10 @@ class PolarPrintService:
         """Get IP and MAC addresses and store them in self.settings."""
         self.mac = get_MAC()
         # self.ip = get_IP()
+
+def load(daemon):
+    daemon.custom_modules["polar_cloud"] = PolarPrintService(daemon=daemon)
+
+def start(daemon):
+    if daemon.custom_modules.get("polar_cloud", None):
+        asyncio.create_task(daemon.custom_modules['polar_cloud'].begin())

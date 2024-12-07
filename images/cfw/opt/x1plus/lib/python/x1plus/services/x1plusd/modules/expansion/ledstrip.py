@@ -1,7 +1,6 @@
 """
-[expansion-driver]
-name=ledstrip
-class_name=LedStripDriver
+[module]
+enabled=true
 [end]
 """
 import os
@@ -15,7 +14,7 @@ from collections import namedtuple
 
 from pyftdi.ftdi import Ftdi
 
-from ..gpios import Gpio
+from x1plus.services.x1plusd.gpios import Gpio
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +23,9 @@ LedType = namedtuple('LedType', [ 'frequency', 'zero', 'one' ])
 LED_TYPES = {
     'ws2812b': LedType(frequency = 6400000, zero = bytearray([0b11000000]), one = bytearray([0b11111100]))
 }
+
+_registered_animations = {}
+
 
 class LedStripDriver():
     ANIMATIONS = {}
@@ -78,8 +80,13 @@ class LedStripDriver():
         # the 'animations' key is a list that looks like:
         #
         #   [ 'paused', { 'rainbow': { 'brightness': 0.5 } } ]
-        self.anim_list = []
-        self.load_anim_classes()
+        self.anim_list = []   
+        self.last_gcode_state = None
+        self.anim_watcher = None
+
+        for anim in _registered_animations:
+            _registered_animations[anim](self)
+
         for anim in self.config.get('animations', self.DEFAULT_ANIMATIONS):
             if type(anim) == str and self.ANIMATIONS.get(anim, None):
                 self.anim_list.append(self.ANIMATIONS[anim](self, {}))
@@ -91,38 +98,7 @@ class LedStripDriver():
             if self.ANIMATIONS.get(animname, None):
                 self.anim_list.append(self.ANIMATIONS[animname](self, subconfig))
 
-        self.last_gcode_state = None
         self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
-
-    def load_anim_classes(self):
-        animation_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./ledstrip_animations")
-
-        # Load all valid driver classes from directory
-        for filename in os.listdir(animation_dir):
-            if filename.endswith(".py") and not filename.startswith("_"):
-                module_name = filename[:-3]
-                anim_path = os.path.join(animation_dir, filename)
-
-                anim_data = module_docstring_parser(anim_path, "led-animation")
-                if not anim_data or not anim_data.get("class_name", None) or not anim_data.get("name", None):
-                    continue
-
-                package = "x1plus.services.x1plusd.expansion.ledstrip_animations"
-
-                module, module_name = module_loader(anim_path, package)
-                if not module:
-                    continue
-                if not hasattr(module, anim_data.get("class_name")):
-                    logger.warn(f"Could not load {module_name} in led animation loader. Class not found: {anim_data.get('class_name')}")
-                    continue
-
-                try:
-                    driver_class = getattr(module, anim_data.get("class_name"))
-                    self.ANIMATIONS[anim_data.get("name")] = driver_class
-                    logger.info(f"Loaded LedStrip Animation: {anim_data.get('name')}")
-                except Exception as e:
-                    logger.error(f"Failed to load LedStrip Animation '{anim_data.get("name")}': {e.__class__.__name__}: {e}")
-
 
     def update_gpio(self):
         self.ftdi.write_data(bytes([Ftdi.SET_BITS_LOW, self.gpio_out, self.gpio_dir]))
@@ -227,3 +203,25 @@ class LedStripGpio(Gpio):
             self.ledstrip.gpio_last_read_data = data
         inverted = self.attr.get('inverted', False)
         return ((data[0] & self.pin) == self.pin) ^ inverted
+
+
+def register_animation(name, handler = None):
+    """
+    Register an ledstrip animation by name with the expansion ledstrip subsystem.
+    
+    If used with handler == None, then behaves like a decorator.
+    """
+    def decorator(handler):
+        assert name not in _registered_animations
+        _registered_animations[name] = handler
+        logger.info(f"Registered LedStrip Animation from module: {name}")
+        return handler
+
+    if handler is None:
+        return decorator
+    else:
+        decorator(handler)
+
+
+def load(daemon):
+    daemon.expansion.DRIVERS["ledstrip"] = LedStripDriver

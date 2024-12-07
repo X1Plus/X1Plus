@@ -262,8 +262,6 @@ class GpioManager:
             return
         
         async def _action_worker():
-            if not hasattr(self.daemon, 'actions'):
-                return
             with contextlib.ExitStack() as stack:
                 action_queue = asyncio.Queue()
                 

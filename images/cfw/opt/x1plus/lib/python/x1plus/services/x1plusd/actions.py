@@ -56,31 +56,8 @@ class ActionHandler(X1PlusDBusService):
     def __init__(self, daemon, **kwargs):
         self.daemon = daemon
         super().__init__(
-            dbus_interface=ACTIONS_INTERFACE, dbus_path=ACTIONS_PATH, **kwargs
-        )
-        self.load_actions()
-    
-    def load_actions(self):
-        actions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./action_types")
-
-        # Load all actions from directory and register actions
-        for filename in os.listdir(actions_dir):
-            if filename.endswith(".py") and not filename.startswith("_"):
-                module_name = filename[:-3]
-                _path = os.path.join(actions_dir, filename)
-
-                _data = module_docstring_parser(_path, "action-type")
-                if not _data or not _data.get("name", None):
-                    continue
-
-                package = "x1plus.services.x1plusd.action_types"
-
-                module, module_name = module_loader(_path, package)
-                if not module:
-                    continue
-
-                logger.info(f"Registered Actions from module: {_data.get("name")}")
-               
+            dbus_interface=ACTIONS_INTERFACE, dbus_path=ACTIONS_PATH, router=daemon.router, **kwargs
+        )     
 
     async def dbus_Execute(self, req):
         async def subtask():
@@ -120,6 +97,7 @@ def register_action(name, handler = None):
     def decorator(handler):
         assert name not in _registered_actions
         _registered_actions[name] = handler
+        logger.info(f"Registered Actions from module: {name}")
         return handler
 
     if handler is None:

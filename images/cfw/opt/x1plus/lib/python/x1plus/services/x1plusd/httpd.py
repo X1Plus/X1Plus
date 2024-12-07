@@ -16,10 +16,10 @@ access_logger = logging.getLogger(__name__ + ".access")
 PROTOCOL_VERSION = 0
 
 class HTTPService():
-    def __init__(self, router, daemon, **kwargs):
+    def __init__(self, daemon, **kwargs):
         self.daemon = daemon
         self.daemon.settings.on("http.enabled", lambda: asyncio.create_task(self.sync_startstop()))
-        self.router = router
+        self.router = daemon.router
         self.runner = None
         self.site = None
         self.app = web.Application()

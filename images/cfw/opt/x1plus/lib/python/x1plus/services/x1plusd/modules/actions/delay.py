@@ -1,9 +1,10 @@
 """
-[action-type]
-name=delay
+[module]
+enabled=true
 [end]
 """
-from ..actions import register_action
+
+from x1plus.services.x1plusd.actions import register_action
 
 import asyncio
 import logging

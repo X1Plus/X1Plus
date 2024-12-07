@@ -1,31 +1,32 @@
 """
-[i2c-driver]
+[module]
 name=pmsa003i
-class_name=Pmsa003iDriver
+enabled=true
 [end]
 """
+from ..expansion.i2c import register_driver
+
 import logging
 import asyncio
 import time
 
 logger = logging.getLogger(__name__)
+name = 'pmsa003i'
 
 class Pmsa003iDriver():
 
-    device_type = 'pmsa003i'
-    
     def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
 
         self.pmsa003i = i2c_driver.i2c.get_port(address)
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{self.device_type}")
+        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{name}")
         self.overflow_mitigation = config.get('overflow_mitigation', False)
         
         
         self.task = asyncio.create_task(self._task())
-        logger.info(f"probed {self.device_type.upper()} sensor at 0x{address:2x}")
+        logger.info(f"probed {name.upper()} sensor at 0x{address:2x}")
 
     def disconnect(self):
         if self.task:
@@ -46,7 +47,7 @@ class Pmsa003iDriver():
                         break
                     await asyncio.sleep(0.01)
                 if not did_read or da is None:
-                    raise Exception(f"{self.device_type.upper()} did not finish measuring")
+                    raise Exception(f"{name.upper()} did not finish measuring")
 
                 # Standard Concentration µg/m^3
                 pm1_0_ugm3_std = (da[4] << 8) | da[5]
@@ -72,38 +73,42 @@ class Pmsa003iDriver():
                         pm5_0_conc += 65535
                     else: 
                         pm5_0_conc = -1
-                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 5.0 Concentation is out of range (>65535)")
+                        logger.info(f"{name.upper()} {self.name} value for PM > 5.0 Concentation is out of range (>65535)")
                 if pm2_5_conc < pm5_0_conc:
                     if self.overflow_mitigation:
                         pm2_5_conc += 65535
                     else: 
                         pm2_5_conc = -1
-                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 2.5 Concentation is out of range (>65535)")
+                        logger.info(f"{name.upper()} {self.name} value for PM > 2.5 Concentation is out of range (>65535)")
                 if pm1_0_conc < pm2_5_conc:
                     if self.overflow_mitigation:
                         pm1_0_conc += 65535
                     else: 
                         pm1_0_conc = -1
-                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 1.0 Concentation is out of range (>65535)")
+                        logger.info(f"{name.upper()} {self.name} value for PM > 1.0 Concentation is out of range (>65535)")
                 if pm0_5_conc < pm1_0_conc:
                     if self.overflow_mitigation:
                         pm0_5_conc += 65535
                     else: 
                         pm0_5_conc = -1
-                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.5 Concentation is out of range (>65535)")
+                        logger.info(f"{name.upper()} {self.name} value for PM > 0.5 Concentation is out of range (>65535)")
                 if pm0_3_conc < pm0_5_conc:
                     if self.overflow_mitigation:
                         pm0_3_conc += 65535
                     else: 
                         pm0_3_conc = -1
-                        logger.info(f"{self.device_type.upper()} {self.name} value for PM > 0.3 Concentation is out of range (>65535)")
+                        logger.info(f"{name.upper()} {self.name} value for PM > 0.3 Concentation is out of range (>65535)")
 
-                await self.sensors.publish(self.name, type = self.device_type,
+                await self.sensors.publish(self.name, type = name,
                     pm1_0_ugm3_std = pm1_0_ugm3_std, pm2_5_ugm3_std = pm2_5_ugm3_std, pm10_ugm3_std = pm10_ugm3_std,
                     pm1_0_ugm3 = pm1_0_ugm3_env, pm2_5_ugm3 = pm2_5_ugm3_env, pm10_ugm3 = pm10_ugm3_env, 
                     pm0_3_conc = pm0_3_conc, pm0_5_conc = pm0_5_conc, pm1_0_conc = pm1_0_conc, 
                     pm2_5_conc = pm2_5_conc, pm5_0_conc = pm5_0_conc, pm10_conc = pm10_conc, overflow_mitigation=self.overflow_mitigation)
             except Exception as e:
-                await self.sensors.publish(self.name, type = self.device_type, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
+                await self.sensors.publish(self.name, type = name, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
+
+@register_driver("pmsa003i")
+def _animation_pmsa003i(handler):
+    handler.DEVICE_DRIVERS.setdefault(name, Pmsa003iDriver)
