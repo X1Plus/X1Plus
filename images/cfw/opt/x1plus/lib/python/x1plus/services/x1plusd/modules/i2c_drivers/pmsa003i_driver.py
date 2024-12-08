@@ -113,5 +113,5 @@ class Pmsa003iDriver():
             await asyncio.sleep(self.interval_ms / 1000.0)
 
 @register_driver("pmsa003i")
-def _animation_pmsa003i(handler):
+def _driver_pmsa003i(handler):
     handler.DEVICE_DRIVERS.setdefault(name, Pmsa003iDriver)

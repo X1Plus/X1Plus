@@ -60,5 +60,5 @@ class Sht41Driver():
             await asyncio.sleep(self.interval_ms / 1000.0)
 
 @register_driver("sht41")
-def _animation_sht41(handler):
+def _driver_sht41(handler):
     handler.DEVICE_DRIVERS.setdefault(name, Sht41Driver)

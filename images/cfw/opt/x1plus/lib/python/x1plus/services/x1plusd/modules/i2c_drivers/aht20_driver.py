@@ -87,5 +87,5 @@ class Aht20Driver():
             await asyncio.sleep(self.interval_ms / 1000.0)
 
 @register_driver("aht20")
-def _animation_aht20(handler):
+def _driver_aht20(handler):
     handler.DEVICE_DRIVERS.setdefault(name, Aht20Driver)
