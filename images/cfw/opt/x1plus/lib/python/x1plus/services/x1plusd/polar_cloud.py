@@ -11,6 +11,7 @@ import socketio
 import ssl
 import subprocess
 import time
+from enum import Enum, auto
 from jeepney import DBusAddress, new_method_call, MessageType
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
@@ -43,8 +44,20 @@ http_session = aiohttp.ClientSession(connector=connector)
 aws_connector = aiohttp.TCPConnector(ssl=ssl_ctx)
 aws_http_session = aiohttp.ClientSession(connector=aws_connector)
 
+class _ConnectState(Enum):
+    DISCONNECTED = auto()
+    CONNECTING = auto()
+    WAITING_HELLO = auto()
+    ESTABLISHED = auto()
 
 class PolarPrintService(X1PlusDBusService):
+    STATE_TIMEOUTS = {
+        _ConnectState.DISCONNECTED: 60, # retry every minute
+        _ConnectState.CONNECTING: 30,
+        _ConnectState.WAITING_HELLO: 30,
+        _ConnectState.ESTABLISHED: 60, # time since we've seen a keepalive PING
+    }
+
     def __init__(self, router, daemon, **kwargs):
         """
         The MAC is stored here, but on restart will always generated dynamically
@@ -71,14 +84,10 @@ class PolarPrintService(X1PlusDBusService):
         more than once every 10 seconds.
         """
         self.last_ping = datetime.datetime.now() - datetime.timedelta(seconds=10)
-        self.is_connected = False
         self.ip = ""  # This will be used for sending camera images.
-        # status_task_awake is for awaits between status updates to server.
-        self.status_task_wake = asyncio.Event()
         # TODO: Fix two "on" fn calls below.
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
-        self.socket = None
         """
         status_lookup will be used in _status_update() to interpret job states
         coming from mqtt and translate them into self.status. Values of printer
@@ -119,47 +128,20 @@ class PolarPrintService(X1PlusDBusService):
             "form_data": {},
             "curl_call": "",
         }
-        super().__init__(
-            router=router,
-            dbus_interface=POLAR_INTERFACE,
-            dbus_path=POLAR_PATH,
-            **kwargs,
-        )
-
-    async def task(self) -> None:
-        """Create Socket.IO client and connect to server."""
-        logger.info("Polar task")
-        # Set socketio to use Python's logger object by adding these params:
-        # logger=logger, engineio_logger=logger
+        
+        # Create the socket.io client, but don't connect yet: the
+        # watchdog_task will do that work for us.
         self.socket = socketio.AsyncClient(
-            # reconnection=True,          # Auto recovery from disconnections
-            # reconnection_attempts=0,    # Infinite attempts
-            # reconnection_delay=1,       # Start with 1 second between attempts
-            # reconnection_delay_max=10,   # Max 5 seconds between attempts
-            # randomization_factor=0.5,   # Randomness to avoid sync if multipule clients reconnect
+            reconnection=False, # we don't want Socket.io to reconnect for us, since we need to know if something has gone wrong and we need to do the 'welcome' dance again
             http_session=http_session,
             logger=logger,
             engineio_logger=logger,
         )
-        self._set_interface()
-        try:
-            await self._get_creds()
-        except Exception as e:
-            logger.debug(f"Polar _get_creds failed: {e}")
-            return
-        # Try until netService comes up:
-        while True:
-            try:
-                await self.socket.connect(
-                    self.server_url, transports=["websocket"], wait_timeout=10
-                )
-                break
-            except Exception as e:
-                time.sleep(5)
-        logger.info("Polar socket created!")
-        await self._get_url("idle")
-        await self._get_url("printing")
-        # Assign socket callbacks.
+ 
+        self.socket.on("connect", self._on_connect)
+        self.socket.on("connect_error", self._on_connect_error)
+        self.socket.on("disconnect", self._on_disconnect)
+        
         self.socket.on("registerResponse", self._on_register_response)
         self.socket.on("keyPair", self._on_keypair_response)
         self.socket.on("helloResponse", self._on_hello_response)
@@ -171,10 +153,94 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("cancel", self._on_cancel)
         self.socket.on("delete", self._on_delete)
         self.socket.on("getUrlResponse", self._on_url_response)
-        logger.info("Polar Attached all sockets.")
+
+        self.status_task = None
+        
+        self.watchdog_task = None
+        self.watchdog_signal = asyncio.Event()
+        self.reconnect_now = False
+        self.connect_state = _ConnectState.DISCONNECTED
+        self.connect_state_ts = 0
+        
+        super().__init__(
+            router=router,
+            dbus_interface=POLAR_INTERFACE,
+            dbus_path=POLAR_PATH,
+            **kwargs,
+        )
+
+    async def task(self) -> None:
+        """Create Socket.IO client and connect to server."""
+        logger.info("Polar task")
+        
+        self._set_interface()
+        try:
+            await self._get_creds()
+        except Exception as e:
+            logger.debug(f"Polar _get_creds failed: {e}")
+            return
+
+        if self.username != "" and self.username != None:
+            self.watchdog_task = asyncio.create_task(self._watchdog_task())
         await super().task()
         logger.info("Polar Cloud is running.")
+    
+    async def _watchdog_task(self):
+        while True:
+            connect_state_timeout = self.connect_state_ts + self.STATE_TIMEOUTS[self.connect_state]
+            if time.time() > connect_state_timeout or self.reconnect_now:
+                self.reconnect_now = False
+                logger.warning(f"hit timeout or forced reconnect in state {self.connect_state}; reconnecting")
+                try:
+                    await self.socket.disconnect()
+                except:
+                    pass
+                
+                if self.status_task:
+                    self.status_task.cancel()
+                    self.status_task = None
+                
+                # XXX: do nothing if we are not supposed to connect at all right now 
+                try:
+                    self._update_state(_ConnectState.CONNECTING)
+                    await self.socket.connect(self.server_url, transports=["websocket"], wait_timeout = 5)
+                except Exception as e:
+                    logger.warning(f"failed to connect: {e}")
+                    self._update_state(_ConnectState.DISCONNECTED)
+            
+            next_work = self.connect_state_ts + self.STATE_TIMEOUTS[self.connect_state]
+            now = time.time()
+            if next_work > now:
+                try:
+    	            await asyncio.wait_for(self.watchdog_signal.wait(), timeout = next_work - now)
+                except asyncio.TimeoutError:
+                    pass
+            self.watchdog_signal.clear()
+    
+    def _update_state(self, st):
+        if st != self.connect_state:
+            logger.debug(f"transitioning from {self.connect_state} to {st}")
+        self.connect_state = st
+        self.connect_state_ts = time.time()
+    
+    async def _force_reconnect(self):
+        try:
+            await self.socket.disconnect()
+        except:
+            pass
+        _update_state(_ConnectState.DISCONNECTED)
+        self.reconnect_now = True
+    
+    async def _on_connect(self, *args, **kwargs) -> None:
+        self._update_state(_ConnectState.WAITING_HELLO)
+    
+    async def _on_connect_error(self, *args, **kwargs) -> None:
+        self._update_state(_ConnectState.DISCONNECTED)
 
+    async def _on_disconnect(self, *args, **kwargs) -> None:
+        self._update_state(_ConnectState.DISCONNECTED)
+
+    
     async def _unregister(self):
         """
         After a printer is deleted I'll need this in order to reregister it
@@ -185,13 +251,14 @@ class PolarPrintService(X1PlusDBusService):
         """
         await self.socket.emit("unregister", self.daemon.settings.get("polar.sn"))
 
+
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
         Check to see if printer has already been registered. If it has, we can
         ignore this. Otherwise, must get a key pair, then call register.
         """
-        if self.is_connected:
-            # Do nothing. Otherwise we start to spam welcomes/hellos.
+        if self.connect_state != _ConnectState.WAITING_HELLO:
+            logger.warning(f"_on_welcome in unexpected state {self.connect_state}?")
             return
         logger.info("Polar _on_welcome.")
 
@@ -258,11 +325,17 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] == "SUCCESS":
             logger.info("Polar _on_hello_response success")
             logger.info("Polar Cloud connected.")
-            self.is_connected = True
+            self._update_state(_ConnectState.ESTABLISHED)
+            await self._get_url("idle")
+            await self._get_url("printing") # can result in "failed wrong serial number"; that's fine, if nothing is printing
         elif response["message"] != "Printer has been deleted":
             logger.error(f"_on_hello_response failure: {response['message']}")
             # TODO: send any errors to interface.
-        await self._status()
+        if self.status_task:
+            logger.error("leftover status_task?? somebody did not clean up, but I'm killing it anyway")
+            self.status_task.cancel()
+            self.status_task = None
+        self.status_task = asyncio.create_task(self._status())
 
     async def _on_keypair_response(self, response, *args, **kwargs) -> None:
         """
@@ -272,18 +345,9 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] == "SUCCESS":
             await self.daemon.settings.put("polar.public_key", response["public"])
             await self.daemon.settings.put("polar.private_key", response["private"])
-            # We have keys, but still need to register. First disconnect.
+            # We have keys, but still need to register. First disconnect.  After the next request, the server willr espond with `welcome`.
             logger.info("Polar _on_keypair_response success. Disconnecting.")
-            await self.socket.disconnect()
-            self.is_connected = False
-            # After the next request the server will respond with `welcome`.
-            logger.info("Polar Reconnecting.")
-            await self.socket.connect(
-                self.server_url,
-                transports=["websocket"],
-                wait_timeout=10
-            )
-            self.is_connected = True
+            await self._force_reconnect()
         else:
             # We have an error.
             logger.error(f"_on_keypair_response failure: {response['message']}")
@@ -489,9 +553,9 @@ class PolarPrintService(X1PlusDBusService):
         """
         capture_image = True
         while True:
+
             await self._status_update()
-            if not self.is_connected:
-                return
+
             if self.daemon.mqtt.latest_print_status.get("mc_percent", 0) < 5:
                 # At this point we can guess the total print time. It'll possibly
                 # be off by a little. But the mqtt doesn't have a value for total
@@ -556,22 +620,17 @@ class PolarPrintService(X1PlusDBusService):
                 # Next time through loop it will capture (or not).
                 capture_image = not capture_image
 
+                if self.connect_state != _ConnectState.ESTABLISHED:
+                    return
+                # We only feed the watchdog here if we successfully sent status.
+                self._update_state(_ConnectState.ESTABLISHED)
             except Exception as e:
                 logger.error(f"emit status failed: \x1b[31;1m{e}\x1b[0m")
                 if str(e) == "/ is not a connected namespace.":
                     # This seems to be a python socketio bug/feature?
                     # In any case, recover by reconnecting.
-                    logger.info("Polar disconnecting.")
-                    await self.socket.disconnect()
-                    self.is_connected = False
-                    # After the next request the server will respond with `welcome`.
-                    logger.info("Polar reconnecting.")
-                    await self.socket.connect(
-                        self.server_url,
-                        transports=["websocket"],
-                        wait_timeout=10
-                    )
-                    self.is_connected = True
+                    logger.info("reconnecting to attempt to recover connected namespaces")
+                    await self._force_reconnect()
                     return  # Or else we'll starting sending too many updates.
             if self.status != "0":
                 await asyncio.sleep(10)
@@ -635,8 +694,17 @@ class PolarPrintService(X1PlusDBusService):
                 "polar.private_key": "",
             }
             await self.daemon.settings.put_multiple(to_remove)
+            
+            # we are done; disconnect and shut down the watchdog so that we do not reconnect
+            # XXX: future: refactor this out into "stop polar cloud entirely" and "start polar cloud entirely" routines
+            if self.watchdog_task:
+                self.watchdog_task.cancel()
+                self.watchdog_task = None
+            if self.status_task:
+                self.status_task.cancel()
+                self.status_task = None
             await self.socket.disconnect()
-            self.is_connected = False
+            self._update_state(_ConnectState.DISCONNECTED)
 
     async def _get_creds(self) -> None:
         """
