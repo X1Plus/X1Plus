@@ -594,6 +594,7 @@ class PolarPrintService(X1PlusDBusService):
                 "startTime": self.start_time.isoformat(),
                 "estimatedTime": int(self.estimated_print_time) * 60,
                 "printSeconds": time_used.total_seconds(),
+                "jobId": self.job_id,
                 "progressDetail": (
                     f"Printing Job: {self.file_name} "
                     "Percent Complete: "
