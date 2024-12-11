@@ -35,12 +35,9 @@ class X1PlusDaemon:
         self.expansion = ExpansionManager(router=self.router, daemon=self)
         self.mcproto = MCProtoParser(daemon=self)
         self.actions = ActionHandler(router=self.router, daemon=self)
-        if not self.settings.get("polar_cloud", False):
-            self.polar_cloud = None
-        else:
-            from .polar_cloud import PolarPrintService
-            self.polar_cloud = PolarPrintService(daemon=self)
-        
+        from .polar_cloud import PolarPrintService
+        self.polar_cloud = PolarPrintService(router=self.router, daemon=self)
+        logger.info("PolarPrintService object created.")
         return self
 
     async def start(self):
@@ -52,7 +49,7 @@ class X1PlusDaemon:
         asyncio.create_task(self.expansion.task())
         asyncio.create_task(self.mcproto.task())
         asyncio.create_task(self.actions.task())
-        if self.polar_cloud:
-            asyncio.create_task(self.polar_cloud.begin())
+        logger.info("Polar is attempting to start.")
+        asyncio.create_task(self.polar_cloud.task())
 
         logger.info("x1plusd is running")

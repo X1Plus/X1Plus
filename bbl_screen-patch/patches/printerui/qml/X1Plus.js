@@ -25,7 +25,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,8 +37,8 @@
 console.log("X1Plus.js starting up");
 
 var X1Plus = X1Plus || {};
-/* Reexport all our imports.  If you name them Stats and then attempt to
- * shadow them with a var, you will lose in bizarre ways.  */
+/* Reexport all our imports.	If you name them Stats and then attempt to
+ * shadow them with a var, you will lose in bizarre ways.	*/
 X1Plus.Stats = X1PlusStats;
 var Stats = X1PlusStats;
 X1Plus.Binding = X1PlusBinding;
@@ -54,7 +54,7 @@ var BedMeshCalibration = X1PlusBedMeshCalibration;
 X1Plus.ShaperCalibration = X1PlusShaperCalibration;
 var ShaperCalibration = X1PlusShaperCalibration;
 X1Plus.GpioKeys = X1PlusGpioKeys;
-var GpioKeys  = X1PlusGpioKeys;
+var GpioKeys	= X1PlusGpioKeys;
 X1Plus.DBus = X1PlusDBus;
 var DBus = X1PlusDBus;
 X1Plus.Settings = X1PlusSettings;
@@ -127,8 +127,8 @@ function atomicSaveJson(path, json) {
 }
 X1Plus.atomicSaveJson = atomicSaveJson;
 
-function sendGcode(gcode_line,seq_id = 0){
-	
+function sendGcode(gcode_line,seq_id = 0) {
+
 	var payload = {
 		command: "gcode_line",
 		param: gcode_line,
@@ -141,25 +141,25 @@ X1Plus.sendGcode = sendGcode;
 
 function formatTime(time) {
 	return new Date(time * 1000).toLocaleString('en-US', {
-        	year: 'numeric', 
-        	month: 'short', 
-        	day: 'numeric',
-        	hour: '2-digit',
-        	minute: '2-digit', 
-        	hour12: false
+					year: 'numeric',
+					month: 'short',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit',
+					hour12: false
 	});
 }
 X1Plus.formatTime = formatTime;
 
 function fileExists(fPath) {
-    return _X1PlusNative.popen(`test -f ${fPath} && echo 1 || echo 0`) == "1";
+		return _X1PlusNative.popen(`test -f ${fPath} && echo 1 || echo 0`) == "1";
 }
 X1Plus.fileExists = fileExists;
 
 /* Some things can only happen after we have a DeviceManager and
- * PrintManager passed down, and the real QML environment is truly alive. 
+ * PrintManager passed down, and the real QML environment is truly alive.
  * Submodules also don't get access to the global X1Plus object until after
- * they are loaded, and they might need to do work touching other modules. 
+ * they are loaded, and they might need to do work touching other modules.
  * These things happen from 'awaken'.
  */
 function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Network) {

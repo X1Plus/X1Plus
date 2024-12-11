@@ -18,7 +18,7 @@ about how to make changes and how to contribute back.  X1Plus is the result
 of a year or so of vaguely-structured work; it started life as a fairly
 frumious hack, and over the past few months, we've been working hard to try
 to clean it up for release to the outside world.  All that said, there are
-parts that you will find are still a mess, and for that, we're truly sorry! 
+parts that you will find are still a mess, and for that, we're truly sorry!
 We hope you'll come play around with it anyway.  There's a lot of fun stuff
 to be done, and we have only barely scratched the surface so far.
 
@@ -29,24 +29,113 @@ container.  If you're adventurous, you can probably build X1Plus on any old
 Linux machine (I do), but if you do that and it breaks, we really don't want
 to hear about it, so you really should just build it in Docker.  You'll need
 the filesystem decryption key from a live printer (running either X1Plus or
-the Official Rootable Firmware) in order to build X1Plus; try something
-like:
+the Official Rootable Firmware) in order to build X1Plus.
+
+
+Note that if you're on Windows you'd need to install Windows Subsystem for Linux:
+
+```
+wsl --install
+wsl -d Ubuntu
+```
+
+First, copy the getkey bin over to the printer:
+
+```
+scp scripts/getkey root@<printer’s IP>:/tmp
+```
+
+Now retrieve the key:
+
+```
+ssh root@<printer’s IP> /tmp/getkey >> localconfig.mk
+```
+
+Clone down the X1Plus repo and build the Docker image from the Dockerfile in
+`scripts/docker`. *Please note*: if you're using ARM or Apple Silicon you need to add
+`--platform=linux/amd64` to your commands. In that case, use the second set of 
+commands below:
 
 ```
 $ git clone ...
 $ cd X1Plus
 $ docker build -t x1plusbuild scripts/docker/
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global --add safe.directory /work'
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make scripts
-$ scp scripts/getkey root@bambu:/tmp
-$ ssh root@bambu /tmp/getkey >> localconfig.mk
-$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make
 ```
 
-With some luck, you should get a `.x1p` file in your working directory!  You
-can copy that to your SD card (`scp` it over -- never remove an SD card from
-a live X1Plus system, you goofball), reboot your printer, and install it
-from the menu.
+For Apple Silicon:
+
+```
+$ git clone ...
+$ cd X1Plus
+$ docker buildx build --platform=linux/amd64 -t x1plusbuild scripts/docker/
+```
+
+In order to `make` on the Docker container a safe directory must be added to
+the git config. As that will only persist for one run the Docker container
+must be run in interactive mode. As above, `run` should be called with the
+`--platform` flag if you're running on an ARM or Apple Silicon chip. See the
+second command.
+
+```
+$ docker run -dit -v `pwd`:/work --name x1plusmake x1plusbuild
+```
+
+Apple Silicon:
+
+```
+$ docker run --platform=linux/amd64 -dit -v `pwd`:/work --name x1plusmake x1plusbuild
+```
+
+Now, `exec` into the Docker container and run the make commands. These commands 
+vary depending on your platform: 
+
+###For Mac users:
+
+```
+$ docker exec -w /work x1plusmake bash -c 'git config --global \
+--add safe.directory /work'
+$ docker exec -w /work x1plusmake make scripts
+$ docker exec -w /work x1plusmake make
+```
+
+###For Linux users:
+
+```
+$ docker run -u `id -u` -v `pwd`:/work x1plusbuild bash -c 'git config --global \
+--add safe.directory /work'
+$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make scripts
+$ docker run -u `id -u` -v `pwd`:/work x1plusbuild make
+
+```
+
+With some luck, you should get a `.x1p` file in your working directory! Get
+the name of that file:
+
+```
+$ docker exec -v `pwd`:/work x1plusmake sh -c 'ls /work | grep .x1p'
+$ <somefilename>.x1p
+```
+
+Copy that out of the Docker container.
+
+```
+$ docker cp x1plusmake:/work/<somefilename>.x1p
+```
+
+And `scp` it to the printer (never remove an SD card from a live X1Plus system,
+you goofball).
+
+```
+scp <somefilename>.x1p root@<printer’s IP>:/sdcard
+```
+
+Reboot your printer, and install X1Plus from the menu.
+
+Finally, don't forget to stop your Docker container!
+
+```
+docker stop x1plusmake
+```
 
 If you're going to make changes to any of the UI files, you should really
 read the rest of this document...  otherwise you might be in for a nasty
@@ -164,7 +253,7 @@ hot-reboot.  We perform the following steps in order to do this.
   `kexec-module`](https://github.com/amonakov/kexec-module), and
   subsequently, [fabianishere's
   `kexec-mod-arm64`](https://github.com/fabianishere/kexec-mod)!  We build
-  on this work in `kexec-mod/`, where we port this kernel module to ARM32. 
+  on this work in `kexec-mod/`, where we port this kernel module to ARM32.
   Much of the Rockchip SoC gets astonishingly angry if hot-rebooted; we very
   carefully reset large chunks of the SoC's state in
   `kexec-mod/kernel/arch/arm/machine_kexec_drv.c`.  To get access to many of
@@ -267,7 +356,7 @@ We work with pull requests and bug reports on GitHub.  Please reserve bug
 reports for actually triaged -- or, if not triaged, triageable -- bugs; if
 you have usage questions, please talk about those in "Discussions"!
 
-Please be reasonable human beings to each other.  It is just a 3D printer. 
+Please be reasonable human beings to each other.  It is just a 3D printer.
 If you have a problem, please chat with some of the maintainers and we will
 try to help you resolve it.
 
@@ -285,7 +374,7 @@ This probably ought go into a wiki page, but, you know, here we are.
 #### Building a kernel
 
 As of writing, it's not necessary to build a kernel image yourself as there's one present in
-`prebuilt`. But you can! This might be desirable to enable other kernel features for development, 
+`prebuilt`. But you can! This might be desirable to enable other kernel features for development,
 or to build a kernel module against.
 
 * Install prerequestites, including `lz4` for compressing the final image.
@@ -299,7 +388,7 @@ how necessary this is):
   -Larm-linux-gnueabihf/libc/usr/lib/ -L/usr/arm-linux-gnueabihf/lib/"
   export CCFLAGS="-I$TOOLCHAIN/include -I/usr/include"
   ```
-* From the root of kernel folder, run `make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- 
+* From the root of kernel folder, run `make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
 O=build x1plus_defconfig`
 * Run `make mrproper`
 * CD into `build`
