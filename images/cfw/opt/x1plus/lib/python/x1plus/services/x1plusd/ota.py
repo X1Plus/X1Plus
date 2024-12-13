@@ -65,7 +65,7 @@ class OTAService(X1PlusDBusService):
             }
         
         super().__init__(
-            dbus_interface=OTA_INTERFACE, dbus_path=OTA_PATH, **kwargs
+            dbus_interface=OTA_INTERFACE, dbus_path=OTA_PATH, router=daemon.router, **kwargs
         )
 
     def ota_enabled(self):
