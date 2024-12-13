@@ -3,6 +3,7 @@ from functools import lru_cache
 import os
 import glob
 import re
+import sys
 import importlib
 import logging, logging.handlers
 
@@ -107,7 +108,11 @@ def module_loader(filepath, package_name):
     try:
         if not package_name.endswith(module_name):
             package_name += f".{module_name}"
-        module = importlib.import_module(package_name)
+
+        spec = importlib.util.spec_from_file_location(package_name, filepath)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[package_name] = module
+        spec.loader.exec_module(module)
     except Exception as e:
         logger.error(f"Failed to load module from {filepath}. {e.__class__.__name__}: {e}")
         return None, None    
