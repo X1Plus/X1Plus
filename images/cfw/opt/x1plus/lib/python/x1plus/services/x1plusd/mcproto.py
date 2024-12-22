@@ -263,8 +263,6 @@ class MCProtoParser():
         """
         Trigger an action to execute in the background, with only one MC protocol action allowed to run at a time.
         """
-        if not hasattr(self.daemon, 'actions'):
-            return
 
         if self.active_action:
             if not self.active_action.done():

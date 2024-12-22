@@ -41,8 +41,6 @@ import logging
 import json
 import yaml
 
-from x1plus.utils import module_loader, module_docstring_parser
-
 from .dbus import *
 
 logger = logging.getLogger(__name__)
