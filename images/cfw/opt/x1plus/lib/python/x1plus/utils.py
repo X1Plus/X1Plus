@@ -55,10 +55,47 @@ def get_IP() -> str:
     # hostname = subprocess.run(["hostname", "-I"], capture_output=True)
     # return hostname.stdout.decode().split(" ")[0]
 
+class Module:
+    def __init__(self, path, package, loader_type = "module"):
+        self.loaded = False
+        self.path = path
+        self.package_name = package
+        self.driver_data = module_docstring_parser(path, loader_type)
+        if not self.driver_data:
+            raise ImportError("module has no docstring keys")
+        self.config_key = f"x1plusd.modules.{self.driver_data.get('name', package)}"
+    
+    def load(self, *args, **kwargs):
+        # XXX: This currently does not load parent packages, and so
+        # therefore `from ..  import` and such will not work, and the
+        # package name is not a "real" package name in many ways.  Consider
+        # doing something that recurs upwards:
+        # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
+        #
+        # Or consider registering a path entry hook to sandbox modules,
+        # maybe, in the future?  Then we could just use import, or
+        # something.
+        
+        assert not self.loaded
+        assert os.path.splitext(os.path.basename(self.path))[0] == self.package_name.split('.')[-1]
 
-def module_importer(directory: str, include_subdirs: bool = False, 
-                    base_package: str = "x1plus.services.x1plusd.modules",
-                    loader_type: str = "module"):
+        spec = importlib.util.spec_from_file_location(self.package_name, self.path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[self.package_name] = module
+        spec.loader.exec_module(module)
+        
+        if hasattr(module, "load"):
+            module.load(*args, **kwargs)
+        self.module = module
+        self.loaded = True
+    
+    def start(self):
+        if hasattr(self.module, "start"):
+            self.module.start()
+
+def find_modules(directory: str, include_subdirs: bool = False, 
+                 base_package: str = "x1plus.services.x1plusd.modules",
+                 loader_type: str = "module"):
     """Dynamically import all valid modules from a directory"""
     modules = []
 
@@ -73,51 +110,22 @@ def module_importer(directory: str, include_subdirs: bool = False,
         files.extend(glob.glob(pattern2, recursive=False))
 
     for file_path in files:
-        try: 
-            pkg_extension = file_path.replace(directory, "").replace("/", ".").replace(" ", "_").strip().lower()
-            if pkg_extension.startswith("."):
-                pkg_extension = pkg_extension[1:]
-            if pkg_extension.endswith(".py"):
-                pkg_extension = pkg_extension[:-3]
+        pkg_extension = file_path.replace(directory, "").replace("/", ".").replace(" ", "_").strip().lower()
+        if pkg_extension.startswith("."):
+            pkg_extension = pkg_extension[1:]
+        if pkg_extension.endswith(".py"):
+            pkg_extension = pkg_extension[:-3]
 
-            package = f"{base_package}.{pkg_extension}"
+        package = f"{base_package}.{pkg_extension}"
 
-            driver_data = module_docstring_parser(file_path, loader_type)
-
-            if not driver_data:
-                continue
-
-            module, module_name = module_loader(file_path, package)
-
-            # Regardless of fail/success for import, add to listen on key
-            modules.append({
-                "module": module,
-                "config": driver_data,
-                "name": driver_data.get("name", module_name),
-                "key": f"x1plusd.modules.{driver_data.get('name', pkg_extension)}"
-            })
+        try:
+            modules.append(Module(file_path, package, loader_type = loader_type))
+        except ImportError:
+            # it just had no docstring keys; that's fine
+            pass
         except Exception as e:
-            logger.error(f"Failed to import module from {file_path}. {e.__class__.__name__}: {e}")
+            logger.error(f"failed to load module metadata from {file_path}: {e.__class__.__name__}: {e}")
     return modules
-
-
-def module_loader(filepath, package_name):
-    """Return imported module from provided package and filepath, or None"""
-    module_name = os.path.splitext(os.path.basename(filepath))[0]
-    module = None
-    try:
-        if not package_name.endswith(module_name):
-            package_name += f".{module_name}"
-
-        spec = importlib.util.spec_from_file_location(package_name, filepath)
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[package_name] = module
-        spec.loader.exec_module(module)
-    except Exception as e:
-        logger.error(f"Failed to load module from {filepath}. {e.__class__.__name__}: {e}")
-        return None, None    
-    logger.info(f"Loaded module {module_name} as {package_name}")
-    return module, module_name
 
     
 def module_docstring_parser(filepath: str, loader_type: str) -> dict:

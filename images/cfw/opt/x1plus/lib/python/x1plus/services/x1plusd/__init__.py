@@ -18,9 +18,12 @@ from .mcproto import MCProtoParser
 from .actions import ActionHandler
 from .gpios import GpioManager
 
-from x1plus.utils import module_importer
+from x1plus.utils import find_modules, is_emulating
 
 logger = logging.getLogger(__name__)
+
+MODULE_BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "modules"))
+MODULE_SDCARD_DIR = "/mnt/sdcard/x1plus/modules" if not is_emulating() else "/tmp/x1plus/modules"
 
 class X1PlusDaemon:
 
@@ -45,46 +48,33 @@ class X1PlusDaemon:
         self.gpios = GpioManager(daemon=self)
         self.actions = ActionHandler(daemon=self)
         
-        self.custom_modules = {}
-        """
-        { "name": ClassInstance }
-        """
-
+        self.modules = []
         self.watched_keys = []
-        self.MODULES = []
 
-        BASE_MODULE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "modules"))
-        self.load_modules(BASE_MODULE_DIR)
+        # find modules on disk...
+        self.modules.extend(find_modules(MODULE_BASE_DIR, include_subdirs = True))
 
-        SDCARD_MODULE_DIR = "/mnt/sdcard/x1plus/modules"
-        if not os.path.isdir(SDCARD_MODULE_DIR):
-            os.makedirs(SDCARD_MODULE_DIR)
+        if not os.path.isdir(MODULE_SDCARD_DIR):
+            os.makedirs(MODULE_SDCARD_DIR)
+        self.modules.extend(find_modules(MODULE_SDCARD_DIR, include_subdirs = True))
 
-        # Custom modules are loaded after all core modules
-        # Full import paths will work if a dependency exists
-        self.load_modules(SDCARD_MODULE_DIR)
+        # ... and then load any of them that ought be enabled
+        for module in self.modules:
+            if module.config_key not in self.watched_keys:
+                self.watched_keys.append(module.config_key)
 
-        return self
-
-    def load_modules(self, module_directory: str):
-        self.MODULES.extend(module_importer(module_directory, include_subdirs=True))
-
-        for scanned_module in self.MODULES:
-            key = scanned_module.get('key')
-            module = scanned_module.get('module', None)
-            
-            if key not in self.watched_keys:
-                self.watched_keys.append(key)
-
-            enabled = scanned_module.get("config", {}).get("enabled", "").lower() == "true"
-            if module and self.settings.get(key, enabled) and hasattr(module, "load"):
-                name = scanned_module.get("name")
+            default_enabled = module.driver_data.get("default_enabled", "").lower() == "true"
+            if self.settings.get(module.config_key, default_enabled):
                 try:
+                    logger.info(f"loading x1plusd module {module.package_name}")
                     module.load(daemon=self)
                 except Exception as e:
-                    logger.error(f"Error loading x1plusd module {name}. {e.__class__.__name__}: {e}")
+                    logger.error(f"error loading x1plusd module {module.package_name}: {e.__class__.__name__}: {e}")
+            else:
+                logger.info(f"x1plusd module {module.package_name} (config key {module.config_key}) is available, but not enabled")
+        logger.debug(f"watched keys: {self.watched_keys}")
 
-
+        return self
 
     async def start(self):
         asyncio.create_task(self.settings.task())
@@ -97,15 +87,11 @@ class X1PlusDaemon:
         asyncio.create_task(self.mcproto.task())
         asyncio.create_task(self.actions.task())
 
-        for scanned_module in self.MODULES:
-            key = scanned_module.get('key')
-            module = scanned_module.get('module', None)
-            enabled = scanned_module.get("config", {}).get("enabled", "").lower() == "true"
-            if module and self.settings.get(key, enabled) and hasattr(module, "start"):
-                name = scanned_module.get("name")
+        for module in self.modules:
+            if module.loaded:
                 try:
-                    module.start(daemon=self)
+                    module.start()
                 except Exception as e:
-                    logger.error(f"Error starting x1plusd module {name}. {e.__class__.__name__}: {e}")
+                    logger.error(f"error starting x1plusd module {module.package_name}: {e.__class__.__name__}: {e}")
 
         logger.info("x1plusd is running")

@@ -1,7 +1,7 @@
 """
 [module]
 name=pmsa003i
-enabled=true
+default_enabled=true
 [end]
 """
 try:

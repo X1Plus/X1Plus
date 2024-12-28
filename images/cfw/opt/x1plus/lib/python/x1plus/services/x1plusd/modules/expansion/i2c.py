@@ -1,6 +1,6 @@
 """
 [module]
-enabled=true
+default_enabled=true
 [end]
 """
 
@@ -13,8 +13,6 @@ import binascii
 
 import asyncio
 import time
-
-from x1plus.utils import module_loader, module_docstring_parser
 
 logger = logging.getLogger(__name__)
 

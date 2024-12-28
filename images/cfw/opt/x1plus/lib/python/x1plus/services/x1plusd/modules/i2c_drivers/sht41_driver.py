@@ -1,7 +1,7 @@
 """
 [module]
 name=sht41
-enabled=true
+default_enabled=true
 [end]
 """
 try:

@@ -1,6 +1,6 @@
 """
 [module]
-enabled=true
+default_enabled=true
 [end]
 """
 import os
@@ -8,7 +8,6 @@ import logging
 import asyncio
 import time
 import struct
-from x1plus.utils import module_loader, module_docstring_parser
 
 from collections import namedtuple
 
