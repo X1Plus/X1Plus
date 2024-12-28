@@ -78,7 +78,7 @@ class ExpansionManager(X1PlusDBusService):
         if not self.expansion:
             logger.info("no X1Plus expansion board detected")
             super().__init__(
-                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, router=daemon.router, **kwargs
             )
             return
         
