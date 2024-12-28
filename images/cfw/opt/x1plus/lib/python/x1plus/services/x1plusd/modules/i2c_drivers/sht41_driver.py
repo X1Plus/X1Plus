@@ -4,16 +4,14 @@ name=sht41
 default_enabled=true
 [end]
 """
-try:
-    from x1plus.services.x1plusd.modules.expansion.i2c import register_driver
-except ImportError:
-    from ..expansion.i2c import register_driver
 
 import binascii
 
 import logging
 import asyncio
 import time
+
+from x1plus.services.x1plusd.expansion.i2c import register_driver
 
 logger = logging.getLogger(__name__)
 name = 'sht41'

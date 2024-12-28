@@ -1,8 +1,3 @@
-"""
-[module]
-default_enabled=true
-[end]
-"""
 import os
 import logging
 import asyncio
@@ -13,6 +8,7 @@ from collections import namedtuple
 
 from pyftdi.ftdi import Ftdi
 
+from . import ExpansionManager
 from x1plus.services.x1plusd.gpios import Gpio
 
 logger = logging.getLogger(__name__)
@@ -154,6 +150,9 @@ class LedStripDriver():
                 ph -= 1
             await asyncio.sleep(0.05)
 
+ExpansionManager.DRIVERS["ledstrip"] = LedStripDriver
+
+
 ###############
 
 class LedStripGpio(Gpio):
@@ -221,6 +220,3 @@ def register_animation(name, handler = None):
     else:
         decorator(handler)
 
-
-def load(daemon):
-    daemon.expansion.DRIVERS["ledstrip"] = LedStripDriver

@@ -1,9 +1,3 @@
-"""
-[module]
-default_enabled=true
-[end]
-"""
-
 import os
 import re
 import logging
@@ -13,6 +7,8 @@ import binascii
 
 import asyncio
 import time
+
+from . import ExpansionManager
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +49,8 @@ class I2cDriver():
             d.disconnect()
         self.i2c.close()
 
+ExpansionManager.DRIVERS["i2c"] = I2cDriver
+
 def register_driver(name, handler = None):
     """
     Register an i2c driver by name with the expansion i2c subsystem.
@@ -69,6 +67,3 @@ def register_driver(name, handler = None):
         return decorator
     else:
         decorator(handler)
-
-def load(daemon):
-    daemon.expansion.DRIVERS["i2c"] = I2cDriver

@@ -3,15 +3,13 @@
 default_enabled=true
 [end]
 """
-try:
-    from x1plus.services.x1plusd.modules.expansion.ledstrip import register_animation
-except ImportError:
-    from ..expansion.ledstrip import register_animation
 
 import asyncio
 import colorsys
 
 import logging
+
+from x1plus.services.x1plusd.expansion.ledstrip import register_animation
 
 logger = logging.getLogger(__name__)
 name = "rainbow"
