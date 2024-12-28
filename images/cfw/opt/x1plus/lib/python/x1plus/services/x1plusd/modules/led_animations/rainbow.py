@@ -12,8 +12,8 @@ import logging
 from x1plus.services.x1plusd.expansion.ledstrip import register_animation
 
 logger = logging.getLogger(__name__)
-name = "rainbow"
 
+@register_animation("rainbow")
 class RainbowAnimation():
     def __init__(self, leds, config):
         self.leds = leds
@@ -33,7 +33,3 @@ class RainbowAnimation():
             if ph > 1:
                 ph -= 1
             await asyncio.sleep(0.05)
-
-@register_animation("rainbow")
-def _animation_rainbow(handler):
-    handler.ANIMATIONS.setdefault(name, RainbowAnimation)

@@ -14,8 +14,8 @@ from x1plus.services.x1plusd.expansion.i2c import register_driver
 logger = logging.getLogger(__name__)
 name = 'pmsa003i'
 
+@register_driver(name)
 class Pmsa003iDriver():
-
     def __init__(self, address, i2c_driver, config):
         self.sensors = i2c_driver.daemon.sensors
 
@@ -109,7 +109,3 @@ class Pmsa003iDriver():
                 await self.sensors.publish(self.name, type = name, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
-
-@register_driver("pmsa003i")
-def _driver_pmsa003i(handler):
-    handler.DEVICE_DRIVERS.setdefault(name, Pmsa003iDriver)

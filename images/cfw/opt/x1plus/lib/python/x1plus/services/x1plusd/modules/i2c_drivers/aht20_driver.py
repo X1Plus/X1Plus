@@ -15,6 +15,7 @@ from x1plus.services.x1plusd.expansion.i2c import register_driver
 logger = logging.getLogger(__name__)
 name = "aht20"
 
+@register_driver(name)
 class Aht20Driver():
     CMD_RESET = 0xBA
     CMD_INITIALIZE = 0xE1
@@ -84,7 +85,3 @@ class Aht20Driver():
                 await self.sensors.publish(self.name, type = name, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
-
-@register_driver("aht20")
-def _driver_aht20(handler):
-    handler.DEVICE_DRIVERS.setdefault(name, Aht20Driver)

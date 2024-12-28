@@ -16,6 +16,7 @@ from x1plus.services.x1plusd.expansion.i2c import register_driver
 logger = logging.getLogger(__name__)
 name = 'sht41'
 
+@register_driver(name)
 class Sht41Driver():
     CMD_SERIAL_NUMBER = 0x89
     CMD_MEASURE_HIGH_PRECISION = 0xFD
@@ -56,7 +57,3 @@ class Sht41Driver():
                 await self.sensors.publish(self.name, type = name, serial = self.sn, inop = { 'exception': f"{e.__class__.__name__}: {e}" })
             
             await asyncio.sleep(self.interval_ms / 1000.0)
-
-@register_driver("sht41")
-def _driver_sht41(handler):
-    handler.DEVICE_DRIVERS.setdefault(name, Sht41Driver)

@@ -13,6 +13,7 @@ from x1plus.services.x1plusd.expansion.ledstrip import register_animation
 
 logger = logging.getLogger(__name__)
 
+@register_animation("running")
 class RunningAnimation():
     def __init__(self, leds, config):
         self.leds = leds
@@ -53,6 +54,7 @@ class RunningAnimation():
                 await asyncio.sleep(0.05)
 
 
+@register_animation("paused")
 class PausedAnimation():
     def __init__(self, leds, config):
         self.leds = leds
@@ -75,6 +77,7 @@ class PausedAnimation():
                 await asyncio.sleep(off / 1000.0)
  
 
+@register_animation("finish")
 class FinishAnimation():
     def __init__(self, leds, config):
         self.leds = leds
@@ -100,6 +103,7 @@ class FinishAnimation():
             await asyncio.sleep(0.05)
 
 
+@register_animation("failed")
 class FailedAnimation():
     def __init__(self, leds, config):
         self.leds = leds
@@ -130,21 +134,3 @@ class FailedAnimation():
                     arr += (0.0, 1/255, 0.0,)
                 self.leds.put([int(a * 255) for a in arr])
                 await asyncio.sleep(off / 1000.0)
-
-
-@register_animation("running")
-def _animation_running(handler):
-    handler.ANIMATIONS.setdefault("running", RunningAnimation)
-   
-@register_animation("paused")
-def _animation_paused(handler):
-    handler.ANIMATIONS.setdefault("paused", PausedAnimation)
-    
-@register_animation("finish")
-def _animation_finish(handler):
-    handler.ANIMATIONS.setdefault("finish", FinishAnimation)
-    
-@register_animation("failed")
-def _animation_failed(handler):
-    handler.ANIMATIONS.setdefault("failed", FailedAnimation)
-

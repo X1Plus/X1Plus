@@ -203,20 +203,20 @@ class LedStripGpio(Gpio):
         return ((data[0] & self.pin) == self.pin) ^ inverted
 
 
-def register_animation(name, handler = None):
+def register_animation(name, clazz = None):
     """
     Register an ledstrip animation by name with the expansion ledstrip subsystem.
     
-    If used with handler == None, then behaves like a decorator.
+    If used with clazz == None, then behaves like a decorator.
     """
-    def decorator(handler):
-        assert name not in _registered_animations
-        _registered_animations[name] = handler
-        logger.info(f"Registered LedStrip Animation from module: {name}")
-        return handler
+    def decorator(clazz):
+        assert name not in LedStripDriver.ANIMATIONS
+        LedStripDriver.ANIMATIONS[name] = clazz
+        logger.info(f"registered LED strip animation \"{name}\"")
+        return clazz
 
-    if handler is None:
+    if clazz is None:
         return decorator
     else:
-        decorator(handler)
+        decorator(clazz)
 

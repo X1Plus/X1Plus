@@ -12,8 +12,6 @@ from . import ExpansionManager
 
 logger = logging.getLogger(__name__)
 
-_registered_drivers = {}
-
 class I2cDriver():
     DEVICE_DRIVERS = {}
     
@@ -25,9 +23,6 @@ class I2cDriver():
         
         self.daemon = daemon
         self.devices = []
-
-        for driver in _registered_drivers:
-            _registered_drivers[driver](self)
 
         # I2C config format is just a dict of addresses -> devices
         for address, devices in config.items():
@@ -51,19 +46,19 @@ class I2cDriver():
 
 ExpansionManager.DRIVERS["i2c"] = I2cDriver
 
-def register_driver(name, handler = None):
+def register_driver(name, clazz = None):
     """
     Register an i2c driver by name with the expansion i2c subsystem.
     
-    If used with handler == None, then behaves like a decorator.
+    If used with clazz == None, then behaves like a decorator.
     """
-    def decorator(handler):
-        assert name not in _registered_drivers
-        _registered_drivers[name] = handler
-        logger.info(f"Registered I2C Driver from module: {name}")
-        return handler
+    def decorator(clazz):
+        assert name not in I2cDriver.DEVICE_DRIVERS
+        I2cDriver.DEVICE_DRIVERS[name] = clazz
+        logger.info(f"registered I2C driver \"{name}\"")
+        return clazz
 
-    if handler is None:
+    if clazz is None:
         return decorator
     else:
-        decorator(handler)
+        decorator(clazz)
