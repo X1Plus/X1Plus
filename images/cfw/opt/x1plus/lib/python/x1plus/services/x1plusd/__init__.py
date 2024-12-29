@@ -63,7 +63,7 @@ class X1PlusDaemon:
             if module.config_key not in self.watched_keys:
                 self.watched_keys.append(module.config_key)
 
-            default_enabled = module.driver_data.get("default_enabled", "").lower() == "true"
+            default_enabled = module.driver_data.get("default_enabled", False)
             if self.settings.get(module.config_key, default_enabled):
                 try:
                     logger.info(f"loading x1plusd module {module.package_name}")

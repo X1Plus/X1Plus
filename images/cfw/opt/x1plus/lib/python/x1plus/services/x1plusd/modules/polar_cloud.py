@@ -1,9 +1,10 @@
 """
-[module]
-name=polar_cloud
-[end]
-
 Module to allow printing using Polar Cloud service.
+
+[X1PLUS_MODULE_INFO]
+module:
+  name: polar_cloud
+[END_X1PLUS_MODULE_INFO]
 """
 
 import asyncio

@@ -1,7 +1,9 @@
 """
-[module]
-default_enabled=true
-[end]
+[X1PLUS_MODULE_INFO]
+module:
+  name: led_animation.rainbow
+  default_enabled: true
+[END_X1PLUS_MODULE_INFO]
 """
 
 import asyncio

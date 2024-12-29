@@ -1,7 +1,9 @@
 """
-[module]
-default_enabled=true
-[end]
+[X1PLUS_MODULE_INFO]
+module:
+  name: actions.syslog
+  default_enabled: true
+[END_X1PLUS_MODULE_INFO]
 """
 from x1plus.services.x1plusd.actions import register_action
 

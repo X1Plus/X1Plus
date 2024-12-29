@@ -1,8 +1,9 @@
 """
-[module]
-name=sht41
-default_enabled=true
-[end]
+[X1PLUS_MODULE_INFO]
+module:
+  name: i2c.sht41
+  default_enabled: true
+[END_X1PLUS_MODULE_INFO]
 """
 
 import binascii

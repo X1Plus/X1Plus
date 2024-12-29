@@ -1,8 +1,9 @@
 """
-[module]
-name=pmsa003i
-default_enabled=true
-[end]
+[X1PLUS_MODULE_INFO]
+module:
+  name: i2c.pmsa003i
+  default_enabled: true
+[END_X1PLUS_MODULE_INFO]
 """
 
 import logging
