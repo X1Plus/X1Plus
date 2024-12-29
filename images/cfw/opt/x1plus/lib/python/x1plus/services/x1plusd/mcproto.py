@@ -263,6 +263,7 @@ class MCProtoParser():
         """
         Trigger an action to execute in the background, with only one MC protocol action allowed to run at a time.
         """
+
         if self.active_action:
             if not self.active_action.done():
                 logger.warning("new mcproto action being triggered, but the previous action is not complete; canceling it!")

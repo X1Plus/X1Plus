@@ -9,8 +9,6 @@ import pyftdi.ftdi
 
 from ..dbus import *
 
-from .i2c import I2cDriver
-from .ledstrip import LedStripDriver
 from .detect_eeprom import detect_eeprom
 
 # workaround for missing ldconfig
@@ -63,7 +61,7 @@ EXPANSION_INTERFACE = "x1plus.expansion"
 EXPANSION_PATH = "/x1plus/expansion"
 
 class ExpansionManager(X1PlusDBusService):
-    DRIVERS = { 'i2c': I2cDriver, 'ledstrip': LedStripDriver }
+    DRIVERS = {}
 
     def __init__(self, daemon, **kwargs):
         self.daemon = daemon
@@ -80,7 +78,7 @@ class ExpansionManager(X1PlusDBusService):
         if not self.expansion:
             logger.info("no X1Plus expansion board detected")
             super().__init__(
-                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, router=daemon.router, **kwargs
             )
             return
         
@@ -112,10 +110,9 @@ class ExpansionManager(X1PlusDBusService):
         self.last_configs = {}
 
         super().__init__(
-            dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+            dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, router=daemon.router, **kwargs
         )
 
-    
     async def task(self):
         self._update_drivers()
         await super().task()
