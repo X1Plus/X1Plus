@@ -72,7 +72,7 @@ X1Plus that relied on exploits to install, the PC-side installer was
 somewhat more complicated!)  Roughly, this is implemented in
 `installer-clientside/install-gui/src/index.ts`.
 
-The installer copies an `.x1p` image to the SD card, as well as a small
+The installer copies a `.x1p` image to the SD card, as well as a small
 tarball containing the on-printer install GUI stub.  It SSHes to the
 printer, unpacks the tarball into `/userdata` on the printer, and runs a
 first-stage installer launch script that it (hopefully) unpacked; then, it
