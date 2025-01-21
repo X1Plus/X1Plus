@@ -30,6 +30,9 @@ function wiredNetwork() {
 	if (X1Plus && X1Plus.NetworkManager && X1Plus.NetworkManager.wiredNetwork !== undefined) {
 		return X1Plus.NetworkManager.wiredNetwork;
 	}
+	if (X1Plus.emulating) {
+		return { "state": X1Plus.NetworkEnum.CONNECTED, "isOn": true, "powerState": true, "isManualDHCP": false, "macAddr": "00:11:22:33:44:55", "ipv4": "1.2.3.4", "gateway": "1.2.3.5", "mask": "255.255.255.0", "dns": "4.2.2.2", "dns2": "4.2.2.3", "domain": "x1plus.net" };
+	}
 	return _wiredStatus();
 }
 

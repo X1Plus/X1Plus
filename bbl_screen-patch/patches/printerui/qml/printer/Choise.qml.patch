@@ -1,0 +1,30 @@
+--- printer_ui-orig/printerui/qml/printer/Choise.qml
++++ printer_ui/printerui/qml/printer/Choise.qml
+@@ -54,13 +54,13 @@
+                 radius: 24
+             }
+         }
+-        delegate: ZText {
++        delegate: Text {
+             height: 60
+-            width: parent.width
++            width: popupList.width
++            fontSizeMode: Text.HorizontalFit
+             font: listTextFont
+             color: Colors.gray_100
+             padding: 16
+-            maxWidth: width < contentWidth ? parent.width : 0
+             verticalAlignment: Text.AlignVCenter
+             text: modelData
+             TapHandler {
+@@ -73,8 +73,9 @@
+             }
+             HoverHandler {
+                 onHoveredChanged: {
+-                    if (hovered)
++                    if (hovered) {
+                         popupList.currentIndex = index
++                    }
+                 }
+             }
+         }

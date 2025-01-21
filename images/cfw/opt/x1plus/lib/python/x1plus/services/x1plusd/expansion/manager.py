@@ -1,16 +1,14 @@
+import asyncio
+from collections import namedtuple
 import os
 import logging
-
-from collections import namedtuple
-import usb
 import time
 
+import usb
 import pyftdi.ftdi
 
 from ..dbus import *
 
-from .i2c import I2cDriver
-from .ledstrip import LedStripDriver
 from .detect_eeprom import detect_eeprom
 
 # workaround for missing ldconfig
@@ -63,10 +61,16 @@ EXPANSION_INTERFACE = "x1plus.expansion"
 EXPANSION_PATH = "/x1plus/expansion"
 
 class ExpansionManager(X1PlusDBusService):
-    DRIVERS = { 'i2c': I2cDriver, 'ledstrip': LedStripDriver }
+    DRIVERS = {}
 
     def __init__(self, daemon, **kwargs):
         self.daemon = daemon
+
+        self.eeproms = {}
+        self.drivers = {}
+        self.ftdi_nports = 0
+        self.ftdi_path = None
+        self.last_configs = {}
 
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
@@ -74,7 +78,7 @@ class ExpansionManager(X1PlusDBusService):
         if not self.expansion:
             logger.info("no X1Plus expansion board detected")
             super().__init__(
-                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+                dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, router=daemon.router, **kwargs
             )
             return
         
@@ -87,7 +91,6 @@ class ExpansionManager(X1PlusDBusService):
             self.ftdi_nports = 2
             logger.warning(f"FTDI product ID {self.expansion.ftdidev.idProduct:x} unrecognized")
 
-        self.eeproms = {}
         for port in range(self.ftdi_nports):
             port_name = f"port_{chr(0x61 + port)}"
             self.eeproms[port_name] = None
@@ -105,16 +108,19 @@ class ExpansionManager(X1PlusDBusService):
             self.daemon.settings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
 
         self.last_configs = {}
-        self.drivers = {}
-
-        self._update_drivers()
 
         super().__init__(
-            dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, **kwargs
+            dbus_interface=EXPANSION_INTERFACE, dbus_path=EXPANSION_PATH, router=daemon.router, **kwargs
         )
 
+    async def task(self):
+        self._update_drivers()
+        await super().task()
     
     def _update_drivers(self):
+        if not self.expansion:
+            return
+
         # Workaround https://github.com/eblot/pyftdi/issues/261 by resetting
         # all drivers on the FTDI every time.
         did_change = False
@@ -149,7 +155,14 @@ class ExpansionManager(X1PlusDBusService):
                 # nothing has changed; do not reinitialize the port
                 continue
             
-            if type(config) != dict or len(config) != 1:
+            if type(config) != dict:
+                logger.error(f"invalid configuration for {port_name}: configuration must be dictionary with exactly one key")
+                continue
+            
+            # ignore a "meta" key, where a UI can stash information about
+            # config state; otherwise, the remaining key is a driver
+            ckey = set(config.keys()) - {'meta'}
+            if len(ckey) != 1:
                 logger.error(f"invalid configuration for {port_name}: configuration must be dictionary with exactly one key")
                 continue
             
@@ -157,14 +170,15 @@ class ExpansionManager(X1PlusDBusService):
                 self.drivers[port_name].disconnect()
                 del self.drivers[port_name]
             
-            (driver, subconfig) = next(iter(config.items()))
+            driver = ckey.pop()
+            subconfig = config[driver]
             
             if driver not in self.DRIVERS:
                 logger.error(f"{port_name} is assigned driver {driver}, which is not registered")
                 continue
             
             try:
-                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", config = subconfig, daemon = self.daemon)
+                self.drivers[port_name] = self.DRIVERS[driver](ftdi_path = f"{self.ftdi_path}{port + 1}", port_name = port_name, config = subconfig, daemon = self.daemon)
                 self.last_configs[port_name] = config
             except Exception as e:
                 logger.error(f"{port_name} driver {driver} initialization failed: {e.__class__.__name__}: {e}")

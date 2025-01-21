@@ -1,5 +1,10 @@
 """
 Module to allow printing using Polar Cloud service.
+
+[X1PLUS_MODULE_INFO]
+module:
+  name: polar_cloud
+[END_X1PLUS_MODULE_INFO]
 """
 
 import asyncio
@@ -39,16 +44,21 @@ class PolarPrintService:
 
     async def begin(self):
         """Create Socket.IO client and connect to server."""
-        self.socket = socketio.AsyncClient()
-        self.set_interface()
-        await self.get_creds()
-        await self.socket.connect(self.server_url, transports=["websocket"])
-        # Assign socket callbacks.
-        self.socket.on("registerResponse", self._on_register_response)
-        self.socket.on("keyPair", self._on_keypair_response)
-        self.socket.on("helloResponse", self._on_hello_response)
-        self.socket.on("welcome", self._on_welcome)
-        self.socket.on("delete", self._on_delete)
+        try: 
+            self.socket = socketio.AsyncClient()
+            self.set_interface()
+            await self.get_creds()
+            await self.socket.connect(self.server_url, transports=["websocket"])
+            # Assign socket callbacks.
+            self.socket.on("registerResponse", self._on_register_response)
+            self.socket.on("keyPair", self._on_keypair_response)
+            self.socket.on("helloResponse", self._on_hello_response)
+            self.socket.on("welcome", self._on_welcome)
+            self.socket.on("delete", self._on_delete)
+        except Exception as e:
+            logger.error(f"Failed to start polar_cloud: {e.__class__.__name__}: {e}")
+            if self.socket:
+                self.socket.disconnect()
 
 
     async def _on_welcome(self, response, *args, **kwargs):
@@ -285,3 +295,11 @@ class PolarPrintService:
         """Get IP and MAC addresses and store them in self.settings."""
         self.mac = get_MAC()
         # self.ip = get_IP()
+
+_daemon = None
+def load(daemon):
+    _daemon = daemon
+    setattr(daemon, "polar_cloud", PolarPrintService(daemon=daemon))
+
+def start(daemon):
+    asyncio.create_task(daemon.polar_cloud.begin())
