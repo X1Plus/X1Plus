@@ -27,7 +27,7 @@
 #  define OFS_SpCountedBase_M_RELEASE 0x3108c
 #  define OFS_NIC_init_dev 0x2E810
 #  define OFS_create_net_thread 0x287B0
-#  define OFS_ctor_size_218 0x5a948
+#  define OFS_ctor_size_218 0x875c4
 #elif defined(FIRMWARE_00_00_32_39)
 #  define OFS_ETH_VTABLE    0xA2734
 #  define OFS_ETH_VTABLE_0  0x56B5C
@@ -144,12 +144,12 @@ static int create_interfaces(int thiz)
 	
 	{
 	std::string iface = "eth0";
-	((void (*)(int, std::string &)) 0x875C4)((int)(eth_ptr + 4), iface);
+	((void (*)(int, std::string &)) OFS_ctor_size_218)((int)(eth_ptr + 4), iface);
 	}
 
 	{
 	std::string iface = "eth0";
-	unsigned int *v21 = ((unsigned int *(*)(int, std::string &)) OFS_ctor_size_218)(v3, iface);
+	unsigned int *v21 = ((unsigned int *(*)(int, std::string &)) OFS_SET_ADD_STRING_MAYBE)(v3, iface);
 
 	unsigned int *v14 = (unsigned int *)operator new(0x130);
 	v14[0] = OFS_VTABLE_NETINTERFACECARD;
@@ -181,7 +181,7 @@ static int create_interfaces(int thiz)
 	
 	{
 	std::string iface = "eth0";
-	unsigned int *v19 = ((unsigned int *(*)(int, std::string &)) OFS_ctor_size_218)(v3, iface);
+	unsigned int *v19 = ((unsigned int *(*)(int, std::string &)) OFS_SET_ADD_STRING_MAYBE)(v3, iface);
 
 	((void (*)(unsigned int)) OFS_create_net_thread)(*v19);
 	}
