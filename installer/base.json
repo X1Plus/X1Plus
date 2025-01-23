@@ -5,7 +5,7 @@
     "updateName": "update-v00.00.32.39-20240805174856_product.img.zip.sig",
     "updateMd5": "1e1003789a9ea7326c206aa99c174632",
     "squashfsName": "00.00.32.39.squashfs",
-    "squashfsMd5": "11153f2d890fc774687c960c96b1fa77",
+    "squashfsMd5": "6c2a1c7a06334de22c06499272325bc3",
     "mtime": 1737610560,
     "modules": {
         "cfw": { "dialogName": "X1Plus firmware", "version": "[version]", "alwaysNoUpgrade": true, "noUpgrade": "COPY_NEW_X1P" },
