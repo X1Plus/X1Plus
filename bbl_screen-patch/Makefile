@@ -1,13 +1,14 @@
 -include ../localconfig.mk
 
 FIRMWARE ?= $(shell jq -r .ap ../installer/base.json)
+FIRMWARE_DEF = -DFIRMWARE_$(shell jq -r .ap ../installer/base.json | sed -e 's/\./_/g')
 QT5_INCL_PATH ?= /usr/include/x86_64-linux-gnu/qt5/
 TOOLCHAIN ?= arm-linux-gnueabihf-
 TARGET_CC ?= $(TOOLCHAIN)gcc
 TARGET_CXX ?= $(TOOLCHAIN)g++
 LDFLAGS = -shared -ldl
-CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 -Wno-psabi # yes, -O3 actually helps here with the VNC shenanigans
-CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 # yes, -O3 actually helps here with the VNC shenanigans
+CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 -Wno-psabi $(FIRMWARE_DEF) # yes, -O3 actually helps here with the VNC shenanigans
+CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 $(FIRMWARE_DEF) # yes, -O3 actually helps here with the VNC shenanigans
 MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so device_gate_shim.so netService_shim.so forward_shim.so
 
 .DELETE_ON_ERROR:
