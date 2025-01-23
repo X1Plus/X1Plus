@@ -57,3 +57,6 @@ endef
 
 00.00.32.18.squashfs:
 	$(call fetchimage_fullurl,https://public-cdn.bblmw.com/upgrade/device/BL-P001/01.08.00.00/product/45ea644d25,update-v00.00.32.18-20240422102213_product.img.zip.sig,$@)
+
+00.00.32.39.squashfs:
+	$(call fetchimage_fullurl,https://public-cdn.bblmw.com/upgrade/device/BL-P001/01.08.02.00/product/e750866b34,update-v00.00.32.39-20240805174856_product.img.zip.sig,$@)
