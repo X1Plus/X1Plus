@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_fr.ts
 +++ printer_ui/printerui/app_fr.ts
-@@ -3432,4 +3432,262 @@
+@@ -3493,4 +3493,262 @@
          <translation>Voulez-vous vraiment annuler cette tâche ?</translation>
      </message>
  </context>

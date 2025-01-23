@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_nl.ts
 +++ printer_ui/printerui/app_nl.ts
-@@ -3437,4 +3437,132 @@
+@@ -3498,4 +3498,132 @@
          <translation>Weet u zeker dat u deze opdracht wilt annuleren?</translation>
      </message>
  </context>
