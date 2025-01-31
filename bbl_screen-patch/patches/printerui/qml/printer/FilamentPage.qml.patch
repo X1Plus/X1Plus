@@ -17,6 +17,24 @@
      MarginPanel {
          id: howToPanel
          height: 538
+@@ -589,7 +590,7 @@
+                     StateColorItem { color: "warning"; states: StateColor.Checked }
+                     StateColorItem { color: "gray_300"; states: StateColor.Normal }
+                 }
+-                checked: ((!modelData.thirdparty) && (modelData.remain === -1))
++                checked: ((modelData.valid) && (modelData.remain === -1))
+                 text: digitalConversion(modelData.index)
+ //                enabled: printIdle && feeder.readingTray == null && feeder.rfidStatus == FilamentFeeder.RF_Idle
+                 onClicked: {
+@@ -622,7 +623,7 @@
+                     GradientRectangle {
+                         id: colorHeight
+                         y: parent.height - height
+-                        height: (feeder.showRemains && !modelData.thirdparty) ? (parent.height / 100 * ((modelData.remain === 0) ? 1 : modelData.remain)) : parent.height
++                        height: (feeder.showRemains && modelData.valid) ? (parent.height / 100 * ((modelData.remain === 0) ? 1 : modelData.remain)) : parent.height
+                         width: parent.width
+                         radius: 4
+                         colors: modelData.colors
 @@ -651,36 +652,49 @@
                                                : qsTr("Empty")
                      }
@@ -69,7 +87,7 @@
 +                                else
 +                                    return Colors.different(color2)
 +                            }
-+                            originSource: modelData.thirdparty
++                            originSource: !modelData.valid
 +                                    ? "../../icon/edit2.svg" : "../../icon/show_eye.svg"
 +                        }
 +

@@ -1,5 +1,27 @@
 --- printer_ui-orig/printerui/qml/printer/FilamentPad.qml
 +++ printer_ui/printerui/qml/printer/FilamentPad.qml
+@@ -33,7 +33,7 @@
+     property bool extCaliEditable: PrintManager.currentTask.stage < PrintTask.WORKING
+                             && filament
+     property bool editable: PrintManager.currentTask.stage < PrintTask.WORKING
+-                            && filament && filament.thirdparty
++                            && filament && !filament.valid
+     property var amsColorsList: PrintManager.feeder.amsAllColors
+     property var colorModel: [
+         "#FFFFFF", "#FFF144", "#DCF478", "#0ACC38", "#057748", "#0D6284",
+@@ -173,10 +173,10 @@
+                 x: 280
+                 anchors.top: vendorCombo.bottom
+                 anchors.verticalCenter: parent.verticalCenter
+-                visible: filament ? !filament.thirdparty : false
++                visible: filament && filament.valid
+                 font: Fonts.body_30
+                 color: Colors.gray_300
+-                text: (filament && !filament.thirdparty) ? (qsTr("SN") + ":" + filament.id) : ""
++                text: (filament && filament.valid) ? (qsTr("SN") + ":" + filament.id) : ""
+             }
+         }
+ 
 @@ -464,13 +464,15 @@
  
                  if (filament.index !== 254) {
@@ -23,3 +45,13 @@
                      } else if(((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("-CF") != -1 || nameCombo.currentText.indexOf("PVA") != -1)) {
                          dialogStack.popupDialog(
                                      "TextConfirm", {
+@@ -537,7 +539,8 @@
+             font: Fonts.body_28
+             color: Colors.gray_100
+             wrapMode: Text.WordWrap
+-            text: (filament && !filament.thirdparty) ? qsTr("Information about Bamub Filament is stored in RFID and is read-only")
++            text: (filament && filament.valid && filament.thirdparty) ? qsTr("Information for this AMS slot loaded from custom RFID. Nice hacking!") :
++                  (filament && !filament.thirdparty) ? qsTr("Information about Bamub Filament is stored in RFID and is read-only")
+                                                      : qsTr("Setting AMS slot information during printing is not supported")
+         }
+     }
