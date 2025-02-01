@@ -12,6 +12,7 @@ const ACTION_REBOOT = "ACTION_REBOOT";
 const ACTION_PAUSE_PRINT = "ACTION_PAUSE";
 const ACTION_ABORT_PRINT = "ACTION_ABORT";
 const ACTION_RUN_MACRO = "ACTION_MACRO";
+const ACTION_TOGGLE_LIGHT = "ACTION_TOGGLE_LIGHT";
 const ACTION_NONE = "ACTION_NONE";
 
 const DEFAULTS = {
@@ -24,6 +25,7 @@ const BUTTON_ACTIONS = [
     { name: QT_TR_NOOP("Reboot"), val: ACTION_REBOOT },
     { name: QT_TR_NOOP("Pause print"), val: ACTION_PAUSE_PRINT},
     { name: QT_TR_NOOP("Abort print"), val: ACTION_ABORT_PRINT },
+    { name: QT_TR_NOOP("Toggle Light"), val: ACTION_TOGGLE_LIGHT },
     { name: QT_TR_NOOP("Ignore"), val: ACTION_NONE },
     /* { name: QT_TR_NOOP("Run macro"), val: ACTION_RUN_MACRO }, */
 ];
@@ -142,6 +144,9 @@ function _handleButton(button, event) {
             } else {
                 X1Plus.DeviceManager.power.externalWakeup();
             }
+            break;
+        case ACTION_TOGGLE_LIGHT:
+            X1Plus.DeviceManager.isLightOn = !X1Plus.DeviceManager.isLightOn;
             break;
         case ACTION_NONE:
             break;
