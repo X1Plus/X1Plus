@@ -687,27 +687,30 @@ class PolarPrintService(X1PlusDBusService):
         username and PIN don't keep being requested and printer doesn't reregister.
         """
         logger.info("Polar _on_delete")
-        if response["serialNumber"] == self.daemon.settings.get("polar.sn"):
-            self.pin = ""
-            self.username = ""
-            to_remove = {
-                "polar.enabled": False,
-                "polar.username": "",
-                "polar.public_key": "",
-                "polar.private_key": "",
-            }
-            await self.daemon.settings.put_multiple(to_remove)
+        if response["serialNumber"] != self.daemon.settings.get("polar.sn"):
+            return
+
+        self.pin = ""
+        self.username = ""
+        to_remove = {
+            "polar.enabled": False,
+            "polar.sn": None,
+            "polar.username": None,
+            "polar.public_key": None,
+            "polar.private_key": None,
+        }
+        await self.daemon.settings.put_multiple(to_remove)
             
-            # we are done; disconnect and shut down the watchdog so that we do not reconnect
-            # XXX: future: refactor this out into "stop polar cloud entirely" and "start polar cloud entirely" routines
-            if self.watchdog_task:
-                self.watchdog_task.cancel()
-                self.watchdog_task = None
-            if self.status_task:
-                self.status_task.cancel()
-                self.status_task = None
-            await self.socket.disconnect()
-            self._update_state(_ConnectState.DISCONNECTED)
+        # we are done; disconnect and shut down the watchdog so that we do not reconnect
+        # XXX: future: refactor this out into "stop polar cloud entirely" and "start polar cloud entirely" routines
+        if self.watchdog_task:
+            self.watchdog_task.cancel()
+            self.watchdog_task = None
+        if self.status_task:
+            self.status_task.cancel()
+            self.status_task = None
+        await self.socket.disconnect()
+        self._update_state(_ConnectState.DISCONNECTED)
 
     async def _get_creds(self) -> None:
         """
