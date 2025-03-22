@@ -57,7 +57,7 @@ class ExpansionManager(X1PlusDBusService):
                 except:
                     logger.error(f"error decoding EEPROM contents {eeprom} on {port_name}")
         
-        for port in range(self.nports):
+        for port in range(self.expansion.nports):
             self.daemon.settings.on(f"expansion.port_{chr(0x61 + port)}", lambda: self._update_drivers())
 
         self.last_configs = {}
