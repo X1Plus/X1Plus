@@ -689,7 +689,7 @@ class PolarPrintService(X1PlusDBusService):
             self.pin = ""
             self.username = ""
             to_remove = {
-                # "polar.sn", "", # TODO: add this back in after interface is done.
+                "polar.enabled": False,
                 "polar.username": "",
                 "polar.public_key": "",
                 "polar.private_key": "",
@@ -725,13 +725,7 @@ class PolarPrintService(X1PlusDBusService):
 
             env_file = Path(__file__).resolve().parents[0] / "env"
         else:
-            env_file = os.path.join("/sdcard", "env")
-            if not self.pin:
-                # Get it from the interface.
-                pass
-            if not self.daemon.settings.get("polar.username", ""):
-                # Get it from the interface.
-                pass
+            env_file = "/sdcard/polar-config.txt"
         # For now must use .env. eventually kill this.
         with open(env_file) as env:
             for line in env.readlines():
@@ -800,15 +794,10 @@ class PolarPrintService(X1PlusDBusService):
         file name of the saved file. `url` is the url of the upstream S3 file.
         """
         try:
-            try:
-                os.mkdir(path)
-            except:
-                logger.error(f"Polar _download_file. {path} already exists.")
+            os.makedirs(path, mode=0o755, exist_ok = True)
             dest = os.path.join(path, file_name)
             logger.info("Polar _download_file")
             logger.debug(f"Polar downloading {url} to {dest}")
-            download_bytes = 0
-            download_bytes_total = -1
             with open(dest, "wb") as f:
                 logger.info("Polar opened file to write.")
                 timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
@@ -816,16 +805,8 @@ class PolarPrintService(X1PlusDBusService):
                     connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout) as session:
                     async with session.get(url) as response:
                         response.raise_for_status()
-                        self.download_bytes_total = int(
-                            response.headers["content-length"]
-                        )
-                        self.download_bytes = 0
-                        last_publish = datetime.datetime.now()
                         async for chunk in response.content.iter_chunked(131072):
-                            self.downloading = True
-                            self.download_bytes += len(chunk)
                             f.write(chunk)
-            self.downloading = False
         except:
             try:
                 os.unlink(dest)
