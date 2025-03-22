@@ -10,6 +10,7 @@ import pyftdi.ftdi
 from ..dbus import *
 
 from .ft2232 import FtdiExpansionDevice
+from .rp2040 import Rp2040ExpansionDevice
 
 # workaround for missing ldconfig
 def find_library(lib):
@@ -34,7 +35,9 @@ class ExpansionManager(X1PlusDBusService):
 
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
-        self.expansion = FtdiExpansionDevice.detect()
+        self.expansion = Rp2040ExpansionDevice.detect()
+        if not self.expansion:
+            self.expansion = FtdiExpansionDevice.detect()
         if not self.expansion:
             logger.info("no X1Plus expansion board detected")
             super().__init__(
