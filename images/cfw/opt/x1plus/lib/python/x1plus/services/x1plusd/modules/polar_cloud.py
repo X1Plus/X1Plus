@@ -24,8 +24,7 @@ from Crypto.Hash import SHA256
 from base64 import b64encode
 
 from x1plus.aiocamera import AioRtspReceiver
-from x1plus.utils import get_IP, get_MAC, get_passwd, is_emulating
-from x1plus.utils import serial_number as utils_sn
+from x1plus.utils import get_MAC, is_emulating, serial_number
 
 from .dbus import X1PlusDBusService
 
@@ -70,7 +69,7 @@ class PolarPrintService(X1PlusDBusService):
         """
         logger.info("Polar __init__.")
         self.daemon = daemon
-        self.mac = ""
+        self.mac = get_MAC()
         # The username can be stored in non-volatile memory, but the PIN must be
         # requested from the interface on every startup.
         self.pin = ""
@@ -89,7 +88,6 @@ class PolarPrintService(X1PlusDBusService):
         more than once every 10 seconds.
         """
         self.last_ping = datetime.datetime.now() - datetime.timedelta(seconds=10)
-        self.ip = ""  # This will be used for sending camera images.
         # TODO: Fix two "on" fn calls below.
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
@@ -112,8 +110,6 @@ class PolarPrintService(X1PlusDBusService):
         }
         self.start_time = datetime.datetime.now()  # Start time for each print job.
         self.time_finished = datetime.datetime.now()  # Used in _status_update().
-        # This password getter is from httpd.py and should be copied into there.
-        self.system_password = get_passwd(self.daemon)
         # How long the job will take in seconds. This is set in _status_() and
         # reset in _job().
         self.estimated_print_time = 0
@@ -292,7 +288,7 @@ class PolarPrintService(X1PlusDBusService):
                 "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
                 "MAC": self.mac,
                 "protocol": "2.0",
-                "mfgSn": self._serial_number(),
+                "mfgSn": serial_number(),
                 "printerMake": "Bambu Lab X1 Carbon",
             }
             """
@@ -398,7 +394,7 @@ class PolarPrintService(X1PlusDBusService):
             "email": self.daemon.settings.get("polar.username"),
             "pin": self.pin,
             "publicKey": self.daemon.settings.get("polar.public_key"),
-            "mfgSn": self._serial_number(),
+            "mfgSn": serial_number(),
             "myInfo": {"MAC": self.mac},
         }
         await self.socket.emit("register", data)
@@ -691,7 +687,6 @@ class PolarPrintService(X1PlusDBusService):
         logger.info("Polar _on_delete")
         if response["serialNumber"] == self.daemon.settings.get("polar.sn"):
             self.pin = ""
-            self.mac = ""
             self.username = ""
             to_remove = {
                 # "polar.sn", "", # TODO: add this back in after interface is done.
@@ -951,26 +946,6 @@ class PolarPrintService(X1PlusDBusService):
                 }
             }
         await self.daemon.mqtt.publish_request(request_json)
-
-    def _set_interface(self) -> None:
-        """
-        Get IP and MAC addresses and store them in self.settings. This is
-        intentionally dynamic as a security measure.
-        """
-        logger.info("Polar _set_interface")
-        self.mac = get_MAC()
-        self.ip = get_IP()
-
-    def _serial_number(self) -> str:
-        """
-        Return the Bambu serial number—NOT the Polar Cloud SN. If emulating,
-        random string.
-        """
-        logger.info("Polar _serial_number")
-        if is_emulating:
-            return "123456789"
-        else:
-            return utils_sn()
 
 _daemon = None
 def load(daemon):
