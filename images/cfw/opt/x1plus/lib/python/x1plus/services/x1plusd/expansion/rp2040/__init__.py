@@ -3,6 +3,7 @@ import logging
 import usb
 
 from ..device import ExpansionDevice
+from ..smsc9514 import Smsc9514
 
 logger = logging.getLogger(__name__)
 
@@ -32,14 +33,18 @@ class Rp2040ExpansionDevice(ExpansionDevice):
             return None
     
         logger.warning("found an RP2040, but we don't know how to drive it yet")
+        
+        smsc = Smsc9514()
     
-        return Rp2040ExpansionDevice(revision = revision, serial = serial, smsc = lan9514_eth)
+        return Rp2040ExpansionDevice(revision = revision, serial = serial, smsc = smsc)
         
     def __init__(self, revision, serial, smsc):
         self.revision = revision
         self.serial = serial
         self.smsc = smsc
         self.nports = 0
+        
+        self.reset()
 
         super().__init__()
 
@@ -47,4 +52,4 @@ class Rp2040ExpansionDevice(ExpansionDevice):
         return None
 
     def reset(self):
-        return
+        self.smsc.rp2040_reset()
