@@ -332,6 +332,7 @@ class PolarPrintService(X1PlusDBusService):
         elif response["message"] != "Printer has been deleted":
             logger.error(f"_on_hello_response failure: {response['message']}")
             # TODO: send any errors to interface.
+
         if self.status_task:
             logger.error("leftover status_task?? somebody did not clean up, but I'm killing it anyway")
             self.status_task.cancel()
@@ -343,29 +344,23 @@ class PolarPrintService(X1PlusDBusService):
         Request a keypair from the server. On success register. On failure kick
         out to interface for new email or pin.
         """
-        if response["status"] == "SUCCESS":
-            await self.daemon.settings.put("polar.public_key", response["public"])
-            await self.daemon.settings.put("polar.private_key", response["private"])
-            # We have keys, but still need to register. First disconnect.  After the next request, the server willr espond with `welcome`.
-            logger.info("Polar _on_keypair_response success. Disconnecting.")
-            await self._force_reconnect()
-        else:
-            # We have an error.
+        if response["status"] != "SUCCESS":
             logger.error(f"_on_keypair_response failure: {response['message']}")
             # TODO: deal with error using interface.
+            return
+        
+        await self.daemon.settings.put("polar.public_key", response["public"])
+        await self.daemon.settings.put("polar.private_key", response["private"])
+        # We have keys, but still need to register. First disconnect.  After the next request, the server willr espond with `welcome`.
+        logger.info("Polar _on_keypair_response success. Disconnecting.")
+        await self._force_reconnect()
 
     async def _on_register_response(self, response, *args, **kwargs) -> None:
         """
         Get register response from status server and save serial number.
         When this fn completes, printer will be ready to receive print calls.
         """
-        if response["status"] == "SUCCESS":
-            logger.info("Polar _on_register_response success.")
-            logger.debug(f"Polar serial number: {response['serialNumber']}")
-            await self.daemon.settings.put("polar.sn", response["serialNumber"])
-            logger.info("Polar Cloud connected.")
-
-        else:
+        if response["status"] != "SUCCESS":
             logger.error(f"_on_register_response failure: {response['reason']}")
             # TODO: deal with various failure modes here. Most can be dealt
             # with in interface. First three report as server erros? Modes are
@@ -382,6 +377,13 @@ class PolarPrintService(X1PlusDBusService):
                     f"{self.mac}\n\n"
                 )
                 return
+            
+            return
+
+        logger.info("Polar _on_register_response success.")
+        logger.debug(f"Polar serial number: {response['serialNumber']}")
+        await self.daemon.settings.put("polar.sn", response["serialNumber"])
+        logger.info("Polar Cloud connected.")
 
     async def _register(self) -> None:
         """
@@ -762,9 +764,7 @@ class PolarPrintService(X1PlusDBusService):
         """Download file to printer, then send to print."""
         logger.info("Polar _on_print")
         self.job_id = data["jobId"]
-        if not data["serialNumber"] or data["serialNumber"] != data.get(
-            "serialNumber", ""
-        ):
+        if data.get("serialNumber", None) != self.daemon.settings.get("polar.sn", ""):
             logger.debug("Polar serial numbers don't match.")
             await self._job("canceled")
             return
