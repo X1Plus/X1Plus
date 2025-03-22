@@ -48,27 +48,6 @@ def get_MAC() -> str:
     return mac_address
 
 
-def get_IP() -> str:
-    """Return the IP address of the printer. This is currently on hold."""
-    pass
-    # if is_emulating():
-    #     return "192.168.2.113"
-    # hostname = subprocess.run(["hostname", "-I"], capture_output=True)
-    # return hostname.stdout.decode().split(" ")[0]
-
-def get_passwd(daemon) -> str:
-    """
-    Attempt to get the password from the mqtt daemon. If it's not there, copy
-    from the file system.
-    Don't know what the type of `daemon` is.
-    """
-    pw = daemon.settings.get('http.password', None)
-    if pw is None:
-        # We have to do it the hard way, I guess.
-        with open('/config/device/access_token', 'r') as f:
-            pw = f.read().strip()
-    return pw
-
 class Module:
     def __init__(self, path, package, loader_type = "module"):
         self.loaded = False
