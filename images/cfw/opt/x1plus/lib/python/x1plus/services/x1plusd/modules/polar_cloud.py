@@ -799,7 +799,6 @@ class PolarPrintService(X1PlusDBusService):
             logger.info("Polar _download_file")
             logger.debug(f"Polar downloading {url} to {dest}")
             with open(dest, "wb") as f:
-                logger.info("Polar opened file to write.")
                 timeout = aiohttp.ClientTimeout(connect=5, total=900, sock_read=10)
                 async with aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(ssl=ssl_ctx), timeout=timeout) as session:
@@ -853,24 +852,22 @@ class PolarPrintService(X1PlusDBusService):
         }
         """
         logger.info("Polar _on_url_response")
-        if data["status"] == "SUCCESS" and data[
-            "serialNumber"
-        ] == self.daemon.settings.get("polar.sn", ""):
-            if data["type"] == "idle":
-                cam_dict = self.idle_cam_stream
-            elif data["type"] == "printing":
-                cam_dict = self.printing_cam_stream
-            cam_dict["expiration_time"] = time.time() + int(data["expires"])
-            cam_dict["url"] = data["url"]
-            cam_dict["form_data"] = data["fields"].copy()
-            # cam_dict["form_data"]["file"] = "@/sdcard/ipcam/frame_0.jpg;type=image/jpeg"
-            # cam_dict["form_data"]["X-Amz-Expires"] = data["expires"]
-        # TODO: need to deal with failures on these two:
-        elif data["message"] == "FAILED":
+        if data["message"] != "SUCCESS":
             logger.error(f"Polar get_url failed: {data['message']}")
-        else:
+            return
+        
+        if data["serialNumber"] != self.daemon.settings.get("polar.sn", ""):
             logger.error("Polar get_url failed wrong serial number.")
-        # logger.info(f"\nPolar S3 info \n{data['fields']}\n\n")
+            return
+
+        if data["type"] == "idle":
+            cam_dict = self.idle_cam_stream
+        elif data["type"] == "printing":
+            cam_dict = self.printing_cam_stream
+        cam_dict["expiration_time"] = time.time() + int(data["expires"])
+        cam_dict["url"] = data["url"]
+        cam_dict["form_data"] = data["fields"].copy()
+        # cam_dict["form_data"]["X-Amz-Expires"] = data["expires"]
 
     async def _get_url(self, idle_or_print="printing"):
         """
