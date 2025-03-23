@@ -19,9 +19,9 @@ LED_TYPES = {
 }
 
 class LedStripDriver():
-    def __init__(self, daemon, config, ftdi_path, port_name):
+    def __init__(self, daemon, config, expansion, port, port_name):
         self.daemon = daemon
-        self.ftdi_path = ftdi_path
+        self.ftdi_path = f"{expansion.ftdi_path}{port + 1}",
         self.config = config
 
         self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]

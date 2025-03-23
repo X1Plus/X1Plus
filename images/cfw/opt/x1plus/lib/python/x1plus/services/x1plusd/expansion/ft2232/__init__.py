@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 class FtdiExpansionDevice(ExpansionDevice):
     DRIVERS = { "i2c": I2cDriver, 'ledstrip': LedStripDriver }
+    
+    needs_reset_to_reopen = True
 
     @classmethod
     def detect(cls):

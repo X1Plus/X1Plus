@@ -8,8 +8,8 @@ from ..i2c import DEVICE_DRIVERS
 logger = logging.getLogger(__name__)
 
 class I2cDriver():
-    def __init__(self, daemon, config, ftdi_path, port_name):
-        self.ftdi_path = ftdi_path
+    def __init__(self, daemon, config, expansion, port, port_name):
+        self.ftdi_path = f"{expansion.ftdi_path}{port + 1}"
 
         self.i2c = pyftdi.i2c.I2cController()
         self.i2c.configure(ftdi_path, frequency=50000)

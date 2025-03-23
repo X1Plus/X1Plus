@@ -21,6 +21,8 @@ class Rp2040ExpansionDevice(ExpansionDevice):
     }
 
     DRIVERS = { }
+    
+    needs_reset_to_reopen = False
 
     @classmethod
     def detect(cls):
@@ -122,6 +124,10 @@ class Rp2040ExpansionDevice(ExpansionDevice):
             buf += self.ep_in.read(0x100)
         if buf[0] != 0:
             raise IOError("I2C transaction failed")
+    
+    def _ws2812(self, pin, buf):
+        self.ep_out.write(struct.pack('<BHB', 1, len(buf), pin))
+        self.ep_out.write(buf)
 
     def detect_eeprom(self, port):
         try:
@@ -133,3 +139,85 @@ class Rp2040ExpansionDevice(ExpansionDevice):
             logger.warning(f"EEPROM detect on port {port} failed: {e}")
             return None
         return eeprom_buf
+
+#####
+
+import asyncio
+
+from ..ledstrip import ANIMATIONS, DEFAULT_ANIMATIONS
+
+class LedStripDriver():
+    def __init__(self, daemon, config, expansion, port, port_name):
+        self.daemon = daemon
+        self.config = config
+        self.expansion = expansion
+        self.port = port
+
+        # self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]
+        self.n_leds = int(self.config['leds'])
+        
+        # XXX: implement GPIOs on top of this
+
+        self.put(b'\x00\x00\x00' * 128) # clear out a long strip
+        
+        self.anim_task = None
+        self.curanim = None
+        
+        # the 'animations' key is a list that looks like:
+        #
+        #   [ 'paused', { 'rainbow': { 'brightness': 0.5 } } ]
+        self.anim_list = []   
+        self.last_gcode_state = None
+        self.anim_watcher = None
+
+        for anim in self.config.get('animations', DEFAULT_ANIMATIONS):
+            if type(anim) == str and ANIMATIONS.get(anim, None):
+                self.anim_list.append(ANIMATIONS[anim](self, {}))
+                continue
+            elif type(anim) != dict or len(anim) != 1:
+                raise ValueError("animation must be either string or dictionary with exactly one key")
+            
+            (animname, subconfig) = next(iter(anim.items()))
+            if ANIMATIONS.get(animname, None):
+                self.anim_list.append(ANIMATIONS[animname](self, subconfig))
+
+        self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
+
+    def put(self, bs):
+        self.expansion._ws2812(self.expansion.PORTS[self.port][1], bs)
+    
+    def disconnect(self):
+        #for inst in self.gpio_instances:
+        #    self.daemon.gpios.unregister(inst)
+        if self.anim_task:
+            self.anim_task.cancel()
+            self.anim_task = None
+        self.anim_watcher.cancel()
+    
+    async def anim_watcher_task(self):
+        # XXX: hoist this into a superclass, I guess
+        with self.daemon.mqtt.report_messages() as report_queue:
+            while True:
+                msg = await report_queue.get()
+                # we do not do anything with it, we just use this to
+                # determine if the animation needs to be changed
+                if self.daemon.mqtt.latest_print_status.get('gcode_state', None) is not None:
+                    self.last_gcode_state = self.daemon.mqtt.latest_print_status['gcode_state']
+
+                wantanim = None
+                for anim in self.anim_list:
+                    if anim.can_render():
+                        wantanim = anim
+                        break
+                if wantanim != self.curanim:
+                    logger.debug(f"switching to animation {wantanim} from {self.curanim}, print state is {self.daemon.mqtt.latest_print_status.get('gcode_state', None)}")
+                    if self.anim_task:
+                        self.anim_task.cancel()
+                        self.anim_task = None
+                    self.curanim = wantanim
+                    if not wantanim:
+                        self.put(b'\x00\x00\x00' * self.n_leds)
+                    else:
+                        self.anim_task = asyncio.create_task(anim.task())
+
+Rp2040ExpansionDevice.DRIVERS["ledstrip"] = LedStripDriver

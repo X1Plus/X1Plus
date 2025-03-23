@@ -99,7 +99,8 @@ class ExpansionManager(X1PlusDBusService):
                     del self.last_configs[port_name]
             
             # reset the FTDI ...
-            self.expansion.reset()
+            if self.expansion.needs_reset_to_reopen:
+                self.expansion.reset()
 
         for port in range(self.expansion.nports):
             port_name = f"port_{chr(0x61 + port)}"
@@ -134,7 +135,7 @@ class ExpansionManager(X1PlusDBusService):
                 continue
             
             try:
-                self.drivers[port_name] = self.expansion.DRIVERS[driver](ftdi_path = f"{self.expansion.ftdi_path}{port + 1}", port_name = port_name, config = subconfig, daemon = self.daemon)
+                self.drivers[port_name] = self.expansion.DRIVERS[driver](expansion = self.expansion, port = port, port_name = port_name, config = subconfig, daemon = self.daemon)
                 self.last_configs[port_name] = config
             except Exception as e:
                 logger.error(f"{port_name} driver {driver} initialization failed: {e.__class__.__name__}: {e}")
