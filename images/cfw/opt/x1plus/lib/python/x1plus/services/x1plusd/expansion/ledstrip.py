@@ -10,8 +10,8 @@ DEFAULT_ANIMATIONS = [ 'running', 'finish', 'paused', 'failed', 'rainbow' ]
 
 class BaseLedStripDriver(abc.ABC):
     def __init__(self):
-        assert self.daemon
-        assert self.config
+        assert self.daemon, "daemon missing?"
+        assert self.config, "config missing?"
 
         self.n_leds = int(self.config['leds'])
         

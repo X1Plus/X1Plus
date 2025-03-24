@@ -181,7 +181,7 @@ class GpioManager:
             self.poll_task = asyncio.create_task(self._poll())
 
     def register(self, gpio):
-        assert len(self.find(**gpio.attributes)) == 0
+        assert len(self.find(**gpio.attributes)) == 0, f"a GPIO already exists that precisely matches {gpio.attributes}"
         assert gpio not in self.gpios
         self.gpios.add(gpio)
         logger.info(f"registered GPIO with attributes {gpio.attributes}")

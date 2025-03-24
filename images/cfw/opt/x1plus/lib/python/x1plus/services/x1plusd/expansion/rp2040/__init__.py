@@ -9,6 +9,7 @@ from ..device import ExpansionDevice
 from ..smsc9514 import Smsc9514
 
 from .rp2040boot import Rp2040Boot
+from .ledstrip import LedStripDriver
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class Rp2040ExpansionDevice(ExpansionDevice):
         3: { 0: 23, 1: 22, 2: 21, 3: 20, 4: 26, 5: 37, 6: 19, 7: 18 },
     }
 
-    DRIVERS = { }
+    DRIVERS = { 'ledstrip': LedStripDriver }
     
     needs_reset_to_reopen = False
 
@@ -61,6 +62,8 @@ class Rp2040ExpansionDevice(ExpansionDevice):
     def reset(self):
         self.rp2040 = None
         self.nports = 0
+        self.gpio_last_read_time = 0
+        self.gpio_last_read_data = 0
 
         # boot the RP2040...
         self.smsc.rp2040_reset()
@@ -128,9 +131,34 @@ class Rp2040ExpansionDevice(ExpansionDevice):
     def _ws2812(self, pin, buf):
         self.ep_out.write(struct.pack('<BHB', 1, len(buf), pin))
         self.ep_out.write(buf)
+    
+    # do not actually submit a read more frequently than this: use the
+    # cached result, if the system is polling multiple GPIOs in one polling
+    # cycle
+    READ_CACHE_INTERVAL_MS = 50
+
+    def _gpio_read(self, pin):
+        now = time.time()
+        if (now - self.gpio_last_read_time) > (self.READ_CACHE_INTERVAL_MS / 1000.0):
+            self.ep_out.write(b'\x05')
+            buf = b""
+            while len(buf) < 8:
+                buf += self.ep_in.read(0x100)
+            (self.gpio_last_read_data, ) = struct.unpack("<Q", buf)
+        
+        return ((self.gpio_last_read_data >> pin) & 1) == 1
+    
+    def _gpio_config(self, pin, pullup = False, pulldown = False, oe = False, data = False):
+        cfg = ((1 if pullup else 0) |
+               (2 if pulldown else 0) |
+               (4 if oe else 0) |
+               (8 if data else 0))
+        self.ep_out.write(struct.pack('<BBB', 2, pin, cfg))
 
     def detect_eeprom(self, port):
         try:
+            for i in range(8):
+                self._gpio_config(self.PORTS[port][i], oe = False)
             i2c_params = (self.PORTS[port][7], self.PORTS[port][6], 0x50, )
             self._i2c_write(*i2c_params, b'\x00')
             eeprom_buf = self._i2c_read(*i2c_params, 0x80)
@@ -139,32 +167,3 @@ class Rp2040ExpansionDevice(ExpansionDevice):
             logger.warning(f"EEPROM detect on port {port} failed: {e}")
             return None
         return eeprom_buf
-
-#####
-
-import asyncio
-
-from ..ledstrip import BaseLedStripDriver
-
-class LedStripDriver(BaseLedStripDriver):
-    def __init__(self, daemon, config, expansion, port, port_name):
-        self.daemon = daemon
-        self.config = config
-        self.expansion = expansion
-        self.port = port
-
-        # self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]
-        
-        # XXX: implement GPIOs on top of this
-
-        super().__init__()
-
-    def put(self, bs):
-        self.expansion._ws2812(self.expansion.PORTS[self.port][1], bs)
-    
-    #def disconnect(self):
-    #    for inst in self.gpio_instances:
-    #        self.daemon.gpios.unregister(inst)
-    #    super().disconnect()
-
-Rp2040ExpansionDevice.DRIVERS["ledstrip"] = LedStripDriver
