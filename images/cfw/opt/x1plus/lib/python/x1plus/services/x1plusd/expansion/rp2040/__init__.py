@@ -38,8 +38,11 @@ class Rp2040ExpansionDevice(ExpansionDevice):
         if not lan9514_eth:
             return None
     
-        if lan9514_eth.product.startswith('Expansion Board X1P-002-C') or lan9514_eth.product.startswith('Expander X1P-002-C'):
+        if lan9514_eth.product.startswith('Expansion Board X1P-002-C'):
             revision = lan9514_eth.product.split(' ')[2]
+            serial = lan9514_eth.serial_number
+        elif lan9514_eth.product.startswith('Expander X1P-002-C'):
+            revision = lan9514_eth.product.split(' ')[1]
             serial = lan9514_eth.serial_number
         else:
             logger.warning("found a LAN9514, but it does not appear to be an X1P-002-C, so we will not even try resetting an attached RP2040")
