@@ -8,7 +8,7 @@ from collections import namedtuple
 from pyftdi.ftdi import Ftdi
 
 from x1plus.services.x1plusd.gpios import Gpio
-from ..ledstrip import ANIMATIONS, DEFAULT_ANIMATIONS
+from ..ledstrip import BaseLedStripDriver
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +18,13 @@ LED_TYPES = {
     'ws2812b': LedType(frequency = 6400000, zero = bytearray([0b11000000]), one = bytearray([0b11111100]))
 }
 
-class LedStripDriver():
+class LedStripDriver(BaseLedStripDriver):
     def __init__(self, daemon, config, expansion, port, port_name):
         self.daemon = daemon
         self.ftdi_path = f"{expansion.ftdi_path}{port + 1}",
         self.config = config
 
         self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]
-        self.n_leds = int(self.config['leds'])
         
         self.ftdi = Ftdi()
         self.ftdi.open_mpsse_from_url(ftdi_path, frequency = self.led.frequency, direction = 0x03) # DO | SCK
@@ -60,30 +59,7 @@ class LedStripDriver():
                     v += self.led.one
             self.lut[i] = v
         
-        self.put(b'\x00\x00\x00' * 128) # clear out a long strip
-        
-        self.anim_task = None
-        self.curanim = None
-
-        # the 'animations' key is a list that looks like:
-        #
-        #   [ 'paused', { 'rainbow': { 'brightness': 0.5 } } ]
-        self.anim_list = []   
-        self.last_gcode_state = None
-        self.anim_watcher = None
-
-        for anim in self.config.get('animations', DEFAULT_ANIMATIONS):
-            if type(anim) == str and ANIMATIONS.get(anim, None):
-                self.anim_list.append(ANIMATIONS[anim](self, {}))
-                continue
-            elif type(anim) != dict or len(anim) != 1:
-                raise ValueError("animation must be either string or dictionary with exactly one key")
-            
-            (animname, subconfig) = next(iter(anim.items()))
-            if ANIMATIONS.get(animname, None):
-                self.anim_list.append(ANIMATIONS[animname](self, subconfig))
-
-        self.anim_watcher = asyncio.create_task(self.anim_watcher_task())
+        super().__init__()
 
     def update_gpio(self):
         self.ftdi.write_data(bytes([Ftdi.SET_BITS_LOW, self.gpio_out, self.gpio_dir]))
@@ -94,38 +70,12 @@ class LedStripDriver():
         self.ftdi.write_data(obs)
     
     def disconnect(self):
+        super().disconnect()
+
         for inst in self.gpio_instances:
             self.daemon.gpios.unregister(inst)
-        if self.anim_task:
-            self.anim_task.cancel()
-            self.anim_task = None
-        self.anim_watcher.cancel()
         self.ftdi.close()
-    
-    async def anim_watcher_task(self):
-        with self.daemon.mqtt.report_messages() as report_queue:
-            while True:
-                msg = await report_queue.get()
-                # we do not do anything with it, we just use this to
-                # determine if the animation needs to be changed
-                if self.daemon.mqtt.latest_print_status.get('gcode_state', None) is not None:
-                    self.last_gcode_state = self.daemon.mqtt.latest_print_status['gcode_state']
 
-                wantanim = None
-                for anim in self.anim_list:
-                    if anim.can_render():
-                        wantanim = anim
-                        break
-                if wantanim != self.curanim:
-                    logger.debug(f"switching to animation {wantanim} from {self.curanim}, print state is {self.daemon.mqtt.latest_print_status.get('gcode_state', None)}")
-                    if self.anim_task:
-                        self.anim_task.cancel()
-                        self.anim_task = None
-                    self.curanim = wantanim
-                    if not wantanim:
-                        self.put(b'\x00\x00\x00' * self.n_leds)
-                    else:
-                        self.anim_task = asyncio.create_task(anim.task())
     
 ###############
 
