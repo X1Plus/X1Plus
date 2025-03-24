@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 class I2cDriver():
     def __init__(self, daemon, config, expansion, port, port_name):
         self.ftdi_path = f"{expansion.ftdi_path}{port + 1}"
+        
+        self.i2c_path = f"{port_name}/i2c"
 
         self.i2c = pyftdi.i2c.I2cController()
         self.i2c.configure(ftdi_path, frequency=50000)

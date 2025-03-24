@@ -12,8 +12,8 @@ class I2cDriver():
         self.port = port
 
         self.i2c = _I2cController(self.expansion, self.port)
-        # XXX: later, this should be made generic and not, like, ftdi_path, so that modules can be hooked up to i2c muxes
-        self.ftdi_path = port_name
+        
+        self.i2c_path = f"{port_name}/i2c"
         
         self.devices = []
 
@@ -35,7 +35,6 @@ class I2cDriver():
         logger.info("shutting down I2C")
         for d in self.devices:
             d.disconnect()
-        self.i2c.close()
 
 class _I2cController():
     # "sort of" behaves like a pyftdi.i2c.I2cController

@@ -47,7 +47,7 @@ class Aht20Driver():
         self.aht20.write(b'\x71')
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{name}")
+        self.name = config.get('name', f"{i2c_driver.i2c_path}/0x{address:02x}/{name}")
         
         self.task = asyncio.create_task(self._task())
         logger.info(f"probed {name.upper()} sensor at 0x{address:2x}")

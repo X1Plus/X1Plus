@@ -32,7 +32,7 @@ class Sht41Driver():
         self.sn = binascii.hexlify(sn[0:2] + sn[3:5]).decode()
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{name}/{self.sn}")
+        self.name = config.get('name', f"{i2c_driver.i2c_path}/0x{address:02x}/{name}/{self.sn}")
         
         self.task = asyncio.create_task(self._task())
         logger.info(f"probed {name.upper()} sensor at 0x{address:2x} with serial number {self.sn}")
