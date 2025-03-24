@@ -10,6 +10,7 @@ from ..smsc9514 import Smsc9514
 
 from .rp2040boot import Rp2040Boot
 from .ledstrip import LedStripDriver
+from .i2c import I2cDriver
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class Rp2040ExpansionDevice(ExpansionDevice):
         3: { 0: 23, 1: 22, 2: 21, 3: 20, 4: 26, 5: 37, 6: 19, 7: 18 },
     }
 
-    DRIVERS = { 'ledstrip': LedStripDriver }
+    DRIVERS = { 'ledstrip': LedStripDriver, 'i2c': I2cDriver }
     
     needs_reset_to_reopen = False
 
