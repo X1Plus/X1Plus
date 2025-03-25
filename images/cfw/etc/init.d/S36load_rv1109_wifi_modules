@@ -52,28 +52,13 @@ case "$1" in
 			sync
 		fi
 
-		miniline1=`grep FruitTEST /userdata/cfg/wpa_supplicant.conf`
-		miniline2=`grep SD-M4A1 /userdata/cfg/wpa_supplicant.conf`
-		from_nvram="/system/etc/firmware/nvram_ap6212a_ce.txt"
-		to_nvram="/config/wifi/nvram_ap6212a.txt"
-		if [ -n "$miniline1" ]; then
-			echo "for miniline1"
-			from_nvram="/system/etc/firmware/nvram_ap6212a_fcc.txt"
-			rm $to_nvram
-			cp $from_nvram $to_nvram
-		elif [ -n "$miniline2" ]; then
-			echo "for miniline2"
-			from_nvram="/system/etc/firmware/nvram_ap6212a_fcc.txt"
-			rm $to_nvram
-			cp $from_nvram $to_nvram
-		elif [ ! -f "$to_nvram" ]; then
-			echo "for default"
-			cp $from_nvram $to_nvram
-		fi
-		sync
-		
+		cp /system/etc/firmware/nvram_ap6212a_ce.txt /config/wifi/nvram_ap6212a.txt
 		grep -v ccode /config/wifi/nvram_ap6212a.txt > /var/run/brcmfmac43430-sdio.txt
 		cat /config/wifi/config.txt >> /var/run/brcmfmac43430-sdio.txt
+
+		cp /system/etc/firmware/nvram_ap6256.txt /config/wifi/nvram_ap6256.txt
+		grep -v ccode /config/wifi/nvram_ap6256.txt > /var/run/brcmfmac43456-sdio.txt
+		cat /config/wifi/config.txt >> /var/run/brcmfmac43456-sdio.txt
 
 		echo 1 > /sys/class/rfkill/rfkill1/state
 
