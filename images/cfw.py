@@ -126,6 +126,16 @@ globfiles("site-packages", "/opt/python/lib/python3.12/site-packages")
 
 symlink('/usr/libexec/sftp-server', '/usr/libexec/gesftpserver')
 
+dir('/lib/firmware/brcm/')
+
+symlink('/lib/firmware/brcm/brcmfmac43430-sdio.bin', '/system/etc/firmware/fw_bcm43438a1.bin')
+symlink('/lib/firmware/brcm/brcmfmac43430-sdio.clm_blob', '/system/etc/firmware/clm_bcm43438a1.blob')
+symlink('/lib/firmware/brcm/brcmfmac43430-sdio.txt', '/var/run/brcmfmac43430-sdio.txt')
+
+symlink('/lib/firmware/brcm/brcmfmac43456-sdio.bin', '/system/etc/firmware/fw_bcm43456c5_ag.bin')
+symlink('/lib/firmware/brcm/brcmfmac43456-sdio.clm_blob', '/system/etc/firmware/clm_bcm43456c5_ag.blob')
+symlink('/lib/firmware/brcm/brcmfmac43456-sdio.txt', '/var/run/brcmfmac43456-sdio.txt')
+
 with tarfile.open('../prebuilt/python3.tar.gz', 'r') as itf:
     for ti in itf.getmembers():
         if ti.name[:2] == './':
