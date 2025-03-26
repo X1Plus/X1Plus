@@ -1,5 +1,6 @@
+from .device import ExpansionDevice
 from .manager import ExpansionManager
-from .ledstrip import LedStripDriver # make sure that these get registered!
-from .i2c import I2cDriver
+from . import i2c
+from . import ledstrip
 
-__all__ = ['ExpansionManager', 'ledstrip', 'i2c']
+__all__ = ['ExpansionManager', 'ledstrip', 'i2c', 'ExpansionDevice']

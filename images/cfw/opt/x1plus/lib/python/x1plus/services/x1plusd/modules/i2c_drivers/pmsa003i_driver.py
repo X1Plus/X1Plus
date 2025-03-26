@@ -23,7 +23,7 @@ class Pmsa003iDriver():
         self.pmsa003i = i2c_driver.i2c.get_port(address)
         
         self.interval_ms = int(config.get('interval_ms', 1000))
-        self.name = config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{name}")
+        self.name = config.get('name', f"{i2c_driver.i2c_path}/0x{address:02x}/{name}")
         self.overflow_mitigation = config.get('overflow_mitigation', False)
         
         
