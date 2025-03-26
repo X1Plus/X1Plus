@@ -1,0 +1,25 @@
+--- printer_ui-orig/printerui/qml/printer/FilamentPad.qml
++++ printer_ui/printerui/qml/printer/FilamentPad.qml
+@@ -464,13 +464,15 @@
+ 
+                 if (filament.index !== 254) {
+                     if (nameCombo.currentText.indexOf("TPU") != -1 || (((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("PET-CF") != -1 || nameCombo.currentText.indexOf("PA6-CF") != -1))) {
+-                        dialogStack.popupDialog(
+-                                    "TextConfirm", {
+-                                        name: "select filament info not supported",
+-                                        type: TextConfirm.CONFIRM_ONLY,
+-                                        text: qsTr("\"%1\" is not supported by AMS.").arg(editing.name)
+-                                    })
+-                        return
++                        if (nameCombo.currentText.indexOf("TPU for AMS") != -1) { /* I guess that's ok. */
++                            dialogStack.popupDialog(
++                                        "TextConfirm", {
++                                            name: "select filament info not supported",
++                                            type: TextConfirm.CONFIRM_ONLY,
++                                            text: qsTr("\"%1\" is not supported by AMS.").arg(editing.name)
++                                        })
++                            return
++                        }
+                     } else if(((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("-CF") != -1 || nameCombo.currentText.indexOf("PVA") != -1)) {
+                         dialogStack.popupDialog(
+                                     "TextConfirm", {
