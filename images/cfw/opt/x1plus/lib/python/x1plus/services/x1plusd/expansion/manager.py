@@ -11,6 +11,7 @@ from ..dbus import *
 
 from .ft2232 import FtdiExpansionDevice
 from .rp2040 import Rp2040ExpansionDevice
+from .authenticate import authenticate
 
 # workaround for missing ldconfig
 def find_library(lib):
@@ -55,8 +56,9 @@ class ExpansionManager(X1PlusDBusService):
                 try:
                     model, revision = eeprom[:16].decode().strip().rsplit('-', 1)
                     serial = eeprom[16:24].decode()
-                    self.eeproms[port_name] = { 'model': model, 'revision': revision, 'serial': serial, 'raw': eeprom }
-                    logger.info(f"{port_name}: detected {model} rev {revision}, serial #{serial}")
+                    is_authentic = authenticate(eeprom)
+                    self.eeproms[port_name] = { 'model': model, 'revision': revision, 'serial': serial, 'is_authentic': is_authentic, 'raw': eeprom }
+                    logger.info(f"{port_name}: detected {model} rev {revision}, serial #{serial}, signature valid {is_authentic}")
                 except:
                     logger.error(f"error decoding EEPROM contents {eeprom} on {port_name}")
         
