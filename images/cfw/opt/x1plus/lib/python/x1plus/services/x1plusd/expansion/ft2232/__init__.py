@@ -51,6 +51,7 @@ class FtdiExpansionDevice(ExpansionDevice):
         self.revision = revision
         self.serial = serial
         self.ftdidev = ftdidev
+        self.is_authentic = False # X1P-002-A/B are non-supported devices
 
         # At least on X1P-002-B01, the FT2232 seems to sometimes get confused
         # about frequency when reopened.  Resetting it seems to make it happier. 

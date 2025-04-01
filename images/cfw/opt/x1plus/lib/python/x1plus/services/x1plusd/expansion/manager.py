@@ -154,4 +154,5 @@ class ExpansionManager(X1PlusDBusService):
                 'revision': eeprom['revision'],
                 'serial': eeprom['serial'],
             } if eeprom else None for port_name, eeprom in self.eeproms.items() },
+            'is_authentic': self.expansion.is_authentic,
         }
