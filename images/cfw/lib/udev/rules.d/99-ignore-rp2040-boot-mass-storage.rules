@@ -1,0 +1,1 @@
+SUBSYSTEMS=="usb", ATTRS{product}=="RP2 Boot", OPTIONS+="ignore_device"
