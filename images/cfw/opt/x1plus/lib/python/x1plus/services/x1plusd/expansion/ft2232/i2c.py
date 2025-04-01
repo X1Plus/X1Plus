@@ -14,7 +14,7 @@ class I2cDriver():
         self.i2c_path = f"{port_name}/i2c"
 
         self.i2c = pyftdi.i2c.I2cController()
-        self.i2c.configure(ftdi_path, frequency=50000)
+        self.i2c.configure(self.ftdi_path, frequency=50000)
         
         self.daemon = daemon
         self.devices = []
@@ -29,9 +29,9 @@ class I2cDriver():
                     if driver := DEVICE_DRIVERS.get(device, None):
                         self.devices.append(driver(address = address, i2c_driver = self, config = subconfig))
                     else:
-                        logger.error(f"failed to initialize driver for {device}@0x{address:2x} on {ftdi_path}. Compatible driver not found")
+                        logger.error(f"failed to initialize driver for {device}@0x{address:2x} on {self.ftdi_path}. Compatible driver not found")
                 except Exception as e:
-                    logger.error(f"failed to initialize {device}@0x{address:2x} on {ftdi_path}: {e.__class__.__name__}: {e}")
+                    logger.error(f"failed to initialize {device}@0x{address:2x} on {self.ftdi_path}: {e.__class__.__name__}: {e}")
 
     def disconnect(self):
         logger.info("shutting down I2C")

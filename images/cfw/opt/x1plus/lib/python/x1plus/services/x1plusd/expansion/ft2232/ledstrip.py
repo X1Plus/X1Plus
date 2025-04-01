@@ -21,13 +21,13 @@ LED_TYPES = {
 class LedStripDriver(BaseLedStripDriver):
     def __init__(self, daemon, config, expansion, port, port_name):
         self.daemon = daemon
-        self.ftdi_path = f"{expansion.ftdi_path}{port + 1}",
+        self.ftdi_path = f"{expansion.ftdi_path}{port + 1}"
         self.config = config
 
         self.led = LED_TYPES[self.config.get('led_type', 'ws2812b')]
         
         self.ftdi = Ftdi()
-        self.ftdi.open_mpsse_from_url(ftdi_path, frequency = self.led.frequency, direction = 0x03) # DO | SCK
+        self.ftdi.open_mpsse_from_url(self.ftdi_path, frequency = self.led.frequency, direction = 0x03) # DO | SCK
         self.ftdi.enable_adaptive_clock(False)
         
         self.gpio_dir = 0x03
