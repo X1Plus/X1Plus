@@ -52,7 +52,7 @@ class Tca8418Driver():
         }
     }
 
-    // gpio.actions josn
+    // gpio.actions json
     [
         {
             "gpio": {
@@ -123,7 +123,7 @@ class Tca8418Driver():
 
         self.initialize_keypad()
 
-        self.name = self.config.get('name', f"{i2c_driver.ftdi_path}/i2c/0x{address:02x}/{name}")
+        self.name = self.config.get('name', f"{i2c_driver.i2c_path}/i2c/0x{address:02x}/{name}")
 
         logger.info(f"{name.upper()} detected button keypad: {self.rows}x{self.cols} ({self.rows*self.cols}) buttons")
 
