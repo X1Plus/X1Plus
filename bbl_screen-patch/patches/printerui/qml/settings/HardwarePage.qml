@@ -200,7 +200,7 @@ Rectangle {
         // UI for no expander detected
         Text {
             id: expansionLabelNoHardware
-            visible: X1Plus.Expansion.status() == null
+            visible: X1Plus.Expansion.hardware() == null
             anchors.top: expansionLine.bottom
             anchors.topMargin: 59
             anchors.left: accessoriesTx.left
@@ -213,21 +213,21 @@ Rectangle {
         }
         
         // UI for yes expander detected
-        ZImage {
+        Image {
             id: expansionLabelHappyImage
-            visible: X1Plus.Expansion.status() != null
+            visible: X1Plus.Expansion.hardware() != null
             anchors.top: expansionLine.bottom
             anchors.topMargin: 59
             anchors.left: accessoriesTx.left
             anchors.leftMargin: -9
             width: 57
             height: 57
-            originSource: "../../icon/components/cfw.png"
+            source: "../../icon/components/cfw.png"
         }
 
         Text {
             id: expansionLabelHardwareFound
-            visible: X1Plus.Expansion.status() != null
+            visible: X1Plus.Expansion.hardware() != null
             anchors.top: expansionLabelHappyImage.top
             anchors.left: expansionLabelHappyImage.right
             anchors.leftMargin: 0
@@ -236,12 +236,12 @@ Rectangle {
             color: Colors.gray_100
             font: Fonts.body_24
             wrapMode: Text.Wrap
-            text: qsTr("%1\nSerial: %2").arg(X1Plus.Expansion.productName()).arg(X1Plus.Expansion.status().expansion_serial)
+            text: qsTr("%1\nSerial: %2").arg(X1Plus.Expansion.productName()).arg(X1Plus.Expansion.hardware().expansion_serial)
         }
         
         ZButton {
             text: qsTr("Configure...")
-            visible: X1Plus.Expansion.status() != null
+            visible: X1Plus.Expansion.hardware() != null
             anchors.top: expansionLabelHappyImage.bottom
             anchors.topMargin: 10
             anchors.left: accessoriesTx.left

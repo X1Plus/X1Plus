@@ -1,4 +1,5 @@
 .pragma library
+.import X1PlusNative 1.0 as JSX1PlusNative
 .import "Binding.js" as Binding
 
 /* QML interface to understand the x1plusd's view of installed Expansion
@@ -20,6 +21,7 @@
  */
 
 var X1Plus = null;
+var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 
 // This probably will never change, but for consistency with other things,
 // it is a binding.
@@ -33,6 +35,9 @@ function productName() {
 function status() {
 	// status is hardware, augmented with configuration for each port
 	var rv = JSON.parse(JSON.stringify(hardware())); /* ugh.  it is OK for this to be slow, since it's in a binding usually */
+	if (!rv) {
+		return null;
+	}
 	
 	for (var port in rv.ports) {
 		// ports in the DBus response is just EEPROM content.  but
@@ -58,10 +63,10 @@ function status() {
 
 function awaken() {
 	var curHardware = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetHardware")({});
-	if (X1Plus.emulating && !curHardware) {
+	if (X1Plus.emulating && !curHardware && !_X1PlusNative.getenv("FAKE_NO_EXPANDER")) {
 		curHardware = {
-			"expansion_revision": "X1P-002-B01",
-			"expansion_serial": "X1P-002-B01-1013",
+			"expansion_revision": "X1P-002-C02",
+			"expansion_serial": "X1P-002-C02-1013",
 			"ports": {
 				"port_a": { "model": "X1P-005", "revision": "B01", "serial": "00000001" },
 				"port_b": null
