@@ -219,10 +219,11 @@ Rectangle {
             anchors.top: expansionLine.bottom
             anchors.topMargin: 59
             anchors.left: accessoriesTx.left
-            anchors.leftMargin: -9
+            anchors.leftMargin: !X1Plus.Expansion.hardware().is_authentic ? 0 : -9
             width: 57
             height: 57
-            source: "../../icon/components/cfw.png"
+            source: !X1Plus.Expansion.hardware().is_authentic ? "../../icon/warning_yellow.png"
+                                                              : "../../icon/components/cfw.png"
         }
 
         Text {
@@ -230,13 +231,14 @@ Rectangle {
             visible: X1Plus.Expansion.hardware() != null
             anchors.top: expansionLabelHappyImage.top
             anchors.left: expansionLabelHappyImage.right
-            anchors.leftMargin: 0
+            anchors.leftMargin: !X1Plus.Expansion.hardware().is_authentic ? 9 : 0
             anchors.right: parent.right
             anchors.rightMargin: 32
             color: Colors.gray_100
             font: Fonts.body_24
             wrapMode: Text.Wrap
-            text: qsTr("%1\nSerial: %2").arg(X1Plus.Expansion.productName()).arg(X1Plus.Expansion.hardware().expansion_serial)
+            text: !X1Plus.Expansion.hardware().is_authentic ? "Unknown or malfunctioning expansion hardware detected"
+                                                            : qsTr("%1\nSerial: %2").arg(X1Plus.Expansion.productName()).arg(X1Plus.Expansion.hardware().expansion_serial)
         }
         
         ZButton {
