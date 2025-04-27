@@ -1,6 +1,6 @@
 -include ../localconfig.mk
 
-FIRMWARE ?= $(shell jq -r .base.ap ../installer/info.json)
+FIRMWARE ?= $(shell jq -r .ap ../installer/base.json)
 QT5_INCL_PATH ?= /usr/include/x86_64-linux-gnu/qt5/
 TOOLCHAIN ?= arm-linux-gnueabihf-
 TARGET_CC ?= $(TOOLCHAIN)gcc
