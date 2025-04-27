@@ -68,8 +68,10 @@ function awaken() {
 			"expansion_revision": _X1PlusNative.getenv("EXPANDER_REVISION") || "X1P-002-C02",
 			"expansion_serial": "X1P-002-C02-1013",
 			"ports": {
-				"port_a": { "model": "X1P-005", "revision": "B01", "serial": "00000001" },
-				"port_b": null
+				"port_a": null,
+				"port_b": { "model": "X1P-005", "revision": "B01", "serial": "00000001" },
+				"port_c": { "model": "X1P-006", "revision": "B02", "serial": "00000001", "is_authentic": true },
+				"port_d": null
 			}
 		};
 	}

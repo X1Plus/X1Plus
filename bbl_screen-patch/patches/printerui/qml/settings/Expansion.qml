@@ -203,6 +203,8 @@ Item {
             return false;
         if (!port_stat.module_detected)
             return false;
+        if (!port_stat.is_authentic)
+            return true;
         return (port_stat.module_detected != (port_stat.config.meta && port_stat.config.meta.module_config || ""));
     }
 
