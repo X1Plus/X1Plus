@@ -32,7 +32,7 @@
  <file>printerui/icon/weight.svg</file>
  <file>printerui/icon/wifi_0.svg</file>
  <file>printerui/icon/wifi_1.svg</file>
-@@ -112,6 +118,41 @@
+@@ -112,6 +118,42 @@
  <file>printerui/icon/wiredNetworkIcon.svg</file>
  <file>printerui/icon/working.svg</file>
  <file>printerui/icon/wried_icon.svg</file>
@@ -71,10 +71,11 @@
 +<file>printerui/icon/components/console_gcode_active.svg</file>
 +<file>printerui/icon/components/refresh_color.svg</file>
 +<file>printerui/icon/components/x1p-002-b.png</file>
++<file>printerui/icon/components/x1p-002-c.png</file>
  <file>printerui/image/TouchPanelTest.png</file>
  <file>printerui/image/ams_calibration.png</file>
  <file>printerui/image/ams_use_boot_1.png</file>
-@@ -127,6 +168,8 @@
+@@ -127,6 +169,8 @@
  <file>printerui/image/disableAms.svg</file>
  <file>printerui/image/dryFilament.png</file>
  <file>printerui/image/enableAms.svg</file>
@@ -83,7 +84,7 @@
  <file>printerui/image/feed.png</file>
  <file>printerui/image/frame.svg</file>
  <file>printerui/image/gcode.png</file>
-@@ -178,6 +221,9 @@
+@@ -178,6 +222,9 @@
  <file>printerui/qml/models/ModelInfoBar.qml</file>
  <file>printerui/qml/models/ModelListPage.qml</file>
  <file>printerui/qml/printer/AMSSettingPage.qml</file>
@@ -93,7 +94,7 @@
  <file>printerui/qml/printer/AMSUseBootPage.qml</file>
  <file>printerui/qml/printer/AdjustPage.qml</file>
  <file>printerui/qml/printer/AutoRefillPage.qml</file>
-@@ -197,19 +243,27 @@
+@@ -197,19 +244,27 @@
  <file>printerui/qml/printer/PrintSkipPage.qml</file>
  <file>printerui/qml/printer/Sector.qml</file>
  <file>printerui/qml/printer/SelfTestPage.qml</file>
@@ -122,7 +123,7 @@
  <file>printerui/qml/settings/MaintenancePage.qml</file>
  <file>printerui/qml/settings/NetParaSetPage.qml</file>
  <file>printerui/qml/settings/NetworkPage.qml</file>
-@@ -217,12 +271,17 @@
+@@ -217,12 +272,17 @@
  <file>printerui/qml/settings/RegionItem.qml</file>
  <file>printerui/qml/settings/ReleaseNotePage.qml</file>
  <file>printerui/qml/settings/SensorPage.qml</file>
@@ -141,7 +142,7 @@
  <file>printerui/qml/wizard/Calibrate1Page.qml</file>
  <file>printerui/qml/wizard/CalibratePage.qml</file>
  <file>printerui/qml/wizard/CalibratingPage.qml</file>
-@@ -236,12 +295,34 @@
+@@ -236,12 +296,34 @@
  <file>printerui/qml/wizard/TermsPage.qml</file>
  <file>printerui/qml/wizard/WelcomePage.qml</file>
  <file>printerui/qml/wizard/WizardPage.qml</file>
@@ -176,7 +177,7 @@
  <file>printerui/text/error_texts.sv.json</file>
  <file>printerui/text/error_texts.zh-cn.json</file>
  <file>printerui/text/error_texts.zh-tw.json</file>
-@@ -260,6 +341,9 @@
+@@ -260,6 +342,9 @@
  <file>printerui/text/hms_texts.fr.json</file>
  <file>printerui/text/hms_texts.ja.json</file>
  <file>printerui/text/hms_texts.nl.json</file>
@@ -186,7 +187,7 @@
  <file>printerui/text/hms_texts.sv.json</file>
  <file>printerui/text/hms_texts.zh-cn.json</file>
  <file>printerui/text/hms_texts.zh-tw.json</file>
-@@ -296,3 +380,4 @@
+@@ -296,3 +381,4 @@
  <file>printerui/text/terms.zh-cn.txt</file>
  <file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
  </qresource></RCC>

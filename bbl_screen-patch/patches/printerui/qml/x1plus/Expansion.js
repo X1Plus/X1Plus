@@ -28,9 +28,6 @@ var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 var [hardware, _onHardware, _setHardware] = Binding.makeBinding(null);
 var [database, _onDatabase, _setDatabase] = Binding.makeBinding({});
 
-function productName() {
-	return "X1Plus Expander"; // XXX: look this up in the database
-}
 
 function status() {
 	// status is hardware, augmented with configuration for each port
@@ -38,6 +35,8 @@ function status() {
 	if (!rv) {
 		return null;
 	}
+	
+	rv.expansion_major = rv.expansion_revision.replace(/[0-9]*$/, '');
 	
 	for (var port in rv.ports) {
 		// ports in the DBus response is just EEPROM content.  but
@@ -59,6 +58,13 @@ function status() {
 		rv.ports[port].module_configured = rv.ports[port].config && rv.ports[port].config.meta && rv.ports[port].config.meta.module_config;
 	}
 	return rv;
+}
+
+function productName() {
+	var revision_maj = status().expansion_major;
+	if (!database().expansions[revision_maj])
+		return "Unknown expansion";
+	return database().expansions[revision_maj].name;
 }
 
 function awaken() {

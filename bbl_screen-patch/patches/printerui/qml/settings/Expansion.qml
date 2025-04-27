@@ -105,10 +105,9 @@ Item {
         radius: 15
         color: Colors.gray_600
 
-        /* XXX: dynamically look up when we have multiple SKUs */
         Image {
             anchors.centerIn: parent
-            source: "../../icon/components/x1p-002-b.png"
+            source: `../../icon/components/${X1Plus.Expansion.database().expansions[X1Plus.Expansion.status().expansion_major].image}`
         }
     }
     
