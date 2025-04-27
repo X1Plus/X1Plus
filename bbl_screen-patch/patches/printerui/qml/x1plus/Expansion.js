@@ -65,7 +65,7 @@ function awaken() {
 	var curHardware = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetHardware")({});
 	if (X1Plus.emulating && !curHardware && !_X1PlusNative.getenv("FAKE_NO_EXPANDER")) {
 		curHardware = {
-			"expansion_revision": "X1P-002-C02",
+			"expansion_revision": _X1PlusNative.getenv("EXPANDER_REVISION") || "X1P-002-C02",
 			"expansion_serial": "X1P-002-C02-1013",
 			"ports": {
 				"port_a": { "model": "X1P-005", "revision": "B01", "serial": "00000001" },

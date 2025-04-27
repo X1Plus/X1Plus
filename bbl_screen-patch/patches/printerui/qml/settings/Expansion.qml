@@ -14,6 +14,27 @@ import "../printer"
 /* This can only get triggered if there is an expansion, so we can assume that X1Plus.Expansion.status() is nonnull. */
 Item {
     id: top
+    
+    Component.onCompleted: {
+        if (X1Plus.Expansion.hardware().expansion_revision < "X1P-002-C00") {
+            dialogStack.popupDialog("TextConfirm", {
+                name: "Vintage Expander",
+                text: qsTr("Whoah, cool -- you have a very early Expander!\n\n"+
+                           "Production Expander hardware has changed some, and you probably should upgrade.  X1Plus might not support early Expanders indefinitely, so shoot me a DM and I'll send you a new one."),
+                titles: [qsTr("But 2024 was a good vintage...")],
+                type: TextConfirm.CONFIRM
+            });
+        } else if (!X1Plus.Expansion.hardware().is_authentic) {
+            dialogStack.popupDialog("TextConfirm", {
+                name: "Non-authentic Expander",
+                text: qsTr("The connected Expander hardware is an unknown version, or it may be damaged.\n\n"+
+                           "If you have an officially produced X1Plus Expander, please contact X1Plus for support.\n\n"+
+                           "If your Expander is unofficial, consider purchasing authentic hardware: it supports the development of the X1Plus project!"),
+                titles: [qsTr("Dismiss")],
+                type: TextConfirm.CONFIRM
+            });
+        }
+    }
 
     MarginPanel {
         id: title
