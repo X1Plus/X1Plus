@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import sys
 import subprocess
 import shutil
 from pathlib import Path
@@ -57,6 +58,7 @@ def generate():
                             patchFile.write(diff.stdout)
 
 def apply():
+    ok = True
     for root, dirs, files in os.walk("patches"):
         for dirname in dirs:
             path = Path(os.path.join(root, dirname))
@@ -73,7 +75,11 @@ def apply():
                 else:
                     print(f"Applying patch: {path}")
                     with open(path, 'rb') as patchFile:
-                        subprocess.run(["patch", "-N", "-p1", "-dprinter_ui"], input=patchFile.read())
+                        rc = subprocess.run(["patch", "-N", "-p1", "-dprinter_ui"], input=patchFile.read())
+                        if rc.returncode != 0:
+                            print(f"*** PATCH FAILED: {path}")
+                            ok = False
+    return ok
 
 if __name__ == "__main__":
     parser = ArgumentParser(
@@ -88,6 +94,7 @@ if __name__ == "__main__":
     if args.generate:
         generate()
     elif args.apply:
-        apply()
+        if not apply():
+            sys.exit(1)
     else:
         parser.print_help()
