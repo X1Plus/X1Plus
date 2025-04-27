@@ -97,7 +97,7 @@ Item {
             Text {
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
-                visible: port_stat.module_detected && !port_stat.is_authentic
+                visible: (!!port_stat.module_detected) && !port_stat.is_authentic
                 font: Fonts.body_26
                 color: Colors.warning
                 wrapMode: Text.Wrap
