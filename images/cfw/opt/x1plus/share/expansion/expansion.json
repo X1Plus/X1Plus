@@ -4,7 +4,13 @@
       "name": "X1Plus Expander",
       "driver": "ft2232",
       "ports": 2,
-      "image": "x1p-002.png"
+      "image": "x1p-002-b.png"
+    },
+    "X1P-002-C": {
+      "name": "X1Plus Expander",
+      "driver": "rp2040",
+      "ports": 4,
+      "image": "x1p-002-c.png"
     }
   },
   "modules": {

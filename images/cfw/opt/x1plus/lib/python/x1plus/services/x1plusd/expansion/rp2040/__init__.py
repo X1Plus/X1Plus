@@ -7,6 +7,7 @@ import usb
 
 from ..device import ExpansionDevice
 from ..smsc9514 import Smsc9514
+from ..authenticate import authenticate
 
 from .rp2040boot import Rp2040Boot
 from .ledstrip import LedStripDriver
@@ -34,7 +35,6 @@ class Rp2040ExpansionDevice(ExpansionDevice):
         If it finds one, returns an ExpansionDevice.
         """
     
-        # XXX: hoist this out to a find-and-verify-eeprom routine
         lan9514_eth = usb.core.find(idVendor = 0x0424, idProduct = 0xec00)
         if not lan9514_eth:
             return None
@@ -58,6 +58,13 @@ class Rp2040ExpansionDevice(ExpansionDevice):
         self.serial = serial
         self.smsc = smsc
         self.nports = 0
+        
+        # XXX: it would be nice for this to use the ioctl to do this (which
+        # takes more like 300ms), rather than doing this by hand (which
+        # takes more like a second), but this is ok for now
+        logger.info("reading SMSC9514 EEPROM...")
+        eeprom = smsc.eeprom_readall()
+        self.is_authentic = authenticate(eeprom)
         
         self.reset()
 

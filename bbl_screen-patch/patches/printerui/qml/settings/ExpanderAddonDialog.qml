@@ -93,6 +93,16 @@ Item {
                 text: !port_stat.module_detected ? qsTr("<b>No attached module detected.</b>")
                                                  : qsTr("<b>Attached module:</b> %1 (%2)").arg(module_detected_dbent && qsTranslate("Expander", module_detected_dbent.name) || qsTr("Unknown module")).arg(`${port_stat.model}-${port_stat.revision}-${port_stat.serial}`)
             }
+
+            Text {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                visible: (!!port_stat.module_detected) && !port_stat.is_authentic
+                font: Fonts.body_26
+                color: Colors.warning
+                wrapMode: Text.Wrap
+                text: qsTr("<b>This module may be unsupported or malfunctioning. Contact X1Plus for support.</b>")
+            }
             
             Component.onCompleted: {
                 if (port_stat.module_detected && (port_stat.module_detected != proposed_module) && X1Plus.Expansion.database().modules[port_stat.module_detected]) {
