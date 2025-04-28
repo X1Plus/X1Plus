@@ -62,6 +62,8 @@ char qt_resourceFeatureZlib = 0;
 
 int needs_emulation_workarounds = 0;
 
+extern "C" int _Z17get_resource_path19bbl_resource_type_tRNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE(int id, std::string &s);
+
 #if 0
 void mocdump() {
     for (int tp = QMetaType::User; QMetaType::isRegistered(tp); tp++) {
@@ -276,6 +278,14 @@ eject:
             x1plus_vnc_set_password(NULL);
         }
 #endif
+    }
+
+    Q_INVOKABLE QString getFilamentPath() {
+        std::string s = "";
+        
+        _Z17get_resource_path19bbl_resource_type_tRNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE(0, s);
+        
+        return QString::fromStdString(s);
     }
 
     /*** Tricks to override the backlight.  See SWIZZLEs of fopen64, fclose, fileno, and write below. ***/
@@ -743,11 +753,35 @@ SWIZZLE(int, _Z17get_resource_path19bbl_resource_type_tRNSt7__cxx1112basic_strin
         }
         BDbus::Error e;
         std::string settings = proxy->callMethod("x1plus.settings", "GetSettings", "{}", e);
+        
+        try {
+            json j = json::parse(settings);
+            auto k = j.at("filament.ota_version").template get<std::string>();
+            auto path = "/userdata/upgrade/filament/" + k;
+            printf("get_resource_path: read filament.ota_version setting from x1plusd of %s (%s)\n", k.c_str(), path.c_str());
+            int fd;
+            fd = open(path.c_str(), O_RDONLY);
+            if (fd < 0) {
+                printf("get_resource_path: ... but it did not exist on disk\n");
+            } else {
+                close(fd);
+                override = path;
+            }
+        } catch(...) {
+        };
+        
         try {
             json j = json::parse(settings);
             auto k = j.at("filament.filename").template get<std::string>();
             printf("get_resource_path: read filament.filename setting from x1plusd of %s\n", k.c_str());
-            override = k;
+            int fd;
+            fd = open(k.c_str(), O_RDONLY);
+            if (fd < 0) {
+                printf("get_resource_path: ... but it did not exist on disk\n");
+            } else {
+                close(fd);
+                override = k;
+            }
         } catch(...) {
         };
     }
