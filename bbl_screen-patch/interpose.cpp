@@ -746,7 +746,7 @@ SWIZZLE(int, _Z17get_resource_path19bbl_resource_type_tRNSt7__cxx1112basic_strin
         try {
             json j = json::parse(settings);
             auto k = j.at("filament.filename").template get<std::string>();
-            printf("get_resource_path: read filement.filename setting from x1plusd of %s\n", k.c_str());
+            printf("get_resource_path: read filament.filename setting from x1plusd of %s\n", k.c_str());
             override = k;
         } catch(...) {
         };
