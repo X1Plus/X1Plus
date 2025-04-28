@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/app_sv.ts
 +++ printer_ui/printerui/app_sv.ts
-@@ -3436,4 +3436,635 @@
+@@ -3497,4 +3497,635 @@
          <translation>Är du säker att du vill avbryta utskriften?</translation>
      </message>
  </context>
