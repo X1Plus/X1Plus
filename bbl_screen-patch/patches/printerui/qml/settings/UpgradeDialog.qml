@@ -148,6 +148,21 @@ Item {
                 "command": "consistency_confirm",
                 "sequence_id": "0"
             });
+        } else if (module == "filament") {
+            // This one is easy -- we just copy it into the right place,
+            // update the X1Plus Setting, then say we're good.
+            X1PlusNative.system(`mkdir /userdata/firmware/filament`);
+            X1PlusNative.system(`cp /sdcard/x1plus/firmware/${fileName} /userdata/firmware/filament/${fileName}`);
+            X1Plus.Settings.put("filament.ota_version", fileName);
+            
+            // retrigger filament database reload: set this to something
+            // else, then set it back
+            var old_diameter = DeviceManager.maintain.nozzleDiameter;
+            DeviceManager.maintain.nozzleDiameter = "";
+            DeviceManager.maintain.nozzleDiameter = DeviceManager.maintain.nozzleDiameter;
+            
+            isInstalling = false;
+            didInstall = true;
         } else {
             // thttpd looks in /tmp/firmware, not /sdcard/x1plus/firmware,
             // because sdcard file modes have +x, and thttpd will die from
@@ -315,7 +330,7 @@ Item {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                visible: didInstall && updater.status != Updater.UPGRADE_FAIL
+                visible: didInstall && (module == "filament" || updater.status != Updater.UPGRADE_FAIL)
                 text: qsTr("Successfully installed version %1.").arg(version)
             }
 
@@ -325,7 +340,7 @@ Item {
                 font: Fonts.body_26
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
-                visible: didInstall && updater.status == Updater.UPGRADE_FAIL
+                visible: didInstall && (module != "filament" && updater.status == Updater.UPGRADE_FAIL)
                 text: qsTr("Version %1 failed to install. Consider trying again, or power cycling your printer.").arg(version) +
                     (updater.message != '' ? qsTr(" (Updater message \"%1\".)").arg(updater.message) : '')
             }
