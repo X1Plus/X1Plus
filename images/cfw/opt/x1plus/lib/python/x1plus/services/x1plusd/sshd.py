@@ -16,9 +16,11 @@ class SSHService():
         self.daemon = daemon
         self.daemon.settings.on("ssh.enabled", lambda: self.sync_startstop())
         self.daemon.settings.on("ssh.root_password", lambda: self.set_password())
+        self.daemon.settings.on("adb.enabled", lambda: self.sync_adb_status())
         
         self.set_password()
         
+        self.sync_adb_status()
         self.sync_startstop()
     
     def sshd_is_running(self):
@@ -32,6 +34,21 @@ class SSHService():
         if not enabled and running:
             self.stop_sshd()
     
+    def sync_adb_status(self):
+        # this is sort of a gross hack, and it would be better to convince
+        # adb to disable its network connection.  we ought not turn ADB off
+        # entirely, since it's still desirable to have it accessible over
+        # USB, though
+
+        enabled = self.daemon.settings.get("adb.enabled", False)
+        available = '-A INPUT -p tcp -m tcp --dport 5555 -j DROP' not in subprocess.run("iptables -S INPUT", shell=True, capture_output=True, text=True).stdout
+        if enabled and not available:
+            logger.info("reenabling ADB access")
+            subprocess.run("iptables -D INPUT -p tcp -m tcp --dport 5555 -j DROP", shell=True)
+        if not enabled and available:
+            logger.info("firewalling off ADB")
+            subprocess.run("iptables -A INPUT -p tcp -m tcp --dport 5555 -j DROP", shell=True)
+
     def start_sshd(self):
         if not os.path.exists(HOST_KEYFILE):
             logger.info("creating sshd keyfile")
