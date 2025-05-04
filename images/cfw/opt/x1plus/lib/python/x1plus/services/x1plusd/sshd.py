@@ -17,6 +17,8 @@ class SSHService():
         self.daemon.settings.on("ssh.enabled", lambda: self.sync_startstop())
         self.daemon.settings.on("ssh.root_password", lambda: self.set_password())
         
+        self.set_password()
+        
         self.sync_startstop()
     
     def sshd_is_running(self):
