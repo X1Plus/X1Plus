@@ -44,13 +44,20 @@ function requestVersions() {
             {"hw_ver":"","name":"xm","sn":"","sw_ver":"00.01.02.00"},
             {"hw_ver":"AHB00","name":"ahb","sn":"00K00A999999999","sw_ver":"00.00.00.42"},
             {"hw_ver":"AMS08","name":"ams/0","sn":"00600A999999998","sw_ver":"00.00.06.15"},
-            {"hw_ver":"AMS08","name":"ams/1","sn":"00600A999999999","sw_ver":"00.00.06.15"}
+            {"hw_ver":"AMS08","name":"ams/1","sn":"00600A999999999","sw_ver":"00.00.06.15"},
+            {"hw_ver":"","name":"filament","sn":"","sw_ver":"00.01.02.03"},
         ]);
     }
 }
 
 registerHandler("device/report/info", function(datum) {
     if (datum.command == "get_version") {
+        // Try to find a filament version.  Sort of a dirty hack, but oh
+        // well.
+        var filamentPath = _X1PlusNative.getFilamentPath();
+        var filamentVers = filamentPath.match(/v(\d\d\.\d\d\.\d\d\.\d\d)-\d+\.zip\.sig$/);
+        datum.module.push({ "hw_ver": "", "name": "filament", "sn": "", "sw_ver": filamentVers ? filamentVers[1] : !filamentPath ? "" : "Custom", "path": filamentPath });
+        
         _setVersions(datum.module);
     }
 });

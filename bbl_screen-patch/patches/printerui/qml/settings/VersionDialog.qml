@@ -11,7 +11,11 @@ Item {
     property var cfwVersion: ({}) /* from cfwversions.json: version, ... */
     property var mappedData: ({}) /* hw_ver, sn, sw_ver */
     property var isHw: (mappedData.sn && mappedData.sn != "" && mappedData.hw_ver && mappedData.hw_ver != "")
-    property var needsUpdate: (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+    property var needsUpdate: modelData.bambu == "filament" ? mappedData.sw_ver != "Custom" && mappedData.sw_ver < cfwVersion.version :
+                              (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+    property var sw_ver_text: modelData.bambu == "filament" && mappedData.sw_ver == "Custom" ? qsTr("Custom") :
+                              modelData.bambu == "filament" && mappedData.sw_ver == "" ? qsTr("Not installed") :
+                              mappedData.sw_ver.split("/")[0]
     
     property var noUpgrade_messages: ({
         "COPY_NEW_X1P": QT_TR_NOOP("To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time."),
@@ -110,7 +114,7 @@ Item {
                 color: Colors.gray_200
                 wrapMode: Text.Wrap
                 Layout.columnSpan: 2
-                text: qsTr("<b>Firmware version</b>: %1").arg(mappedData.sw_ver.split("/")[0]) +
+                text: qsTr("<b>Firmware version</b>: %1").arg(sw_ver_text) +
                     (needsUpdate ? qsTr(" (<font color='#ff6f00'><i>recommended: %1</i></font>)").arg(cfwVersion.version.split("/")[0]) : "")
             }
             

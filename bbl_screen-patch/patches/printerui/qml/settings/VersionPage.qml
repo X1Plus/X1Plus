@@ -15,6 +15,7 @@ Item {
         { "friendly": QT_TR_NOOP("AP board"), "bambu": "ap", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
         { "friendly": QT_TR_NOOP("MC board"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
         { "friendly": QT_TR_NOOP("Toolhead"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
+        { "friendly": QT_TR_NOOP("Filament database"), "bambu": "filament", "cfw": "filament", "icon": "../../icon/components/ams.svg" }, // XXX: do icon
         { "friendly": QT_TR_NOOP("AMS hub"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
         { "friendly": QT_TR_NOOP("AMS #1"), "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
         { "friendly": QT_TR_NOOP("AMS #2"), "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
@@ -114,8 +115,16 @@ Item {
             property var mappedData: (modelData.bambu === undefined ?
                                         {"sw_ver": cfwVersion.version, "sn": "", "hw_ver": "" } :
                                         modules.find(el => modelData.bambu == el.name))
-            property var needsUpdate: (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version) ||
-                                      (modelData.cfw == 'cfw' && X1Plus.OTA.status()['ota_available'])
+            property var needsUpdate: modelData.bambu == "filament" ? mappedData.sw_ver != "Custom" && mappedData.sw_ver < cfwVersion.version :
+                                      modelData.cfw == 'cfw' ? X1Plus.OTA.status()['ota_available'] : 
+                                      (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+            
+            // a few translatable overrides go here...  annoyingly, this
+            // gets replicated in VersionDialog, but is there a better way
+            // given what we already have at this point?
+            property var sw_ver_text: modelData.bambu == "filament" && mappedData.sw_ver == "Custom" ? qsTr("Custom") :
+                                      modelData.bambu == "filament" && mappedData.sw_ver == "" ? qsTr("Not installed") :
+                                      mappedData.sw_ver.split("/")[0]
             width: ListView.view.width
             height: 81
             color: modelData.onClicked === undefined ? "transparent" : backColor.color
@@ -182,7 +191,7 @@ Item {
                     elide: Text.ElideRight
                     color: needsUpdate ? Colors.warning : Colors.gray_400
                     font: Fonts.body_26
-                    text: mappedData.sw_ver.split("/")[0]
+                    text: sw_ver_text
                 }
 
                 Image {
