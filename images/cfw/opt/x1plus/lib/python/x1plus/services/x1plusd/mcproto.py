@@ -3,8 +3,10 @@ import base64
 import zlib
 import json
 import asyncio
+import os
 
 import struct
+import time
 import logging
 import x1plus.utils
 from .dbus import *
@@ -256,6 +258,37 @@ class MCProtoParser():
         self.gcode_remaining = b''
         self.gcode_x1plus_defs = {}
         self.active_action = None
+        
+        self.pcap_file = None
+        self.pcap_filename = None
+        self.daemon.settings.on("mcproto.pcap", lambda: self.sync_pcap())
+        self.sync_pcap()
+    
+    def sync_pcap(self):
+        new_pcap_filename = self.daemon.settings.get("mcproto.pcap", None)
+        if self.pcap_filename != new_pcap_filename:
+            if self.pcap_file:
+                logger.info(f"closing PCAP file {self.pcap_filename}")
+                self.pcap_file.close()
+            self.pcap_file = None
+            self.pcap_filename = new_pcap_filename
+            
+            if new_pcap_filename:
+                if os.path.isfile(new_pcap_filename):
+                    logger.info(f"appending to PCAP file {new_pcap_filename}")
+                    try:
+                        self.pcap_file = open(new_pcap_filename, "ab")
+                    except Exception as e:
+                        logger.error(f"failed to open PCAP file: {e}")
+                        pass
+                else:
+                    logger.info(f"creating new PCAP file {new_pcap_filename}")
+                    try:
+                        self.pcap_file = open(new_pcap_filename, "wb")
+                        self.pcap_file.write(struct.pack("<LHHLLLL", 0xA1B2C3D4, 2, 4, 0, 0, 4096, 147)) # link type DLT_USER0
+                    except Exception as e:
+                        logger.error(f"failed to open PCAP file: {e}")
+                        pass
     
     GCODE_X1PLUS_DEF_RE = re.compile(rb";\s*x1plus define\s*(\d+)\s+(.+)")
 
@@ -323,6 +356,10 @@ class MCProtoParser():
     async def handle_serial_port_write(self, data):
         try:
             await self.handle_msg(MCMessage(data))
+            if self.pcap_file:
+                pcap_buf = b'\x01' + data
+                t = time.time()
+                self.pcap_file.write(struct.pack("<LLLL", int(t), int((t % 1) * 1e6), len(pcap_buf), len(pcap_buf)) + pcap_buf)
         except Exception as e:
             logger.error(f"exception parsing outgoing MC message: {e.__class__.__name__}: \"{e}\"")
     
@@ -370,6 +407,11 @@ class MCProtoParser():
             
             try:
                 await self.handle_msg(MCMessage(packet))
+                if self.pcap_file:
+                    pcap_buf = b'\x02' + packet
+                    t = time.time()
+                    self.pcap_file.write(struct.pack("<LLLL", int(t), int((t % 1) * 1e6), len(pcap_buf), len(pcap_buf)) + pcap_buf)
+
             except Exception as e:
                 logger.error(f"exception parsing incoming MC message: {e.__class__.__name__}: \"{e}\"")
 
