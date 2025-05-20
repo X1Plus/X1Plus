@@ -25,7 +25,7 @@ ColumnLayout {
         
         Slider {
             Layout.fillWidth: true
-            from: 0
+            from: 0.05
             value: config.ledstrip.brightness || 0.4
             to: 1.0
             onMoved: {
