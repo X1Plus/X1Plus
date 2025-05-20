@@ -14,6 +14,7 @@ class BaseLedStripDriver(abc.ABC):
         assert self.config, "config missing?"
 
         self.n_leds = int(self.config['leds'])
+        self.brightness = self.config.get('brightness', 0.4)
         
         self.put(b'\x00\x00\x00' * 128) # clear out a long strip
         

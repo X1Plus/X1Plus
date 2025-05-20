@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class RainbowAnimation():
     def __init__(self, leds, config):
         self.leds = leds
-        self.brightness = config.get('brightness', 0.3)
+        self.brightness = config.get('brightness', 0.75) * leds.brightness
     
     def can_render(self):
         return True 
