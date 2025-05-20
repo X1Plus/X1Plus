@@ -13,10 +13,11 @@ Item {
     property var port: ("") /* "a", "b", "c", "d" */
     property var port_id: (`port_${port}`)
     property var port_stat: X1Plus.Expansion.status().ports[port_id]
-    property var module_detected_dbent: X1Plus.Expansion.database().modules[port_stat.module_detected] /* indexing with undefined is undefined, so we're good */
+    property var db: X1Plus.Expansion.database()
+    property var module_detected_dbent: db.modules[port_stat.module_detected] /* indexing with undefined is undefined, so we're good */
     
     property var liveconfig: port_stat.config
-    property var config: liveconfig /* make sure to always config = config; to trigger the binding! */
+    property var config: JSON.parse(JSON.stringify(liveconfig)) /* make sure to always config = config; to trigger the binding! */
     property var proposed_module: config.meta && config.meta.module_config || ""
     property var changes_pending: false
     property var did_override: null
@@ -31,18 +32,18 @@ Item {
 
     property var buttons: SimpleItemModel {
         DialogButtonItem {
-            name: "no"; title: qsTr("Save changes")
+            name: "yes"; title: qsTr("Save changes")
             visible: changes_pending
             isDefault: defaultButton == 1
             keepDialog: true
-            onClicked: { changes_pending = false; did_override = false; X1Plus.Settings.put(`expansion.${port_id}`, config); }
+            onClicked: { console.log("saving changes"); changes_pending = false; did_override = false; X1Plus.Settings.put(`expansion.${port_id}`, config); }
         }
 
         DialogButtonItem {
             name: "no"; title: changes_pending ? qsTr("Cancel") : qsTr("Return")
             isDefault: defaultButton == 1
             keepDialog: false
-            onClicked: { ; }
+            onClicked: { console.log("losing changes to port"); }
         }
     }
     property bool finished: false

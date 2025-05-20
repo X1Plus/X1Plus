@@ -34,6 +34,9 @@ Item {
                 type: TextConfirm.CONFIRM
             });
         }
+        
+        /* Refresh the QML cache for users who are live-editing /opt/x1plus/share/expansion. */
+        X1PlusNative.trimComponentCache();
     }
 
     MarginPanel {
