@@ -21,6 +21,7 @@ Item {
     property var proposed_module: config.meta && config.meta.module_config || ""
     property var changes_pending: false
     property var did_override: null
+    property var switch_to_i2c: false // if we came in from tapping 'STEMMA'
     
     function switchConfig(k) {
         var newconfig = JSON.parse(JSON.stringify(X1Plus.Expansion.database().modules[k].configuration)); /* ugh */
@@ -106,6 +107,10 @@ Item {
             }
             
             Component.onCompleted: {
+                if (switch_to_i2c && proposed_module != "generic_i2c") {
+                    switchConfig("generic_i2c");
+                    did_override = true;
+                }
                 if (port_stat.module_detected && (port_stat.module_detected != proposed_module) && X1Plus.Expansion.database().modules[port_stat.module_detected]) {
                     /* XXX: make x1plusd do this on boot, too */
                     switchConfig(port_stat.module_detected);
