@@ -25,6 +25,12 @@ ColumnLayout {
         wrapMode: Text.Wrap
         text: `I²C configuration through the GUI is very limited.  For advanced configuration, use the x1plusd settings command line.  Enabled devices: ${JSON.stringify(config.i2c)}`
     }
+    
+    // config.i2c may have the address in a different base; find the string
+    // key that matches, based on an int address
+    function findAddress(address) {
+        return Object.keys(config.i2c).find((key) => parseInt(key) == address) || address;
+    }
 
     RowLayout {
         Layout.fillWidth: true
@@ -55,13 +61,13 @@ ColumnLayout {
                 text: Object.keys(modelData[1])[0]
                 height: ListView.view.height - 10
                 textSize: 24
-                checked: Object.keys(config.i2c[address] || { '': {} })[0] == driver
+                checked: Object.keys(config.i2c[findAddress(address)] || { '': {} })[0] == driver
                 backgroundColor: "gray_700_checked_pressed"
                 onClicked: {
                     if (checked) {
-                        delete config.i2c[address];
+                        delete config.i2c[findAddress(address)];
                     } else {
-                        config.i2c[address] = drvconfig;
+                        config.i2c[`0x${address.toString(16).padStart(2, '0')}`] = drvconfig;
                     }
                     config = config;
                     changes_pending = true;
