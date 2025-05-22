@@ -26,13 +26,16 @@
       "configuration": {
         "ledstrip": {}
       },
-      "configuration_ui": "LedStrip.qml"
+      "configuration_ui": "LedStrip.qml",
+      "alias": [ "X1P-004-B" ]
     },
     "X1P-005-B": {
       "name": "Andon module",
       "configuration": {
         "ledstrip": {
           "leds": 25,
+          "rows": 5,
+          "cols": 5,
           "gpios": [
             { "pin": 3, "function": "buzzer", "default": 0 },
             { "pin": 5, "default": 1 },

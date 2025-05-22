@@ -55,6 +55,7 @@ class MockGpio(Gpio):
         self._attrs = attrs
         self._id = id
         self._on = False
+        self._last_state = False
     
     @property
     def polling(self):
@@ -68,7 +69,8 @@ class MockGpio(Gpio):
         logger.info(f"mock GPIO {self._id}: output({on})")
         self._on = on
         if self.on_change:
-            self.on_change(on)
+            self.on_change(on, self._last_state)
+        self._last_state = on
     
     def tristate(self):
         logger.info(f"mock GPIO {self._id}: tristate()")
@@ -134,7 +136,7 @@ class GpioManager:
             self.register(MockGpio("mock_2", { "type": "mock", "gpio": "2", "function": "shutter" }))
             self.register(MockGpio("mock_3", { "type": "mock", "gpio": "3" }))
             self.register(MockGpio("mock_4", { "type": "mock", "gpio": "4" }))
-            self.on_event({"function": "button"}, lambda gpio, value: logger.info(f"gpio {gpio} changed to value {value}!"))
+            self.on_event({"function": "button"}, lambda gpio, value, old_value: logger.info(f"gpio {gpio} changed to value {value}!"))
         
         self.daemon.settings.on("gpio.actions", self._update_action_settings)
         self._update_action_settings()
@@ -161,7 +163,7 @@ class GpioManager:
                 newstate = gpio.read()
                 if newstate != oldstate:
                     if gpio.on_change:
-                        gpio.on_change(newstate)
+                        gpio.on_change(newstate, oldstate)
                     self.gpio_poll_state[gpio] = newstate
             await asyncio.sleep(self.POLLING_INTERVAL_MS / 1000) # we may get cancelled here, that is fine
     
@@ -194,12 +196,12 @@ class GpioManager:
             else:
                 gpio.tristate()
         
-        def _on_change(newstate):
+        def _on_change(newstate, oldstate):
             if newstate:
                 gpio.press_time = time.time()
             for (match, callback) in self.event_handlers:
                 if gpio.matches(match):
-                    callback(gpio, newstate)
+                    callback(gpio, newstate, oldstate)
         gpio.on_change = _on_change
 
         if gpio.polling:
@@ -216,8 +218,9 @@ class GpioManager:
     def on_event(self, match, callback):
         """
         Register a callback for events on GPIOs matching `match`.  The
-        callback takes two parameters: the GPIO that changed, and the new
-        state.
+        callback takes three parameters: the GPIO that changed, the new
+        state, and the old state (if there was known to be an old state;
+        otherwise, None).
         
         For convenience, returns a context manager, for event matches that
         need to last only a short while.  If no callback is specified, the
@@ -269,15 +272,15 @@ class GpioManager:
                 for gpio_action in actions:
                     # callback for each individual gpio action in the
                     # setting list, dispatches by 'event' type
-                    def _handle(gpio, newvalue,gpio_action=gpio_action):
+                    def _handle(gpio, newvalue, oldvalue, gpio_action=gpio_action):
                         should_trigger = False
                         if gpio_action.get('event', 'change') == 'change': # if not otherwise specified
                             should_trigger = True
                         elif gpio_action['event'] == 'rising':
-                            if newvalue:
+                            if newvalue is True and oldvalue is False:
                                 should_trigger = True
                         elif gpio_action['event'] == 'falling':
-                            if not newvalue:
+                            if newvalue is False and oldvalue is True:
                                 should_trigger = True
                         elif gpio_action['event'] == 'short_press' or gpio_action['event'] == 'long_press':
                             if not newvalue and gpio.press_time:
@@ -368,7 +371,7 @@ async def _action_gpio(handler, subconfig):
             pass
         
         ev = asyncio.Event()
-        def _callback(gpio, newvalue):
+        def _callback(gpio, newvalue, oldvalue):
             if newvalue == subconfig.get('value', newvalue):
                 ev.set()
         with handler.daemon.gpios.on_event(subconfig['gpio'], _callback):

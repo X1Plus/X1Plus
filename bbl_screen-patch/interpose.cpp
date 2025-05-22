@@ -27,6 +27,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QVariantList>
 #include <QtQml/qqml.h>
+#include <QtQml/qqmlengine.h>
 #include <QtQml/qjsengine.h>
 #include <QtQml/qjsvalue.h>
 #include <QtCore/QFile>
@@ -305,6 +306,12 @@ public:
             write(fd, valueText.c_str(), valueText.length());
             close(fd);
         }
+    }
+
+    QQmlEngine *engine = NULL;
+    
+    Q_INVOKABLE void trimComponentCache() {
+        engine->trimComponentCache();
     }
 };
 static X1PlusNativeClass native;
@@ -1029,8 +1036,7 @@ extern "C" void __attribute__ ((constructor)) init() {
     setenv("QML_XHR_ALLOW_FILE_WRITE", "1", 1); // Tell QML that it's ok to let us write files from inside XHR land.
     qmlRegisterType<X1PlusProcess>("X1PlusProcess", 1, 0, "X1PlusProcess");
     qmlRegisterSingletonType("X1PlusNative", 1, 0, "X1PlusNative", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QJSValue {
-        Q_UNUSED(engine)
-
+        native.engine = engine;
         QJSValue obj = scriptEngine->newQObject(&native);
         scriptEngine->globalObject().setProperty("_X1PlusNative", obj);
         return obj;

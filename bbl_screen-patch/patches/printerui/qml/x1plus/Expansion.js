@@ -36,6 +36,8 @@ function status() {
 		return null;
 	}
 	
+	var db = database(); // trigger a binding
+	
 	rv.expansion_major = rv.expansion_revision.replace(/[0-9]*$/, '');
 	
 	for (var port in rv.ports) {
@@ -52,6 +54,14 @@ function status() {
 		if (rv.ports[port].model) {
 			// strip any digits from the revision, since the letter determines software compatibility
 			rv.ports[port].module_detected = `${rv.ports[port].model}-${rv.ports[port].revision}`.replace(/[0-9]*$/, '');
+			
+			// it's also possible that this is an alias; if so, look for that
+			for (var m in db.modules) {
+				if (db.modules[m].alias && db.modules[m].alias.indexOf(rv.ports[port].module_detected) >= 0) {
+					rv.ports[port].module_detected = m;
+					break;
+				}
+			}
 		}
 		
 		rv.ports[port].config = X1Plus.Settings.get(`expansion.${port}`, {});

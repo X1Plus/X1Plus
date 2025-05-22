@@ -5,27 +5,17 @@ import Printer 1.0
 import "qrc:/uibase/qml/widgets"
 import "qrc:/printerui/qml/X1Plus.js" as X1Plus
 
-GridLayout {
-    rowSpacing: 24
-    columnSpacing: 12
-    columns: 2
+ColumnLayout {
+    spacing: 24
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 
-    Text {
-        font: Fonts.body_26
-        color: Colors.gray_200
-        wrapMode: Text.Wrap
+    LedConfig {
         Layout.fillWidth: true
-        Layout.columnSpan: 2
-
-        text: qsTr("<i>Placeholder: LED configuration</i>")
     }
-    
     
     ZButton {
         text: qsTr("Test buzzer")
-        Layout.columnSpan: 2
         Layout.alignment: Qt.AlignCenter
         textSize: 32
         paddingX: 20
@@ -44,10 +34,8 @@ GridLayout {
         color: Colors.warning
         wrapMode: Text.Wrap
         Layout.fillWidth: true
-        Layout.columnSpan: 2
         Layout.bottomMargin: 18
 
         text: qsTr("<b>Configuration must be saved to test module.</b>")
     }
-
 }

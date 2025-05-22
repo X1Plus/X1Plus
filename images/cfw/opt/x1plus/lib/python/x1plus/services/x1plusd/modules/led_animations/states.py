@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class RunningAnimation():
     def __init__(self, leds, config):
         self.leds = leds
-        self.brightness = config.get('brightness', 0.4)
+        self.brightness = config.get('brightness', 1.0) * leds.brightness
         self.testmode = config.get('testmode', False)
     
     def can_render(self):
@@ -60,7 +60,7 @@ class RunningAnimation():
 class PausedAnimation():
     def __init__(self, leds, config):
         self.leds = leds
-        self.brightness = config.get('brightness', 0.25)
+        self.brightness = config.get('brightness', 0.6) * leds.brightness
     
     def can_render(self):
         return self.leds.last_gcode_state == 'PAUSE'
@@ -83,7 +83,7 @@ class PausedAnimation():
 class FinishAnimation():
     def __init__(self, leds, config):
         self.leds = leds
-        self.brightness = config.get('brightness', 0.4)
+        self.brightness = config.get('brightness', 1.0) * leds.brightness
         self.timeout = config.get('timeout', 600) # success goes away after 10 minutes
         self.last_finish_trn = 0
         self.last_was_finish = False
@@ -109,7 +109,7 @@ class FinishAnimation():
 class FailedAnimation():
     def __init__(self, leds, config):
         self.leds = leds
-        self.brightness = config.get('brightness', 0.25)
+        self.brightness = config.get('brightness', 0.6) * leds.brightness
         self.timeout = config.get('timeout', 120) # failure goes away after 2 minutes
         self.last_failed_trn = 0
         self.last_was_failed = False
