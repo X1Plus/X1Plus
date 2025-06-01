@@ -34,6 +34,9 @@ Item {
                 type: TextConfirm.CONFIRM
             });
         }
+        
+        /* Refresh the QML cache for users who are live-editing /opt/x1plus/share/expansion. */
+        X1PlusNative.trimComponentCache();
     }
 
     MarginPanel {
@@ -236,7 +239,19 @@ Item {
             value: status.ports[`port_${i2c_port}`].module_configured === undefined ? qsTr("Port not in use") :
                    status.ports[`port_${i2c_port}`].module_configured == "generic_i2c" ? qsTr("Configured on port %1").arg(i2c_port.toUpperCase()) :
                    qsTr("Port in use by expansion module")
-            function onClicked() { console.log(JSON.stringify(status.ports[`port_${i2c_port}`])); dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: i2c_port }); }
+            function onClicked() {
+                console.log(JSON.stringify(status.ports[`port_${i2c_port}`]));
+                var cur_config = status.ports[`port_${i2c_port}`].module_configured;
+                if ((cur_config !== undefined) && (cur_config != "generic_i2c")) {
+                    dialogStack.popupDialog("TextConfirm", {
+                        name: "Port conflict",
+                        text: qsTr("Port %1 is shared with the I²C interface, but that port is already in use by an expansion module.  Disable port %1 before configuring an I²C device.").arg(i2c_port.toUpperCase()),
+                        titles: [qsTr("OK")],
+                        type: TextConfirm.CONFIRM
+                    });                    
+                } else {
+                    dialogStack.popupDialog('../settings/ExpanderAddonDialog', { port: i2c_port, switch_to_i2c: true }); }
+                }
         }
         
         // there must always be at least one unhidden item at the bottom to
