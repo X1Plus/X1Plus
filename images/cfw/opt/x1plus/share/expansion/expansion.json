@@ -24,7 +24,10 @@
     "X1P-004-A": {
       "name": "LED-strip level shifter module",
       "configuration": {
-        "ledstrip": {}
+        "ledstrip": {
+          "brightness": 0.4,
+          "leds": 10
+        }
       },
       "configuration_ui": "LedStrip.qml",
       "alias": [ "X1P-004-B" ]
@@ -36,6 +39,7 @@
           "leds": 25,
           "rows": 5,
           "cols": 5,
+          "brightness": 0.4,
           "gpios": [
             { "pin": 3, "function": "buzzer", "default": 0 },
             { "pin": 5, "default": 1 },
