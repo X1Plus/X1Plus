@@ -151,8 +151,10 @@ Item {
         } else if (module == "filament") {
             // This one is easy -- we just copy it into the right place,
             // update the X1Plus Setting, then say we're good.
-            X1PlusNative.system(`mkdir -p /userdata/upgrade/filament`);
-            X1PlusNative.system(`cp /sdcard/x1plus/firmware/${fileName} /userdata/upgrade/filament/${fileName}`);
+            //
+            // See comment in interpose.cpp for the reasoning behind this path.
+            X1PlusNative.system(`mkdir -p /userdata/cfg/filament`);
+            X1PlusNative.system(`cp /sdcard/x1plus/firmware/${fileName} /userdata/cfg/filament/${fileName}`);
             X1Plus.Settings.put("filament.ota_version", fileName);
             
             // retrigger filament database reload: set this to something

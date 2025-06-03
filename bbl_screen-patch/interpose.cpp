@@ -764,7 +764,12 @@ SWIZZLE(int, _Z17get_resource_path19bbl_resource_type_tRNSt7__cxx1112basic_strin
         try {
             json j = json::parse(settings);
             auto k = j.at("filament.ota_version").template get<std::string>();
-            auto path = "/userdata/upgrade/filament/" + k;
+            
+            // upgrade/filament gets wiped by upgrade on boot, so we can't
+            // really trust it.  we use /userdata/cfg/filament for this,
+            // since it is wiped neither by upgrade nor by bbl_storage
+            
+            auto path = "/userdata/cfg/filament/" + k;
             printf("get_resource_path: read filament.ota_version setting from x1plusd of %s (%s)\n", k.c_str(), path.c_str());
             int fd;
             fd = open(path.c_str(), O_RDONLY);
