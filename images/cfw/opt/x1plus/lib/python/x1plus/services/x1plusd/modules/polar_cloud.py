@@ -54,6 +54,24 @@ class PolarPrintService(X1PlusDBusService):
         _ConnectState.ESTABLISHED: 60, # time since we've seen a keepalive PING
     }
 
+    """
+    status_lookup will be used in _status_update() to interpret job states
+    coming from mqtt and translate them into self.status. Values of printer
+    status enums are in in-line comments.
+
+    TODO: in the future, FAILED and FINISH should actually report 15, which is
+    Clear build plate; unable to start a new print.
+    """
+    STATE_TO_POLAR_STATUS = {
+        "IDLE": 0,
+        "SLICING": 1,  # 1
+        "PREPARE": 2,
+        "RUNNING": 3,
+        "FINISH": 7,  # 4
+        "FAILED": 12,  # 5
+        "PAUSE": 4,  # 6
+    }
+
     def __init__(self, daemon, **kwargs):
         """
         The MAC is stored here, but on restart will always generated dynamically
@@ -83,23 +101,6 @@ class PolarPrintService(X1PlusDBusService):
         # TODO: Fix two "on" fn calls below.
         # self.daemon.settings.on("polarprint.enabled", self.sync_startstop())
         # self.daemon.settings.on("self.pin", self.set_pin())
-        """
-        status_lookup will be used in _status_update() to interpret job states
-        coming from mqtt and translate them into self.status. Values of printer
-        status enums are in in-line comments.
-
-        TODO: in the future, FAILED and FINISH should actually report 15, which is
-        Clear build plate; unable to start a new print.
-        """
-        self.status_lookup = {
-            "IDLE": 0,
-            "SLICING": 1,  # 1
-            "PREPARE": 2,
-            "RUNNING": 3,
-            "FINISH": 7,  # 4
-            "FAILED": 12,  # 5
-            "PAUSE": 4,  # 6
-        }
         self.start_time = datetime.datetime.now()  # Start time for each print job.
         self.time_finished = datetime.datetime.now()  # Used in _status_update().
         # How long the job will take in seconds. This is set in _status_() and
@@ -452,7 +453,7 @@ class PolarPrintService(X1PlusDBusService):
         )
         # Note we don't change self.status until after we've determined the printer
         # state because we're tracking the previous status.
-        match self.status_lookup[task_state]:
+        match self.STATE_TO_POLAR_STATUS[task_state]:
             case 0: # IDLE
                 if self.status != 0:
                     logger.info(
@@ -487,7 +488,7 @@ class PolarPrintService(X1PlusDBusService):
                     # Note that 0 is a special case, where we're reporting IDLE
                     # but the printer thinks it's failed.
                     self.time_finished = datetime.datetime.now()
-                    self.status = self.status_lookup[task_state]
+                    self.status = self.STATE_TO_POLAR_STATUS[task_state]
                     logger.info(
                         "Polar: just switched to failed. "
                         f"{self.time_finished}"
@@ -508,7 +509,7 @@ class PolarPrintService(X1PlusDBusService):
                 elif self.status == 0:
                     # Printer has been returning IDLE even though its internal
                     # state is FAILED or FINISHED. Remain in IDLE.
-                    if self.status_lookup[task_state] == 7:
+                    if self.STATE_TO_POLAR_STATUS[task_state] == 7:
                         logger.info("Polar: printer in FINISHED; remain in IDLE.")
                     else:
                         logger.info("Polar: printer in FAILED; remain in IDLE.")
