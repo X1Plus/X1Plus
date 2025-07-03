@@ -29,14 +29,6 @@ from x1plus.utils import get_MAC, is_emulating, serial_number
 from x1plus.services.x1plusd.dbus import X1PlusDBusService
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("/var/log/polar_debug.log"),
-        # logging.StreamHandler(), # Emits to terminal anyway, when called from cli.
-    ],
-)
 
 POLAR_INTERFACE = "x1plus.polar"
 POLAR_PATH = "/x1plus/polar"
