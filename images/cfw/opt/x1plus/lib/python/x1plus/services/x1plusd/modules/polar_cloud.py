@@ -26,7 +26,7 @@ from base64 import b64encode
 from x1plus.aiocamera import AioRtspReceiver
 from x1plus.utils import get_MAC, is_emulating, serial_number
 
-from .dbus import X1PlusDBusService
+from x1plus.services.x1plusd.dbus import X1PlusDBusService
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -174,7 +174,6 @@ class PolarPrintService(X1PlusDBusService):
         """Create Socket.IO client and connect to server."""
         logger.info("Polar task")
         
-        self._set_interface()
         try:
             await self._get_creds()
         except Exception as e:
@@ -854,8 +853,8 @@ class PolarPrintService(X1PlusDBusService):
             }
         }
         """
-        logger.info("Polar _on_url_response")
-        if data["message"] != "SUCCESS":
+        logger.info(f"Polar _on_url_response")
+        if data["status"] != "SUCCESS":
             logger.error(f"Polar get_url failed: {data['message']}")
             return
         
@@ -930,8 +929,9 @@ class PolarPrintService(X1PlusDBusService):
 
 _daemon = None
 def load(daemon):
+    global _daemon
     _daemon = daemon
     setattr(daemon, "polar_cloud", PolarPrintService(daemon=daemon))
 
-def start(daemon):
-    asyncio.create_task(daemon.polar_cloud.task())
+def start():
+    asyncio.create_task(_daemon.polar_cloud.task())
