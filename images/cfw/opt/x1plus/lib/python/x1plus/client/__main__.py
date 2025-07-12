@@ -1,5 +1,5 @@
 import argparse
-from . import ota, settings, actions, convert
+from . import ota, settings, actions, convert, polar
 
 """
 Basic command-line X1Plus management tool.
@@ -12,6 +12,7 @@ ota.add_subparser(subparsers)
 settings.add_subparser(subparsers)
 actions.add_subparser(subparsers)
 convert.add_subparser(subparsers)
+polar.add_subparser(subparsers)
 
 args = parser.parse_args()
 args.func(args)
