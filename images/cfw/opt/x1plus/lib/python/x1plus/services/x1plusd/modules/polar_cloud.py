@@ -46,6 +46,80 @@ class _ConnectState(Enum):
     WAITING_HELLO = auto()
     ESTABLISHED = auto()
 
+class PolarCredentials:
+    """
+    Encapsulates all persistent state for logging in to Polar Cloud,
+    including generated keys and credentials that are used to generate them.
+    """
+    
+    SETTINGS_KEY = "polar.auth"
+    
+    def __init__(self, daemon):
+        self.daemon = daemon
+        
+        self.username = None
+        self.pin = None
+        self.public_key = None
+        self.private_key = None
+        self.polar_sn = None
+
+        self.load_from_envfile()
+        self.load_from_settings()
+    
+    def load_from_envfile(self):
+        if is_emulating():
+            from pathlib import Path
+
+            env_file = Path(__file__).resolve().parents[0] / "env"
+        else:
+            env_file = "/sdcard/polar-config.txt"
+
+        # XXX: wrap this in a try/catch
+        try:
+            with open(env_file) as env:
+                for line in env.readlines():
+                    k, v = line.strip().split("=")
+                    if k == "username":
+                        self.username = v
+                    elif k == "pin":
+                        self.pin = v
+        except:
+            pass
+    
+    def load_from_settings(self):
+        try:
+            d = self.daemon.settings.get(self.SETTINGS_KEY, {})
+            if d.get('printer_sn', None) != serial_number():
+                logger.error("settings file serial number does not match actual serial number?")
+                return
+            self.username = d.get('username', None)
+            self.polar_sn = d.get('polar_sn', None)
+            self.private_key = d.get('private_key', None)
+            self.public_key = d.get('public_key', None)
+            # we do not need to load the PIN since that is used only for initial login
+        except:
+            pass
+    
+    async def save(self):
+        await self.daemon.settings.put(self.SETTINGS_KEY, {
+            'printer_sn': serial_number(),
+            'username': self.username,
+            'polar_sn': self.polar_sn,
+            'private_key': self.private_key,
+            'public_key': self.public_key,
+        })
+    
+    async def wipe(self):
+        self.username = None
+        self.pin = None
+        self.polar_sn = None
+        self.private_key = None
+        self.public_key = None
+        await self.save()
+    
+    def ready(self):
+        return (self.username and self.polar_sn and self.private_key and self.public_key) or (self.username and self.pin)
+
 class PolarPrintService(X1PlusDBusService):
     STATE_TIMEOUTS = {
         _ConnectState.DISCONNECTED: 60, # retry every minute
@@ -77,20 +151,13 @@ class PolarPrintService(X1PlusDBusService):
         The MAC is stored here, but on restart will always generated dynamically
         in an attempt to discourage movement of SD cards.
         """
-        logger.info("Polar __init__.")
+        logger.info("Polar __init__")
         self.daemon = daemon
+        self.enabled = self.daemon.settings.get("polar.enabled", False)
         self.mac = get_MAC()
-        self.polar_sn = self.daemon.settings.get("polar.serial_number", "")
-        # Todo: VERY IMPORTANT!! The public and private keys MUST be moved to
-        # non-volatile memory before release.
-        self.public_key = self.daemon.settings.get("polar.public_key", "")
-        self.private_key = self.daemon.settings.get("polar.private_key", "")
-        self.connected = False
-        self.connection_status = "Not connected"
-        self.pin = ""
-        # username is here only for emulation mode when reading from `env`.
-        # Note that we're using env and not .env so users can easily edit it.
-        self.username = ""
+        
+        self.creds = PolarCredentials(self.daemon)
+        
         self.server_url = "https://printer4.polar3d.com" # "http://status-dev.polar3d.com/"
         self.socket = None
         self.status = 0  # Idle
@@ -147,21 +214,22 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("pause", self._on_pause)
         self.socket.on("resume", self._on_resume)
         self.socket.on("cancel", self._on_cancel)
-        self.socket.on("delete", self._on_delete)
         self.socket.on("getUrlResponse", self._on_url_response)
 
         # Watch for settings changes
         self.daemon.settings.on("polar.enabled", self._on_enabled_changed)
-        self.daemon.settings.on("polar.username", self._on_creds_changed)
-        self.daemon.settings.on("polar.pin", self._on_creds_changed)
 
         self.status_task = None
         
         self.watchdog_task = None
         self.watchdog_signal = asyncio.Event()
         self.reconnect_now = False
+        
         self.connect_state = _ConnectState.DISCONNECTED
         self.connect_state_ts = 0
+        self.last_connection_error = None
+        
+        self.last_status_object = None
         
         super().__init__(
             router=daemon.router,
@@ -171,26 +239,72 @@ class PolarPrintService(X1PlusDBusService):
         )
 
     async def task(self) -> None:
-        """Create Socket.IO client and connect to server."""
-        logger.info("Polar task")
-        
-        try:
-            await self._get_creds()
-        except Exception as e:
-            logger.debug(f"Polar _get_creds failed: {e}")
-            return
-
-        if self.username != "" and self.username != None:
-            self.watchdog_task = asyncio.create_task(self._watchdog_task())
+        # It will shut itself down if we are not enabled.
+        self.watchdog_task = asyncio.create_task(self._watchdog_task())
         await super().task()
-        logger.info("Polar Cloud is running.")
+
+    def _on_enabled_changed(self):
+        """Handle when polar.enabled setting changes."""
+        self.enabled = self.daemon.settings.get("polar.enabled", False)
+        if self.enabled and not self.watchdog_task:
+            self.watchdog_task = asyncio.create_task(self._watchdog_task())
+        else:
+            # ... which will cause the watchdog to shut down
+            asyncio.create_task(self._force_reconnect())
+
+    def _make_dbus_status_object(self):
+        return {
+            'enabled': self.enabled,
+            'connect_state': self.connect_state.name,
+            'last_connection_error': self.last_connection_error,
+            'username': self.creds.username,
+            'logged_in': self.creds.polar_sn is not None,
+        }
+    
+    async def dbus_GetStatus(self, req):
+        return self._make_dbus_status_object()
+    
+    async def dbus_Login(self, req):
+        if self.creds.polar_sn:
+            return {'status': 'failure', 'reason': 'already logged in'}
+        self.creds.username = str(req['username'])
+        self.creds.pin = str(req['pin'])
+        # no need to save here -- nothing useful has actually happened
+        if self.enabled and not self.watchdog_task:
+            self.watchdog_task = asyncio.create_task(self._watchdog_task())
+        return {}
+    
+    async def dbus_Logout(self, req):
+        try:
+            await self.socket.emit("unregister", self.creds.polar_sn)
+        except:
+            pass
+        
+        await self.creds.wipe()
+        
+        # Shut down the watchdog thread.
+        await self._force_reconnect()
+        return {}
+
+    async def _maybe_publish_status_object(self):
+        "Publish a new _make_status_object as a DBus signal iff something has changed."
+        
+        status_object = self._make_dbus_status_object()
+        if status_object != self.last_status_object:
+            # equality on a dict is object-equality, not reference-equality
+            self.last_status_object = status_object
+            await self.emit_signal("StatusChanged", status_object)
+            logger.debug(f"polar status changed to {status_object}")
     
     async def _watchdog_task(self):
+        self.connect_state = _ConnectState.DISCONNECTED
+        self.connect_state_ts = 0
+
         while True:
             connect_state_timeout = self.connect_state_ts + self.STATE_TIMEOUTS[self.connect_state]
             if time.time() > connect_state_timeout or self.reconnect_now:
                 self.reconnect_now = False
-                logger.warning(f"hit timeout or forced reconnect in state {self.connect_state}; reconnecting")
+                logger.warning(f"hit timeout or forced reconnect in state {self.connect_state.name}; reconnecting")
                 try:
                     await self.socket.disconnect()
                 except:
@@ -200,10 +314,17 @@ class PolarPrintService(X1PlusDBusService):
                     self.status_task.cancel()
                     self.status_task = None
                 
-                # XXX: do nothing if we are not supposed to connect at all right now 
+                if not self.enabled:
+                    logger.info("Polar Cloud is not enabled; shutting down watchdog")
+                    self.watchdog_task = None
+                    return
+                
+                if not self.creds.ready():
+                    logger.info("Polar Cloud does not have credentials; shutting down watchdog")
+                    self.watchdog_task = None
+                    return
+                
                 try:
-                    if not self.enabled:
-                        raise RuntimeError("not connecting") # cause the disconnected cycle
                     self._update_state(_ConnectState.CONNECTING)
                     await self.socket.connect(self.server_url, transports=["websocket"], wait_timeout = 5)
                 except Exception as e:
@@ -224,15 +345,16 @@ class PolarPrintService(X1PlusDBusService):
             logger.debug(f"transitioning from {self.connect_state} to {st}")
         self.connect_state = st
         self.connect_state_ts = time.time()
+        self.watchdog_signal.set()
+        asyncio.create_task(self._maybe_publish_status_object())
     
     async def _force_reconnect(self):
         try:
             await self.socket.disconnect()
         except:
             pass
-        _update_state(_ConnectState.DISCONNECTED)
         self.reconnect_now = True
-        # XXX: kick the watchdog thread to do it
+        self._update_state(_ConnectState.DISCONNECTED)
     
     async def _on_connect(self, *args, **kwargs) -> None:
         self._update_state(_ConnectState.WAITING_HELLO)
@@ -242,18 +364,6 @@ class PolarPrintService(X1PlusDBusService):
 
     async def _on_disconnect(self, *args, **kwargs) -> None:
         self._update_state(_ConnectState.DISCONNECTED)
-
-    
-    async def _unregister(self):
-        """
-        After a printer is deleted I'll need this in order to reregister it
-        Later it'll be necessary for the interface, so I just added it now.
-        Todo: In future _on_delete() will remove the username and PIN from
-        non-volatile memory (i.e. the SD card), so additional arguments will
-        be needed for this to work.
-        """
-        await self.socket.emit("unregister", self.daemon.settings.get("polar.sn"))
-
 
     async def _on_welcome(self, response, *args, **kwargs) -> None:
         """
@@ -265,75 +375,74 @@ class PolarPrintService(X1PlusDBusService):
             return
         logger.info("Polar _on_welcome.")
 
-        # GIANT TODO!! using daemon settings is making the SN and keys persist
-        # across restarts. We need to deal with this bc when a printer is moved
-        # to a new DB it breaks things. Also, security?
-
-        # Two possibilities here. If it's already registered there should be a
-        # Polar Cloud serial number and a set of RSA keys. If not, then must
-        # request keys first.
-        if self.daemon.settings.get("polar.sn", "") and self.daemon.settings.get(
-            "polar.private_key", ""
-        ):
-            logger.debug(f"Polar challenge: {response['challenge']}")
-            # The printer has been registered.
-            # Remember that "polar.sn" is the serial number assigned by the server.
-            # First, encode challenge string with the private key.
-            private_key = self.daemon.settings.get("polar.private_key").encode("utf-8")
-            rsa_key = RSA.import_key(private_key)
-            hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
-            key = pkcs1_15.new(rsa_key)
-            data = {
-                "serialNumber": self.daemon.settings.get(
-                    "polar.sn"
-                ),  # Don't need a default here.
-                "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
-                "MAC": self.mac,
-                "protocol": "2.0",
-                "mfgSn": serial_number(),
-                "printerMake": "Bambu Lab X1 Carbon",
-            }
-            """
-            Note that the following optional fields might be used in future.
-            "version": "currently installed software version", // string, optional
-            "localIP": "printer's local IP address",           // string, optional
-            "rotateImg": 0 | 1,                                // integer, optional
-            "transformImg": 0 - 7,                             // integer, optional
-            "camOff": 0 | 1,                                   // integer, optional
-            "camUrl": "URL for printer's live camera feed"     // string, optional
-            """
-            logger.info("\x1b[96;1mPolar Emitting hello.\x1b[0m")
-            await self.socket.emit("hello", data)
-        elif not self.daemon.settings.get(
-            "polar.sn", ""
-        ) and not self.daemon.settings.get("polar.public_key", ""):
+        if not self.creds.public_key:
             # We need to get an RSA key pair before we can go further.
             # TODO: This needs to be moved locally rather than being remote, so
             # private key isn't transmitted.
+
+            if self.creds.polar_sn:
+                logger.warning(f"for some reason, we have a serial number, but no key; creating a new key, and wiping the serial number")
+                await creds.wipe()
             await self.socket.emit("makeKeyPair", {"type": "RSA", "bits": 2048})
-        elif not self.daemon.settings.get("polar.sn", ""):
-            # We already have a key: just register.
+            
+            return
+
+        if not self.creds.polar_sn:
+            # We have a key, but no serial number: register (and we'll reconnect once again once we have a serial number).
             await self._register()
-        else:
-            # It's not possible to have a serial number and no key, so this
-            # would be a real problem.
-            logger.error("Somehow have an SN and no key.")
-            exit()
+            
+            return
+
+        # We have everything we need to log in; go for it.
+
+        logger.debug(f"Polar challenge: {response['challenge']}")
+        # The printer has been registered.
+        # First, encode challenge string with the private key.
+        rsa_key = RSA.import_key(self.creds.private_key.encode("utf-8"))
+        hashed_challenge = SHA256.new(response["challenge"].encode("utf-8"))
+        key = pkcs1_15.new(rsa_key)
+        data = {
+            "serialNumber": self.creds.polar_sn,
+            "signature": b64encode(key.sign(hashed_challenge)).decode("utf-8"),
+            "MAC": self.mac,
+            "protocol": "2.0",
+            "mfgSn": serial_number(),
+            "printerMake": "Bambu Lab X1 Carbon",
+        }
+        """
+        Note that the following optional fields might be used in future.
+        "version": "currently installed software version", // string, optional
+        "localIP": "printer's local IP address",           // string, optional
+        "rotateImg": 0 | 1,                                // integer, optional
+        "transformImg": 0 - 7,                             // integer, optional
+        "camOff": 0 | 1,                                   // integer, optional
+        "camUrl": "URL for printer's live camera feed"     // string, optional
+        """
+        logger.info("Polar emitting hello")
+        await self.socket.emit("hello", data)
 
     async def _on_hello_response(self, response, *args, **kwargs) -> None:
         """
         If printer is previously registered, a successful hello response means
         the printer is connected and ready to print.
         """
-        if response["status"] == "SUCCESS":
-            logger.info("Polar _on_hello_response success")
-            logger.info("Polar Cloud connected.")
-            self._update_state(_ConnectState.ESTABLISHED)
-            await self._get_url("idle")
-            await self._get_url("printing") # can result in "failed wrong serial number"; that's fine, if nothing is printing
-        elif response["message"] != "Printer has been deleted":
-            logger.error(f"_on_hello_response failure: {response['message']}")
-            # TODO: send any errors to interface.
+        if response["status"] != "SUCCESS":
+            if response["message"] == "Printer has been deleted":
+                logger.error(f"_on_hello_response failure: {response['message']}")
+                self.last_connection_error = "Printer removed from cloud"
+                self._maybe_publish_status_object()
+                await self.creds.wipe()
+                await self._force_reconnect()
+            else:
+                logger.error(f"_on_hello_response failure: {response['message']}")
+                self.last_connection_error = f"Hello response error: {response['message']}"
+            return
+
+        logger.info("Polar _on_hello_response success")
+        logger.info("Polar Cloud connected.")
+        self._update_state(_ConnectState.ESTABLISHED)
+        await self._get_url("idle")
+        await self._get_url("printing") # can result in "failed wrong serial number"; that's fine, if nothing is printing
 
         if self.status_task:
             logger.error("leftover status_task?? somebody did not clean up, but I'm killing it anyway")
@@ -349,13 +458,13 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] != "SUCCESS":
             error_msg = response.get('message', 'Key pair request failed')
             logger.error(f"_on_keypair_response failure: {error_msg}")
-            self.connection_status = f"Key Error: {error_msg}"
-            self.daemon.settings.put("polar.last_error", error_msg)
-            self._update_status()
+            self.last_connection_error = f"Key Error: {error_msg}"
+            self._maybe_publish_status_object()
             return
         
-        await self.daemon.settings.put("polar.public_key", response["public"])
-        await self.daemon.settings.put("polar.private_key", response["private"])
+        self.creds.public_key = response['public']
+        self.creds.private_key = response['private']
+        await self.creds.save()
         # We have keys, but still need to register. First disconnect.  After the next request, the server willr espond with `welcome`.
         logger.info("Polar _on_keypair_response success. Disconnecting.")
         await self._force_reconnect()
@@ -366,12 +475,10 @@ class PolarPrintService(X1PlusDBusService):
         When this fn completes, printer will be ready to receive print calls.
         """
         if response["status"] != "SUCCESS":
-            logger.error(f"_on_register_response failure: {response['reason']}")
             error_msg = response.get('reason', 'Registration failed')
             logger.error(f"_on_register_response failure: {error_msg}")
-            self.connection_status = f"Registration Error: {error_msg}"
-            self.daemon.settings.put("polar.last_error", error_msg)
-            self._update_status()
+            self.last_connection_error = f"Registration Error: {error_msg}"
+            await self._maybe_publish_status_object()
             # TODO: deal with various failure modes here. Most can be dealt
             # with in interface. First three report as server erros? Modes are
             # "SERVER_ERROR": Report this?
@@ -386,20 +493,23 @@ class PolarPrintService(X1PlusDBusService):
                     f"Forbidden. Duplicate MAC problem!\nTerminating MAC: "
                     f"{self.mac}\n\n"
                 )
-                return
+
+            if response["reason"].lower() == "email_pin_error":
+                self.creds.pin = None
+                self.force_reconnect = True # kill the watchdog thread right away
             
+            await self.socket.disconnect()
+            self._update_state(_ConnectState.DISCONNECTED)
             return
 
         logger.info("Polar _on_register_response success.")
         logger.debug(f"Polar serial number: {response['serialNumber']}")
-        await self.daemon.settings.put("polar.sn", response["serialNumber"])
-        await self.daemon.settings.put("polar.serial_number", self.polar_sn)
-        self.connection_status = "Connected"
-        self.connected = True
-        # Clear any previous errors
-        self.daemon.settings.put("polar.last_error", "")
-        self._update_status()
-        logger.info(f"Successfully registered with Polar Cloud. Serial: {self.polar_sn}")
+        self.creds.polar_sn = response["serialNumber"]
+        await self.creds.save()
+        self.last_connection_error = None
+        await self._maybe_publish_status_object()
+        logger.info(f"Successfully registered with Polar Cloud. Serial: {self.creds.polar_sn}")
+        await self._force_reconnect()
 
     async def _register(self) -> None:
         """
@@ -409,9 +519,9 @@ class PolarPrintService(X1PlusDBusService):
         logger.info("Polar _register.")
         data = {
             "mfg": "bambu",
-            "email": self.daemon.settings.get("polar.username"),
-            "pin": self.pin,
-            "publicKey": self.daemon.settings.get("polar.public_key"),
+            "email": self.creds.username,
+            "pin": self.creds.pin,
+            "publicKey": self.creds.public_key,
             "mfgSn": serial_number(),
             "myInfo": {"MAC": self.mac},
         }
@@ -608,7 +718,7 @@ class PolarPrintService(X1PlusDBusService):
                 ),
                 # TODO: targetChamber isn't in mqtt?
                 # "targetChamber": self.daemon.mqtt.latest_print_status.get("", "0"),
-                "serialNumber": self.daemon.settings.get("polar.sn"),
+                "serialNumber": self.creds.polar_sn,
                 "status": self.status,
                 "startTime": self.start_time.isoformat(),
                 "estimatedTime": int(self.estimated_print_time) * 60,
@@ -703,63 +813,13 @@ class PolarPrintService(X1PlusDBusService):
         username and PIN don't keep being requested and printer doesn't reregister.
         """
         logger.info("Polar _on_delete")
-        if response["serialNumber"] != self.daemon.settings.get("polar.sn"):
+        if response["serialNumber"] != self.creds.polar_sn:
             return
 
-        self.pin = ""
-        self.username = ""
-        to_remove = {
-            "polar.enabled": False,
-            "polar.sn": None,
-            "polar.username": None,
-            "polar.public_key": None,
-            "polar.private_key": None,
-        }
-        await self.daemon.settings.put_multiple(to_remove)
+        await self.creds.wipe()
             
         # we are done; disconnect and shut down the watchdog so that we do not reconnect
-        # XXX: future: refactor this out into "stop polar cloud entirely" and "start polar cloud entirely" routines
-        if self.watchdog_task:
-            self.watchdog_task.cancel()
-            self.watchdog_task = None
-        if self.status_task:
-            self.status_task.cancel()
-            self.status_task = None
-        await self.socket.disconnect()
-        self._update_state(_ConnectState.DISCONNECTED)
-
-    async def _get_creds(self) -> None:
-        """
-        Get credentials from settings or from env file.
-        Priority:
-        1. X1Plus settings (from UI)
-        2. /mnt/sdcard/x1plus/env file
-        """
-
-        logger.info("Polar _get_creds")
-        if is_emulating():
-            # I need to use actual account creds to connect, so we're using env
-            # for testing, until there's an interface. Not it's env and not .env
-            # so users can more easily edit the file.
-            # Just open the env file and parse it.
-            # This means that env file must formatted correctly, with var names
-            # `username` and `pin`.
-            from pathlib import Path
-
-            env_file = Path(__file__).resolve().parents[0] / "env"
-        else:
-            env_file = "/sdcard/polar-config.txt"
-
-        # XXX: wrap this in a try/catch
-        with open(env_file) as env:
-            for line in env.readlines():
-                k, v = line.strip().split("=")
-                if k == "username":
-                    self.username = v
-                    await self.daemon.settings.put("polar.username", v)
-                elif k == "pin":
-                    self.pin = v
-                    await self.daemon.settings.put("polar.pin", v)
+        await self._force_reconnect()
 
     async def _job(self, status):
         """
@@ -768,7 +828,7 @@ class PolarPrintService(X1PlusDBusService):
         """
         logger.info(f"\n\n*** Polar _job {status} {self.job_id} ***\n")
         data = {
-            "serialNumber": self.daemon.settings.get("polar.sn"),
+            "serialNumber": self.creds.polar_sn,
             "jobId": self.job_id,
             "state": status,  # "completed" | "canceled"
             # Next two when we get more features implemented
@@ -787,7 +847,7 @@ class PolarPrintService(X1PlusDBusService):
         """Download file to printer, then send to print."""
         logger.info("Polar _on_print")
         self.job_id = data["jobId"]
-        if data.get("serialNumber", None) != self.daemon.settings.get("polar.sn", ""):
+        if data.get("serialNumber", None) != self.creds.polar_sn:
             logger.debug("Polar serial numbers don't match.")
             await self._job("canceled")
             return
@@ -879,7 +939,7 @@ class PolarPrintService(X1PlusDBusService):
             logger.error(f"Polar get_url failed: {data['message']}")
             return
         
-        if data["serialNumber"] != self.daemon.settings.get("polar.sn", ""):
+        if data["serialNumber"] != self.creds.polar_sn:
             logger.error("Polar get_url failed wrong serial number.")
             return
 
@@ -901,7 +961,7 @@ class PolarPrintService(X1PlusDBusService):
         if idle_or_print not in ["idle", "printing"]:
             logger.error("Neither idle not printing was specified in getUrl request.")
         request_data = {
-            "serialNumber": self.daemon.settings.get("polar.sn"),
+            "serialNumber": self.creds.polar_sn,
             "method": "post",
             "type": idle_or_print,
             "jobId": self.job_id,
@@ -947,26 +1007,6 @@ class PolarPrintService(X1PlusDBusService):
                 }
             }
         await self.daemon.mqtt.publish_request(request_json)
-
-    def _update_status(self):
-        """Update settings with current connection status."""
-        self.daemon.settings.put("polar.connection_status", self.connection_status)
-        self.daemon.settings.put("polar.connected", self.connected)
-    
-    def _on_enabled_changed(self, enabled):
-        """Handle when polar.enabled setting changes."""
-        self.enabled = enabled
-        # XXX: should this start up / shut down the wwatchdog thread entirely?
-        if enabled and not self.connected:
-            asyncio.create_task(self._force_reconnect())
-        elif not enabled and self.connected:
-            asyncio.create_task(self._force_reconnect())
-    
-    def _on_creds_changed(self, value):
-        """Handle when credentials change."""
-        # If we're connected, restart with new creds
-        asyncio.create_task(self._force_reconnect())
-
 
 _daemon = None
 def load(daemon):
