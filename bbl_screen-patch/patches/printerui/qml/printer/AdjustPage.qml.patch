@@ -1,17 +1,73 @@
 --- printer_ui-orig/printerui/qml/printer/AdjustPage.qml
 +++ printer_ui/printerui/qml/printer/AdjustPage.qml
-@@ -16,7 +16,9 @@
+@@ -6,6 +6,7 @@
+ 
+ import ".."
+ import "qrc:/uibase/qml/widgets"
++import "../X1Plus.js" as X1Plus
+ 
+ Item {
+ 
+@@ -15,8 +16,11 @@
+     property bool hasExtruderList: (extruderList != null)
      property var extruders: hasExtruderList ? extruderList.extruders : []
      property var currentExtruder: hasExtruderList ? extruderList.currentExtruder : null
-     property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
+-    property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
 -
++    // property var tmpModelArray: hasExtruderList ? (extruders.map(n=>n.extruderHeater)).concat(tempModel) : [heaters.hotend].concat(tempModel)
++    property var tmpModelArray: tempModel
 +    property var isHomed: (PrintManager.homedState & PrintManager.AXIS_HOMED_ALL) >= PrintManager.AXIS_HOMED_ALL
 +    property bool ignoreDialog: false
 +    
      property var speedAdjust: QtObject {
          property string name: "speed"
          property int currentTemp: PrintManager.currentTask.printSpeed
-@@ -153,18 +155,32 @@
+@@ -26,12 +30,39 @@
+         property bool visible: true
+     }
+ 
+-    property var tempModel: [
+-//        heaters.hotend,
++    property var sensorKnob: QtObject {
++        property string name: "i2c"
++        property string text: `lol°C, lol%RH`
++        property int targetTemp: 0
++        property bool visible: true
++        property bool targetEditable: false
++        property string errorMsg
++    }
++
++    property var sensorsModels: Object.entries(X1Plus.Sensors.status()).map(function ([name, val]) {
++        let s = {
++            "name": val.type,
++            "text": `unknown sensor\n${name}`,
++            "targetTemp": 0,
++            "visible": true,
++            "targetEditable": false,
++            "errorMsg": name
++        };
++        if (val.t_c && val.rh_pct) {
++            s.text = `${val.t_c.toFixed(2)}°C, ${val.rh_pct.toFixed(2)}% RH`
++        } else if (val.pm2_5_ugm3_env) {
++            s.text = `${val.pm2_5_ugm3_env} µg/m^3 PM2.5`;
++        }
++        return s;
++    });
++
++    property var tempModel: ([
++        heaters.hotend,
+         heaters.heatbed,
+-        heaters.chamber,
+-        speedAdjust
+-    ].filter(h=>h.visible);
++        heaters.chamber]
++        .concat(sensorsModels)
++        .concat([speedAdjust])
++    ).filter(h=>h.visible);
+ 
+     property var fanModel: [
+         PrintManager.fans.cooling,
+@@ -153,18 +184,32 @@
                  model: xyAsixModel
                  delegate: axisComp
              }
@@ -52,7 +108,7 @@
                  }
              }
          }
-@@ -210,7 +226,7 @@
+@@ -210,7 +255,7 @@
                      }
  
                      onClicked: {
@@ -61,7 +117,25 @@
                              limitFrame()
                          }
                          axisController.moveAxis(modelData.axis, modelData.dir, modelData.unit)
-@@ -828,7 +844,7 @@
+@@ -512,7 +557,7 @@
+             textSize: 36
+             checked: ListView.isCurrentItem
+             icon: "../../icon/heater_" + modelData.name + ".svg"
+-            text: modelData.currentTemp.toFixed(0)
++            text: modelData.text || modelData.currentTemp.toFixed(0)
+ 
+             EventTrack.itemName: "tempAndSpeed_" + modelData.name
+ 
+@@ -554,7 +599,7 @@
+                 anchors.verticalCenter: parent.verticalCenter
+                 font: Fonts.body_28
+                 color: Colors.gray_300
+-                visible: index < (tmpModelArray.length - 1) || !speedPad.target
++                visible: (index < (tmpModelArray.length - 1) || !speedPad.target) && !modelData.text
+                 text: index < (tmpModelArray.length - 1) ? "°C" : "%"
+             }
+ 
+@@ -828,7 +873,7 @@
                  EventTrack.itemName: "bigSector_" + modelData.name
  
                  onClicked: {
@@ -70,7 +144,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM_10)
-@@ -846,7 +862,7 @@
+@@ -846,7 +891,7 @@
                  EventTrack.itemName: "smallSector_" + modelData.name
  
                  onClicked: {
@@ -79,7 +153,7 @@
                          limitFrame()
                      }
                      axisController.moveAxis(modelData.axis, modelData.dir, AxisController.MM)
-@@ -901,11 +917,13 @@
+@@ -901,11 +946,13 @@
          dialogStack.popupDialog(
                      "TextConfirm", {
                          name: "Limit Frame",

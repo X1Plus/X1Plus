@@ -706,7 +706,7 @@ static std::string _handle_dbus_method_call(void *ctx, std::string &input) {
     const char *name = (const char *)ctx;
     if (dbusListener.handler) {
         QVariant returnedValue;
-        printf("calling into dbus request for method %s\n", name);
+        //printf("calling into dbus request for method %s\n", name);
         QMetaObject::invokeMethod(dbusListener.handler, "dbusMethodCall",
                                   Qt::BlockingQueuedConnection,
                                   Q_RETURN_ARG(QVariant, returnedValue),
@@ -721,7 +721,7 @@ static std::string _handle_dbus_method_call(void *ctx, std::string &input) {
 static void _handle_dbus_signal(void *ctx, std::string &input) {
     BDbus::SignalProxyTable *signal = (BDbus::SignalProxyTable *)ctx;
     if (dbusListener.handler) {
-        printf("calling into dbus request for signal %s.%s\n", signal->path, signal->name);
+        //printf("calling into dbus request for signal %s.%s\n", signal->path, signal->name);
         QMetaObject::invokeMethod(dbusListener.handler, "dbusSignal",
                                   Qt::BlockingQueuedConnection,
                                   Q_ARG(QVariant, QString(signal->path)),

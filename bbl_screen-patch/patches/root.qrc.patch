@@ -142,7 +142,7 @@
  <file>printerui/qml/wizard/Calibrate1Page.qml</file>
  <file>printerui/qml/wizard/CalibratePage.qml</file>
  <file>printerui/qml/wizard/CalibratingPage.qml</file>
-@@ -236,12 +295,34 @@
+@@ -236,12 +295,35 @@
  <file>printerui/qml/wizard/TermsPage.qml</file>
  <file>printerui/qml/wizard/WelcomePage.qml</file>
  <file>printerui/qml/wizard/WizardPage.qml</file>
@@ -161,6 +161,7 @@
 +<file>printerui/qml/x1plus/MeshCalcs.js</file>
 +<file>printerui/qml/x1plus/Network.js</file>
 +<file>printerui/qml/x1plus/OTA.js</file>
++<file>printerui/qml/x1plus/Sensors.js</file>
 +<file>printerui/qml/x1plus/Settings.js</file>
 +<file>printerui/qml/x1plus/ShaperCalibration.js</file>
 +<file>printerui/qml/x1plus/Stats.js</file>
@@ -177,7 +178,7 @@
  <file>printerui/text/error_texts.sv.json</file>
  <file>printerui/text/error_texts.zh-cn.json</file>
  <file>printerui/text/error_texts.zh-tw.json</file>
-@@ -260,6 +341,9 @@
+@@ -260,6 +342,9 @@
  <file>printerui/text/hms_texts.fr.json</file>
  <file>printerui/text/hms_texts.ja.json</file>
  <file>printerui/text/hms_texts.nl.json</file>
@@ -187,7 +188,7 @@
  <file>printerui/text/hms_texts.sv.json</file>
  <file>printerui/text/hms_texts.zh-cn.json</file>
  <file>printerui/text/hms_texts.zh-tw.json</file>
-@@ -296,3 +380,4 @@
+@@ -296,3 +381,4 @@
  <file>printerui/text/terms.zh-cn.txt</file>
  <file>qt-project.org/imports/QtQuick/VirtualKeyboard/Styles/bbl/style.qml</file>
  </qresource></RCC>
