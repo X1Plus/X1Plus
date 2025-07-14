@@ -182,14 +182,20 @@ Item {
             // running!  So we do that.
             X1PlusNative.system(`cp /sdcard/x1plus/firmware/${fileName} /userdata/firmware/${fileName}`);
             X1PlusNative.system(`chmod -x /userdata/firmware/${fileName}`);
-
-            X1Plus.DDS.publish("device/request/upgrade", {
+            
+            var upgrade_pkt = {
                 "command": "start",
                 "sequence_id": "0",
                 "module": module.split("/")[0], /* ams/0 -> ams */
                 "version": version,
                 "url": `http://127.0.0.1:8888/${fileName}`
-            });
+            };
+            
+            if (upgrade_pkt.module == 'ams') {
+                upgrade_pkt.submodule = parseInt(module.split("/")[1]);
+            }
+
+            X1Plus.DDS.publish("device/request/upgrade", upgrade_pkt);
         }
     }
 
