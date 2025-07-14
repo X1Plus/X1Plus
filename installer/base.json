@@ -21,7 +21,7 @@
         "xm": { "version": "00.01.02.02", "paths": {
             "": { "url": "https://public-cdn.bambulab.com/upgrade/device/BL-P001/xm/00.01.02.02/product/xm_v00.01.02.02-20230328103404_product.rknn.sig", "md5": "50c4487de44fec31d63dd8f8c3464446" }
         } },
-        "ams": { "version": "00.01.06.42", "paths": {
+        "ams": { "version": "00.01.06.62", "paths": {
             "ams08": { "url": "https://public-cdn.bblmw.com/upgrade/device/BL-A001/00.01.06.62/product/3f9bc0542b/ams_rev8-firmware-v00.01.06.62-20250331204240_product.bin.sig", "md5": "61d0b28d20f1de27d341323116210f1f" }
         } }, 
         "filament": { "version": "02.00.00.89", "paths": {
