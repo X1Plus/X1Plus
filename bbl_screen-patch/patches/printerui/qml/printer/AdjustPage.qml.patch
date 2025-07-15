@@ -148,7 +148,7 @@
 +                id: flavorText
 +                anchors.top: degreeLabel.bottom
 +                anchors.topMargin: 2
-+                x: 77
++                x: 76
 +                visible: !!modelData.flavorText
 +                font: Fonts.body_20
 +                color: Colors.brand
