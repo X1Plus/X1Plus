@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="46"
+   height="46"
+   viewBox="0 0 46 46"
+   fill="none"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="heater_i2c.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="5.1304348"
+     inkscape:cx="14.716102"
+     inkscape:cy="3.9957627"
+     inkscape:window-width="1434"
+     inkscape:window-height="931"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10" />
+  <g
+     id="g296"
+     transform="translate(-1.3309064,-1.6567797)">
+    <path
+       d="M 10.504464,38.354018 H 5.9864598 V 15.545889 h 4.5180042 z"
+       style="font-weight:bold;font-size:27.0222px;line-height:1.25;font-family:'HarmonyOS Sans SC';-inkscape-font-specification:'HarmonyOS Sans SC, Bold';text-align:center;text-anchor:middle;fill:#828280;stroke-width:0.999999"
+       id="path1579" />
+    <path
+       d="m 17.26485,19.482452 h 5.630976 v 2.440731 h -9.705265 v -1.806524 l 4.247255,-4.76615 q 1.095445,-1.229975 1.518249,-1.921835 0.442023,-0.711079 0.442023,-1.460595 0,-0.826389 -0.461241,-1.326067 -0.461241,-0.499677 -1.249193,-0.499677 -0.807171,0 -1.422158,0.595769 -0.614987,0.576551 -0.941699,1.652779 l -2.190891,-1.268411 q 0.499677,-1.7104337 1.806525,-2.6136971 1.306846,-0.9224804 3.017281,-0.9224804 1.345283,0 2.325419,0.5573324 0.999353,0.5381138 1.518249,1.4990311 0.538113,0.960918 0.538113,2.190893 0,1.210755 -0.595767,2.267765 -0.576551,1.03779 -2.075582,2.709787 z"
+       style="font-weight:bold;font-size:27.0222px;line-height:1.25;font-family:'HarmonyOS Sans SC';-inkscape-font-specification:'HarmonyOS Sans SC, Bold';text-align:center;text-anchor:middle;fill:#828280;stroke-width:0.999999"
+       id="path1581" />
+    <path
+       d="m 34.137883,34.58382 q 1.651407,0 2.835437,-0.87244 1.215188,-0.872444 1.931836,-2.430375 l 3.770197,2.181105 q -0.841284,2.30574 -3.084706,3.801356 -2.243424,1.464456 -5.359288,1.464456 -3.022389,0 -5.515081,-1.464456 -2.492692,-1.464456 -3.957148,-4.144101 -1.464458,-2.710802 -1.464458,-6.200572 0,-3.489768 1.433299,-6.169412 1.464456,-2.679642 3.957148,-4.1441 2.523851,-1.464455 5.54624,-1.464455 3.115864,0 5.359288,1.495614 2.243422,1.464457 3.084706,3.770196 l -3.770197,2.181107 q -0.716648,-1.557933 -1.931836,-2.430375 -1.18403,-0.872443 -2.835437,-0.872443 -1.744884,0 -3.115865,0.93476 -1.37098,0.934759 -2.181105,2.679644 -0.778967,1.713726 -0.778967,4.019466 0,2.305738 0.778967,4.050624 0.810125,1.744885 2.181105,2.679645 1.370981,0.934756 3.115865,0.934756 z"
+       style="font-weight:bold;font-size:27.0222px;line-height:1.25;font-family:'HarmonyOS Sans SC';-inkscape-font-specification:'HarmonyOS Sans SC, Bold';text-align:center;text-anchor:middle;fill:#828280;stroke-width:0.999999"
+       id="path1583" />
+  </g>
+</svg>

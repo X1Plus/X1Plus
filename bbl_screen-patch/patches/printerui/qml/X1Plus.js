@@ -16,6 +16,7 @@
 .import "./x1plus/Network.js" as X1PlusNetwork
 .import "./x1plus/Expansion.js" as X1PlusExpansion
 .import "./x1plus/Actions.js" as X1PlusActions
+.import "./x1plus/Sensors.js" as X1PlusSensors
 
 /* Back-end model logic for X1Plus's UI
  *
@@ -69,6 +70,8 @@ X1Plus.Expansion = X1PlusExpansion;
 var Expansion = X1PlusExpansion;
 X1Plus.Actions = X1PlusActions;
 var Actions = X1PlusActions;
+X1Plus.Sensors = X1PlusSensors;
+var Sensors = X1PlusSensors;
 
 Stats.X1Plus = X1Plus;
 DDS.X1Plus = X1Plus;
@@ -82,6 +85,7 @@ OTA.X1Plus = X1Plus;
 Network.X1Plus = X1Plus;
 Expansion.X1Plus = X1Plus;
 Actions.X1Plus = X1Plus;
+Sensors.X1Plus = X1Plus;
 
 var _DdsListener = JSDdsListener.DdsListener;
 var _X1PlusNative = JSX1PlusNative.X1PlusNative;
@@ -180,6 +184,7 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	Network.awaken();
 	Expansion.awaken();
 	Actions.awaken();
+	Sensors.awaken();
 	console.log("X1Plus.js is awake");
 }
 
