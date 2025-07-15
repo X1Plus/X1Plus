@@ -23,7 +23,7 @@ local fields = {
 	seq = ProtoField.uint16("mcproto.seq", "Sequence number", base.DEC),
 	dest = ProtoField.uint16("mcproto.dest", "Destination", nil, devices),
 	src = ProtoField.uint16("mcproto.src", "Source", nil, devices),
-	command = ProtoField.uint8("mcproto.command", "Command", base.HEX),
+	command = ProtoField.uint16("mcproto.command", "Command", base.HEX),
 	payload = ProtoField.none("mcproto.payload", "Payload"),
 }
 
@@ -131,6 +131,7 @@ mk_cmd_opaque(1, 8, "mcu_hms")
 mk_cmd_opaque(1, 9, "factory_reset")
 mk_cmd_opaque(2, 5, "gcode_execute_state")
 mk_cmd_opaque(2, 6, "gcode_request")
+mk_cmd_opaque(2, 8, "publish_dds_cmn_recorder")
 mk_cmd(2, 9, "mcu_display_message",
 	{ message = ProtoField.string("mcproto.mcu_display_message.message", "Message") },
 	function (proto, fields, buf, pinfo, root)
@@ -142,20 +143,115 @@ mk_cmd(2, 9, "mcu_display_message",
 )
 	
 mk_cmd_opaque(2, 10, "vosync")
-mk_cmd_opaque(2, 11, "gcode_ctx")
-mk_cmd_opaque(2, 12, "mc_state")
-mk_cmd_opaque(2, 15, "link_ams_report")
-mk_cmd_opaque(2, 17, "ack_tray_info")
-mk_cmd_opaque(2, 22, "gcode_line_handle")
-mk_cmd_opaque(2, 23, "ams_mapping")
-mk_cmd_opaque(2, 24, "ams_tray_info_write_ack")
-mk_cmd_opaque(2, 25, "ams_user_settings")
-mk_cmd_opaque(2, 27, "hw_info_voltage")
-mk_cmd_opaque(2, 28, "link_ams_tray_consumption_ack")
-mk_cmd_opaque(2, 29, "pack_get_part_info_ack")
-mk_cmd_opaque(2, 34, "extrusion_result_update")
-mk_cmd_opaque(2, 36, "fila_ams_get")
-mk_cmd_opaque(2, 37, "mc_get_skipped_obj_list")
+mk_cmd_opaque(2, 0xb, "gcode_ctx")
+mk_cmd_opaque(2, 0xc, "mc_state")
+mk_cmd(2, 0xf, "link_ams_report",
+	{
+		ams_exist = ProtoField.uint8("mcproto.link_ams_report.ams_exist", "ams_exist"),
+		tray_exist = ProtoField.uint16("mcproto.link_ams_report.tray_exist", "tray_exist"),
+		tray_read_done = ProtoField.uint16("mcproto.link_ams_report.tray_read_done", "tray_read_done"),
+		tray_reading = ProtoField.uint16("mcproto.link_ams_report.tray_reading", "tray_reading"),
+		tray_is_bbl = ProtoField.uint16("mcproto.link_ams_report.tray_is_bbl", "tray_is_bbl"),
+		insert_poweron_remain = ProtoField.uint8("mcproto.link_ams_report.insert_poweron_remain", "insert_poweron_remain"),
+	},
+	function (proto, fields, buf, pinfo, root)
+		local tree = root:add(proto, buf:range(0, 0x1d), "link_ams_report")
+		tree:add(fields.ams_exist, buf:range(0, 1))
+		tree:add_le(fields.tray_exist, buf:range(1, 4))
+		tree:add_le(fields.tray_read_done, buf:range(5, 2))
+		tree:add_le(fields.tray_reading, buf:range(7, 2))
+		tree:add_le(fields.tray_is_bbl, buf:range(9, 2))
+		tree:add_le(fields.insert_poweron_remain, buf:range(11, 2))
+		
+		pinfo.cols.info:append("link_ams_report: ams_exist "..f_ams_exist()())
+	end
+)
+f_ams_exist = Field.new("mcproto.link_ams_report.ams_exist")
+
+mk_cmd_opaque(2, 0x11, "ack_tray_info")
+mk_cmd_opaque(2, 0x16, "gcode_line_handle")
+mk_cmd_opaque(2, 0x17, "ams_mapping")
+mk_cmd_opaque(2, 0x18, "ams_tray_info_write_ack")
+mk_cmd_opaque(2, 0x19, "ams_user_settings")
+mk_cmd_opaque(2, 0x1b, "hw_info_voltage")
+mk_cmd_opaque(2, 0x1c, "link_ams_tray_consumption_ack")
+mk_cmd_opaque(2, 0x1d, "pack_get_part_info_ack")
+mk_cmd_opaque(2, 0x22, "extrusion_result_update")
+mk_cmd_opaque(2, 0x24, "fila_ams_get")
+mk_cmd_opaque(2, 0x25, "mc_get_skipped_obj_list")
+
+-- NEW FORWARD
+local amsv2_pl_types = {
+	[0] = "AMS desc",
+	[1] = "Tray desc",
+	[2] = "AMS flags",
+	[3] = "Extruder info",
+}
+mk_cmd(2, 0x1f, "ams_v2_ams_info_update",
+	{
+		subinfo_type = ProtoField.uint8("mcproto.ams_v2_ams_info_update.subinfo_type", "AMS subinfo type", nil, amsv2_pl_types),
+		subinfo_length = ProtoField.uint8("mcproto.ams_v2_ams_info_update.subinfo_length", "AMS subinfo length"),
+		insert_poweron_remain = ProtoField.uint8("mcproto.ams_v2_ams_info_update.insert_poweron_remain", "Insert / Poweron / Remain"),
+		ams_id = ProtoField.uint8("mcproto.ams_v2_ams_info_update.ams_id", "AMS ID"),
+		slot_id = ProtoField.uint8("mcproto.ams_v2_ams_info_update.slot_id", "Slot ID"),
+		tray_status = ProtoField.uint8("mcproto.ams_v2_ams_info_update.tray_status", "Tray status"),
+		ams_desc = ProtoField.none("mcproto.ams_v2_ams_info_update.ams_desc", "AMS descriptor"),
+	},
+	function (proto, fields, buf, pinfo, root)
+		local length = buf:len()
+		local ofs = 0
+		local tree = root:add(proto, buf:range(0, length), "ams_v2_ams_info_update")
+		
+		local n_ams = 0
+		local n_tray = 0
+		
+		while ofs < length do
+			local pllen = buf:range(ofs+1, 1):uint() + 2
+			local subbuf = buf:range(ofs, pllen):tvb()
+			ofs = ofs + pllen
+			local pltype = subbuf:range(0, 1):uint()
+			local subtree = tree:add(proto, subbuf:range(0, pllen), "Subpayload")
+			
+			subtree:add(fields.subinfo_type, subbuf:range(0, 1))
+			subtree:add(fields.subinfo_length, subbuf:range(1, 1))
+			
+			if pltype == 0 then -- AMS desc
+				subtree:add(fields.ams_id, subbuf:range(2, 1))
+				subtree:add(fields.ams_desc, subbuf:range(3, 9))
+				n_ams = n_ams + 1
+			elseif pltype == 1 then -- tray desc
+				subtree:add(fields.ams_id, subbuf:range(2, 1))
+				subtree:add(fields.slot_id, subbuf:range(3, 1))
+				subtree:add(fields.tray_status, subbuf:range(4, 1))
+				n_tray = n_tray + 1
+			elseif pltype == 2 then -- AMS flags
+				subtree:add(fields.insert_poweron_remain, subbuf:range(2, 1))
+			elseif pltype == 3 then -- extruder info
+			end
+		end
+		
+		pinfo.cols.info:append("ams_v2_ams_info_update: ".. n_ams.." AMSes, "..n_tray.." trays")
+	end
+)
+
+mk_cmd_opaque(2, 0x20, "ams_v2_mc_ams_mapping")
+mk_cmd_opaque(2, 0x23, "link_ams_tray_consumption_ack2")
+mk_cmd_opaque(2, 0x27, "part_info_ack_v2")
+mk_cmd_opaque(2, 0x2c, "ams_filament_drying")
+mk_cmd_opaque(2, 0x36, "mc_get_filament_info")
+mk_cmd_opaque(2, 0x33, "mc_need_change_blade")
+mk_cmd_opaque(2, 0x34, "mc_done_change_blade")
+mk_cmd_opaque(2, 0x35, "mc_wait_unlock_laser")
+mk_cmd_opaque(2, 0x39, "mc_button_press")
+mk_cmd_opaque(2, 0x3a, "mc_set_ams_extruder_bind")
+mk_cmd_opaque(2, 0x3b, "mc_ams_flush_param")
+mk_cmd_opaque(2, 0x40, "mc_hotend_info")
+mk_cmd_opaque(2, 0x41, "mc_hotend_sn_map")
+mk_cmd_opaque(2, 0x46, "mc_get_plate_heigh")
+mk_cmd_opaque(2, 0x47, "ams_v2_set_ams_led_ack")
+mk_cmd_opaque(2, 0x48, "mc_motion_precision_result")
+mk_cmd_opaque(2, 0x49, "mc_request_ext_tool_type")
+
 
 mk_cmd_opaque(3, 1, "M971")
 mk_cmd_opaque(3, 2, "M972")
