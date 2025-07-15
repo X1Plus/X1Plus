@@ -1,6 +1,30 @@
 --- printer_ui-orig/printerui/qml/printer/FilamentPad.qml
 +++ printer_ui/printerui/qml/printer/FilamentPad.qml
-@@ -464,13 +464,15 @@
+@@ -32,8 +32,9 @@
+     property var tempTypes: UIBase.enumKeys("Filament", "TempType")
+     property bool extCaliEditable: PrintManager.currentTask.stage < PrintTask.WORKING
+                             && filament
++    property bool isRfid: filament && filament.valid && filament.id != "" && filament.id != "0000000000000000" && filament.id != null
+     property bool editable: PrintManager.currentTask.stage < PrintTask.WORKING
+-                            && filament && filament.thirdparty
++                            && !isRfid
+     property var amsColorsList: PrintManager.feeder.amsAllColors
+     property var colorModel: [
+         "#FFFFFF", "#FFF144", "#DCF478", "#0ACC38", "#057748", "#0D6284",
+@@ -173,10 +174,10 @@
+                 x: 280
+                 anchors.top: vendorCombo.bottom
+                 anchors.verticalCenter: parent.verticalCenter
+-                visible: filament ? !filament.thirdparty : false
++                visible: isRfid
+                 font: Fonts.body_30
+                 color: Colors.gray_300
+-                text: (filament && !filament.thirdparty) ? (qsTr("SN") + ":" + filament.id) : ""
++                text: isRfid ? (qsTr("SN") + ":" + filament.id) : ""
+             }
+         }
+ 
+@@ -464,13 +465,15 @@
  
                  if (filament.index !== 254) {
                      if (nameCombo.currentText.indexOf("TPU") != -1 || (((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("PET-CF") != -1 || nameCombo.currentText.indexOf("PA6-CF") != -1))) {
@@ -11,7 +35,7 @@
 -                                        text: qsTr("\"%1\" is not supported by AMS.").arg(editing.name)
 -                                    })
 -                        return
-+                        if (nameCombo.currentText.indexOf("TPU for AMS") != -1) { /* I guess that's ok. */
++                        if (nameCombo.currentText.indexOf("TPU for AMS") == -1) { /* I guess that's ok. */
 +                            dialogStack.popupDialog(
 +                                        "TextConfirm", {
 +                                            name: "select filament info not supported",
@@ -23,3 +47,13 @@
                      } else if(((vendorCombo.currentText == "Bambu Lab") || (vendorCombo.currentText == "Bambu")) && (nameCombo.currentText.indexOf("-CF") != -1 || nameCombo.currentText.indexOf("PVA") != -1)) {
                          dialogStack.popupDialog(
                                      "TextConfirm", {
+@@ -537,7 +540,8 @@
+             font: Fonts.body_28
+             color: Colors.gray_100
+             wrapMode: Text.WordWrap
+-            text: (filament && !filament.thirdparty) ? qsTr("Information about Bamub Filament is stored in RFID and is read-only")
++            text: (filament && isRfid && filament.thirdparty) ? qsTr("Information for this AMS slot loaded from custom RFID. Nice hacking!") :
++                  (filament && isRfid && !filament.thirdparty) ? qsTr("Information about Bamub Filament is stored in RFID and is read-only")
+                                                      : qsTr("Setting AMS slot information during printing is not supported")
+         }
+     }
