@@ -41,8 +41,8 @@
 +        };
 +        if (val.t_c && val.rh_pct) {
 +            s.text = `${val.t_c.toFixed(1)}°C, ${val.rh_pct.toFixed(1)}% RH`
-+        } else if (val.pm2_5_ugm3) {
-+            s.text = `${val.pm2_5_ugm3} µg/m^3 PM2.5`;
++        } else if (val.pm2_5_ugm3 !== undefined) {
++            s.text = `${val.pm2_5_ugm3} µg/m³ PM2.5`;
 +        } else if (val.inop) {
 +            s.text = "sensor malfunctioning";
 +        }
