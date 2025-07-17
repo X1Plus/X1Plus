@@ -9,12 +9,9 @@ import '../X1Plus.js' as X1Plus
 
 Item {
     id: polarCloudPage
-    property string username: X1Plus.Settings.get("polar.username", "")
-    property string pin: X1Plus.Settings.get("polar.pin", "")
-    property bool cloudEnabled: X1Plus.Settings.get("polar.enabled", false)
-    property string connectionStatus: X1Plus.Settings.get("polar.connection_status", "Not connected")
-    property string polarSerial: X1Plus.Settings.get("polar.serial_number", "")
-    property string lastError: X1Plus.Settings.get("polar.last_error", "")
+    property var status: X1Plus.Polar.status()
+    
+    property string last_username: status.username
     property bool showCredentialsDialog: false
 
     MarginPanel {
@@ -39,7 +36,7 @@ Item {
                 x: 28
                 width: 68
                 height: 68
-                source: "../../../icon/components/cloud.svg"
+                source: "../../icon/components/cloud.svg"
             }
 
             Text {
@@ -49,7 +46,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 color: Colors.gray_200
                 font: Fonts.body_36
-                text: qsTr("Polar Cloud Connection")
+                text: qsTr("Polar Cloud connection")
             }
 
             ZButton {
@@ -87,192 +84,168 @@ Item {
         radius: 15
         color: Colors.gray_600
 
-        Column {
+        GridLayout {
+            anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: parent.top
+            // do not specify a bottom anchor, it'll get stretchy otherwise
             anchors.margins: 40
-            spacing: 30
+            rowSpacing: 20
+            columnSpacing: 12
+            columns: 2
 
             Text {
-                text: qsTr("Connect your printer to Polar Cloud for remote monitoring and printing.")
-                font: Fonts.body_28
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                text: qsTr("You can connect your X1Plus-powered printer to Polar Cloud for remote monitoring and printing.  For more information, visit the Polar Cloud web site: <b><u><font color='#6688FF'>https://www.polar3d.com/</font></u></b>.")
+                font: Fonts.body_32
                 color: Colors.gray_200
                 wrapMode: Text.WordWrap
-                width: parent.width
-            }
-
-            // Connection status
-            Item {
-                width: parent.width
-                height: 60
-
-                Text {
-                    text: qsTr("Connection Status")
-                    font: Fonts.body_28
-                    color: Colors.gray_200
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 250
-                }
-
-                Text {
-                    text: polarCloudPage.connectionStatus
-                    font: Fonts.body_28
-                    color: polarCloudPage.connectionStatus === "Connected" ? Colors.green : 
-                           polarCloudPage.connectionStatus === "Connecting..." ? Colors.yellow :
-                           polarCloudPage.connectionStatus.indexOf("Error") >= 0 ? "#FF6B6B" : Colors.gray_300
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignRight
-                }
-            }
-
-            // Polar serial number (if available)
-            Item {
-                width: parent.width
-                height: polarCloudPage.polarSerial ? 60 : 0
-                visible: polarCloudPage.polarSerial
-
-                Text {
-                    text: qsTr("Polar Cloud Serial")
-                    font: Fonts.body_28
-                    color: Colors.gray_200
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 250
-                }
-
-                Text {
-                    text: polarCloudPage.polarSerial
-                    font: Fonts.body_28
-                    color: Colors.gray_300
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-            }
-
-            // Error display (if any)
-            Item {
-                width: parent.width
-                height: polarCloudPage.lastError ? 80 : 0
-                visible: polarCloudPage.lastError
-
-                Column {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: 10
-
-                    Text {
-                        text: qsTr("Last Error:")
-                        font: Fonts.body_28
-                        color: Colors.gray_200
-                    }
-
-                    Text {
-                        text: polarCloudPage.lastError
-                        font: Fonts.body_24
-                        color: "#FF6B6B"
-                        wrapMode: Text.WordWrap
-                        width: parent.width
-                    }
-                }
             }
 
             Rectangle {
-                width: parent.width
-                height: 1
-                color: Colors.gray_500
-            }
-
-            // Credentials button
-            Item {
-                width: parent.width
-                height: 60
-
-                Text {
-                    text: qsTr("Credentials")
-                    font: Fonts.body_28
-                    color: Colors.gray_200
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                ZButton {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: (polarCloudPage.username && polarCloudPage.pin) ? qsTr("Edit") : qsTr("Set")
-                    onClicked: {
-                        showCredentialsDialog = true
-                    }
-                }
-            }
-
-            // Current credentials display (masked)
-            Item {
-                width: parent.width
-                height: (polarCloudPage.username || polarCloudPage.pin) ? 80 : 0
-                visible: polarCloudPage.username || polarCloudPage.pin
-
-                Column {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: 5
-
-                    Text {
-                        text: qsTr("Username: ") + (polarCloudPage.username ? polarCloudPage.username : qsTr("(not set)"))
-                        font: Fonts.body_24
-                        color: Colors.gray_300
-                    }
-
-                    Text {
-                        text: qsTr("PIN: ") + (polarCloudPage.pin ? "****" : qsTr("(not set)"))
-                        font: Fonts.body_24
-                        color: Colors.gray_300
-                    }
-                }
-            }
-
-            Rectangle {
-                width: parent.width
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
                 height: 1
                 color: Colors.gray_500
             }
 
             // Enable switch
-            Item {
-                width: parent.width
-                height: 60
+            Text {
+                Layout.fillWidth: true
+                text: status.enabled ? qsTr("Polar Cloud connection is enabled.")
+                                     : qsTr("Polar Cloud connection is disabled.")
+                font: Fonts.body_28
+                color: Colors.gray_200
+            }
 
-                Text {
-                    text: qsTr("Enable Polar Cloud Connection")
-                    font: Fonts.body_28
-                    color: Colors.gray_200
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
+            ZSwitchButton {
+                id: cloudSwitch
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                dynamicChecked: status.enabled
+                onToggled: {
+                    X1Plus.Settings.put("polar.enabled", checked)
                 }
+            }
+            
+            Text {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                Layout.topMargin: -10
+                font: Fonts.body_24
+                text: qsTr("RTSP is disabled, but it is required for Polar Cloud to access the chamber camera.  Enable RTSP (LAN-only Live View) from the <b>LAN Access</b> menu if you wish to view chamber camera images from Polar Cloud.")
+                color: "#FF6B6B"
+                wrapMode: Text.WordWrap
+                visible: status.enabled && !RecordManager.rtspServerOn
+            }
 
-                ZSwitchButton {
-                    id: cloudSwitch
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    dynamicChecked: polarCloudPage.cloudEnabled
-                    enabled: polarCloudPage.username && polarCloudPage.pin
-                    onToggled: {
-                        polarCloudPage.cloudEnabled = checked
-                        X1Plus.Settings.put("polar.enabled", checked)
-                    }
+            Rectangle {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                height: 1
+                color: Colors.gray_500
+            }
+
+            // Connection status
+            Text {
+                Layout.fillWidth: true
+                text: qsTr("Connection status")
+                font: Fonts.body_28
+                color: Colors.gray_200
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignRight
+                text: status.connect_state === "ESTABLISHED" ? qsTr("Connected") :
+                      status.connect_state === "DISCONNECTED" ? qsTr("Disconnected") :
+                      status.connect_state === "WAITING_HELLO" ? qsTr("Authenticating") :
+                      status.connect_state === "CONNECTING" ? qsTr("Connecting") :
+                      status.connect_state
+                font: Fonts.body_28
+                color: status.connect_state === "ESTABLISHED" ? Colors.brand : 
+                       status.connect_state === "DISCONNECTED" ? "#FF6B6B" : 
+                       "#FFFF5C"
+            }
+
+            // Connection status
+            Text {
+                Layout.fillWidth: true
+                visible: !!status.last_connection_error
+                text: qsTr("Last connection error")
+                font: Fonts.body_28
+                color: Colors.gray_200
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignRight
+                visible: !!status.last_connection_error
+                text: status.last_connection_error
+                font: Fonts.body_28
+                color: "#FF6B6B"
+            }
+
+            Rectangle {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                height: 1
+                color: Colors.gray_500
+            }
+
+            // Log in / log out buttons
+            Text {
+                Layout.fillWidth: true
+                visible: status.logged_in
+                text: qsTr("Logged in as %1").arg(status.username)
+                font: Fonts.body_28
+                color: Colors.gray_200
+            }
+
+            ZButton {
+                visible: status.logged_in
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                paddingX: 20
+                paddingY: 10
+                text: qsTr("Log out")
+                onClicked: {
+                    X1Plus.Polar.logout()
                 }
             }
 
             Text {
-                text: qsTr("Note: Username and PIN must be set before enabling the connection.")
-                font: Fonts.body_24
-                color: Colors.gray_400
-                wrapMode: Text.WordWrap
-                width: parent.width
-                visible: !polarCloudPage.username || !polarCloudPage.pin
+                Layout.fillWidth: true
+                visible: !status.logged_in
+                text: qsTr("Not authenticated to Polar Cloud")
+                font: Fonts.body_28
+                color: Colors.gray_200
+            }
+
+            ZButton {
+                visible: !status.logged_in
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                paddingX: 20
+                paddingY: 10
+                text: qsTr("Log in")
+                onClicked: {
+                    showCredentialsDialog = true
+                    usernameInput.forceActiveFocus()
+                }
+            }
+
+            // Polar serial number (if available)
+            Text {
+                Layout.fillWidth: true
+                visible: !!status.serial_number
+                text: qsTr("Polar Cloud serial number")
+                font: Fonts.body_28
+                color: Colors.gray_200
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignRight
+                visible: !!status.serial_number
+                text: status.serial_number
+                font: Fonts.body_28
+                color: Colors.gray_300
             }
         }
     }
@@ -303,9 +276,9 @@ Item {
 
         Rectangle {
             id: dialogRect
-            width: 650
-            height: 450
-            y: 100
+            width: 1000
+            height: 315
+            y: 5
             anchors.horizontalCenter: parent.horizontalCenter
             radius: 15
             color: Colors.gray_500
@@ -317,95 +290,87 @@ Item {
                 }
             }
 
-            ColumnLayout {
+            GridLayout {
                 anchors.fill: parent
                 anchors.margins: 40
                 anchors.bottomMargin: 60
-                spacing: 20
+                rowSpacing: 12
+                columnSpacing: 20
+                columns: 2
 
                 Text {
-                    text: qsTr("Polar Cloud Credentials")
-                    font: Fonts.body_36
+                    Layout.columnSpan: 2
+                    text: qsTr("Log in to Polar Cloud")
+                    font: Fonts.body_32
                     color: Colors.gray_100
                     Layout.alignment: Qt.AlignHCenter
                 }
+                
+                Text {
+                    text: qsTr("E-mail address")
+                    font: Fonts.body_28
+                    color: Colors.gray_200
+                }
 
-                // Username field
-                Column {
+                Rectangle {
                     Layout.fillWidth: true
-                    spacing: 10
+                    height: 60
+                    color: Colors.gray_600
+                    radius: 10
 
-                    Text {
-                        text: qsTr("Username (Email)")
+                    TextInput {
+                        id: usernameInput
+                        anchors.fill: parent
+                        anchors.margins: 15
+                        text: status.username || last_username
                         font: Fonts.body_28
-                        color: Colors.gray_200
-                    }
-
-                    Rectangle {
-                        width: parent.width
-                        height: 60
-                        color: Colors.gray_600
-                        radius: 10
-
-                        TextInput {
-                            id: usernameInput
-                            anchors.fill: parent
-                            anchors.margins: 15
-                            text: polarCloudPage.username
-                            font: Fonts.body_28
-                            color: Colors.gray_100
-                            verticalAlignment: TextInput.AlignVCenter
-                            selectByMouse: true
-                            inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
-                        }
+                        color: Colors.gray_100
+                        verticalAlignment: TextInput.AlignVCenter
+                        selectByMouse: true
+                        inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
                     }
                 }
 
-                // PIN field
-                Column {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Text {
-                        text: qsTr("PIN")
-                        font: Fonts.body_28
-                        color: Colors.gray_200
-                    }
-
-                    Rectangle {
-                        width: parent.width
-                        height: 60
-                        color: Colors.gray_600
-                        radius: 10
-
-                        TextInput {
-                            id: pinInput
-                            anchors.fill: parent
-                            anchors.margins: 15
-                            text: polarCloudPage.pin
-                            font: Fonts.body_28
-                            color: Colors.gray_100
-                            verticalAlignment: TextInput.AlignVCenter
-                            selectByMouse: true
-                            inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
-                        }
-                    }
+                Text {
+                    text: qsTr("PIN")
+                    font: Fonts.body_28
+                    color: Colors.gray_200
                 }
 
-                Item {
-                    Layout.fillHeight: true
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 60
+                    color: Colors.gray_600
+                    radius: 10
+
+                    TextInput {
+                        id: pinInput
+                        anchors.fill: parent
+                        anchors.margins: 15
+                        text: ""
+                        font: Fonts.body_28
+                        color: Colors.gray_100
+                        verticalAlignment: TextInput.AlignVCenter
+                        selectByMouse: true
+                        inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
+                    }
                 }
 
                 // Buttons
                 RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 20
+                    Layout.columnSpan: 2
+                    spacing: 40
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
                     ZButton {
-                        Layout.fillWidth: true
-                        type: ZButtonAppearance.Secondary
-                        text: qsTr("Cancel")
+                        checked: true
+                        paddingY: 12
+                        paddingX: 18
+                        text: qsTr("Log in")
                         onClicked: {
+                            last_username = usernameInput.text
+                            X1Plus.Polar.login(usernameInput.text, pinInput.text)
+                            pinInput.text = ""
                             showCredentialsDialog = false
                             usernameInput.focus = false
                             pinInput.focus = false
@@ -413,15 +378,13 @@ Item {
                     }
 
                     ZButton {
-                        Layout.fillWidth: true
-                        text: qsTr("Save")
+                        text: qsTr("Cancel")
+                        paddingY: 12
+                        paddingX: 18
                         onClicked: {
-                            polarCloudPage.username = usernameInput.text
-                            polarCloudPage.pin = pinInput.text
-                            X1Plus.Settings.put("polar.username", usernameInput.text)
-                            X1Plus.Settings.put("polar.pin", pinInput.text)
                             showCredentialsDialog = false
                             usernameInput.focus = false
+                            pinInput.text = ""
                             pinInput.focus = false
                         }
                     }
