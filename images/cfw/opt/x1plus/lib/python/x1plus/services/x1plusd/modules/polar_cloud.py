@@ -74,7 +74,6 @@ class PolarCredentials:
         else:
             env_file = "/sdcard/polar-config.txt"
 
-        # XXX: wrap this in a try/catch
         try:
             with open(env_file) as env:
                 for line in env.readlines():
@@ -251,6 +250,7 @@ class PolarPrintService(X1PlusDBusService):
         else:
             # ... which will cause the watchdog to shut down
             asyncio.create_task(self._force_reconnect())
+        asyncio.create_task(self._maybe_publish_status_object())
 
     def _make_dbus_status_object(self):
         return {
@@ -259,6 +259,7 @@ class PolarPrintService(X1PlusDBusService):
             'last_connection_error': self.last_connection_error,
             'username': self.creds.username,
             'logged_in': self.creds.polar_sn is not None,
+            'serial_number': self.creds.polar_sn,
         }
     
     async def dbus_GetStatus(self, req):
@@ -270,6 +271,7 @@ class PolarPrintService(X1PlusDBusService):
         self.creds.username = str(req['username'])
         self.creds.pin = str(req['pin'])
         # no need to save here -- nothing useful has actually happened
+        await self._force_reconnect()
         if self.enabled and not self.watchdog_task:
             self.watchdog_task = asyncio.create_task(self._watchdog_task())
         return {}
@@ -458,7 +460,7 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] != "SUCCESS":
             error_msg = response.get('message', 'Key pair request failed')
             logger.error(f"_on_keypair_response failure: {error_msg}")
-            self.last_connection_error = f"Key Error: {error_msg}"
+            self.last_connection_error = f"Key error: {error_msg}"
             self._maybe_publish_status_object()
             return
         
@@ -477,7 +479,7 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] != "SUCCESS":
             error_msg = response.get('reason', 'Registration failed')
             logger.error(f"_on_register_response failure: {error_msg}")
-            self.last_connection_error = f"Registration Error: {error_msg}"
+            self.last_connection_error = f"Registration error: {error_msg}"
             await self._maybe_publish_status_object()
             # TODO: deal with various failure modes here. Most can be dealt
             # with in interface. First three report as server erros? Modes are
@@ -738,15 +740,20 @@ class PolarPrintService(X1PlusDBusService):
                 self.last_ping = datetime.datetime.now()
 
                 if capture_image:
-                    # Capture and upload a new image every other status update.
-                    cam = AioRtspReceiver()
-                    jpeg = await cam.receive_jpeg()
-                    if self.status in [0, 8, 9, 10, 15]:
-                        # In these cases send idle image.
-                        # (TODO: are these all the cases for idle?)
-                        await self._upload_jpeg("idle", jpeg)
-                    elif self.status != 11:
-                        await self._upload_jpeg("printing", jpeg)
+                    # Capture and upload a new image every other status
+                    # update -- but swallow this exception if it goes wrong.
+                    try:
+                        cam = AioRtspReceiver()
+                        jpeg = await cam.receive_jpeg()
+
+                        if self.status in [0, 8, 9, 10, 15]:
+                            # In these cases send idle image.
+                            # (TODO: are these all the cases for idle?)
+                            await self._upload_jpeg("idle", jpeg)
+                        elif self.status != 11:
+                            await self._upload_jpeg("printing", jpeg)
+                    except Exception as e:
+                        logger.error(f"failed to capture camera image: {e}")
                 # Next time through loop it will capture (or not).
                 capture_image = not capture_image
 
@@ -755,7 +762,7 @@ class PolarPrintService(X1PlusDBusService):
                 # We only feed the watchdog here if we successfully sent status.
                 self._update_state(_ConnectState.ESTABLISHED)
             except Exception as e:
-                logger.error(f"emit status failed: \x1b[31;1m{e}\x1b[0m")
+                logger.error(f"emit status failed: {e}")
                 if str(e) == "/ is not a connected namespace.":
                     # This seems to be a python socketio bug/feature?
                     # In any case, recover by reconnecting.
