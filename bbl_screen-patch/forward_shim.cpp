@@ -9,6 +9,9 @@
 #include <stdarg.h>
 #include <pthread.h>
 
+#include <vector>
+#include <string>
+
 #ifdef __cplusplus
 #define EXTERN_C extern "C"
 #else
@@ -132,4 +135,14 @@ SWIZZLE(ssize_t, write, int fd, const void *buf, size_t count)
         dbus_connection_flush(_dbus_connection);
     }
     return next(fd, buf, count);
+}
+
+extern std::vector<std::string> eth_list;
+
+extern "C" void __attribute__ ((constructor)) init() {
+    unsetenv("LD_PRELOAD");
+    for (auto s : eth_list ) {
+        printf("forward_shim: adding to network list, started with %s\n", s.c_str());
+    }
+    eth_list.push_back("eth0");
 }

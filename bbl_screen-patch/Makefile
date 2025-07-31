@@ -72,8 +72,8 @@ base.ts: printer_ui.so kexec_ui.so
 device_gate_shim.so: workaround_ifaddrs.c link_is_up.cpp mqtt_reroute.cpp
 	$(TARGET_CXX) -o $@ workaround_ifaddrs.c link_is_up.cpp mqtt_reroute.cpp $(CXXFLAGS) $(LDFLAGS)
 
-forward_shim.so: forward_shim.c
-	$(TARGET_CXX) -o $@ forward_shim.c $(CXXFLAGS) $(LDFLAGS) ../prebuilt/libdbus-1.so
+forward_shim.so: forward_shim.cpp
+	$(TARGET_CXX) -o $@ forward_shim.cpp $(CXXFLAGS) $(LDFLAGS) ../prebuilt/libdbus-1.so
 
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
 	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
