@@ -3,9 +3,8 @@
 start() {
 	printf "Starting forward service: "
 	/bin/touch /tmp/bbl_crypto
-	export LD_PRELOAD=/opt/x1plus/lib/forward_shim.so
 	start-stop-daemon -S -m -b -p /var/run/forward_service.pid \
-		--exec /usr/bin/forward \
+		--exec sh -- -c 'LD_PRELOAD=/opt/x1plus/lib/forward_shim.so exec /usr/bin/forward' \
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 stop() {
