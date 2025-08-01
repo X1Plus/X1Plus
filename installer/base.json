@@ -24,8 +24,8 @@
         "ams": { "version": "00.01.06.62", "paths": {
             "ams08": { "url": "https://public-cdn.bblmw.com/upgrade/device/BL-A001/00.01.06.62/product/3f9bc0542b/ams_rev8-firmware-v00.01.06.62-20250331204240_product.bin.sig", "md5": "61d0b28d20f1de27d341323116210f1f" }
         } }, 
-        "filament": { "version": "02.00.00.89", "paths": {
-            "": {"url": "https://public-cdn.bblmw.com/upgrade/device/BL-P001/filament/product/ota-filament-v02.00.00.89-20250506161431.zip.sig", "md5": "d04c4d74f71a77b4d383d1abb085f299" }
+        "filament": { "version": "02.01.00.25", "paths": {
+            "": {"url": "https://public-cdn.bblmw.com/upgrade/device/BL-P001/filament/product/ota-filament-v02.01.00.25-20250728201355.zip.sig", "md5": "2a3cd9c1905f54b8b84b948248f1f5cb" }
         } }
     }
 }
