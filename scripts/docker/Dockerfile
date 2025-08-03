@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 RUN apt-get update && apt-get -y install curl wget xz-utils
 
@@ -11,7 +11,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash
 RUN apt-get install -y nodejs
 ENV DEBIAN_FRONTEND="noninteractive" TZ="Etc/UTC"
 RUN apt-get update && apt-get -y install sudo build-essential python3 autoconf libtool cpio jq zip \
-    squashfs-tools-ng unzip gcc-multilib python3-pip qtbase5-dev-tools qtdeclarative5-dev qtbase5-dev qttools5-dev-tools wine && \
+    squashfs-tools-ng unzip gcc-multilib python3-pip qtbase5-dev-tools qtdeclarative5-dev qtbase5-dev qttools5-dev-tools wine upx && \
     apt-get clean
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 0
