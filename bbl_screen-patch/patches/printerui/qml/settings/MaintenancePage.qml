@@ -23,7 +23,8 @@ Item {
           { "friendly": qsTr("Printer Calibration"), "page": "../printer/CalibrationPage.qml", "icon": "../../icon/components/lidar.svg" },
           { "friendly": qsTr("On-Screen Console"), "page": "ConsolePage.qml", "icon": "../../icon/components/console_shell.svg" },
           { "friendly": qsTr("Device Self-test"), "page": "../printer/SelfTestPage.qml", "icon": "../../icon/components/selftest.svg" },
-          { "friendly": qsTr("Dry Filament"), "page": "../printer/DryFilamentPage.qml",  "icon": "../../icon/components/filamentdry.svg" }
+          { "friendly": qsTr("Dry Filament"), "page": "../printer/DryFilamentPage.qml",  "icon": "../../icon/components/filamentdry.svg" },
+          { "friendly": qsTr("Polar Cloud Connection"), "page": "PolarCloudPage.qml", "icon": "../../icon/components/cloud.svg" }
 
      ])
 
