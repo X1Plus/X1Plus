@@ -432,13 +432,13 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] != "SUCCESS":
             if response["message"] == "Printer has been deleted":
                 logger.error(f"_on_hello_response failure: {response['message']}")
-                self.last_connection_error = "Printer removed from cloud"
+                self.last_connection_error = "PRINTER_REMOVED"
                 self._maybe_publish_status_object()
                 await self.creds.wipe()
                 await self._force_reconnect()
             else:
                 logger.error(f"_on_hello_response failure: {response['message']}")
-                self.last_connection_error = f"Hello response error: {response['message']}"
+                self.last_connection_error = f"HELLO_ERROR.{response['message']}"
             return
 
         logger.info("Polar _on_hello_response success")
@@ -461,7 +461,7 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] != "SUCCESS":
             error_msg = response.get('message', 'Key pair request failed')
             logger.error(f"_on_keypair_response failure: {error_msg}")
-            self.last_connection_error = f"Key error: {error_msg}"
+            self.last_connection_error = f"KEYPAIR_ERROR.{error_msg}"
             self._maybe_publish_status_object()
             return
         
@@ -480,7 +480,7 @@ class PolarPrintService(X1PlusDBusService):
         if response["status"] != "SUCCESS":
             error_msg = response.get('reason', 'Registration failed')
             logger.error(f"_on_register_response failure: {error_msg}")
-            self.last_connection_error = f"Registration error: {error_msg}"
+            self.last_connection_error = f"REGISTRATION_ERROR.{error_msg}"
             await self._maybe_publish_status_object()
             # TODO: deal with various failure modes here. Most can be dealt
             # with in interface. First three report as server erros? Modes are

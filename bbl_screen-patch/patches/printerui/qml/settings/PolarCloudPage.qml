@@ -85,6 +85,28 @@ Item {
         color: Colors.gray_600
 
         GridLayout {
+            visible: !status
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            // do not specify a bottom anchor, it'll get stretchy otherwise
+            anchors.margins: 40
+            rowSpacing: 20
+            columnSpacing: 12
+            columns: 2
+
+            Text {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                text: qsTr("The Polar Cloud module is not correctly installed in the X1Plus system service.")
+                font: Fonts.body_32
+                color: Colors.gray_200
+                wrapMode: Text.WordWrap
+            }
+        }
+
+        GridLayout {
+            visible: !!status
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -179,7 +201,17 @@ Item {
             Text {
                 Layout.alignment: Qt.AlignRight
                 visible: !!status.last_connection_error
-                text: status.last_connection_error
+                text: status.last_connection_error === "PRINTER_REMOVED" ? qsTr("Printer removed from cloud") :
+                      status.last_connection_error === "HELLO_ERROR.FAILED" ? qsTr("Login error: protocol error or missing signature") :
+                      status.last_connection_error === "HELLO_ERROR.DELETED" ? qsTr("Login error: printer deleted from cloud") :
+                      // status.last_connection_error === "KEYPAIR_ERROR.xxx" ? :
+                      status.last_connection_error === "REGISTRATION_ERROR.SERVER_ERROR" ? qsTr("Registration error: server error; try again later") :
+                      status.last_connection_error === "REGISTRATION_ERROR.MFG_MISSING" ? qsTr("Registration error: protocol error (MFG_MISSING)") :
+                      status.last_connection_error === "REGISTRATION_ERROR.MFG_UNKNOWN" ? qsTr("Registration error: protocol error (MFG_UNKNOWN)") :
+                      status.last_connection_error === "REGISTRATION_ERROR.EMAIL_PIN_ERROR" ? qsTr("Registration error: e-mail or PIN is incorrect") :
+                      status.last_connection_error === "REGISTRATION_ERROR.FORBIDDEN" ? qsTr("Registration error: printer is already registered to another account") :
+                      status.last_connection_error === "REGISTRATION_ERROR.INVALID_KEY" ? qsTr("Registration error: protocol error (INVALID_KEY)") :
+                      status.last_connection_error
                 font: Fonts.body_28
                 color: "#FF6B6B"
             }

@@ -34,6 +34,9 @@ function logout() {
 }
 
 function awaken() {
+    // it would be good to have a better timeout on this so that screen
+    // doesn't hang on boot for ~10sec if the Polar module is disabled, but
+    // oh well
     const curStatus = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "GetStatus")({});
     _setStatus(curStatus);
 
