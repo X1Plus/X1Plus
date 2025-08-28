@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>X1Plus WebHMI</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <style>
+        body {
+            background-color: #f0f0f0; /* Light grey background */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        header, footer {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 3px 0;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        .centered-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .image-container img {
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .buttons button, .buttons form button {
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buttons button:hover, .buttons form button:hover {
+            background-color: #555;
+            color: white;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+        .dark-mode header, .dark-mode footer {
+            background-color: #222;
+        }
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+    </style>
+    <script>
+        function refreshImage() {
+            var img = document.getElementById('liveImage');
+            img.src = '/current_image?' + new Date().getTime();
+        }
+        setInterval(refreshImage, 5000); // Refresh every 5000 milliseconds (5 seconds)
+
+        function refreshModelImage() {
+            var img = document.getElementById('modelImage');
+            img.src = '/current_model_image?' + new Date().getTime();
+        }
+        setInterval(refreshModelImage, 180000); // Refresh every 180000 milliseconds (3 minutes)
+
+        function toggleDarkMode() {
+            var body = document.body;
+            body.classList.toggle('dark-mode');
+        }
+
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            popup.innerText = message;
+            popup.style.display = 'block';
+            setTimeout(function() {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var latestMessage = "{{ details.latest_message }}";
+            if (latestMessage) {
+                showPopup(latestMessage);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="centered-content">
+                <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+                    <img src="/static/images/logo.png" alt="Logo" style="width: 200px; height: auto; margin-right: 25px;">
+                    <h2>{{ details.current_job }}</h2>
+                </div>
+                <div class="image-container">
+                    <img id="liveImage" src="/current_image" alt="Current Image">
+                    <img id="modelImage" src="/current_model_image" alt="Model Image" style="width: 200px; height: 200px;">
+                    <img id="depthmapImage" src="/current_depthmap_image" alt="Depthmap Image" style="width: 200px; height: 200px;">
+                    <img id="errmapdepthImage" src="/current_errmapdepth_image" alt="Errmapdepth Image" style="width: 200px; height: 200px;">
+                </div>
+                <div class="buttons">
+                    <form action="/home_xyz_func" method="post">
+                        <button type="submit">Home Printer</button>
+                    </form>
+                    <form action="/preheat_100c" method="post">
+                        <button type="submit">Preheat On</button>
+                    </form>
+                    <form action="/preheat_0c" method="post">
+                        <button type="submit">Preheat Off</button>
+                    </form>
+                    <form action="/start_bbl_screen_vnc" method="post">
+                        <button type="submit">Enable VNC</button>
+                    </form>
+                    <button onclick="toggleDarkMode()">Dark Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="popup"></div>
+    <footer>
+        <p>&copy; X1Plus Team</p>
+    </footer>
+</body>
+</html>
+
