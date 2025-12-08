@@ -733,6 +733,35 @@ class PolarPrintService(X1PlusDBusService):
                     f"{self.daemon.mqtt.latest_print_status.get('mc_percent', 0)}%"
                 ),
             }
+            
+            # Add AMS tray information if available
+            ams_root = self.daemon.mqtt.latest_print_status.get("ams", {}).get("ams", [])
+            if ams_root:
+                ams_tray = []
+                for ams_unit in ams_root:
+                    for tray in ams_unit.get("tray", []):
+                        # Only include trays that have a filament type
+                        if not tray.get("tray_type"):
+                            continue
+                            
+                        # Generate a random 24-char hex ID if one doesn't exist (though we don't persist it)
+                        # We'll just use a deterministic one based on tag_uid for now to be stable
+                        import hashlib
+                        tag_uid = tray.get("tag_uid", "0000000000000000")
+                        fake_id = hashlib.md5(tag_uid.encode()).hexdigest()[:24]
+                        
+                        ams_tray.append({
+                            "_id": fake_id, 
+                            "id": tray.get("id", "0"),
+                            "tag_uid": tag_uid,
+                            "tray_info_idx": tray.get("tray_info_idx", ""),
+                            "tray_type": tray.get("tray_type", ""),
+                            "tray_sub_brands": tray.get("tray_sub_brands", ""),
+                            "tray_color": tray.get("tray_color", "000000FF"), # Default to black if missing
+                        })
+                
+                if ams_tray:
+                    data["ams_tray"] = ams_tray
             try:
                 await self.socket.emit("status", data)
                 # logger.info(
@@ -747,7 +776,7 @@ class PolarPrintService(X1PlusDBusService):
                         cam = AioRtspReceiver()
                         jpeg = await cam.receive_jpeg()
 
-                        if self.status in [0, 8, 9, 10, 15]:
+                        if self.status in [0, 1, 8, 9, 10, 15]:
                             # In these cases send idle image.
                             # (TODO: are these all the cases for idle?)
                             await self._upload_jpeg("idle", jpeg)
@@ -770,7 +799,7 @@ class PolarPrintService(X1PlusDBusService):
                     logger.info("reconnecting to attempt to recover connected namespaces")
                     await self._force_reconnect()
                     return  # Or else we'll starting sending too many updates.
-            if self.status != "0":
+            if self.status != 0:
                 await asyncio.sleep(10)
             else:
                 # Longer pause when idle.
@@ -876,7 +905,21 @@ class PolarPrintService(X1PlusDBusService):
         await self._download_file(path, self.file_name, data["gcodeFile"])
         location = os.path.join(path, self.file_name)
         self.start_time = datetime.datetime.now()
-        await self._printer_action(printer_action, location)
+        
+        # Handle AMS mapping
+        ams_mapping = []
+        if "ams_tray" in data and isinstance(data["ams_tray"], list):
+            # Extract the tray IDs to form the mapping list
+            # The printer expects a list of tray IDs (integers) corresponding to the filament slots in the sliced file
+            try:
+                for tray in data["ams_tray"]:
+                    # We expect 'id' to be the tray ID (e.g., "0", "1", etc.)
+                    if "id" in tray:
+                        ams_mapping.append(int(tray["id"]))
+            except Exception as e:
+                logger.error(f"Failed to parse ams_tray for mapping: {e}")
+                
+        await self._printer_action(printer_action, location, ams_mapping=ams_mapping)
 
     async def _download_file(self, path, file_name, url):
         """
@@ -976,13 +1019,20 @@ class PolarPrintService(X1PlusDBusService):
         }
         await self.socket.emit("getUrl", request_data)
 
-    async def _printer_action(self, which_action, print_file="") -> None:
+    async def _printer_action(self, which_action, print_file="", ams_mapping=None) -> None:
         """
         Make dbus call to print, pause, cancel, resume. If printing a 3mf file
         we need the print_file name and the plate to print.
         """
-        logger.info(f"Polar _printer_action {which_action} {print_file}")
+        logger.info(f"Polar _printer_action {which_action} {print_file} ams_mapping={ams_mapping}")
         request_json = {}
+        
+        # Default AMS mapping to empty list if None
+        if ams_mapping is None:
+            ams_mapping = []
+            
+        use_ams = len(ams_mapping) > 0
+        
         if which_action == "3mf_file":
             request_json = {
                 "print": {
@@ -1002,8 +1052,18 @@ class PolarPrintService(X1PlusDBusService):
                     "flow_cali": True,
                     "vibration_cali": True,
                     "layer_inspect": True,
-                    "ams_mapping": "",
-                    "use_ams": False,
+                    "ams_mapping": ams_mapping,
+                    "use_ams": use_ams,
+                }
+            }
+        elif which_action == "gcode_file":
+             request_json = {
+                "print": {
+                    "sequence_id": "0",
+                    "command": "gcode_file",
+                    "param": f"{print_file}",
+                    "ams_mapping": ams_mapping,
+                    "use_ams": use_ams,
                 }
             }
         else:
