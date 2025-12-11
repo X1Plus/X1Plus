@@ -41,7 +41,12 @@ class MQTTClient():
                     await handler(payload)
             elif "/report" in message.topic.value:
                 if 'print' in payload and payload['print'].get('command', None) == "push_status":
-                    self.latest_print_status = payload['print']
+                    new_status = payload['print']
+                    # Preserve AMS data if the new message doesn't include it
+                    # (AMS data is not always included in every push_status)
+                    if 'ams' not in new_status and 'ams' in self.latest_print_status:
+                        new_status['ams'] = self.latest_print_status['ams']
+                    self.latest_print_status = new_status
                 for handler in self.report_message_handlers.copy(): # avoid problems if this gets mutated out from under us mid handler
                     await handler(payload)
             else:
