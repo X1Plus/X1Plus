@@ -9,7 +9,7 @@ TARGET_CXX ?= $(TOOLCHAIN)g++
 LDFLAGS = -shared -ldl
 CXXFLAGS = -fPIC -std=c++11 -Ivendor -O3 -mcpu=cortex-a7 -Wno-psabi $(FIRMWARE_DEF) # yes, -O3 actually helps here with the VNC shenanigans
 CFLAGS = -fPIC -Ivendor -O3 -mcpu=cortex-a7 $(FIRMWARE_DEF) # yes, -O3 actually helps here with the VNC shenanigans
-MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so device_gate_shim.so netService_shim.so forward_shim.so
+MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so evdev_fix.so base.ts workaround_ifaddrs.so device_gate_shim.so netService_shim.so forward_shim.so upgrade_shim.so
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
@@ -74,6 +74,9 @@ device_gate_shim.so: workaround_ifaddrs.c link_is_up.cpp mqtt_reroute.cpp
 
 forward_shim.so: forward_shim.cpp
 	$(TARGET_CXX) -o $@ forward_shim.cpp $(CXXFLAGS) $(LDFLAGS) ../prebuilt/libdbus-1.so
+
+upgrade_shim.so: upgrade_shim.cpp
+	$(TARGET_CXX) -o $@ upgrade_shim.cpp $(CXXFLAGS) $(LDFLAGS) ../prebuilt/libdbus-1.so
 
 kexec_ui.so: kexec_ui.ui.o interpose.cpp interpose.moc.h
 	$(TARGET_CC) -o $@ $< interpose.cpp workaround_ifaddrs.c $(CXXFLAGS) $(LDFLAGS) -I $(QT5_INCL_PATH)
