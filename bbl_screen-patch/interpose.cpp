@@ -46,6 +46,10 @@
 #include <QtCore/QtEndian>
 #include <linux/wireless.h>
 
+#include "vendor/nlohmann/json.hpp"
+
+using namespace nlohmann;
+
 namespace X1Plus {
 #include "minizip/ioapi.c"
 #include "minizip/unzip.c"
@@ -316,6 +320,46 @@ public:
 };
 static X1PlusNativeClass native;
 
+/*** AMS HT fixups for bbl_screen ***/
+void rewrite_print_for_amsht(std::string &s) {
+    try {
+        json j = json::parse(s);
+        /* undo the rewrite we did on the way out in forward... */
+        if (j.contains("ams")) {
+            if (!j["ams"]["supports_ams_v2"]) {
+                return;
+            }
+            for (auto &ams: j["ams"]["ams"]) {
+                auto id_s = ams["id"].template get<std::string>();
+                int id = atoi(id_s.c_str());
+            
+                id = id & 0x7F;
+            
+                ams["id"] = std::to_string(id);
+            }
+            j["ams"]["ams_exist_bits"] = j["ams"]["ams_exist_bits_raw"];
+            j["ams"]["tray_exist_bits"] = j["ams"]["tray_exist_bits_raw"];
+            j["ams"]["tray_is_bbl_bits"] = j["ams"]["tray_is_bbl_bits_raw"];
+            j["ams"]["tray_read_done_bits"] = j["ams"]["tray_read_done_bits_raw"];
+            j["ams"]["tray_reading_bits"] = j["ams"]["tray_reading_bits_raw"];
+
+            // remap tray_cur, tray_tar etc. from 128 to 0, 129 to 1, ...
+#define FIX_TRAY(x) do { \
+                int i = stoi(j["ams"]["tray_"#x].template get<std::string>()); \
+                if (i >= 128 && i < 160) { i = (i - 128) * 4; } \
+                j["ams"]["tray_"#x] = std::to_string(i); \
+            } while(0)
+            
+            FIX_TRAY(now);
+            FIX_TRAY(pre);
+            FIX_TRAY(tar);
+        }
+        s = j.dump();
+    } catch(...) {
+        printf("hmm ... JSON exception in rewrite_print_for_amsht ... swallowing it and hoping for the best ...\n");
+    }
+}
+
 /*** DDS interposing into QML ***
  *
  * DDS natively does not have an interface into QML, and in theory, each app
@@ -438,9 +482,11 @@ int DdsNode_orig_get_sub_topic_count(void *p) {
 
 #define _(n) \
 void rx_string_##n(std::string &s, void * s2, void *ctx) { \
+    const char *topic_name = ((const char *(*)(void *, int))ddsnode_new_vtable[DdsNode_get_sub_topic_name])(listener.ddsnode, n); \
     QString datum = QString::fromStdString(s); \
-    QString topic = ((const char *(*)(void *, int))ddsnode_new_vtable[DdsNode_get_sub_topic_name])(listener.ddsnode, n); \
+    QString topic = topic_name; \
     emit listener.gotDdsEvent(topic, datum); \
+    if (strcmp(topic_name, "device/report/print") == 0) rewrite_print_for_amsht(s); /* but pass the unmodified to javascript */ \
     if (n < DdsNode_orig_get_sub_topic_count(listener.ddsnode)) { \
         rxfcn_t orig = DdsNode_orig_get_sub_topic_callback(NULL, n); \
         orig(s, s2, ctx); \
@@ -580,9 +626,6 @@ public:
 
 #ifdef HAS_DBUS
 
-#include "vendor/nlohmann/json.hpp"
-
-using namespace nlohmann;
 
 namespace BDbus {
     class Object;
