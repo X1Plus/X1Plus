@@ -1,0 +1,19 @@
+--- printer_ui-orig/printerui/qml/PopupPad.qml
++++ printer_ui/printerui/qml/PopupPad.qml
+@@ -30,6 +30,7 @@
+         id: padPage
+ 
+         Rectangle {
++            property bool xcloseBtn: closeBtn
+ 
+             objectName: "PopupPad " + padSink.objectName
+             color: padSink.maskColor
+@@ -80,7 +81,7 @@
+                 anchors.right: itemPad.right
+                 cornerRadius: width / 2
+                 iconSize: -1
+-                visible: closeBtn
++                visible: xcloseBtn
+                 type: ZButtonAppearance.Secondary
+                 icon: "../icon/close.svg"
+                 onClicked: {

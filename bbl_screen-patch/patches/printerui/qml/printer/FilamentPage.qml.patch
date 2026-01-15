@@ -1,14 +1,105 @@
 --- printer_ui-orig/printerui/qml/printer/FilamentPage.qml
 +++ printer_ui/printerui/qml/printer/FilamentPage.qml
-@@ -13,6 +13,7 @@
+@@ -4,15 +4,25 @@
+ import Printer 1.0
+ import "qrc:/uibase/qml/widgets"
+ import ".."
++import "../X1Plus.js" as X1Plus
+ 
+ Item {
+ 
+     property var feeder: PrintManager.feeder
+     property var amsModel: feeder.feeders
++    property var usingAmsV2Protocol: X1Plus.DDS.amsInfo().supports_ams_v2
+     property var currentFeeder: amsList.currentIndex < amsModel.length
                                  ? amsModel[amsList.currentIndex] : null
-     property var trayModel: currentFeeder ? currentFeeder.trays : []
+-    property var trayModel: currentFeeder ? currentFeeder.trays : []
++    property var currentFeederDDS: amsList.currentIndex < amsModel.length
++                                   ? X1Plus.DDS.amsInfo().ams[amsList.currentIndex] : null
++    property var trayModel: currentFeeder ? currentFeeder.trays.slice(0, currentFeederDDS.tray.length) : []
++    property var amsType: currentFeederDDS && currentFeederDDS.info && currentFeederDDS.info.slice(-2)
++    property var amsTypeIsAms2Pro: amsType == "03" /* aka N3F */
++    property var amsTypeIsAms2Ht: amsType == "04" /* aka N3S */
++    property var amsIsPluggedIn: currentFeederDDS && (currentFeederDDS.adapter_status == 2 || currentFeederDDS.adapter_status == 4)
++    property var amsHasDryingCapability: amsTypeIsAms2Pro || amsTypeIsAms2Ht
      property bool hasAms: feeder.hasAms
 +    //property bool hasAms: true
      property bool loading: feeder.loading
      property var currentTray: feeder.currentTray
      property int loadStep: feeder.loadStep
-@@ -388,7 +389,7 @@
+@@ -226,7 +236,7 @@
+             ZButton {
+                 id: humidityHelpBtn
+                 width: 71
+-                height: 56
++                height: 100
+                 anchors.bottom: trayPanel.bottom
+                 anchors.bottomMargin: 1
+                 anchors.right: trayPanel.right
+@@ -234,12 +244,43 @@
+                 border.color: "transparent"
+                 visible: hasAms && currentFeeder.humidity <= 5 && currentFeeder.humidity >= 1
+                 icon: visible ? "../../image/humidity.svg" : ""
+-                iconSize: 71
++                iconSize: 100
+                 ZImage {
+-                    width: 46
+-                    height: 46
+-                    anchors.centerIn: parent
+-                    source: currentFeeder.humidity === 0 ? "" : "../../icon/humidity_" + currentFeeder.humidity + ".svg"
++                    width: amsHasDryingCapability ? 35 : 46
++                    height: amsHasDryingCapability ? 35 : 46
++                    anchors.top: parent.top
++                    anchors.topMargin: 10
++                    x: amsHasDryingCapability ? 5 : 12
++                    source: currentFeederDDS.dry_time ? "../../icon/components/filamentdry.svg" :
++                            currentFeeder.humidity === 0 ? "" : "../../icon/humidity_" + currentFeeder.humidity + ".svg"
++                }
++                ZImage {
++                    width: 23
++                    height: 35
++                    anchors.top: parent.top
++                    anchors.topMargin: 10
++                    anchors.right: parent.right
++                    anchors.rightMargin: 7
++                    visible: amsHasDryingCapability
++                    source: amsIsPluggedIn ? "../../icon/plug.svg" : "../../icon/plug-red.svg"
++                }
++                Text {
++                    anchors.bottom: parent.bottom
++                    anchors.bottomMargin: 10
++                    anchors.horizontalCenter: parent.horizontalCenter
++                    font: Fonts.body_24
++                    color: Colors.gray_100
++                    visible: usingAmsV2Protocol
++                    text: currentFeederDDS.humidity_raw + "%"
++                }
++                ZImage {
++                    width: 30
++                    height: 30
++                    anchors.bottom: parent.bottom
++                    anchors.bottomMargin: 10
++                    anchors.horizontalCenter: parent.horizontalCenter
++                    visible: !usingAmsV2Protocol
++                    source: "../../icon/warning_yellow.png"
+                 }
+                 onClicked: {
+                     humidityHelp.popup();
+@@ -339,9 +380,12 @@
+             anchors.right: unloadBtn.left
+             anchors.rightMargin: 32
+             anchors.top: unloadBtn.top
++            // new MC seems to get confused if you hit 'load' and the
++            // filament is already in the extruder.  who knows if I'm
++            // sending it the wrong thing
+             enabled: (!feeder.loading && selectTray.exist &&
+                       ((printIdle || (PrintManager.currentTask.stage === PrintTask.PAUSED && selectTray === feeder.singleTray && (currentTray ? currentTray.index >= 16 : true)))))
+-                     && ((currentTray !== selectTray) || (currentTray === feeder.singleTray))
++                     && (currentTray !== selectTray)
+             tapMargin: 10
+             text: qsTr("Load")
+             onClicked: {
+@@ -388,7 +432,7 @@
              }
          }
      }
@@ -17,7 +108,15 @@
      MarginPanel {
          id: howToPanel
          height: 538
-@@ -563,6 +564,7 @@
+@@ -515,6 +559,7 @@
+             border.color: ListView.isCurrentItem ? Colors.brand : "transparent"
+ 
+             ListView {
++                // we need all of them in the model, otherwise it's not clickable!
+                 anchors.fill: parent
+                 anchors.margins: 10
+                 spacing: 7
+@@ -563,6 +608,7 @@
              height: 42 + 16 + 156 + 64
  
              property bool noArc: index < 1
@@ -25,7 +124,7 @@
  
              ZButton {
                  id: refreshBtn
-@@ -589,7 +591,7 @@
+@@ -589,7 +635,7 @@
                      StateColorItem { color: "warning"; states: StateColor.Checked }
                      StateColorItem { color: "gray_300"; states: StateColor.Normal }
                  }
@@ -34,7 +133,7 @@
                  text: digitalConversion(modelData.index)
  //                enabled: printIdle && feeder.readingTray == null && feeder.rfidStatus == FilamentFeeder.RF_Idle
                  onClicked: {
-@@ -622,7 +624,7 @@
+@@ -622,7 +668,7 @@
                      GradientRectangle {
                          id: colorHeight
                          y: parent.height - height
@@ -43,7 +142,7 @@
                          width: parent.width
                          radius: 4
                          colors: modelData.colors
-@@ -632,7 +634,7 @@
+@@ -632,7 +678,7 @@
  
                      Text {
                          width: parent.width - 10
@@ -52,7 +151,7 @@
                          anchors.horizontalCenter: parent.horizontalCenter
                          font: Fonts.body_26
                          minimumPixelSize: 10
-@@ -647,40 +649,53 @@
+@@ -647,40 +693,53 @@
                              else
                                  return Colors.different(color2)
                          }
@@ -130,3 +229,93 @@
                              }
                          }
                      }
+@@ -869,87 +928,8 @@
+         name: "humidityHelp"
+         closeBtn: true
+ 
+-        contentComponent: Rectangle {
+-            radius: 15
+-            color: Colors.gray_600
+-            ZText {
+-                id: humidityTitle
+-                anchors.top: parent.top
+-                anchors.topMargin: 24
+-                color: Colors.gray_200
+-                font: Fonts.head_30
+-                anchors.horizontalCenter: parent.horizontalCenter
+-                text: qsTr("Current Cabin humidity")
+-            }
+-
+-            Rectangle {
+-                id: humidityRect1
+-                anchors.top: parent.top
+-                anchors.topMargin: 67
+-                color: "#4CD01B1B"
+-                width: humidityTx1.width + 10
+-                height: 33
+-                radius: 6
+-                anchors.horizontalCenter: parent.horizontalCenter
+-                visible: currentFeeder.humidity < 3
+-                ZText {
+-                    id: humidityTx1
+-                    anchors.centerIn: parent
+-                    color: Colors.white_900
+-                    font: Fonts.body_20
+-                    text: qsTr("Your desiccant may be invalid.")
+-                }
+-            }
+-
+-            ZImage {
+-                id: humidityTxImg1
+-                sourceSize.width: 132
+-                sourceSize.height: 132
+-                anchors.top: humidityRect1.bottom
+-                anchors.topMargin: (humidityTxImg2.y - humidityRect1.y - humidityRect1.height - 132) / 2
+-                anchors.horizontalCenter: parent.horizontalCenter
+-                source: "../../icon/humidity_"+ currentFeeder.humidity +".svg"
+-            }
+-
+-            ZImage {
+-                id: humidityTxImg2
+-                anchors.horizontalCenter: parent.horizontalCenter
+-                anchors.bottom: humidityTx.top
+-                anchors.bottomMargin: 5
+-                source: "../../image/humidity_help.svg"
+-
+-                Text {
+-                    id: dryTx
+-                    anchors.left: parent.left
+-                    anchors.leftMargin: 38
+-                    anchors.verticalCenter: parent.verticalCenter
+-                    color: "#7FFFFFFF"
+-                    font: Fonts.head_22
+-                    text: qsTr("DRY")
+-                }
+-                Text {
+-                    id: wetTx
+-                    anchors.right: parent.right
+-                    anchors.rightMargin: 32
+-                    anchors.verticalCenter: parent.verticalCenter
+-                    color: "#7FFFFFFF"
+-                    font: Fonts.head_22
+-                    text: qsTr("WET")
+-                }
+-            }
+-
+-
+-            Text {
+-                id: humidityTx
+-                width: 780
+-                anchors.bottom: parent.bottom
+-                anchors.bottomMargin: 29
+-                anchors.horizontalCenter: parent.horizontalCenter
+-                color: Colors.gray_300
+-                font: Fonts.body_20
+-                wrapMode: Text.WordWrap
+-                text: qsTr("Please change the desiccant when it is too wet. The indicator may not represent accurately in following cases：when the lid is open or the desiccant pack is changed, it take hours to absorb the moisture; low temperatures also slow down the process.")
+-            }
++        contentComponent: Loader {
++            source: amsHasDryingCapability ? "FilamentHumidityPopupDryable.qml" : "FilamentHumidityPopup.qml"
+         }
+     }
+ 

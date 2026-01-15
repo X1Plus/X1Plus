@@ -10,13 +10,16 @@ Item {
     property var modelData: ({}) /* friendly, bambu, cfw, icon */
     property var cfwVersion: ({}) /* from cfwversions.json: version, ... */
     property var mappedData: ({}) /* hw_ver, sn, sw_ver */
+    property var hw_arg: ""
     property var isHw: (mappedData.sn && mappedData.sn != "" && mappedData.hw_ver && mappedData.hw_ver != "")
     property var needsUpdate: modelData.bambu == "filament" ? mappedData.sw_ver != "Custom" && mappedData.sw_ver < cfwVersion.version :
-                              (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+                              (!cfwVersion.invalid &&
+                               (!mappedData.hw_ver || cfwVersion.paths[mappedData.hw_ver.toLowerCase()] !== undefined) &&
+                               mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
     property var sw_ver_text: modelData.bambu == "filament" && mappedData.sw_ver == "Custom" ? qsTr("Custom") :
                               modelData.bambu == "filament" && mappedData.sw_ver == "" ? qsTr("Not installed") :
                               mappedData.sw_ver.split("/")[0]
-    
+
     property var noUpgrade_messages: ({
         "COPY_NEW_X1P": QT_TR_NOOP("To install a new version of the custom firmware, copy the new x1p file to the root of the SD card, power cycle the printer, and select the installer at startup time."),
         "WRONG_BASE_VERSION": QT_TR_NOOP("This custom firmware has been loaded on top of the wrong Bambu Lab base firmware version.  Printing may not be reliable.  Reinstall the custom firmware on the SD card."),
@@ -26,7 +29,7 @@ Item {
         "X1Plus firmware": QT_TR_NOOP("X1Plus Firmware"),
         "Bambu Lab base firmware": QT_TR_NOOP("Bambu Lab base firmware"),
     })
-
+    
     property var buttons: SimpleItemModel {
         DialogButtonItem {
             name: "do_install"; title: qsTr("Install %1").arg(cfwVersion.version)
@@ -37,6 +40,7 @@ Item {
                 dialogStack.popupDialog('../settings/UpgradeDialog', {
                     module: mappedData.name,
                     friendly: modelData.friendly,
+                    hw_arg: hw_arg,
                     version: cfwVersion.version,
                     url: cfwVersion.paths[mappedData.hw_ver.toLowerCase()]['url'],
                     md5: cfwVersion.paths[mappedData.hw_ver.toLowerCase()]['md5'],
@@ -86,7 +90,7 @@ Item {
                 font: Fonts.body_36
                 color: Colors.gray_100
                 wrapMode: Text.Wrap
-                text: cfwVersion.dialogName ? qsTr(dialogName_messages[cfwVersion.dialogName]) : modelData.friendly
+                text: cfwVersion.dialogName ? qsTr(dialogName_messages[cfwVersion.dialogName]) : qsTr(modelData.friendly).arg(hw_arg)
             }
 
             Text {

@@ -64,11 +64,21 @@ registerHandler("device/report/info", function(datum) {
 
 
 var [gcodeAction, gcodeActionChanged, _setGcodeAction] = Binding.makeBinding(-1);
+var [amsInfo, amsInfoChanged, _setAmsInfo] = Binding.makeBinding({});
+var [lastAmsFilamentDrying, lastAmsFilamentDryingChanged, setLastAmsFilamentDrying] = Binding.makeBinding(null);
 
 registerHandler("device/report/print", function(datum) {
     if (datum.command == "push_status" && datum.print_gcode_action) {
         if (gcodeAction() != datum.print_gcode_action) {
             _setGcodeAction(datum.print_gcode_action);
         }
+    }
+    if (datum.command == "push_status" && datum.ams) {
+        if (JSON.stringify(amsInfo()) != JSON.stringify(datum.ams)) {
+            _setAmsInfo(datum.ams);
+        }
+    }
+    if (datum.command == "ams_filament_drying") {
+        setLastAmsFilamentDrying(datum);
     }
 });
