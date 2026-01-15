@@ -10,22 +10,35 @@ import "../X1Plus.js" as X1Plus
 Item {
     property var modules: X1Plus.DDS.versions()
     property var mapping: ([
-        { "friendly": QT_TR_NOOP("X1Plus version"), "cfw": "cfw", "icon": "../../icon/components/cfw.png" },
-        { "friendly": QT_TR_NOOP("Base firmware version"), "cfw": "ota", "icon": "../../icon/components/mainfw.png" },
-        { "friendly": QT_TR_NOOP("AP board"), "bambu": "ap", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
-        { "friendly": QT_TR_NOOP("MC board"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
-        { "friendly": QT_TR_NOOP("Toolhead"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
-        { "friendly": QT_TR_NOOP("Filament database"), "bambu": "filament", "cfw": "filament", "icon": "../../icon/components/ams.svg" }, // XXX: do icon
-        { "friendly": QT_TR_NOOP("AMS hub"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
-        { "friendly": QT_TR_NOOP("AMS #1"), "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
-        { "friendly": QT_TR_NOOP("AMS #2"), "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
-        { "friendly": QT_TR_NOOP("AMS #3"), "bambu": "ams/2", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
-        { "friendly": QT_TR_NOOP("AMS #4"), "bambu": "ams/3", "cfw": "ams", "icon": "../../icon/components/ams.svg" }
+        /* dummy %1s for hw_ver arg */
+        { "friendly": QT_TR_NOOP("X1Plus version%1"), "cfw": "cfw", "icon": "../../icon/components/cfw.png" },
+        { "friendly": QT_TR_NOOP("Base firmware version%1"), "cfw": "ota", "icon": "../../icon/components/mainfw.png" },
+        { "friendly": QT_TR_NOOP("AP board%1"), "bambu": "ap", "cfw": "rv1126", "icon": "../../icon/components/ap-board.svg" },
+        { "friendly": QT_TR_NOOP("MC board%1"), "bambu": "mc", "cfw": "mc", "icon": "../../icon/components/mc-board.svg" },
+        { "friendly": QT_TR_NOOP("Toolhead%1"), "bambu": "th", "cfw": "th", "icon": "../../icon/components/th.svg" },
+        { "friendly": QT_TR_NOOP("Filament database%1"), "bambu": "filament", "cfw": "filament", "icon": "../../icon/components/ams.svg" }, // XXX: do icon
+        { "friendly": QT_TR_NOOP("AMS hub%1"), "bambu": "ahb", "cfw": "ahb", "icon": "../../icon/components/ahb.svg" },
+        { "friendly": QT_TR_NOOP("%1 #1"), "bambu": "ams/0", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
+        { "friendly": QT_TR_NOOP("%1 #2"), "bambu": "ams/1", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
+        { "friendly": QT_TR_NOOP("%1 #3"), "bambu": "ams/2", "cfw": "ams", "icon": "../../icon/components/ams.svg" },
+        { "friendly": QT_TR_NOOP("%1 #4"), "bambu": "ams/3", "cfw": "ams", "icon": "../../icon/components/ams.svg" }
         // EXT board is coming soon
         // chamber heater is coming soon
         // investigate: DeviceManager.allModules; allModules[DeviceManager.build.product]
     ])
     property var cfwVersions: screenSaver.cfwVersions
+
+    function decode_hw_arg(hw_ver) {
+        if (!hw_ver)
+            return "";
+        if (hw_ver.slice(0,3) == "N3F")
+            return "AMS 2 Pro";
+        if (hw_ver.slice(0,3) == "N3S")
+            return "AMS HT";
+        if (hw_ver.slice(0,3) == "AMS")
+            return "AMS";
+        return "";
+    }
 
     Component.onCompleted: {
         X1Plus.DDS.requestVersions();
@@ -117,7 +130,9 @@ Item {
                                         modules.find(el => modelData.bambu == el.name))
             property var needsUpdate: modelData.bambu == "filament" ? mappedData.sw_ver != "Custom" && mappedData.sw_ver < cfwVersion.version :
                                       modelData.cfw == 'cfw' ? X1Plus.OTA.status()['ota_available'] : 
-                                      (!cfwVersion.invalid && mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
+                                      (!cfwVersion.invalid &&
+                                       (!mappedData.hw_ver || cfwVersion.paths[mappedData.hw_ver.toLowerCase()] !== undefined) &&
+                                       mappedData.sn != "N/A" && mappedData.sw_ver.split("/")[0] != cfwVersion.version)
             
             // a few translatable overrides go here...  annoyingly, this
             // gets replicated in VersionDialog, but is there a better way
@@ -168,7 +183,7 @@ Item {
                     anchors.leftMargin: 10
                     color: Colors.gray_200
                     font: Fonts.body_30
-                    text: qsTr(modelData.friendly)
+                    text: qsTr(modelData.friendly).arg(decode_hw_arg(mappedData.hw_ver))
                 }
                 
                 Text {
@@ -211,7 +226,7 @@ Item {
                     if (modelData.cfw == 'cfw') {
                         dialogStack.popupDialog('../settings/X1PlusOTADialog', {});
                     } else {
-                        dialogStack.popupDialog('../settings/VersionDialog', { modelData: modelData, mappedData: mappedData, cfwVersion: cfwVersion });
+                        dialogStack.popupDialog('../settings/VersionDialog', { modelData: modelData, mappedData: mappedData, cfwVersion: cfwVersion, hw_arg: decode_hw_arg(mappedData.hw_ver)});
                     }
                 }
             }
