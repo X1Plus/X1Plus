@@ -1,3 +1,18 @@
+local x1plus_log = Proto("x1plus_log", "X1Plus logs")
+x1plus_log.fields = { }
+table.insert(x1plus_log.fields, ProtoField.uint8("x1plus_log.type", "Log type", nil, { [0] = "Log from forward" }))
+table.insert(x1plus_log.fields, ProtoField.string("x1plus_log.message", "Message"))
+function x1plus_log.dissector(buf, pinfo, root)
+	pinfo.cols.protocol:set("X1PLUS LOG")
+	local length = buf:len()
+	if length == 0 then return 0 end
+	
+	local tree = root:add(x1plus_log, buf:range(1,len), "X1Plus log event")
+	tree:add(x1plus_log.fields[1], buf:range(0, 1))
+	tree:add(x1plus_log.fields[2], buf:range(1, len))
+	pinfo.cols.info:set(buf:range(1, len):string())
+end
+
 local mcproto = Proto("mcproto", "Bambu MC wire protocol")
 local mccommands = DissectorTable.new("mcproto.command", "Bambu MC protocol commands", ftypes.UINT16, base.HEX, mcproto)
 

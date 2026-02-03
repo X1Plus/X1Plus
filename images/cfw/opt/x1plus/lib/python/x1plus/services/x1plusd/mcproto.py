@@ -285,11 +285,22 @@ class MCProtoParser():
                     logger.info(f"creating new PCAP file {new_pcap_filename}")
                     try:
                         self.pcap_file = open(new_pcap_filename, "wb")
-                        self.pcap_file.write(struct.pack("<LHHLLLL", 0xA1B2C3D4, 2, 4, 0, 0, 4096, 147)) # link type DLT_USER0
+                        self.pcap_file.write(struct.pack("<LHHLLLL", 0xA1B2C3D4, 2, 4, 0, 0, 4096, 252)) # link type wireshark upper PDU
                     except Exception as e:
                         logger.error(f"failed to open PCAP file: {e}")
                         pass
-    
+
+    def pcap_write(self, dissector_name, data):
+        if not self.pcap_file:
+            return
+        pcap_buf = b''
+        pcap_buf += struct.pack('>HH', 12, len(dissector_name)) + dissector_name.encode() # DISSECTOR_NAME
+        pcap_buf += struct.pack('>HH', 0, 0) # END_OF_OPT
+        pcap_buf += data
+        
+        t = time.time()
+        self.pcap_file.write(struct.pack("<LLLL", int(t), int((t % 1) * 1e6), len(pcap_buf), len(pcap_buf)) + pcap_buf)
+
     GCODE_X1PLUS_DEF_RE = re.compile(rb";\s*x1plus define\s*(\d+)\s+(.+)")
 
     async def trigger_action(self, action):
@@ -356,10 +367,7 @@ class MCProtoParser():
     async def handle_serial_port_write(self, data):
         try:
             await self.handle_msg(MCMessage(data))
-            if self.pcap_file:
-                pcap_buf = b'\x01' + data
-                t = time.time()
-                self.pcap_file.write(struct.pack("<LLLL", int(t), int((t % 1) * 1e6), len(pcap_buf), len(pcap_buf)) + pcap_buf)
+            self.pcap_write('mcproto', b'\x01' + data)
         except Exception as e:
             logger.error(f"exception parsing outgoing MC message: {e.__class__.__name__}: \"{e}\"")
     
@@ -407,13 +415,12 @@ class MCProtoParser():
             
             try:
                 await self.handle_msg(MCMessage(packet))
-                if self.pcap_file:
-                    pcap_buf = b'\x02' + packet
-                    t = time.time()
-                    self.pcap_file.write(struct.pack("<LLLL", int(t), int((t % 1) * 1e6), len(pcap_buf), len(pcap_buf)) + pcap_buf)
-
+                self.pcap_write('mcproto', b'\x02' + packet)
             except Exception as e:
                 logger.error(f"exception parsing incoming MC message: {e.__class__.__name__}: \"{e}\"")
+    
+    async def handle_forward_log_message(self, data):
+        self.pcap_write('x1plus_log', b'\x00' + data)
 
     async def task(self):
         match = MatchRule(
@@ -429,6 +436,8 @@ class MCProtoParser():
                         await self.handle_serial_port_write(dbus_msg.body[0])
                     elif dbus_msg.header.fields[HeaderFields.member] == "SerialPortRead":
                         await self.handle_serial_port_read(dbus_msg.body[0])
+                    elif dbus_msg.header.fields[HeaderFields.member] == "LogMessage":
+                        await self.handle_forward_log_message(dbus_msg.body[0])
                 except Exception as e:
                     logger.error(f"exception handling signal {dbus_msg.header.fields[HeaderFields.member]}: {e.__class__.__name__}: \"{e}\"")
                 
