@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/mman.h>
+#include <syslog.h>
 
 #include <iostream>
 #include <regex>
@@ -18,7 +19,7 @@
 
 #include "vendor/nlohmann/json.hpp"
 
-#define PRINTF_BLUE(s, ...) do { printf("\x1B[1;96m" s "\x1B[0m", ##__VA_ARGS__); fflush(stdout); } while(0)
+static void x1plus_logf(const char *s, ...);
 
 /* To enable AMS2/AMSHT support, we need to teach an old forward to talk to
  * a new MC (getting a new forward to run on an old AP FW version might also
@@ -129,14 +130,14 @@ bool mc_speaks_new_protocol = false;
 
 void mc_spoke_new_protocol() {
     if (!mc_speaks_new_protocol) {
-        PRINTF_BLUE("forward_shim: switching to new-style MC protocol\n");
+        x1plus_logf("forward_shim: switching to new-style MC protocol");
     }
     mc_speaks_new_protocol = true;
 }
 
 void mc_spoke_old_protocol() {
     if (mc_speaks_new_protocol) {
-        PRINTF_BLUE("forward_shim: switching to old-style MC protocol\n");
+        x1plus_logf("forward_shim: switching to old-style MC protocol");
     }
     mc_speaks_new_protocol = false;
 }
@@ -232,7 +233,7 @@ extern "C" void update_ams_object_with_flags_override_C(void *ams_obj, json &j, 
     for (auto &ams: j["ams"]) {
         auto id_s = ams["id"].template get<std::string>();
         int id = atoi(id_s.c_str());
-        //PRINTF_BLUE("JSON CREATED FOR AMS ID %d\n", id);
+        //x1plus_logf("JSON CREATED FOR AMS ID %d", id);
         
         /* dry_time: number, minutes remaining in dry operation */
         struct timespec ts;
@@ -294,7 +295,9 @@ extern "C" void update_ams_object_with_flags_override_C(void *ams_obj, json &j, 
 }
 
 extern "C" int handle_print_dds_message_override(CGparser *_this, json &j, int param3) {
-    std::cout << j << std::endl;
+    std::string json_string;
+    json_string = to_string(j);
+    x1plus_logf("print_message: %s", json_string.c_str());
     try {
         if (j["command"] == "ams_filament_drying") {
             // mqtt_pub '{"print":{"command":"ams_filament_drying","ams_id":128,"mode":1,"temp":75,"duration":60,"humidity":0,"rotate_tray":false,"sequence_id":"1234"}}'
@@ -440,7 +443,7 @@ publish_result:
                 if (tray >= 512) {
                     /* this must have been the slicer trying to send ams_id 0x80 + 0 */
                     int newtray = tray - 512;
-                    PRINTF_BLUE("forward: fixing up M620 %s%d -> %d for slicer\n", letter.c_str(), tray, newtray);
+                    x1plus_logf("forward: fixing up M620 %s%d -> %d for slicer", letter.c_str(), tray, newtray);
                     tray = newtray;
                 }
                 
@@ -448,7 +451,7 @@ publish_result:
                     /* this must have been the bbl_screen trying to poke the AMS HT */
                     int new_phys = ams_info[tray >> 2].phys_id;
                     int newtray = (new_phys << 8) + (tray & 0x3);
-                    PRINTF_BLUE("forward: fixing up M620 %s%d -> %d for screen\n", letter.c_str(), tray, newtray);
+                    x1plus_logf("forward: fixing up M620 %s%d -> %d for screen", letter.c_str(), tray, newtray);
                     char s[32];
                     snprintf(s, sizeof(s), "M620 %s%d \n", letter.c_str(), newtray);
                     j["param"] = s;
@@ -478,7 +481,7 @@ publish_result:
                 } else {
                     j["target"] = target = (ams_id << 8) + slot_id;
                 }
-                PRINTF_BLUE("forward: rewriting new-style ams_change_filament ams_id %d slot_id %d -> target %d\n", ams_id, slot_id, target);
+                x1plus_logf("forward: rewriting new-style ams_change_filament ams_id %d slot_id %d -> target %d", ams_id, slot_id, target);
             } catch(...) { try {
                 int target = j["target"];
                 int old_target = target;
@@ -492,9 +495,9 @@ publish_result:
                     }
                     j["target"] = target = (ams_id << 8) + slot_id;
                 }
-                PRINTF_BLUE("forward: rewriting old-style ams_change_filament target %d -> target %d\n", old_target, target);
+                x1plus_logf("forward: rewriting old-style ams_change_filament target %d -> target %d", old_target, target);
             } catch(...) {
-                PRINTF_BLUE("forward: ams_change_filament was neither new-style nor old-style?\n");
+                x1plus_logf("forward: ams_change_filament was neither new-style nor old-style?");
             } }
         }
         
@@ -511,7 +514,7 @@ publish_result:
                 new_ams_mapping.push_back((ams_id << 8) + slot_id);
             }
             j["ams_mapping"] = new_ams_mapping;
-            PRINTF_BLUE("forward: converted new ams_mapping\n");
+            x1plus_logf("forward: converted new ams_mapping");
             std::cout << j["ams_mapping"] << std::endl;
         } catch (...) { }
 #endif
@@ -525,7 +528,7 @@ publish_result:
         try {
             std::vector<int> new_ams_mapping;
             for (int map: j.at("ams_mapping")) {
-                PRINTF_BLUE("forward: input ams_mapping: %d\n", map);
+                x1plus_logf("forward: input ams_mapping: %d", map);
                 if (map == -1) {
                     new_ams_mapping.push_back(-1);
                 } else {
@@ -540,24 +543,24 @@ publish_result:
             }
             if (mc_speaks_new_protocol) {
                 j["ams_mapping"] = new_ams_mapping;
-                PRINTF_BLUE("forward: converted old ams_mapping\n");
-                std::cout << j["ams_mapping"] << std::endl;
+                json_string = to_string(j["ams_mapping"]);
+                x1plus_logf("forward: converted old ams_mapping: %s", json_string.c_str());
             }
         } catch (...) { }
 
     } catch(...) {
-        PRINTF_BLUE("forward: hmmmmm, JSON exception of some kind.  hope it wasn't important\n");
+        x1plus_logf("forward: hmmmmm, JSON exception of some kind.  hope it wasn't important");
     }
     return handle_print_dds_message_orig(_this, j, param3);
 }
 
 extern "C" void *replace_next_extruder_filament_temp_override(std::string &path, void *b, std::string &next_extruder, std::string &new_temp) {
-    PRINTF_BLUE("forward: replace_next_extruder_filament_temp_override(%s, %p, %s, %s)\n", path.c_str(), b, next_extruder.c_str(), new_temp.c_str());
+    x1plus_logf("forward: replace_next_extruder_filament_temp_override(%s, %p, %s, %s)", path.c_str(), b, next_extruder.c_str(), new_temp.c_str());
     if (next_extruder == "254" && mc_speaks_new_protocol) {
         /* see, i.e.,
          * https://github.com/OrcaSlicer/OrcaSlicer/blob/e81e7b9a23f9f429a0134b0e3c35ffbb107f027a/src/slic3r/GUI/DeviceManager.cpp#L1536-L1538
          * -- new MC needs "AMS ID 254, slot ID 0" as the slot ID it chooses for spool */
-        PRINTF_BLUE("forward: overriding next_extruder for external spool!\n");
+        x1plus_logf("forward: overriding next_extruder for external spool!");
         next_extruder = "65280"; // AMS ID 255, slot id 0.  note: this works only as long as the current spool is not already loaded!
     }
     return replace_next_extruder_filament_temp_orig(path, b, next_extruder, new_temp);
@@ -610,12 +613,12 @@ int CProtocal_handle_mc_ams_flush_param(CProtocal *_this) {
     rv.type = _this->packet->payload[2];
     rv.const_2 = 2;
     
-    PRINTF_BLUE("CProtocal_handle_mc_ams_flush_param: %02x %02x %02x %02x\n",
+    x1plus_logf("CProtocal_handle_mc_ams_flush_param: %02x %02x %02x %02x",
         _this->packet->payload[0], _this->packet->payload[1], _this->packet->payload[2], _this->packet->payload[3]);
     
     switch (rv.type) {
     case 0: {
-        PRINTF_BLUE("CProtocal_handle_mc_ams_flush_param: asked for type get_ams_flush_param, no idea how to handle this\n");
+        x1plus_logf("CProtocal_handle_mc_ams_flush_param: asked for type get_ams_flush_param, no idea how to handle this");
         rv.rv = 0xFFFF;
         break;
     }
@@ -623,20 +626,20 @@ int CProtocal_handle_mc_ams_flush_param(CProtocal *_this) {
         int found = 0;
         for (int i = 0; i < sizeof(ams_temp_table)/sizeof(ams_temp_table[0]); i++) {
             if (!strcmp(ams_temp_table[i].name, ams_info[ams_id].trays[tray_id].tray_type)) {
-                PRINTF_BLUE("CProtocal_handle_mc_ams_flush_param: asked for cooltemp for tray %d %d, giving answer for %s\n", ams_id, tray_id, ams_temp_table[i].name);
+                x1plus_logf("CProtocal_handle_mc_ams_flush_param: asked for cooltemp for tray %d %d, giving answer for %s", ams_id, tray_id, ams_temp_table[i].name);
                 rv.rv = ams_temp_table[i].cool_temp;
                 found = 1;
                 break;
             }
         }
         if (!found) {
-            PRINTF_BLUE("CProtocal_handle_mc_ams_flush_param: asked for cooltemp for tray %d %d not in table, giving conservative answer\n", ams_id, tray_id);
+            x1plus_logf("CProtocal_handle_mc_ams_flush_param: asked for cooltemp for tray %d %d not in table, giving conservative answer", ams_id, tray_id);
             rv.rv = 0x37;
         }
         break;
     }
     default: {
-        PRINTF_BLUE("CProtocal_handle_mc_ams_flush_param: unknown flush_param\n");
+        x1plus_logf("CProtocal_handle_mc_ams_flush_param: unknown flush_param");
         return 0;
     }
     }
@@ -655,7 +658,7 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         return CProtocal_send_mcu_packet_orig(_this, payload, payload_length, req, dest, src, msg_id, msg_class, param_8);
     }
 
-    //PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: %04x -> %04x, cls %02x, id %02x, pl len %d\n", src, dest, msg_class, msg_id, payload_length);
+    //x1plus_logf("forward: CProtocal_send_mcu_packet_override: %04x -> %04x, cls %02x, id %02x, pl len %d", src, dest, msg_class, msg_id, payload_length);
     if (((msg_class == 0x01 && msg_id == MSG_GET_VERSION) ||
          (msg_class == 0x04 && msg_id == MSG_GET_MODULE_SN)) &&
         (dest == DM_EXT || dest == DM_AHB)) {
@@ -677,10 +680,10 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         }
         
         if (dt.tv_sec < 2) {
-            //PRINTF_BLUE("CProtocal_send_mcu_packet_override: nerfing req %x for dm %x\n", msg_id, dest);
+            //x1plus_logf("CProtocal_send_mcu_packet_override: nerfing req %x for dm %x", msg_id, dest);
             return 1;
         }
-        //PRINTF_BLUE("CProtocal_send_mcu_packet_override: allowing req %x for dm %x through\n", msg_id, dest);
+        //x1plus_logf("CProtocal_send_mcu_packet_override: allowing req %x for dm %x through", msg_id, dest);
         last_req[req_id] = now;
         return CProtocal_send_mcu_packet_orig(_this, payload, payload_length, req, dest, src, msg_id, msg_class, param_8);
     } else if (msg_class == 0x02 && msg_id == MSG_GCODE_LINE_HANDLE) {
@@ -689,10 +692,12 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         // pretending that AMS is on and sending an 0xFF00 AMS routing
         if (m620_e) {
             if (m620_e[6] == '0') {
-                PRINTF_BLUE("CProtocal_send_mcu_packet_override: found M620 E0, patching to M620 E1; use_ams = %d\n", _this->gparser.use_ams);
+                x1plus_logf("CProtocal_send_mcu_packet_override: found M620 E0, patching to M620 E1; use_ams = %d", _this->gparser.use_ams);
+                ams_is_enabled = false;
                 m620_e[6] = '1';
             } else {
-                PRINTF_BLUE("CProtocal_send_mcu_packet_override: found M620 E1, use_ams = %d\n", _this->gparser.use_ams);
+                ams_is_enabled = true;
+                x1plus_logf("CProtocal_send_mcu_packet_override: found M620 E%c, use_ams = %d", m620_e[6], _this->gparser.use_ams);
             }
         }
         return CProtocal_send_mcu_packet_orig(_this, payload, payload_length, req, dest, src, msg_id, msg_class, param_8);
@@ -701,7 +706,7 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         uint8_t pl = *(uint8_t *)payload;
         uint8_t pl_new[4] =
             { (uint8_t)(pl >> 2), (uint8_t)(pl & 3), 0xAB, 0xCD }; /* last two bytes seem to be incrementing?  maybe just uninitialized memory on stack */
-        //PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: rewriting link_ams_tray_consumption into link_ams_tray_consumption_v2\n");
+        //x1plus_logf("forward: CProtocal_send_mcu_packet_override: rewriting link_ams_tray_consumption into link_ams_tray_consumption_v2");
         return CProtocal_send_mcu_packet_override(_this, pl_new, 4, req, dest, src, MSG_AMS_V2_AMS_TRAY_CONSUMPTION, 0x02, param_8);
     } else if (msg_class == 0x01 && msg_id == MSG_GET_VERSION && dest == DM_AMS) { /* AMS, get_version */
         uint8_t *pl = (uint8_t *)payload;
@@ -723,7 +728,7 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         return CProtocal_send_mcu_packet_orig(_this, payload, payload_length, req, dest, src, msg_id, msg_class, param_8);
     } else if (msg_class == 0x02 && msg_id == MSG_AMS_TRAY_INFO_READ && dest == DM_AMS) { /* AMS, tray_info */
         uint8_t *pl = (uint8_t *)payload;
-        PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: tray info request for ams %d, tray %d\n", pl[0], pl[1]);
+        x1plus_logf("forward: CProtocal_send_mcu_packet_override: tray info request for ams %d, tray %d", pl[0], pl[1]);
         if (pl[0] < 4) {
             pl[0] = ams_info[pl[0]].phys_id;
         }
@@ -744,13 +749,13 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         
         new_map.len = 0x20;
         new_map.vers = old_map->vers;
-        PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: ams_mapping vers %02x\n", new_map.vers);
+        x1plus_logf("forward: CProtocal_send_mcu_packet_override: ams_mapping vers %02x", new_map.vers);
         if (!ams_is_enabled) {
-            PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: ams_mapping: use_ams = false!\n");
+            x1plus_logf("forward: CProtocal_send_mcu_packet_override: ams_mapping: use_ams = false!");
         }
         for (int i = 0; i < 16; i++) {
             
-            PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: ams_mapping %d = %02x\n", i, old_map->dest[i]);
+            x1plus_logf("forward: CProtocal_send_mcu_packet_override: ams_mapping %d = %02x", i, old_map->dest[i]);
             
             int ams_id_out = old_map->dest[i] >> 2;
             int slot_id_out = old_map->dest[i] & 3;
@@ -777,7 +782,7 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
                 dest_id = 0xff00;
             }
             
-            PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: AMS slot %d -> %04x\n", i, dest_id);
+            x1plus_logf("forward: CProtocal_send_mcu_packet_override: AMS slot %d -> %04x", i, dest_id);
             new_map.dest[i] = dest_id;
         }
         
@@ -798,14 +803,14 @@ int CProtocal_send_mcu_packet_override(CProtocal *_this, void *payload, size_t p
         if (pl_cmd->ams_id < 4 && pl_cmd->tray_id < 4) {
             pl_cmd->ams_id = ams_info[pl_cmd->ams_id].phys_id;
             if (pl_cmd->ams_id & 0x80) {
-                PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: overriding ams_tray_info_write for AMS HT\n");
+                x1plus_logf("forward: CProtocal_send_mcu_packet_override: overriding ams_tray_info_write for AMS HT");
                 dm_id = DM_AMS_HT;
             } else {
-                PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: overriding ams_tray_info_write for AMS classic\n");
+                x1plus_logf("forward: CProtocal_send_mcu_packet_override: overriding ams_tray_info_write for AMS classic");
                 dm_id = DM_AMS;
             }
         } else {
-            PRINTF_BLUE("forward: CProtocal_send_mcu_packet_override: not overriding ams_tray_info_write for ams_id %d, tray_id %d\n", pl_cmd->ams_id, pl_cmd->tray_id);
+            x1plus_logf("forward: CProtocal_send_mcu_packet_override: not overriding ams_tray_info_write for ams_id %d, tray_id %d", pl_cmd->ams_id, pl_cmd->tray_id);
         }
         
         return CProtocal_send_mcu_packet_orig(_this, payload, payload_length, req, dm_id, src, msg_id, msg_class, param_8);
@@ -868,13 +873,13 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
     
     while (len) {
         if (len < 2) {
-            PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left %d for a payload?\n", len);
+            x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left %d for a payload?", len);
             return 0;
         }
 
         int subpl_len = pl[1] + 2;
         if (len < subpl_len) {
-            PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left (%d) for subpayload %d bytes?\n", len, subpl_len);
+            x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left (%d) for subpayload %d bytes?", len, subpl_len);
             return 0;
         }
         
@@ -885,13 +890,13 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
             if (desc->ams_id & 0x80) {
                 int ams_id = desc->ams_id & 0x7F;
                 if (ams_id > 15) {
-                    PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: AMS-HT ID is too big\n");
+                    x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: AMS-HT ID is too big");
                     return 0;
                 }
                 phys_ams_bitmap |= 1 << (ams_id + 4);
             } else {
                 if (desc->ams_id > 3)  {
-                    PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: AMS ID is too big\n");
+                    x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: AMS ID is too big");
                     return 0;
                 }
                 if (ams_info[desc->ams_id].phys_id != desc->ams_id) {
@@ -921,7 +926,7 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
                 }
             }
             if (log_id == 4) {
-                PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: no logical AMS available for AMS-HT %d!\n", i);
+                x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: no logical AMS available for AMS-HT %d!", i);
                 break;
             }
             log_ams_bitmap |= 1 << log_id;
@@ -940,17 +945,17 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
     pl = _this->packet->payload;
     while (len) {
         if (len < 2) {
-            PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left %d for a payload?\n", len);
+            x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left %d for a payload?", len);
             return 0;
         }
 
         int subpl_len = pl[1] + 2;
         if (len < subpl_len) {
-            PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left (%d) for subpayload %d bytes?\n", len, subpl_len);
+            x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: not enough bytes left (%d) for subpayload %d bytes?", len, subpl_len);
             return 0;
         }
         
-        //PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: pl type %d, %d bytes\n", pl[0], subpl_len);
+        //x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: pl type %d, %d bytes", pl[0], subpl_len);
         switch (pl[0]) {
         case 0: { /* AMS descriptor */
             struct __attribute__((packed)) ams_desc {
@@ -968,12 +973,12 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
             };
             ams_desc *desc = (ams_desc *)pl;
             
-            //PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: AMS descriptor: ID %d, temperature %d, ?3 %02x, ?4 %02x, humidity %d, ?6 %02x, dry_sta %d, adapter_sta %d, ?9 %02x\n",
+            //x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: AMS descriptor: ID %d, temperature %d, ?3 %02x, ?4 %02x, humidity %d, ?6 %02x, dry_sta %d, adapter_sta %d, ?9 %02x",
             //   desc->ams_id, desc->temperature, desc->unknown_3, desc->unknown_4, desc->humidity, desc->unknown_6, desc->dry_sta, desc->adapter_sta, desc->unknown_9);
             
             int log_ams_id = ams_phys_to_log(desc->ams_id);
             if (log_ams_id > 3) {
-                PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: no logcal AMS for physical AMS %02x\n", desc->ams_id);
+                x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: no logcal AMS for physical AMS %02x", desc->ams_id);
                 break;
             }
             
@@ -998,7 +1003,7 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
             };
             tray_desc *desc = (tray_desc *)pl;
 
-            // PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: tray descriptor: ams %d, slot %d, status %02x\n",
+            // x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: tray descriptor: ams %d, slot %d, status %02x",
             //    desc->ams_id, desc->slot_id, desc->status);
 
             int log_ams_id = ams_phys_to_log(desc->ams_id);
@@ -1025,16 +1030,16 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
                 uint8_t insert_poweron_remain;
             };
             ams_flags *desc = (ams_flags *)pl;
-            // PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: ams flags: insert_poweron_remain %02x\n", desc->insert_poweron_remain);
+            // x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: ams flags: insert_poweron_remain %02x", desc->insert_poweron_remain);
             synth_link_ams_report.insert_poweron_remain = desc->insert_poweron_remain;
             break;
         }
         case 3: { /* extruder information */
-            //PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: unhandled: extruder information\n");
+            //x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: unhandled: extruder information");
             break;
         }
         default:
-            PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: unknown subpayload %d\n", pl[0]);
+            x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: unknown subpayload %d", pl[0]);
             return 0;
         }
 
@@ -1046,7 +1051,7 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
     int orig_len = _this->packet->packet_length;
     
     if (memcmp(&prev_synth_link_ams_report, &synth_link_ams_report, sizeof(synth_link_ams_report)) || force_ams_reread) {
-        PRINTF_BLUE("forward: CProtocal_handle_ams_v2_ams_info_update: synthesizing legacy packet\n");
+        x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: synthesizing legacy packet");
 
         memcpy(&prev_synth_link_ams_report, &synth_link_ams_report, sizeof(synth_link_ams_report));
         
@@ -1131,11 +1136,11 @@ int CProtocal_handle_ams_tray_info_write(CProtocal *_this) {
         _this->packet->payload[0] = ams_phys_to_log(_this->packet->payload[0]);
     }
 
-    PRINTF_BLUE("forward: CProtocal_handle_ams_tray_info_write: got ack for AMS %02x, tray %02x\n", _this->packet->payload[0], _this->packet->payload[1]);
+    x1plus_logf("forward: CProtocal_handle_ams_tray_info_write: got ack for AMS %02x, tray %02x", _this->packet->payload[0], _this->packet->payload[1]);
     
     if (mc_speaks_new_protocol) {
         force_ams_reread |= 1 << (_this->packet->payload[0] * 4 + _this->packet->payload[1]);
-        PRINTF_BLUE("forward: CProtocal_handle_ams_tray_info_write: set force_ams_reread to %08x and synthesize a reread\n", force_ams_reread);
+        x1plus_logf("forward: CProtocal_handle_ams_tray_info_write: set force_ams_reread to %08x and synthesize a reread", force_ams_reread);
     
         CProtocal_send_mcu_packet_override(_this, reread_req, 3, true, DM_AMS, DM_AP, MSG_AMS_TRAY_INFO_READ, 0x02, true);
     }
@@ -1146,7 +1151,7 @@ int CProtocal_handle_ams_tray_info_write(CProtocal *_this) {
 int CProtocal_handle_link_ams_tray_consumption_ack2(CProtocal *_this) {
     mc_spoke_new_protocol();
 
-    PRINTF_BLUE("forward: rewriting link_ams_tray_consumption_ack2 to link_ams_tray_consumption_ack\n");
+    x1plus_logf("forward: rewriting link_ams_tray_consumption_ack2 to link_ams_tray_consumption_ack");
     _this->packet->payload[0] = (_this->packet->payload[0] << 2) | (_this->packet->payload[1]);
     memmove(_this->packet->payload + 1, _this->packet->payload + 2, _this->packet->packet_length - 0x10);
     
@@ -1157,7 +1162,7 @@ int CProtocal_handle_ams_v2_ams_mapping(CProtocal *_this) {
     /* this is a request */
     mc_spoke_new_protocol();
 
-    PRINTF_BLUE("forward: rewriting ams_v2_ams_mapping to ams_mapping\n");
+    x1plus_logf("forward: rewriting ams_v2_ams_mapping to ams_mapping");
     
     int orig_len = _this->packet->packet_length;
     _this->packet->packet_length = 15 + 0x22;
@@ -1176,7 +1181,7 @@ int CProtocal_handle_ams_filament_drying(CProtocal *_this) {
     _dry_response_ams_id = *(uint8_t *)(_this->packet->payload);
     _dry_response_code = *(uint32_t *)(_this->packet->payload + 1);
     
-    PRINTF_BLUE("forward: AMS drying response, AMS ID %02x, resp %08x\n", _dry_response_ams_id, _dry_response_code);
+    x1plus_logf("forward: AMS drying response, AMS ID %02x, resp %08x", _dry_response_ams_id, _dry_response_code);
     
     pthread_cond_broadcast(&_dry_response_wait_cvar);
     pthread_mutex_unlock(&_dry_response_wait_mutex);
@@ -1186,7 +1191,7 @@ int CProtocal_handle_ams_filament_drying(CProtocal *_this) {
 int CProtocal_handle_ams_v2_packet(CProtocal *_this) {
     mc_spoke_new_protocol();
 
-    PRINTF_BLUE("forward: packet cmdset %d, cmdid %d, len %d\n", _this->packet->cmd_set, _this->packet->cmd_id, _this->packet->packet_length);
+    x1plus_logf("forward: packet cmdset %d, cmdid %d, len %d", _this->packet->cmd_set, _this->packet->cmd_id, _this->packet->packet_length);
     return 0;
 }
 
@@ -1295,11 +1300,11 @@ static void _publish_dbus_signal(const char *name, const char *bytes, int len) {
         dbus_error_init(&e);
         _dbus_connection = dbus_bus_get(1 /* DBUS_BUS_SYSTEM */, &e);
         if (!_dbus_connection) {
-            PRINTF_BLUE("forward_shim: failed to connect to dbus: %s\n", e.message);
+            fprintf(stderr, "forward_shim: failed to connect to dbus: %s\n", e.message);
             dbus_error_free(&e);
             return;
         }
-        PRINTF_BLUE("forward_shim: connected to dbus (I am %s)\n", dbus_bus_get_unique_name(_dbus_connection));
+        fprintf(stderr, "forward_shim: connected to dbus (I am %s)\n", dbus_bus_get_unique_name(_dbus_connection));
     }
     
     DBusMessage *msg = dbus_message_new_signal("/x1plus/forward", "x1plus.forward.mc", name);
@@ -1320,7 +1325,7 @@ SWIZZLE(int, open64, const char *s, int flag, ...)
 
     int fd = next(s, flag, mode);
     if (!strcmp(s, "/dev/ttyS1")) {
-        PRINTF_BLUE("forward_shim: opened /dev/ttyS1 as %d\n", fd);
+        x1plus_logf("forward_shim: opened /dev/ttyS1 as %d", fd);
         _publish_dbus_signal("SerialPortOpened", NULL, 0);
         ttyS1_fd = fd;
     }
@@ -1368,6 +1373,28 @@ SWIZZLE(ssize_t, write, int fd, const void *buf, size_t count)
     return next(fd, buf, count);
 }
 
+static void x1plus_logf(const char *fmt, ...)  {
+    va_list ap;
+    
+    int rv;
+    char *s;
+    va_start(ap, fmt);
+    rv = vasprintf(&s, fmt, ap);
+    va_end(ap);
+    
+    if (rv < 0)
+        return;
+    
+    _publish_dbus_signal("LogMessage", s, strlen(s));
+    
+    syslog(LOG_USER | LOG_NOTICE, "%s", s);
+    
+    fprintf(stderr, "\x1B[1;96m%s\n\x1B[0m", s);
+    fflush(stderr);
+    
+    free(s);
+}
+
 extern std::vector<std::string> eth_list;
 
 extern "C" int bbl_sal_get_debug_flag(int a) {
@@ -1377,7 +1404,7 @@ extern "C" int bbl_sal_get_debug_flag(int a) {
 extern "C" void __attribute__ ((constructor)) init() {
     unsetenv("LD_PRELOAD");
     for (auto s : eth_list ) {
-        PRINTF_BLUE("forward_shim: adding to network list, started with %s\n", s.c_str());
+        x1plus_logf("forward_shim: adding to network list, started with %s", s.c_str());
     }
     eth_list.push_back("eth0");
     patch_ams_callbacks();
