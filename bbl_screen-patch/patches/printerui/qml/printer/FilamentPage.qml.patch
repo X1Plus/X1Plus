@@ -17,7 +17,19 @@
      MarginPanel {
          id: howToPanel
          height: 538
-@@ -651,36 +652,49 @@
+@@ -633,8 +634,8 @@
+                     Text {
+                         width: parent.width - 10
+-                        y: 50
++                        y: 30
+                         anchors.horizontalCenter: parent.horizontalCenter
+                         font: Fonts.body_26
+                         minimumPixelSize: 10
+                         fontSizeMode: Text.HorizontalFit
+                         horizontalAlignment: Text.AlignHCenter
+@@ -650,37 +651,50 @@
+-                        text: modelData.exist ? (modelData.typeName + "").replace(" ", "\n")
++                        text: modelData.exist ? (modelData.typeName + "").replace(" ", "\n") + (modelData.remain >= 0 ? "\n" + modelData.remain + "%" : "")
                                                : qsTr("Empty")
                      }
  
