@@ -15,7 +15,29 @@ import "../printer"
 Item {
     id: top
     
+    property var usbDrives: []
+
+    function refreshUsbDrives() {
+        var result = X1PlusNative.popen("ls -d /media/usb* 2>/dev/null");
+        if (!result || result.length === 0) {
+            usbDrives = [];
+        } else {
+            usbDrives = result.split("\n").filter(function(s) {
+                return s.trim().length > 0 && s.indexOf("ls:") < 0;
+            });
+        }
+    }
+
+    Timer {
+        id: usbRefreshTimer
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: refreshUsbDrives()
+    }
+
     Component.onCompleted: {
+        refreshUsbDrives();
         if (X1Plus.Expansion.hardware().expansion_revision < "X1P-002-C00") {
             dialogStack.popupDialog("TextConfirm", {
                 name: "Vintage Expander",
@@ -254,9 +276,23 @@ Item {
                 }
         }
         
+        DeviceInfoItem {
+            title: qsTr("USB Storage")
+            value: usbDrives.length === 1
+                ? qsTr("1 drive connected")
+                : qsTr("%1 drives connected").arg(usbDrives.length)
+            hidden: usbDrives.length === 0
+            function onClicked() {
+                dialogStack.popupDialog('../settings/UsbStorageDialog', { drives: usbDrives });
+            }
+        }
         // there must always be at least one unhidden item at the bottom to
         // keep the line splitter looking right
-        DeviceInfoItem { title: qsTr("USB"); value: qsTr("Unsupported in current version") }
+        DeviceInfoItem {
+            title: qsTr("USB Storage")
+            value: qsTr("No drives connected")
+            hidden: usbDrives.length > 0
+        }
     }
     
     

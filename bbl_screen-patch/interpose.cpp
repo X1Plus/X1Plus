@@ -44,6 +44,9 @@
 #include <sys/mman.h>
 #include <dlfcn.h>
 #include <QtCore/QtEndian>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonObject>
 #include <linux/wireless.h>
 
 namespace X1Plus {
@@ -262,6 +265,23 @@ eject:
         }
     }
     
+    Q_INVOKABLE QString listDir(QString path) {
+        QDir dir(path);
+        if (!dir.exists()) return "[]";
+        QFileInfoList entries = dir.entryInfoList(
+            QDir::AllEntries | QDir::NoDotAndDotDot,
+            QDir::DirsFirst | QDir::Name | QDir::IgnoreCase);
+        QJsonArray result;
+        for (const QFileInfo &info : entries) {
+            QJsonObject obj;
+            obj["name"] = info.fileName();
+            obj["isDir"] = info.isDir();
+            obj["size"] = (qint64)info.size();
+            result.append(obj);
+        }
+        return QJsonDocument(result).toJson(QJsonDocument::Compact);
+    }
+
     Q_INVOKABLE void vncEnable(int enabled) {
 #ifdef HAS_VNC
         void x1plus_vnc_enable(bool enabled);
