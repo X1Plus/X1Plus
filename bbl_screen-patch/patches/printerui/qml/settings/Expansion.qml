@@ -15,7 +15,27 @@ import "../printer"
 Item {
     id: top
     
+    property var usbDrives: []
+
+    function refreshUsbDrives() {
+        var result = X1PlusNative.popen("awk '$2 ~ /^\\/media\\/usb/ {print $2}' /proc/mounts");
+        if (!result || result.length === 0) {
+            usbDrives = [];
+        } else {
+            usbDrives = result.split("\n").filter(function(s) { return s.trim().length > 0; });
+        }
+    }
+
+    Timer {
+        id: usbRefreshTimer
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: refreshUsbDrives()
+    }
+
     Component.onCompleted: {
+        refreshUsbDrives();
         if (X1Plus.Expansion.hardware().expansion_revision < "X1P-002-C00") {
             dialogStack.popupDialog("TextConfirm", {
                 name: "Vintage Expander",
@@ -254,9 +274,26 @@ Item {
                 }
         }
         
+        DeviceInfoItem {
+            title: qsTr("USB Storage")
+            value: usbDrives.length === 1
+                ? qsTr("1 drive connected")
+                : qsTr("%1 drives connected").arg(usbDrives.length)
+            hidden: usbDrives.length === 0
+            function onClicked() {
+                dialogStack.push("qrc:/printerui/qml/Dialog.qml", {
+                    url: "file:///opt/x1plus/share/qml/UsbStorageDialog.qml",
+                    args: { drives: usbDrives }
+                });
+            }
+        }
         // there must always be at least one unhidden item at the bottom to
         // keep the line splitter looking right
-        DeviceInfoItem { title: qsTr("USB"); value: qsTr("Unsupported in current version") }
+        DeviceInfoItem {
+            title: qsTr("USB Storage")
+            value: qsTr("No drives connected")
+            hidden: usbDrives.length > 0
+        }
     }
     
     
