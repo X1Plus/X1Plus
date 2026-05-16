@@ -18,13 +18,11 @@ Item {
     property var usbDrives: []
 
     function refreshUsbDrives() {
-        var result = X1PlusNative.popen("ls -d /media/usb* 2>/dev/null");
+        var result = X1PlusNative.popen("awk '$2 ~ /^\\/media\\/usb/ {print $2}' /proc/mounts");
         if (!result || result.length === 0) {
             usbDrives = [];
         } else {
-            usbDrives = result.split("\n").filter(function(s) {
-                return s.trim().length > 0 && s.indexOf("ls:") < 0;
-            });
+            usbDrives = result.split("\n").filter(function(s) { return s.trim().length > 0; });
         }
     }
 
@@ -283,7 +281,10 @@ Item {
                 : qsTr("%1 drives connected").arg(usbDrives.length)
             hidden: usbDrives.length === 0
             function onClicked() {
-                dialogStack.popupDialog('../settings/UsbStorageDialog', { drives: usbDrives });
+                dialogStack.push("qrc:/printerui/qml/Dialog.qml", {
+                    url: "file:///opt/x1plus/share/qml/UsbStorageDialog.qml",
+                    args: { drives: usbDrives }
+                });
             }
         }
         // there must always be at least one unhidden item at the bottom to
