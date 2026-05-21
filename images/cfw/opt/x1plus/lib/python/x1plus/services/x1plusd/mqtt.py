@@ -46,6 +46,10 @@ class MQTTClient():
                     # (AMS data is not always included in every push_status)
                     if 'ams' not in new_status and 'ams' in self.latest_print_status:
                         new_status['ams'] = self.latest_print_status['ams']
+                    # Preserve ipcam state across push_status updates that
+                    # don't include it, same as AMS.
+                    if 'ipcam' not in new_status and 'ipcam' in self.latest_print_status:
+                        new_status['ipcam'] = self.latest_print_status['ipcam']
                     self.latest_print_status = new_status
                 for handler in self.report_message_handlers.copy(): # avoid problems if this gets mutated out from under us mid handler
                     await handler(payload)

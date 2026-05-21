@@ -72,6 +72,7 @@ class AioRtspReceiver:
         self.got_seqparam = False
         self.got_picparam = False
         self.got_idr = False
+        result = None
 
         async with self.local_rtspreader() as reader:
             async for pkt in reader.iter_packets():
@@ -79,10 +80,15 @@ class AioRtspReceiver:
                 
                 if self.got_seqparam and self.got_picparam and self.got_idr:
                     logger.debug(f"received {len(self.received_nals)} bytes of h264")
-                    return self.received_nals
+                    result = self.received_nals
+                    break  # exit loop cleanly so context manager can send RTSP TEARDOWN
+
+        return result
     
     async def receive_jpeg(self):
         h264 = await self.receive_h264()
+        if h264 is None:
+            raise RuntimeError("receive_h264 returned no data (stream closed before a full frame was received)")
         with tempfile.NamedTemporaryFile() as h264file, tempfile.NamedTemporaryFile() as jpegfile:
             h264file.write(h264)
             os.system(f"/opt/x1plus/bin/h264tojpeg {h264file.name} {jpegfile.name}")
