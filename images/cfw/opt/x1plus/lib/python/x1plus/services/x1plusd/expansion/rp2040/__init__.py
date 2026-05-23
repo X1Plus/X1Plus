@@ -25,6 +25,11 @@ class Rp2040ExpansionDevice(ExpansionDevice):
 
     DRIVERS = { 'ledstrip': LedStripDriver, 'i2c': I2cDriver }
     
+    usb_port_map = {
+        "1-1.2": "A",
+        "1-1.3": "B",
+    }
+
     needs_reset_to_reopen = False
 
     @classmethod

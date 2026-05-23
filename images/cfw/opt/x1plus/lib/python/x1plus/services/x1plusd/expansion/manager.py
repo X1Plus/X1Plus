@@ -1,6 +1,8 @@
 import asyncio
 from collections import namedtuple
 import os
+import re
+import shutil
 import logging
 import time
 
@@ -26,6 +28,64 @@ logger = logging.getLogger(__name__)
 EXPANSION_INTERFACE = "x1plus.expansion"
 EXPANSION_PATH = "/x1plus/expansion"
 
+USB_POLL_INTERVAL = 2
+
+# Get a raw mapping of all USB mounts.  Caller is responsible for demapping
+# to marketing names.
+def _get_usb_mounts():
+    drives = []
+    seen = set()
+
+    with open("/proc/mounts") as f:
+        for line in f:
+            parts = line.split()
+            if len(parts) < 3:
+                continue
+
+            device, mount_point, fs = parts[0:3]
+            if not mount_point.startswith("/media/usb"):
+                continue
+            if not device.startswith("/dev/"):
+                continue
+            if mount_point in seen:
+                continue
+            seen.add(mount_point)
+            
+            mount = {
+                "mount_point": mount_point,
+                "device": device,
+                "filesystem": fs,
+            }
+            
+            # see if we can look up what USB port it's on. 
+            # /sys/class/block/x works for partitions also
+            try:
+                sysfs = os.path.realpath(f"/sys/class/block/{os.path.basename(device)}").split('/')
+                
+                # walk backwards in the path, finding the first thing
+                # that looks like a USB function path.
+                for sub in sysfs[::-1]:
+                    if re.match(r'\d+-\d+(\.\d+)*:\d+.\d+', sub):
+                        mount["usb_port"] = sub
+                        break
+            except Exception:
+                # maybe it wasn't in sysfs after all
+                pass
+            
+            # how much storage?
+            try:
+                usage = shutil.disk_usage(mount_point)
+                mount['disk_size'] = usage.total
+                mount['disk_used'] = usage.used
+                mount['disk_free'] = usage.free
+            except Exception:
+                # maybe it's not mounted anymore
+                pass
+            
+            drives.append(mount)
+
+    return drives
+
 class ExpansionManager(X1PlusDBusService):
     def __init__(self, daemon, **kwargs):
         self.daemon = daemon
@@ -33,7 +93,7 @@ class ExpansionManager(X1PlusDBusService):
         self.eeproms = {}
         self.drivers = {}
         self.last_configs = {}
-
+        
         # We only have to look for an expansion board on boot, since it
         # can't be hot-installed.
         self.expansion = Rp2040ExpansionDevice.detect()
@@ -73,7 +133,63 @@ class ExpansionManager(X1PlusDBusService):
 
     async def task(self):
         self._update_drivers()
+        self._usb = {"mounts": [], "devices": {}}
+        asyncio.create_task(self._poll_usb())
         await super().task()
+
+    async def _poll_usb(self):
+        while True:
+            mounts = _get_usb_mounts()
+            
+            # map drive USB ports (if present) to marketing names on
+            # Expander
+            if self.expansion:
+                for drive in mounts:
+                    if 'usb_port' in drive:
+                        drive['usb_port'] = self.expansion.usb_port_id_to_name(drive['usb_port'].split(":")[0])
+
+            # enumerate all USB devices connected to the Expander
+            devices = {}
+            if self.expansion:
+                # first, mark all the ports in the port table -- even if
+                # they're empty, they should show up in the UI as
+                # unconnected
+                for port,name in self.expansion.usb_port_map.items():
+                    devices[name] = {}
+                
+                # now go looking for all USB devices.  if they are ports, or
+                # children of ports, then put them in the device dictionary
+                for dev in os.listdir("/sys/bus/usb/devices"):
+                    if ':' in dev:
+                        continue # this is a function, not a device
+                    if not any(dev.startswith(port) for port in self.expansion.usb_port_map):
+                        continue # this is a USB device that is not attached to Expander
+
+                    name = self.expansion.usb_port_id_to_name(dev)
+                    syspath = f"/sys/bus/usb/devices/{dev}"
+                    devices[name] = {
+                        "path": dev,
+                        "vendor_id": open(f"{syspath}/idVendor", "r").read().strip(),
+                        "product_id": open(f"{syspath}/idProduct", "r").read().strip(),
+                        "manufacturer_string": open(f"{syspath}/manufacturer", "r").read().strip(),
+                        "product_string": open(f"{syspath}/product", "r").read().strip(),
+                    }
+                    
+                    # is there a configuration that we can read a driver from?
+                    for subpath in os.listdir(syspath):
+                        if os.path.exists(f"{syspath}/{subpath}/driver"):
+                            devices[name]['driver'] = os.path.basename(os.path.realpath(f"{syspath}/{subpath}/driver"))
+                    
+            usb = { "mounts": mounts, "devices": devices }
+            if usb != self._usb:
+                self._usb = usb
+                logger.info(f"USB status changed: {usb}")
+                await self.emit_signal("UsbChanged", usb)
+            
+            await asyncio.sleep(USB_POLL_INTERVAL)
+
+    async def dbus_GetUsb(self, req):
+        return self._usb
     
     def _update_drivers(self):
         if not self.expansion:

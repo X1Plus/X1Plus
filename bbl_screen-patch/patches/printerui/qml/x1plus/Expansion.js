@@ -27,7 +27,7 @@ var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 // it is a binding.
 var [hardware, _onHardware, _setHardware] = Binding.makeBinding(null);
 var [database, _onDatabase, _setDatabase] = Binding.makeBinding({});
-
+var [usb, _onUsb, _setUsb] = Binding.makeBinding({});
 
 function status() {
 	// status is hardware, augmented with configuration for each port
@@ -94,4 +94,7 @@ function awaken() {
 	_setHardware(curHardware);
 	
 	_setDatabase(X1Plus.loadJson("/opt/x1plus/share/expansion/expansion.json") || {"expansions": {}, "modules": {}});
+
+	_setUsb(X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetUsb")({}) || {"mounts": {}, "devices": {}});
+	X1Plus.DBus.onSignal("x1plus.expansion", "UsbChanged", function(usb) { _setUsb(usb); } );
 }
