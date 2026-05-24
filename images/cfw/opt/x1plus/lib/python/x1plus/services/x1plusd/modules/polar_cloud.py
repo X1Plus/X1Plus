@@ -784,7 +784,7 @@ class PolarPrintService(X1PlusDBusService):
                     # update -- but swallow this exception if it goes wrong.
                     try:
                         cam = AioRtspReceiver()
-                        jpeg = await cam.receive_jpeg()
+                        jpeg = await asyncio.wait_for(cam.receive_jpeg(), timeout=15)
 
                         if self.status in [0, 1, 8, 9, 10, 15]:
                             # In these cases send idle image.
@@ -913,6 +913,8 @@ class PolarPrintService(X1PlusDBusService):
         # Determine the file URL - prefer 3mf, fall back to gcode
         gcode_url = data.get("gcodeFile") or data.get("gcode_file")
         threemf_url = data.get("threemfFile") or data.get("threemf_file")
+
+        logger.info(f"Polar print URLs - gcode: {gcode_url}, threemf: {threemf_url}")
 
         if threemf_url:
             file_url = threemf_url
