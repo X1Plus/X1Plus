@@ -164,5 +164,14 @@ function awaken(){
             if (datum.gpio) {
                 _handleButton(datum.gpio.button, datum.gpio.event);
             }
+            
+            // this isn't technically gpiokeys, but it's convenient enough,
+            // since this is how x1plusd gets in touch with us.  only
+            // bbl_screen knows the key to restart the rtsp server, so we
+            // just let it do the job if x1plusd has to kick ipcam.
+            if (datum.restore_camera_rtsp !== undefined && X1Plus.RecordManager) {
+                console.log("[x1p] camera_watchdog: restoring RTSP server to", datum.restore_camera_rtsp);
+                X1Plus.RecordManager.rtspServerOn = datum.restore_camera_rtsp;
+            }
     });
 }

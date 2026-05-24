@@ -170,13 +170,14 @@ X1Plus.fileExists = fileExists;
  * they are loaded, and they might need to do work touching other modules. 
  * These things happen from 'awaken'.
  */
-function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Network) {
+function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Network, _RecordManager) {
 	console.log("X1Plus.js awakening");
 	X1Plus.DeviceManager = DeviceManager = _DeviceManager;
 	X1Plus.PrintManager = PrintManager = _PrintManager;
 	X1Plus.NetworkManager = NetworkManager = _NetworkManager;
 	X1Plus.PrintTask = PrintTask = _PrintTask;
 	X1Plus.NetworkEnum = NetworkEnum = _Network;
+	X1Plus.RecordManager = _RecordManager;
 	X1Plus.printerConfigDir = printerConfigDir = `/mnt/sdcard/x1plus/printers/${X1Plus.DeviceManager.build.seriaNO}`;
 	_X1PlusNative.system("mkdir -p " + _X1PlusNative.getenv("EMULATION_WORKAROUNDS") + printerConfigDir);
 	Settings.awaken();
