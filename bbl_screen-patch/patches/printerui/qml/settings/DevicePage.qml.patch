@@ -1,6 +1,6 @@
---- printer_ui-orig/printerui/qml/settings/DevicePage.qml
-+++ printer_ui/printerui/qml/settings/DevicePage.qml
-@@ -3,14 +3,48 @@
+--- printer_ui-orig/printerui/qml/settings/DevicePage.qml	2026-05-19 21:11:16.152564088 -0400
++++ printer_ui/printerui/qml/settings/DevicePage.qml	2026-05-24 17:07:59.179895200 -0400
+@@ -3,14 +3,96 @@
  import QtQml 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -16,8 +16,56 @@
      property var build: DeviceManager.build
      property var storage: DeviceManager.storage
 +    property var isShield: DeviceManager.getSetting("cfw_shield", false)
-+    property bool legacyWifiDriver: X1Plus.Settings.get("boot.wifi_driver.bcmdhd", false)
-+    property bool wifiPendingReboot: false
++    property var usbInfo: []
++    property var usbKnownPaths: []
++
++    function refreshUsbInfo() {
++        var mounts = X1PlusNative.popen("grep /media/usb /proc/mounts | cut -d' ' -f2").trim();
++        var mountedPaths = mounts.length > 0 ? mounts.split("\n").filter(function(s) { return s.trim().length > 0; }) : [];
++
++        // Add any newly seen paths to the known list
++        var changed = false;
++        for (var i = 0; i < mountedPaths.length; i++) {
++            if (usbKnownPaths.indexOf(mountedPaths[i]) < 0) {
++                var newPaths = usbKnownPaths.slice();
++                newPaths.push(mountedPaths[i]);
++                newPaths.sort();
++                usbKnownPaths = newPaths;
++                changed = true;
++            }
++        }
++
++        if (usbKnownPaths.length === 0) {
++            usbInfo = [];
++            return;
++        }
++
++        var result = [];
++        for (var j = 0; j < usbKnownPaths.length; j++) {
++            var path = usbKnownPaths[j];
++            var connected = mountedPaths.indexOf(path) >= 0;
++            if (connected) {
++                var df = X1PlusNative.popen("df -k '" + path + "' 2>/dev/null | awk 'NR==2{print $2,$3}'").trim();
++                var parts = df.split(" ");
++                if (parts.length >= 2) {
++                    var total = parseInt(parts[0]) / (1024 * 1024);
++                    var used = parseInt(parts[1]) / (1024 * 1024);
++                    result.push({ name: "USB " + (j + 1), used: used, total: total, connected: true });
++                }
++            } else {
++                result.push({ name: "USB " + (j + 1), used: 0, total: 1, connected: false });
++            }
++        }
++        usbInfo = result;
++    }
++
++    Timer {
++        id: usbInfoTimer
++        interval: 5000
++        running: true
++        repeat: true
++        onTriggered: refreshUsbInfo()
++    }
 +
 +    function setShield(shield) {
 +        isShield = shield;
@@ -49,7 +97,7 @@
  
      onVisibleChanged: {
          DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
-@@ -22,6 +56,7 @@
+@@ -22,6 +104,7 @@
  
      property var infoItems: SimpleItemModel {
          DeviceInfoItem { title: qsTr("Device"); value: build.name
@@ -57,7 +105,7 @@
          }
          DeviceInfoItem { title: qsTr("Language"); value: DeviceManager.languageTitle
              function onClicked() {
-@@ -31,8 +66,8 @@
+@@ -31,8 +114,8 @@
                  choisePad.choiseCallback = function(c) { DeviceManager.languageTitle = c }
                  choisePad.popupFor()
              } }
@@ -68,7 +116,7 @@
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +91,99 @@
+@@ -56,79 +139,71 @@
                  }
                  choisePad.popupFor()
              } }
@@ -145,38 +193,11 @@
 -                                     // return !DeviceManager.storage.internal
 -                                     return !DeviceManager.formattingSDCard
 -                                 })
+-                             })
 +        DeviceInfoItem { title: qsTr("Device info"); value: build.seriaNO
 +            function onClicked() { pageStack.push("DeviceInfo.qml") }
-+        }
-+        
-+        DeviceInfoItem { title: qsTr("WiFi driver"); value: ((legacyWifiDriver) ? qsTr("Legacy") : qsTr("X1Plus")) + (wifiPendingReboot ? qsTr(" (reboot needed)") : "")
-+            function onClicked() { toggleWifiDriver() }
-+        }
-+    }
-+    function toggleWifiDriver(){
-+        var wifiDlgConfirm = function() {
-+            legacyWifiDriver = !legacyWifiDriver
-+            X1Plus.Settings.put("boot.wifi_driver.bcmdhd", legacyWifiDriver);
-+            dialogStack.popupDialog("TextConfirm", {
-+                                name: "Reboot",
-+                                text: qsTr("WiFi driver changes will take effect after X1Plus reboots. Would you like to reboot now?"),
-+                                titles: [qsTr("No") /* YES */, qsTr("Reboot Now") /* NO */],
-+                                defaultButton: TextConfirm.NO, /* default = reboot now  */
-+                                onNo: () => X1PlusNative.system(`sync; reboot`)
-                              })
-+            wifiPendingReboot = true;
          }
 +        
-+        var wifiDlg = legacyWifiDriver ?
-+                        qsTr("X1Plus is currently configured to load legacy (OEM) WiFi driver. Would you like to use the default X1Plus WiFi driver instead?") :
-+                        qsTr("X1Plus is currently configured to load the default X1Plus WiFi driver. Would you like to use the legacy (OEM) WiFi driver instead? (This is not typically necessary.)")
-+        dialogStack.popupDialog("TextConfirm", {
-+                                        name: "WiFi Driver",
-+                                        text: wifiDlg,
-+                                        titles: [qsTr("Cancel") /* YES */, qsTr("Yes") /* NO */],
-+                                        defaultButton: TextConfirm.YES,
-+                                        onNo: wifiDlgConfirm 
-+                                    })
 +    }
 +
 +    function triggerName() {
@@ -231,14 +252,14 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,30 +228,36 @@
+@@ -173,81 +248,179 @@
                                          onYes: restore
                                      })
          }
 -    }
 +    }*/
-+
  
++
 +    
      MarginPanel {
          id: ctrlPanel
@@ -253,56 +274,120 @@
 +        bottomMargin: 10
  
          MarginPanel {
-             id: sdIdStorage
+-            id: sdIdStorage
 -            x:20
 -            y:15
 -            width: 245
 -            height: 155
++            id: storagePanel
++            width: 426
 +            anchors.horizontalCenter: parent.horizontalCenter
 +            anchors.top: parent.top
 +            topMargin: 26
-+            width: 426
-+            height: 135
              marginColor: "transparent"
 -            rightRadiusOff: true
 -            color: Colors.gray_700
 +            color: Colors.gray_600
++            height: 32 + 80 + usbInfo.length * 81
  
-             ZText {
-                 id: sdName
-                 maxWidth: parent.width - 10
+-            ZText {
+-                id: sdName
+-                maxWidth: parent.width - 10
 -                anchors.bottom: parent.bottom
 -                anchors.bottomMargin: 72
+-                anchors.horizontalCenter: parent.horizontalCenter
++            // SD card row
++            Text {
++                anchors.left: parent.left
++                anchors.leftMargin: 16
 +                anchors.top: parent.top
-+                anchors.topMargin: 15
-                 anchors.horizontalCenter: parent.horizontalCenter
++                anchors.topMargin: 14
++                font: Fonts.body_26
                  color: Colors.gray_200
-                 font: Fonts.body_40
-@@ -206,6 +267,7 @@
-             ZText {
-                 id: sdSpace
-                 anchors.top: sdName.bottom
-+                anchors.topMargin: 10
-                 anchors.horizontalCenter: sdName.horizontalCenter
-                 color: Colors.font2
+-                font: Fonts.body_40
+                 text: qsTr("SD card")
+             }
+-
+-            ZText {
+-                id: sdSpace
+-                anchors.top: sdName.bottom
+-                anchors.horizontalCenter: sdName.horizontalCenter
+-                color: Colors.font2
++            Text {
++                anchors.right: parent.right
++                anchors.rightMargin: 16
++                anchors.top: parent.top
++                anchors.topMargin: 14
                  font: Fonts.body_24
-@@ -215,12 +277,12 @@
- 
++                color: Colors.font2
+                 text: !storage.internal ? storage.usage.toFixed(1) + "G/" + storage.capcity.toFixed(1) + "G"
+                                         : storage.hasExternal ? qsTr("Format required") : qsTr("No SD card")
+             }
+-
              ZProgressBar {
-                 id: sdProgressBar
+-                id: sdProgressBar
 -                width: 185
-+                width: parent.width - 30
++                width: parent.width - 32
                  height: 8
-                 type: ZProgressBarAppearance.Secondary
-                 size: ZProgressBarAppearance.Middle
+-                type: ZProgressBarAppearance.Secondary
+-                size: ZProgressBarAppearance.Middle
 -                anchors.top: parent.top
 -                anchors.topMargin: 122
-+                anchors.top: sdSpace.bottom
-+                anchors.topMargin: 10
                  anchors.horizontalCenter: parent.horizontalCenter
++                anchors.top: parent.top
++                anchors.topMargin: 56
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,25 +291,73 @@
+                 value: storage.internal ? 0 : storage.usage / storage.capcity
+             }
++
++            // USB drive rows
++            Repeater {
++                model: usbInfo
++                delegate: Item {
++                    width: storagePanel.width
++                    height: 81
++                    y: 80 + index * 81
++
++                    Rectangle {
++                        width: parent.width - 32
++                        height: 1
++                        anchors.horizontalCenter: parent.horizontalCenter
++                        anchors.top: parent.top
++                        color: Colors.gray_400
++                    }
++                    Text {
++                        anchors.left: parent.left
++                        anchors.leftMargin: 16
++                        anchors.top: parent.top
++                        anchors.topMargin: 15
++                        font: Fonts.body_26
++                        color: Colors.gray_200
++                        text: modelData.name
++                    }
++                    Text {
++                        anchors.right: parent.right
++                        anchors.rightMargin: 16
++                        anchors.top: parent.top
++                        anchors.topMargin: 15
++                        font: Fonts.body_24
++                        color: Colors.font2
++                        text: modelData.connected
++                            ? modelData.used.toFixed(1) + "G/" + modelData.total.toFixed(1) + "G"
++                            : qsTr("Not connected")
++                    }
++                    ZProgressBar {
++                        width: storagePanel.width - 32
++                        height: 8
++                        anchors.horizontalCenter: parent.horizontalCenter
++                        anchors.top: parent.top
++                        anchors.topMargin: 57
++                        backgroundColor: StateColors.get("gray_500")
++                        progressColor: Colors.brand
++                        value: modelData.connected ? modelData.used / modelData.total : 0
++                    }
++                }
++            }
          }
  
          MarginPanel {
@@ -315,9 +400,9 @@
 +            id: video
 +            width: 426
 +            height: 186
-+            anchors.top: sdIdStorage.bottom
++            anchors.top: storagePanel.bottom
 +            anchors.topMargin: 26
-+            anchors.left: sdIdStorage.left
++            anchors.left: storagePanel.left
 +            color: Colors.gray_600
 +            radius: 15
              marginColor: "transparent"
@@ -363,7 +448,7 @@
 +            height: 186
 +            anchors.top: video.bottom
 +            anchors.topMargin: 21
-+            anchors.left: sdIdStorage.left
++            anchors.left: storagePanel.left
 +            color: Colors.gray_600
 +            radius: 15
 +            marginColor: "transparent"
@@ -392,16 +477,21 @@
                  }
              }
          }
-@@ -255,7 +365,7 @@
+@@ -255,10 +428,10 @@
          MarginPanel {
              id: lanOnly
              width: 426
 -            height: 178
-+            height: 396
-             anchors.top: sdIdStorage.bottom
+-            anchors.top: sdIdStorage.bottom
++            height: 175
++            anchors.top: storagePanel.bottom
              anchors.topMargin: 16
-             anchors.left: sdIdStorage.left
-@@ -266,30 +376,45 @@
+-            anchors.left: sdIdStorage.left
++            anchors.left: storagePanel.left
+             color: Colors.gray_600
+             radius: 15
+             marginColor: "transparent"
+@@ -266,30 +439,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -461,7 +551,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -297,103 +422,48 @@
+@@ -297,103 +485,48 @@
                                                                  text: qsTr("Do you need to open LAN Mode Liveview?"),
                                                                  defaultButton: 0,
                                                                  onYes: function() {
@@ -591,7 +681,7 @@
              }
          }
      }
-@@ -404,7 +474,9 @@
+@@ -404,7 +537,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -602,7 +692,7 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -418,6 +490,8 @@
+@@ -418,6 +553,8 @@
              delegate: infoComp
          }
  
@@ -611,7 +701,7 @@
          SimplePager {
              visible: infoList
              anchors.right: parent.right
-@@ -428,6 +502,7 @@
+@@ -428,6 +565,7 @@
              btnType: ZButtonAppearance.Secondary
              onStepTo: infoList.contentY = position
          }
@@ -619,7 +709,7 @@
      }
  
      PopupPad {
-@@ -581,6 +656,114 @@
+@@ -581,6 +719,114 @@
  
      }
  
@@ -734,7 +824,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +790,41 @@
+@@ -607,4 +853,41 @@
              }
          }
      }
