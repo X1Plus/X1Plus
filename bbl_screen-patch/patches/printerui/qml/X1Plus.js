@@ -164,6 +164,18 @@ function fileExists(fPath) {
 }
 X1Plus.fileExists = fileExists;
 
+var [_usbDrives, _onUsbDrives, _setUsbDrives] = Binding.makeBinding([]);
+var [_usbDriveInfo, _onUsbDriveInfo, _setUsbDriveInfo] = Binding.makeBinding([]);
+function usbDrives() { return _usbDrives(); }
+X1Plus.usbDrives = usbDrives;
+function usbDriveInfo() { return _usbDriveInfo(); }
+X1Plus.usbDriveInfo = usbDriveInfo;
+
+function _applyUsbDrives(info) {
+    _setUsbDriveInfo(info);
+    _setUsbDrives(info.map(function(d) { return d.path; }));
+}
+
 /* Some things can only happen after we have a DeviceManager and
  * PrintManager passed down, and the real QML environment is truly alive. 
  * Submodules also don't get access to the global X1Plus object until after
@@ -191,6 +203,9 @@ function awaken(_DeviceManager, _PrintManager, _NetworkManager, _PrintTask, _Net
 	Actions.awaken();
 	Sensors.awaken();
 	Polar.awaken();
+	var _getUsbDrives = DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetUsbDrives");
+	DBus.onSignal("x1plus.expansion", "UsbDrivesChanged", function(drives) { _applyUsbDrives(drives); });
+	_applyUsbDrives(_getUsbDrives(null) || []);
 	console.log("X1Plus.js is awake");
 }
 

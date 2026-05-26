@@ -17,25 +17,15 @@ Item {
     
     property var usbDrives: []
 
-    function refreshUsbDrives() {
-        var result = X1PlusNative.popen("awk '$2 ~ /^\\/media\\/usb/ {print $2}' /proc/mounts");
-        if (!result || result.length === 0) {
-            usbDrives = [];
-        } else {
-            usbDrives = result.split("\n").filter(function(s) { return s.trim().length > 0; });
-        }
-    }
-
     Timer {
-        id: usbRefreshTimer
         interval: 5000
         running: true
         repeat: true
-        onTriggered: refreshUsbDrives()
+        onTriggered: top.usbDrives = X1Plus.usbDrives()
     }
 
     Component.onCompleted: {
-        refreshUsbDrives();
+        top.usbDrives = X1Plus.usbDrives();
         if (X1Plus.Expansion.hardware().expansion_revision < "X1P-002-C00") {
             dialogStack.popupDialog("TextConfirm", {
                 name: "Vintage Expander",
@@ -283,7 +273,7 @@ Item {
             function onClicked() {
                 dialogStack.push("qrc:/printerui/qml/Dialog.qml", {
                     url: "file:///opt/x1plus/share/qml/UsbStorageDialog.qml",
-                    args: { drives: usbDrives }
+                    args: { driveInfo: X1Plus.usbDriveInfo() }
                 });
             }
         }

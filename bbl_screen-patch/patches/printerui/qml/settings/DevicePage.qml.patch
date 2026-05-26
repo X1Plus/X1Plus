@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/DevicePage.qml
 +++ printer_ui/printerui/qml/settings/DevicePage.qml
-@@ -3,14 +3,48 @@
+@@ -3,14 +3,98 @@
  import QtQml 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -18,6 +18,56 @@
 +    property var isShield: DeviceManager.getSetting("cfw_shield", false)
 +    property bool legacyWifiDriver: X1Plus.Settings.get("boot.wifi_driver.bcmdhd", false)
 +    property bool wifiPendingReboot: false
++    property var usbInfo: []
++    property var usbKnownPaths: []
++
++    function refreshUsbInfo() {
++        var mounts = X1PlusNative.popen("grep /media/usb /proc/mounts | cut -d' ' -f2").trim();
++        var mountedPaths = mounts.length > 0 ? mounts.split("\n").filter(function(s) { return s.trim().length > 0; }) : [];
++
++        // Add any newly seen paths to the known list
++        var changed = false;
++        for (var i = 0; i < mountedPaths.length; i++) {
++            if (usbKnownPaths.indexOf(mountedPaths[i]) < 0) {
++                var newPaths = usbKnownPaths.slice();
++                newPaths.push(mountedPaths[i]);
++                newPaths.sort();
++                usbKnownPaths = newPaths;
++                changed = true;
++            }
++        }
++
++        if (usbKnownPaths.length === 0) {
++            usbInfo = [];
++            return;
++        }
++
++        var result = [];
++        for (var j = 0; j < usbKnownPaths.length; j++) {
++            var path = usbKnownPaths[j];
++            var connected = mountedPaths.indexOf(path) >= 0;
++            if (connected) {
++                var df = X1PlusNative.popen("df -k '" + path + "' 2>/dev/null | awk 'NR==2{print $2,$3}'").trim();
++                var parts = df.split(" ");
++                if (parts.length >= 2) {
++                    var total = parseInt(parts[0]) / (1024 * 1024);
++                    var used = parseInt(parts[1]) / (1024 * 1024);
++                    result.push({ name: "USB " + (j + 1), used: used, total: total, connected: true });
++                }
++            } else {
++                result.push({ name: "USB " + (j + 1), used: 0, total: 1, connected: false });
++            }
++        }
++        usbInfo = result;
++    }
++
++    Timer {
++        id: usbInfoTimer
++        interval: 5000
++        running: true
++        repeat: true
++        onTriggered: refreshUsbInfo()
++    }
 +
 +    function setShield(shield) {
 +        isShield = shield;
@@ -49,7 +99,7 @@
  
      onVisibleChanged: {
          DeviceManager.activeDeviceInfos(DeviceManager.DI_Storage, visible)
-@@ -22,6 +56,7 @@
+@@ -22,6 +106,7 @@
  
      property var infoItems: SimpleItemModel {
          DeviceInfoItem { title: qsTr("Device"); value: build.name
@@ -57,7 +107,7 @@
          }
          DeviceInfoItem { title: qsTr("Language"); value: DeviceManager.languageTitle
              function onClicked() {
-@@ -31,8 +66,8 @@
+@@ -31,8 +116,8 @@
                  choisePad.choiseCallback = function(c) { DeviceManager.languageTitle = c }
                  choisePad.popupFor()
              } }
@@ -68,7 +118,7 @@
              property var onClicked: triggerVersion
          }
          DeviceInfoItem { title: qsTr("Video"); value: models[number]
-@@ -56,79 +91,133 @@
+@@ -56,79 +141,133 @@
                  }
                  choisePad.popupFor()
              } }
@@ -200,11 +250,7 @@
 +        var mcMessage = X1Plus.Settings.get("mc.use_legacy_fw", false) ?
 +                        qsTr("X1Plus is currently configured to use legacy MC firmware that does not support AMS 2 or AMS HT.  Switch back to modern firmware?") :
 +                        qsTr("X1Plus is currently configured to use the new-style MC firmware that supports AMS 2 and AMS HT.  If you're running into problems, you can try using the legacy MC firmware.  Switch to legacy MC FW?  (If this helps, please report the issue.)");
-         dialogStack.popupDialog("TextConfirm", {
--                             name: "Format storage",
--                             text: qsTr("Data cannot be recovered after formatting the SD Card. Are you sure you want to format?"),
--                             titles: [qsTr("Format"), qsTr("Cancel")],
--                             onYes: format
++        dialogStack.popupDialog("TextConfirm", {
 +                                        name: "MC firmware fallback",
 +                                        text: mcMessage,
 +                                        titles: [qsTr("Cancel") /* YES */, qsTr("Yes") /* NO */],
@@ -215,7 +261,11 @@
 +
 +
 +    function triggerName() {
-+        dialogStack.popupDialog("TextConfirm", {
+         dialogStack.popupDialog("TextConfirm", {
+-                             name: "Format storage",
+-                             text: qsTr("Data cannot be recovered after formatting the SD Card. Are you sure you want to format?"),
+-                             titles: [qsTr("Format"), qsTr("Cancel")],
+-                             onYes: format
 +                             name: "Device name",
 +                             text: qsTr("To change the name of your device, please use the slicer or the Bambu app."),
 +                             type: TextConfirm.CONFIRM
@@ -262,14 +312,14 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,30 +262,36 @@
+@@ -173,81 +312,179 @@
                                          onYes: restore
                                      })
          }
 -    }
 +    }*/
- 
 +
+ 
 +    
      MarginPanel {
          id: ctrlPanel
@@ -284,56 +334,120 @@
 +        bottomMargin: 10
  
          MarginPanel {
-             id: sdIdStorage
+-            id: sdIdStorage
 -            x:20
 -            y:15
 -            width: 245
 -            height: 155
++            id: storagePanel
++            width: 426
 +            anchors.horizontalCenter: parent.horizontalCenter
 +            anchors.top: parent.top
 +            topMargin: 26
-+            width: 426
-+            height: 135
              marginColor: "transparent"
 -            rightRadiusOff: true
 -            color: Colors.gray_700
 +            color: Colors.gray_600
++            height: 32 + 80 + usbInfo.length * 81
  
-             ZText {
-                 id: sdName
-                 maxWidth: parent.width - 10
+-            ZText {
+-                id: sdName
+-                maxWidth: parent.width - 10
 -                anchors.bottom: parent.bottom
 -                anchors.bottomMargin: 72
+-                anchors.horizontalCenter: parent.horizontalCenter
++            // SD card row
++            Text {
++                anchors.left: parent.left
++                anchors.leftMargin: 16
 +                anchors.top: parent.top
-+                anchors.topMargin: 15
-                 anchors.horizontalCenter: parent.horizontalCenter
++                anchors.topMargin: 14
++                font: Fonts.body_26
                  color: Colors.gray_200
-                 font: Fonts.body_40
-@@ -206,6 +301,7 @@
-             ZText {
-                 id: sdSpace
-                 anchors.top: sdName.bottom
-+                anchors.topMargin: 10
-                 anchors.horizontalCenter: sdName.horizontalCenter
-                 color: Colors.font2
+-                font: Fonts.body_40
+                 text: qsTr("SD card")
+             }
+-
+-            ZText {
+-                id: sdSpace
+-                anchors.top: sdName.bottom
+-                anchors.horizontalCenter: sdName.horizontalCenter
+-                color: Colors.font2
++            Text {
++                anchors.right: parent.right
++                anchors.rightMargin: 16
++                anchors.top: parent.top
++                anchors.topMargin: 14
                  font: Fonts.body_24
-@@ -215,12 +311,12 @@
- 
++                color: Colors.font2
+                 text: !storage.internal ? storage.usage.toFixed(1) + "G/" + storage.capcity.toFixed(1) + "G"
+                                         : storage.hasExternal ? qsTr("Format required") : qsTr("No SD card")
+             }
+-
              ZProgressBar {
-                 id: sdProgressBar
+-                id: sdProgressBar
 -                width: 185
-+                width: parent.width - 30
++                width: parent.width - 32
                  height: 8
-                 type: ZProgressBarAppearance.Secondary
-                 size: ZProgressBarAppearance.Middle
+-                type: ZProgressBarAppearance.Secondary
+-                size: ZProgressBarAppearance.Middle
 -                anchors.top: parent.top
 -                anchors.topMargin: 122
-+                anchors.top: sdSpace.bottom
-+                anchors.topMargin: 10
                  anchors.horizontalCenter: parent.horizontalCenter
++                anchors.top: parent.top
++                anchors.topMargin: 56
                  backgroundColor: StateColors.get("gray_500")
                  progressColor: Colors.brand
-@@ -229,25 +325,73 @@
+                 value: storage.internal ? 0 : storage.usage / storage.capcity
+             }
++
++            // USB drive rows
++            Repeater {
++                model: usbInfo
++                delegate: Item {
++                    width: storagePanel.width
++                    height: 81
++                    y: 80 + index * 81
++
++                    Rectangle {
++                        width: parent.width - 32
++                        height: 1
++                        anchors.horizontalCenter: parent.horizontalCenter
++                        anchors.top: parent.top
++                        color: Colors.gray_400
++                    }
++                    Text {
++                        anchors.left: parent.left
++                        anchors.leftMargin: 16
++                        anchors.top: parent.top
++                        anchors.topMargin: 15
++                        font: Fonts.body_26
++                        color: Colors.gray_200
++                        text: modelData.name
++                    }
++                    Text {
++                        anchors.right: parent.right
++                        anchors.rightMargin: 16
++                        anchors.top: parent.top
++                        anchors.topMargin: 15
++                        font: Fonts.body_24
++                        color: Colors.font2
++                        text: modelData.connected
++                            ? modelData.used.toFixed(1) + "G/" + modelData.total.toFixed(1) + "G"
++                            : qsTr("Not connected")
++                    }
++                    ZProgressBar {
++                        width: storagePanel.width - 32
++                        height: 8
++                        anchors.horizontalCenter: parent.horizontalCenter
++                        anchors.top: parent.top
++                        anchors.topMargin: 57
++                        backgroundColor: StateColors.get("gray_500")
++                        progressColor: Colors.brand
++                        value: modelData.connected ? modelData.used / modelData.total : 0
++                    }
++                }
++            }
          }
  
          MarginPanel {
@@ -346,9 +460,9 @@
 +            id: video
 +            width: 426
 +            height: 186
-+            anchors.top: sdIdStorage.bottom
++            anchors.top: storagePanel.bottom
 +            anchors.topMargin: 26
-+            anchors.left: sdIdStorage.left
++            anchors.left: storagePanel.left
 +            color: Colors.gray_600
 +            radius: 15
 +            marginColor: "transparent"
@@ -384,7 +498,7 @@
 +            height: 186
 +            anchors.top: video.bottom
 +            anchors.topMargin: 21
-+            anchors.left: sdIdStorage.left
++            anchors.left: storagePanel.left
 +            color: Colors.gray_600
 +            radius: 15
              marginColor: "transparent"
@@ -423,16 +537,21 @@
                  }
              }
          }
-@@ -255,7 +399,7 @@
+@@ -255,10 +492,10 @@
          MarginPanel {
              id: lanOnly
              width: 426
 -            height: 178
-+            height: 396
-             anchors.top: sdIdStorage.bottom
+-            anchors.top: sdIdStorage.bottom
++            height: 175
++            anchors.top: storagePanel.bottom
              anchors.topMargin: 16
-             anchors.left: sdIdStorage.left
-@@ -266,30 +410,45 @@
+-            anchors.left: sdIdStorage.left
++            anchors.left: storagePanel.left
+             color: Colors.gray_600
+             radius: 15
+             marginColor: "transparent"
+@@ -266,30 +503,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -492,7 +611,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -297,103 +456,48 @@
+@@ -297,103 +549,48 @@
                                                                  text: qsTr("Do you need to open LAN Mode Liveview?"),
                                                                  defaultButton: 0,
                                                                  onYes: function() {
@@ -622,7 +741,7 @@
              }
          }
      }
-@@ -404,7 +508,9 @@
+@@ -404,7 +601,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -633,7 +752,7 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -418,6 +524,8 @@
+@@ -418,6 +617,8 @@
              delegate: infoComp
          }
  
@@ -642,7 +761,7 @@
          SimplePager {
              visible: infoList
              anchors.right: parent.right
-@@ -428,6 +536,7 @@
+@@ -428,6 +629,7 @@
              btnType: ZButtonAppearance.Secondary
              onStepTo: infoList.contentY = position
          }
@@ -650,7 +769,7 @@
      }
  
      PopupPad {
-@@ -581,6 +690,114 @@
+@@ -581,6 +783,114 @@
  
      }
  
@@ -765,7 +884,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +824,41 @@
+@@ -607,4 +917,41 @@
              }
          }
      }
