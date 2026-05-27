@@ -5,6 +5,7 @@ import Printer 1.0
 import X1PlusNative 1.0
 import "qrc:/uibase/qml/widgets"
 import "qrc:/printerui/qml/dialog"
+import "qrc:/printerui/qml/X1Plus.js" as X1Plus
 
 Item {
     property alias name: textConfirm.objectName
@@ -37,7 +38,10 @@ Item {
         interval: 5000
         running: true
         repeat: true
-        onTriggered: refreshEntries()
+        onTriggered: {
+            driveInfo = X1Plus.usbDriveInfo();
+            refreshEntries();
+        }
     }
 
     function formatSize(bytes) {
@@ -57,12 +61,11 @@ Item {
             isDefault: true
             keepDialog: true
             onClicked: {
-                X1PlusNative.system("mkdir -p /sdcard/usb_imports");
                 var data = X1PlusNative.readFile(currentPath + "/" + selectedEntry.name);
                 if (data.length === 0) {
                     copyStatus = qsTr("Copy failed");
                 } else {
-                    X1PlusNative.saveFile("/sdcard/usb_imports/" + selectedEntry.name, data);
+                    X1PlusNative.saveFile("/sdcard/" + selectedEntry.name, data);
                     copyStatus = qsTr("Copied!");
                 }
             }
