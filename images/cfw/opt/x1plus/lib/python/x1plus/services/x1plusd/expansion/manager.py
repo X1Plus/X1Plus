@@ -1,6 +1,7 @@
 import asyncio
 from collections import namedtuple
 import os
+import re
 import logging
 import time
 
@@ -25,6 +26,41 @@ logger = logging.getLogger(__name__)
 
 EXPANSION_INTERFACE = "x1plus.expansion"
 EXPANSION_PATH = "/x1plus/expansion"
+
+# Sysfs USB hub port → Expander port label
+USB_PORT_MAP = {
+    "1-1.2": "a",
+    "1-1.3": "b",
+}
+USB_POLL_INTERVAL = 5
+
+
+def _get_usb_drives():
+    drives = []
+    seen = set()
+    try:
+        with open("/proc/mounts") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                device, mount_point = parts[0], parts[1]
+                if not mount_point.startswith("/media/usb"):
+                    continue
+                if mount_point in seen:
+                    continue
+                seen.add(mount_point)
+                dev_name = re.sub(r'\d+$', '', os.path.basename(device))
+                try:
+                    sysfs = os.path.realpath(f"/sys/block/{dev_name}")
+                    m = re.search(r'/(1-1\.\d+)/', sysfs)
+                    usb_port = m.group(1) if m else None
+                except Exception:
+                    usb_port = None
+                drives.append({"path": mount_point, "port": USB_PORT_MAP.get(usb_port)})
+    except Exception as e:
+        logger.error(f"error reading USB drives: {e}")
+    return drives
 
 class ExpansionManager(X1PlusDBusService):
     def __init__(self, daemon, **kwargs):
@@ -73,7 +109,21 @@ class ExpansionManager(X1PlusDBusService):
 
     async def task(self):
         self._update_drivers()
+        self._usb_drives = []
+        asyncio.create_task(self._poll_usb())
         await super().task()
+
+    async def _poll_usb(self):
+        while True:
+            drives = _get_usb_drives()
+            if drives != self._usb_drives:
+                self._usb_drives = drives
+                logger.info(f"USB drives changed: {drives}")
+                await self.emit_signal("UsbDrivesChanged", drives)
+            await asyncio.sleep(USB_POLL_INTERVAL)
+
+    async def dbus_GetUsbDrives(self, req):
+        return _get_usb_drives()
     
     def _update_drivers(self):
         if not self.expansion:
