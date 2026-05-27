@@ -40,6 +40,9 @@ Item {
         repeat: true
         onTriggered: {
             driveInfo = X1Plus.usbDriveInfo();
+            if (selectedDriveIndex >= driveInfo.length) {
+                selectedDriveIndex = 0;
+            }
             refreshEntries();
         }
     }
@@ -56,8 +59,7 @@ Item {
             id: copyButton
             name: "copy"
             title: copyStatus !== "" ? copyStatus : qsTr("Copy to SD card")
-            visible: selectedEntry !== null &&
-                     selectedEntry.name.toLowerCase().endsWith(".gcode.3mf")
+            visible: selectedEntry !== null
             isDefault: true
             keepDialog: true
             onClicked: {
