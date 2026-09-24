@@ -829,6 +829,12 @@ class PolarPrintService(X1PlusDBusService):
             this_vars = self.idle_cam_stream
         else:
             this_vars = self.printing_cam_stream
+            if this_vars.get("job_id") != self.job_id:
+                # Printing upload URLs are requested for a specific job; don't
+                # keep uploading to one issued for a previous job (or for no
+                # job at all, as requested in _on_hello_response).
+                this_vars.pop("url", None)
+                this_vars["expiration_time"] = time.time()
 
         if this_vars["expiration_time"] - time.time() < 300:
             # There are fewer than five mins before the upload url expires;
@@ -851,7 +857,10 @@ class PolarPrintService(X1PlusDBusService):
             # Process the response
             # logger.debug(f"upload response: {response}")
             response_data = await response.text()
-        logger.debug(f"Attempted image uploaded: {response_data}")
+        if response.status >= 300:
+            logger.error(f"image upload failed with HTTP {response.status}: {response_data}")
+        else:
+            logger.debug(f"Attempted image uploaded: {response_data}")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -1062,6 +1071,8 @@ class PolarPrintService(X1PlusDBusService):
             "type": idle_or_print,
             "jobId": self.job_id,
         }
+        if idle_or_print == "printing":
+            self.printing_cam_stream["job_id"] = self.job_id
         await self.socket.emit("getUrl", request_data)
 
     async def _printer_action(self, which_action, print_file="", ams_mapping=None) -> None:
