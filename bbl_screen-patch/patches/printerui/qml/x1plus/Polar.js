@@ -24,6 +24,7 @@ var [status, onStatus, _setStatus] = Binding.makeBinding({});
 
 var _Login = null;
 var _Logout = null;
+var _ClearBed = null;
 
 function login(username, pin) {
     return _Login({'username': username, 'pin': pin});
@@ -31,6 +32,10 @@ function login(username, pin) {
 
 function logout() {
     _Logout({});
+}
+
+function clearBed() {
+    _ClearBed({});
 }
 
 function awaken() {
@@ -46,4 +51,5 @@ function awaken() {
 
     _Login  = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "Login" );
     _Logout = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "Logout");
+    _ClearBed = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/polar", "x1plus.polar", "ClearBed");
 }
