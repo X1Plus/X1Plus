@@ -1047,8 +1047,7 @@ class PolarPrintService(X1PlusDBusService):
         The user confirmed in Polar Cloud that the build plate is clear.
         {
             "serialNumber": "string",
-            "job_id": null,
-            ...
+            "type": "bed_clean"
         }
         """
         logger.info(f"Polar _on_bedclean {data}")
