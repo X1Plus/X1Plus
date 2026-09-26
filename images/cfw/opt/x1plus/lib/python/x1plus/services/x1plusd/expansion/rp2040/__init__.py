@@ -70,11 +70,40 @@ class Rp2040ExpansionDevice(ExpansionDevice):
 
         super().__init__()
 
+    RESET_ATTEMPTS = 3
+
     def reset(self):
         self.rp2040 = None
         self.nports = 0
         self.gpio_last_read_time = 0
         self.gpio_last_read_data = 0
+
+        # If the RP2040 does not come up, pulse its reset and try the whole
+        # boot again, rather than leaving the Expander without GPIO until
+        # x1plusd is restarted.
+        for reset_attempt in range(1, self.RESET_ATTEMPTS + 1):
+            self.rp2040 = self._boot()
+            if self.rp2040:
+                break
+            if reset_attempt < self.RESET_ATTEMPTS:
+                logger.warning(f"RP2040 did not come up after reset {reset_attempt} of {self.RESET_ATTEMPTS}; resetting it again")
+
+        if not self.rp2040:
+            logger.error(f"RP2040 did not come up after {self.RESET_ATTEMPTS} resets; Expander GPIO will be unavailable")
+            return
+
+        self.rp2040.set_configuration()
+        self.intf = self.rp2040[0][(0, 0)]
+        self.ep_out = self.intf[0]
+        self.ep_in  = self.intf[1]
+
+        self.nports = len(self.PORTS)
+
+    def _boot(self):
+        """
+        Resets the RP2040, loads our firmware into it, and returns the USB
+        device for the running firmware, or None if any step failed.
+        """
 
         # boot the RP2040...
         self.smsc.rp2040_reset()
@@ -87,8 +116,7 @@ class Rp2040ExpansionDevice(ExpansionDevice):
                 logger.info(f"failed to boot RP2040: {e}")
                 if attempt == 0:
                     logger.error(f"failed to boot RP2040 after 5 attempts: {e}")
-                    # leave nports as 0, and give up
-                    return
+                    return None
                 time.sleep(0.2)
         
         # ...then attach to it
@@ -99,21 +127,13 @@ class Rp2040ExpansionDevice(ExpansionDevice):
                 return False
 
         for attempt in range(5):
-            self.rp2040 = usb.core.find(custom_match = is_expander_rp2040)
-            if self.rp2040:
-                break
+            rp2040 = usb.core.find(custom_match = is_expander_rp2040)
+            if rp2040:
+                return rp2040
             time.sleep(0.2)
         
-        if not self.rp2040:
-            logger.error("RP2040 never woke up into X1Plus firmware?")
-            return
-
-        self.rp2040.set_configuration()
-        self.intf = self.rp2040[0][(0, 0)]
-        self.ep_out = self.intf[0]
-        self.ep_in  = self.intf[1]
-
-        self.nports = len(self.PORTS)
+        logger.error("RP2040 never woke up into X1Plus firmware?")
+        return None
 
     def _i2c_read(self, scl, sda, addr, dlen):
         self.ep_out.write(struct.pack('<BBB', 4, scl, sda))
