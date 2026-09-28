@@ -133,8 +133,8 @@ class PolarPrintService(X1PlusDBusService):
     coming from mqtt and translate them into self.status. Values of printer
     status enums are in in-line comments.
 
-    TODO: in the future, FAILED and FINISH should actually report 15, which is
-    Clear build plate; unable to start a new print.
+    After FINISH or FAILED, we report 15 (Clear build plate) until the bed is
+    confirmed clear; see _status_update.
     """
     STATE_TO_POLAR_STATUS = {
         "IDLE": 0,
@@ -165,6 +165,9 @@ class PolarPrintService(X1PlusDBusService):
         # on changes to this value.
         self.job_id = "0"
         self.file_name = ""
+        # Set when a job ends, and persisted so that a restart doesn't report
+        # the printer as ready while there's still a print on the bed.
+        self.bed_needs_clear = self.daemon.settings.get("polar.bed_needs_clear", False)
         """
         last_ping will hold time of last ping, so we're not sending status
         more than once every 10 seconds.
@@ -214,6 +217,7 @@ class PolarPrintService(X1PlusDBusService):
         self.socket.on("pause", self._on_pause)
         self.socket.on("resume", self._on_resume)
         self.socket.on("cancel", self._on_cancel)
+        self.socket.on("bedclean", self._on_bedclean)
         self.socket.on("getUrlResponse", self._on_url_response)
 
         # Watch for settings changes
@@ -261,6 +265,7 @@ class PolarPrintService(X1PlusDBusService):
             'username': self.creds.username,
             'logged_in': self.creds.polar_sn is not None,
             'serial_number': self.creds.polar_sn,
+            'bed_needs_clear': self.bed_needs_clear,
         }
     
     async def dbus_GetStatus(self, req):
@@ -277,6 +282,10 @@ class PolarPrintService(X1PlusDBusService):
             self.watchdog_task = asyncio.create_task(self._watchdog_task())
         return {}
     
+    async def dbus_ClearBed(self, req):
+        await self._clear_bed()
+        return {}
+
     async def dbus_Logout(self, req):
         try:
             await self.socket.emit("unregister", self.creds.polar_sn)
@@ -568,16 +577,16 @@ class PolarPrintService(X1PlusDBusService):
         14  Door open; unable to start or resume a print
         15  Clear build plate; unable to start a new print
 
-        For now, states 5, 6, 8, 9, 10, 11, 13, 14, and 15 will be ignored.
+        For now, states 5, 8, 9, 11, 13, and 14 will be ignored.
         There's no equivalent to "canceling", so forget 6.
         11 is the same as 1
         TODO: 14 should soon be capturable?
-        TODO: 15 **really, really** needs to be dealt with.
 
         When a print is cancelled it goes to FAILED or if there's an error we'll
-        report an error for 2 mins. then return to IDLE.
-
-        Likewise, FINISHED returns to IDLE after two mins.
+        report an error for 2 mins. Likewise, FINISHED is reported for two mins.
+        Then we send the job result and report 15 (Clear build plate) until the
+        bed is confirmed clear from the cloud (bedclean) or the touchscreen, or
+        a new print starts.
         """
         prev_status = self.status
         task_state = self.daemon.mqtt.latest_print_status.get("gcode_state", "IDLE")
@@ -596,6 +605,13 @@ class PolarPrintService(X1PlusDBusService):
             self.status = 10  # Changing filament
             return
 
+        # After a job ends, keep reporting "clear build plate" until the bed
+        # is confirmed clear from the cloud (bedclean) or the touchscreen, or
+        # until a new print starts.
+        if self.bed_needs_clear and task_state in {"IDLE", "FINISH", "FAILED"}:
+            self.status = 15
+            return
+
         match self.STATE_TO_POLAR_STATUS[task_state]:
             case 0: # IDLE
                 if self.status != 0:
@@ -603,9 +619,16 @@ class PolarPrintService(X1PlusDBusService):
                         f"Polar calling _job; prev status: {self.status}; "
                         f"task_state: {task_state}"
                     )
-                    await self._job("completed")
+                    await self._job(self._job_result())
+                    if self.status in {6, 7, 12}:
+                        await self._set_bed_needs_clear(True)
+                        self.status = 15
+                        return
                 self.status = 0
             case 1 | 2 | 3: # SLICING, PREPARING, RUNNING
+                if self.bed_needs_clear:
+                    # A new print started, so the bed must have been cleared.
+                    await self._set_bed_needs_clear(False)
                 # Printing or preparing
                 if self.job_id in {"0", "123"}:
                     """
@@ -633,7 +656,7 @@ class PolarPrintService(X1PlusDBusService):
                     self.time_finished = datetime.datetime.now()
                     self.status = self.STATE_TO_POLAR_STATUS[task_state]
                     logger.info(
-                        "Polar: just switched to failed. "
+                        f"Polar: just switched to {task_state}. "
                         f"{self.time_finished}"
                     )
                 elif (
@@ -642,13 +665,14 @@ class PolarPrintService(X1PlusDBusService):
                     > datetime.timedelta(seconds=120)
                 ):
                     # We've been in an error or finished state for two mins. Send
-                    # job completed and switch status to idle.
+                    # the job result and ask for the build plate to be cleared.
                     logger.info(
-                        "Polar: end failed state. "
+                        f"Polar: end {task_state} state. "
                         f"{datetime.datetime.now() - self.time_finished}"
                     )
-                    self.status = 0
-                    await self._job("completed")
+                    await self._job(self._job_result())
+                    await self._set_bed_needs_clear(True)
+                    self.status = 15
                 elif self.status == 0:
                     # Printer has been returning IDLE even though its internal
                     # state is FAILED or FINISHED. Remain in IDLE.
@@ -829,6 +853,12 @@ class PolarPrintService(X1PlusDBusService):
             this_vars = self.idle_cam_stream
         else:
             this_vars = self.printing_cam_stream
+            if this_vars.get("job_id") != self.job_id:
+                # Printing upload URLs are requested for a specific job; don't
+                # keep uploading to one issued for a previous job (or for no
+                # job at all, as requested in _on_hello_response).
+                this_vars.pop("url", None)
+                this_vars["expiration_time"] = time.time()
 
         if this_vars["expiration_time"] - time.time() < 300:
             # There are fewer than five mins before the upload url expires;
@@ -851,7 +881,10 @@ class PolarPrintService(X1PlusDBusService):
             # Process the response
             # logger.debug(f"upload response: {response}")
             response_data = await response.text()
-        logger.debug(f"Attempted image uploaded: {response_data}")
+        if response.status >= 300:
+            logger.error(f"image upload failed with HTTP {response.status}: {response_data}")
+        else:
+            logger.debug(f"Attempted image uploaded: {response_data}")
 
     async def _on_delete(self, response, *args, **kwargs) -> None:
         """
@@ -1004,7 +1037,45 @@ class PolarPrintService(X1PlusDBusService):
     async def _on_cancel(self, data, *args, **kwargs) -> None:
         logger.info("Polar _on_cancel")
         self.status = 6
+        # Start the timer for reporting "canceling" here, since _status_update
+        # won't see a transition from printing when the printer stops.
+        self.time_finished = datetime.datetime.now()
         await self._printer_action("stop")
+
+    async def _on_bedclean(self, data, *args, **kwargs) -> None:
+        """
+        The user confirmed in Polar Cloud that the build plate is clear.
+        {
+            "serialNumber": "string",
+            "type": "bed_clean"
+        }
+        """
+        logger.info(f"Polar _on_bedclean {data}")
+        if data.get("serialNumber") != self.creds.polar_sn:
+            logger.error("Polar bedclean for wrong serial number.")
+            return
+        await self._clear_bed()
+
+    async def _clear_bed(self) -> None:
+        await self._set_bed_needs_clear(False)
+        if self.status == 15:
+            # The printer itself stays in FINISH or FAILED until the next
+            # print; _status_update reports that as ready once status is 0.
+            self.status = 0
+
+    async def _set_bed_needs_clear(self, needs_clear) -> None:
+        if needs_clear == self.bed_needs_clear:
+            return
+        logger.info(f"Polar bed_needs_clear: {needs_clear}")
+        self.bed_needs_clear = needs_clear
+        await self.daemon.settings.put("polar.bed_needs_clear", needs_clear)
+        await self._maybe_publish_status_object()
+
+    def _job_result(self):
+        """The `job` state to report for the job that just ended."""
+        if self.status in {6, 12}:
+            return "canceled"
+        return "completed"
 
     async def _on_url_response(self, data, *args, **kwargs) -> None:
         """
@@ -1062,6 +1133,8 @@ class PolarPrintService(X1PlusDBusService):
             "type": idle_or_print,
             "jobId": self.job_id,
         }
+        if idle_or_print == "printing":
+            self.printing_cam_stream["job_id"] = self.job_id
         await self.socket.emit("getUrl", request_data)
 
     async def _printer_action(self, which_action, print_file="", ams_mapping=None) -> None:

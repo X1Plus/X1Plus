@@ -223,6 +223,35 @@ Item {
                 color: Colors.gray_500
             }
 
+            // Build plate needs clearing after a job
+            Text {
+                Layout.fillWidth: true
+                visible: !!status.bed_needs_clear
+                text: qsTr("Remove the finished print, then confirm the build plate is clear")
+                font: Fonts.body_28
+                color: "#FFFF5C"
+                wrapMode: Text.WordWrap
+            }
+
+            ZButton {
+                visible: !!status.bed_needs_clear
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                paddingX: 20
+                paddingY: 10
+                text: qsTr("Plate is clear")
+                onClicked: {
+                    X1Plus.Polar.clearBed()
+                }
+            }
+
+            Rectangle {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                height: 1
+                color: Colors.gray_500
+                visible: !!status.bed_needs_clear
+            }
+
             // Log in / log out buttons
             Text {
                 Layout.fillWidth: true
