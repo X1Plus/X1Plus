@@ -195,11 +195,12 @@ class CameraWatchdog:
             return
 
         if rtsp_enabled:
-            logger.info(
-                f"waiting {RESTART_SETTLE_TIME}s for ipcam to settle "
-                "before restoring RTSP state"
-            )
+            logger.info("waiting for ipcam to become ready before restoring RTSP state")
             await asyncio.sleep(RESTART_SETTLE_TIME)
+            while not await self._probe_camera():
+                logger.debug(f"ipcam not yet ready, retrying in {BOOT_POLL_INTERVAL}s")
+                await asyncio.sleep(BOOT_POLL_INTERVAL)
+            logger.info("ipcam ready, restoring RTSP state")
             await self._restore_rtsp()
 
     async def task(self):
