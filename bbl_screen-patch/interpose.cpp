@@ -48,6 +48,10 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <linux/wireless.h>
+#include <pthread.h>
+#include <sys/statvfs.h>
+#include <errno.h>
+#include <string.h>
 
 #include "vendor/nlohmann/json.hpp"
 
@@ -71,6 +75,123 @@ char qt_resourceFeatureZlib = 0;
 int needs_emulation_workarounds = 0;
 
 extern "C" int _Z17get_resource_path19bbl_resource_type_tRNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE(int id, std::string &s);
+
+/*** Background file copy.
+ *
+ * Copying a large print file off a USB stick with readFile()/saveFile()
+ * blocks the UI thread and holds the whole file in RAM.  Instead, copy in
+ * chunks on a worker thread, and let QML poll for progress.  Only one copy
+ * runs at a time.  The file is written to a hidden temporary name, fsync()ed,
+ * and then renamed into place, so a half-copied file never shows up in the
+ * printer's file list.
+ */
+
+enum { COPY_IDLE = 0, COPY_RUNNING, COPY_DONE, COPY_ERROR, COPY_CANCELLED };
+
+static pthread_mutex_t copy_mutex = PTHREAD_MUTEX_INITIALIZER;
+static int copy_state = COPY_IDLE;
+static int copy_cancel = 0;
+static long long copy_done = 0;
+static long long copy_total = 0;
+static std::string copy_src, copy_dst, copy_error;
+
+static void copy_finish(int state, const std::string &error) {
+    pthread_mutex_lock(&copy_mutex);
+    copy_state = state;
+    copy_error = error;
+    pthread_mutex_unlock(&copy_mutex);
+}
+
+static void *copy_worker(void *) {
+    pthread_mutex_lock(&copy_mutex);
+    std::string src = copy_src;
+    std::string dst = copy_dst;
+    pthread_mutex_unlock(&copy_mutex);
+
+    size_t slash = dst.rfind('/');
+    std::string tmp = (slash == std::string::npos)
+        ? ("." + dst + ".part")
+        : (dst.substr(0, slash + 1) + "." + dst.substr(slash + 1) + ".part");
+
+    int in = open(src.c_str(), O_RDONLY);
+    if (in < 0) {
+        copy_finish(COPY_ERROR, std::string("cannot open source: ") + strerror(errno));
+        return NULL;
+    }
+    int out = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (out < 0) {
+        std::string err = std::string("cannot create destination: ") + strerror(errno);
+        close(in);
+        copy_finish(COPY_ERROR, err);
+        return NULL;
+    }
+
+    const size_t bufsz = 256 * 1024;
+    char *buf = (char *)malloc(bufsz);
+    std::string err;
+    int cancelled = 0;
+    if (!buf) {
+        err = "out of memory";
+    }
+
+    while (buf && err.empty()) {
+        pthread_mutex_lock(&copy_mutex);
+        cancelled = copy_cancel;
+        pthread_mutex_unlock(&copy_mutex);
+        if (cancelled)
+            break;
+
+        ssize_t n = read(in, buf, bufsz);
+        if (n < 0) {
+            if (errno == EINTR)
+                continue;
+            err = std::string("read error: ") + strerror(errno);
+            break;
+        }
+        if (n == 0)
+            break; /* EOF */
+
+        ssize_t off = 0;
+        while (off < n) {
+            ssize_t w = write(out, buf + off, n - off);
+            if (w < 0) {
+                if (errno == EINTR)
+                    continue;
+                err = std::string("write error: ") + strerror(errno);
+                break;
+            }
+            off += w;
+        }
+
+        pthread_mutex_lock(&copy_mutex);
+        copy_done += off;
+        pthread_mutex_unlock(&copy_mutex);
+    }
+
+    free(buf);
+    close(in);
+    if (err.empty() && !cancelled && fsync(out) < 0)
+        err = std::string("sync error: ") + strerror(errno);
+    if (close(out) < 0 && err.empty() && !cancelled)
+        err = std::string("close error: ") + strerror(errno);
+
+    if (cancelled || !err.empty()) {
+        unlink(tmp.c_str());
+        copy_finish(cancelled ? COPY_CANCELLED : COPY_ERROR, err);
+        return NULL;
+    }
+
+    if (rename(tmp.c_str(), dst.c_str()) < 0) {
+        err = std::string("rename error: ") + strerror(errno);
+        unlink(tmp.c_str());
+        copy_finish(COPY_ERROR, err);
+        return NULL;
+    }
+
+    printf("copyFile: copied %s to %s\n", src.c_str(), dst.c_str());
+    copy_finish(COPY_DONE, "");
+    return NULL;
+}
 
 #if 0
 void mocdump() {
@@ -269,6 +390,72 @@ eject:
         }
     }
     
+    /* Start copying src to dst on a background thread.  Returns false if a
+     * copy is already running, or if the thread could not be started.  Poll
+     * copyStatus() for progress. */
+    Q_INVOKABLE bool startCopy(QString src, QString dst) {
+        struct stat st;
+        std::string srcs = src.toStdString();
+        std::string dsts = dst.toStdString();
+
+        pthread_mutex_lock(&copy_mutex);
+        if (copy_state == COPY_RUNNING) {
+            pthread_mutex_unlock(&copy_mutex);
+            return false;
+        }
+        copy_src = srcs;
+        copy_dst = dsts;
+        copy_error = "";
+        copy_cancel = 0;
+        copy_done = 0;
+        copy_total = (stat(srcs.c_str(), &st) == 0) ? (long long)st.st_size : 0;
+        copy_state = COPY_RUNNING;
+        pthread_mutex_unlock(&copy_mutex);
+
+        pthread_t thr;
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+        int rv = pthread_create(&thr, &attr, copy_worker, NULL);
+        pthread_attr_destroy(&attr);
+        if (rv != 0) {
+            copy_finish(COPY_ERROR, std::string("cannot start copy thread: ") + strerror(rv));
+            return false;
+        }
+        return true;
+    }
+
+    /* JSON: {state: "idle"|"copying"|"done"|"error"|"cancelled", done, total, src, dst, error} */
+    Q_INVOKABLE QString copyStatus() {
+        static const char *names[] = { "idle", "copying", "done", "error", "cancelled" };
+        QJsonObject obj;
+        pthread_mutex_lock(&copy_mutex);
+        obj["state"] = names[copy_state];
+        obj["done"] = (double)copy_done;
+        obj["total"] = (double)copy_total;
+        obj["src"] = QString::fromStdString(copy_src);
+        obj["dst"] = QString::fromStdString(copy_dst);
+        obj["error"] = QString::fromStdString(copy_error);
+        pthread_mutex_unlock(&copy_mutex);
+        return QJsonDocument(obj).toJson(QJsonDocument::Compact);
+    }
+
+    Q_INVOKABLE void cancelCopy() {
+        pthread_mutex_lock(&copy_mutex);
+        if (copy_state == COPY_RUNNING)
+            copy_cancel = 1;
+        pthread_mutex_unlock(&copy_mutex);
+    }
+
+    /* Bytes available to us on the filesystem containing path, or -1. */
+    Q_INVOKABLE double freeSpace(QString path) {
+        struct statvfs sv;
+        std::string p = path.toStdString();
+        if (statvfs(p.c_str(), &sv) < 0)
+            return -1;
+        return (double)sv.f_bavail * (double)sv.f_frsize;
+    }
+
     Q_INVOKABLE QString listDir(QString path) {
         QDir dir(path);
         if (!dir.exists()) return "[]";
