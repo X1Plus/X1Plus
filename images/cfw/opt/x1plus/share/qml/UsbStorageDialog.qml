@@ -12,12 +12,16 @@ Item {
     property var usb: X1Plus.Expansion.usb()
 
     property var port: "" /* passed in from above */
-    property int selectedDriveIndex: usb.mounts.findIndex(m => m.usb_port == port) /* gets overridden later */
+    /* Start on the drive in the port we were opened from; if that port can't
+     * be matched (or none was given), fall back to the first drive rather than
+     * showing "No drives available" while a drive is plugged in. */
+    property int selectedDriveIndex: Math.max(0, usb.mounts.findIndex(m => m.usb_port == port)) /* gets overridden later */
     property var rootPath: (selectedDriveIndex >= 0 && usb.mounts.length > selectedDriveIndex) ? usb.mounts[selectedDriveIndex].mount_point : ""
     property var currentPath: rootPath
     property var entries: []
     property var selectedEntry: null
     property var copyStatus: ""
+    property var confirmReplace: "" /* name of a file the user has been warned already exists on the SD card */
 
     /* State of the background copy (see X1PlusNative.startCopy).  The copy
      * lives in the native layer, so it keeps going if this dialog is closed,
@@ -48,6 +52,7 @@ Item {
 
     onCurrentPathChanged: {
         selectedEntry = null;
+        confirmReplace = "";
         if (!copying) copyStatus = "";
         refreshEntries();
         fileList.positionViewAtBeginning();
@@ -120,8 +125,28 @@ Item {
         }
     }
 
+    /* The SD card is FAT, so names match case-insensitively. */
+    function existsOnSd(name) {
+        var lower = name.toLowerCase();
+        try {
+            return JSON.parse(X1PlusNative.listDir(destDir)).some(e => !e.isDir && e.name.toLowerCase() === lower);
+        } catch(e) {
+            return false;
+        }
+    }
+
     function startCopy() {
         var src = currentPath + "/" + selectedEntry.name;
+
+        /* Don't silently replace a file that is already on the SD card: warn
+         * on the first tap, and replace it on the second. */
+        if (confirmReplace !== selectedEntry.name && existsOnSd(selectedEntry.name)) {
+            confirmReplace = selectedEntry.name;
+            copyStatus = qsTr("Already on SD card - tap again to replace");
+            return;
+        }
+        confirmReplace = "";
+
         var free = X1PlusNative.freeSpace(destDir);
         /* leave a little headroom so we don't fill the card to the brim */
         if (free >= 0 && free < selectedEntry.size + 16 * 1048576) {
@@ -321,6 +346,7 @@ Item {
                         }
                         selectedEntry = (selectedEntry !== null && selectedEntry.name === modelData.name)
                             ? null : modelData;
+                        confirmReplace = "";
                         if (!copying) copyStatus = "";
                     }
                 }
