@@ -1,6 +1,12 @@
 name: AMS report regression tests
 
 on:
+  push:
+    branches-ignore: [ "main" ]
+    paths:
+      - 'bbl_screen-patch/forward_shim.cpp'
+      - 'bbl_screen-patch/tests/**'
+      - '.github/workflows/forward-ams-tests.yml'
   pull_request:
     branches: [ "main" ]
     paths:
@@ -18,6 +24,9 @@ concurrency:
 
 jobs:
   report-handler:
+    # Fork pushes can validate without upstream approval or private build keys.
+    # Upstream feature branches use the PR event to avoid duplicate builds.
+    if: github.event_name != 'push' || github.event.repository.fork
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
