@@ -854,6 +854,58 @@ struct __attribute__((packed)) ams_desc {
     uint8_t adapter_sta;    // 11: 02 if plugged in, 00 if not
 };
 
+struct __attribute__((packed)) tray_desc {
+    uint8_t pl_id;
+    uint8_t pl_len;
+    uint8_t ams_id;
+    uint8_t slot_id;
+    uint8_t status;
+};
+
+struct __attribute__((packed)) ams_flags {
+    uint8_t pl_id;
+    uint8_t pl_len;
+    uint8_t insert_poweron_remain;
+};
+
+static bool valid_ams_v2_info_update(const uint8_t *pl, int len) {
+    while (len > 0) {
+        if (len < 2 || len < pl[1] + 2) {
+            x1plus_logf("forward: AMSv2 report has a truncated subpayload (%d bytes left)", len);
+            return false;
+        }
+        const int subpl_len = pl[1] + 2;
+        size_t minimum_length;
+        switch (pl[0]) {
+        case 0: minimum_length = sizeof(ams_desc); break;
+        case 1: minimum_length = sizeof(tray_desc); break;
+        case 2: minimum_length = sizeof(ams_flags); break;
+        case 3: minimum_length = 2; break; // extruder information, not interpreted
+        default:
+            x1plus_logf("forward: AMSv2 report has unknown subpayload type %d", pl[0]);
+            return false;
+        }
+        if (static_cast<size_t>(subpl_len) < minimum_length) {
+            x1plus_logf("forward: AMSv2 report subpayload type %d is too short (%d bytes)", pl[0], subpl_len);
+            return false;
+        }
+        if (pl[0] == 0 || pl[0] == 1) {
+            const uint8_t id = pl[2];
+            if (!(id < 4 || (id >= 0x80 && id < 0x90))) {
+                x1plus_logf("forward: AMSv2 report has invalid physical AMS ID %02x", id);
+                return false;
+            }
+        }
+        if (pl[0] == 1 && pl[3] >= 4) {
+            x1plus_logf("forward: AMSv2 report has invalid tray slot %d", pl[3]);
+            return false;
+        }
+        len -= subpl_len;
+        pl += subpl_len;
+    }
+    return true;
+}
+
 /* This is the meat of our work here: when MC sends us an AMSv2 data update,
  * we should 1) use it to assign logical-vs-physical AMS IDs, and then 2)
  * synthesize an AMSv1 report packet back to the legacy forward.
@@ -864,6 +916,15 @@ struct __attribute__((packed)) ams_desc {
  */
 
 int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
+    /* Validate the entire report before changing the protocol, mapping or
+     * cached state. A short record can otherwise read past the packet, and
+     * an invalid slot can set tray bits belonging to a different AMS.
+     * Keep accepting trailing fields in known records for newer firmware.
+     */
+    if (_this->packet->packet_length < 15 ||
+        !valid_ams_v2_info_update(_this->packet->payload, _this->packet->packet_length - 15)) {
+        return 0;
+    }
     mc_spoke_new_protocol();
     
     /* run once to assign logical AMS IDs to AMS HTs */
@@ -958,19 +1019,6 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
         //x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: pl type %d, %d bytes", pl[0], subpl_len);
         switch (pl[0]) {
         case 0: { /* AMS descriptor */
-            struct __attribute__((packed)) ams_desc {
-                uint8_t pl_id;        // 0
-                uint8_t pl_len;       // 1
-                uint8_t ams_id;       // 2
-                uint16_t temperature; // 3, 4: 0.1C
-                uint8_t unknown_3;    // 5
-                uint8_t unknown_4;    // 6
-                uint8_t humidity;     // 7: percent
-                uint8_t unknown_6;    // 8
-                uint8_t humidity_index; // 9
-                uint8_t dry_sta;        // 10
-                uint8_t adapter_sta;    // 11: 02 if plugged in, 00 if not
-            };
             ams_desc *desc = (ams_desc *)pl;
             
             //x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: AMS descriptor: ID %d, temperature %d, ?3 %02x, ?4 %02x, humidity %d, ?6 %02x, dry_sta %d, adapter_sta %d, ?9 %02x",
@@ -994,13 +1042,6 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
             break;
         }
         case 1: { /* tray descriptor */
-            struct __attribute__((packed)) tray_desc {
-                uint8_t pl_id;
-                uint8_t pl_len;
-                uint8_t ams_id;
-                uint8_t slot_id;
-                uint8_t status;
-            };
             tray_desc *desc = (tray_desc *)pl;
 
             // x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: tray descriptor: ams %d, slot %d, status %02x",
@@ -1024,11 +1065,6 @@ int CProtocal_handle_ams_v2_ams_info_update(CProtocal *_this) {
             break;
         }
         case 2: { /* AMS flags */
-            struct __attribute__((packed)) ams_flags {
-                uint8_t pl_id;
-                uint8_t pl_len;
-                uint8_t insert_poweron_remain;
-            };
             ams_flags *desc = (ams_flags *)pl;
             // x1plus_logf("forward: CProtocal_handle_ams_v2_ams_info_update: ams flags: insert_poweron_remain %02x", desc->insert_poweron_remain);
             synth_link_ams_report.insert_poweron_remain = desc->insert_poweron_remain;

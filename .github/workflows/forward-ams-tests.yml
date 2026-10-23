@@ -1,0 +1,35 @@
+name: AMS report regression tests
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'bbl_screen-patch/forward_shim.cpp'
+      - 'bbl_screen-patch/tests/**'
+      - '.github/workflows/forward-ams-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forward-ams-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  report-handler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Compile and run production report handler with ASan and UBSan
+        run: python3 bbl_screen-patch/tests/run_forward_ams_tests.py --sanitize
+      - name: Install ARM compiler
+        run: sudo apt-get update && sudo apt-get install -y g++-arm-linux-gnueabihf
+      - name: Compile complete forward shim for ARM
+        run: >-
+          arm-linux-gnueabihf-g++ -c bbl_screen-patch/forward_shim.cpp
+          -o /tmp/forward_shim.o -fPIC -std=c++11
+          -Ibbl_screen-patch/vendor -O3 -mcpu=cortex-a7 -Wno-psabi
+          -DFIRMWARE_00_00_32_39

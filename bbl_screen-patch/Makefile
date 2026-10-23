@@ -13,11 +13,14 @@ MODULES := kexec_ui.so printer_ui printer_ui.so printer_ui.so.xdelta uncurl.so e
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
-.PHONY: all clean clean-all deploy
+.PHONY: all clean clean-all deploy test-forward-ams
 .INTERMEDIATE: bbl_screen printer_ui.so
 .SECONDEXPANSION:
 
 all: $(MODULES)
+
+test-forward-ams:
+	python3 tests/run_forward_ams_tests.py --sanitize
 
 clean:
 	@rm -rfv $(MODULES)
