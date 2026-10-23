@@ -27,7 +27,8 @@ jobs:
     # Fork pushes can validate without upstream approval or private build keys.
     # Upstream feature branches use the PR event to avoid duplicate builds.
     if: github.event_name != 'push' || github.event.repository.fork
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,7 +36,12 @@ jobs:
       - name: Compile and run production report handler with ASan and UBSan
         run: python3 bbl_screen-patch/tests/run_forward_ams_tests.py --sanitize
       - name: Install ARM compiler
-        run: sudo apt-get update && sudo apt-get install -y g++-arm-linux-gnueabihf
+        timeout-minutes: 8
+        run: |
+          # Avoid slow/retrying Azure mirror downloads on hosted runners.
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get -o Acquire::Retries=1 update
+          sudo apt-get -o Acquire::Retries=1 install --no-install-recommends -y g++-arm-linux-gnueabihf
       - name: Compile complete forward shim for ARM
         run: >-
           arm-linux-gnueabihf-g++ -c bbl_screen-patch/forward_shim.cpp
