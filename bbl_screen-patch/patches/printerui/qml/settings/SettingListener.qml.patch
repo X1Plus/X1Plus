@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,12 +1,93 @@
+@@ -1,12 +1,97 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -48,6 +48,10 @@
 +    property var fwIsBusted: modules.some(m => {
 +        var name = m.name.split("/")[0];
 +        if (name != 'ota' && name in cfwVersions && m.sn != "N/A") {
++            if (name == 'filament') {
++                // same rule as the version page only an older database needs an update
++                return m.sw_ver != "Custom" && m.sw_ver < cfwVersions[name].version;
++            }
 +            if (m.hw_ver && cfwVersions[name].paths[m.hw_ver.toLowerCase()] === undefined) {
 +                // there is no firmware update for this HW version
 +                return false;
@@ -94,7 +98,7 @@
      /* Updater */
  
      id: settingListener
-@@ -18,22 +99,77 @@
+@@ -18,22 +103,77 @@
  
      property var updatePage
      property bool versionNotify
@@ -178,7 +182,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +189,8 @@
+@@ -53,12 +193,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -193,7 +197,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +230,7 @@
+@@ -98,6 +234,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -201,7 +205,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +298,7 @@
+@@ -165,7 +302,7 @@
              blackColor = !blackColor
          }
      }
@@ -210,7 +214,7 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -206,7 +339,8 @@
+@@ -206,7 +343,8 @@
                              if(index === TextConfirm.YES) {
                                  screen.jumpTo("Settings/Maintenance")
                              }
@@ -220,7 +224,7 @@
                      })
      }
  
-@@ -219,14 +353,14 @@
+@@ -219,14 +357,14 @@
              }
          }
      }
