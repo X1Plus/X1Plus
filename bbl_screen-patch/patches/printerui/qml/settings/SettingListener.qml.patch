@@ -1,6 +1,6 @@
 --- printer_ui-orig/printerui/qml/settings/SettingListener.qml
 +++ printer_ui/printerui/qml/settings/SettingListener.qml
-@@ -1,12 +1,97 @@
+@@ -1,12 +1,101 @@
  import QtQuick 2.12
  import UIBase 1.0
  import Printer 1.0
@@ -45,7 +45,9 @@
 +    property var cfwVersions: ({})
 +    property var modules: X1Plus.DDS.versions()
 +    property var fwVersion: cfwVersions['ota'] && cfwVersions['ota']['version']
-+    property var fwIsBusted: modules.some(m => {
++    // names of components that need an update, filament DB is tracked
++    // separately so an old database is not reported as a board problem
++    property var fwOutdated: modules.filter(m => {
 +        var name = m.name.split("/")[0];
 +        if (name != 'ota' && name in cfwVersions && m.sn != "N/A") {
 +            if (name == 'filament') {
@@ -61,7 +63,9 @@
 +                return true;
 +            }
 +        }
-+    })
++    }).map(m => m.name.split("/")[0])
++    property var fwIsBusted: fwOutdated.length > 0
++    property var fwOnlyFilament: fwIsBusted && fwOutdated.every(n => n == 'filament')
 +    property var fwDidKvetch: false
 +    property var fwShouldKvetch: fwIsBusted && !fwDidKvetch
 +    
@@ -98,7 +102,7 @@
      /* Updater */
  
      id: settingListener
-@@ -18,22 +103,77 @@
+@@ -18,22 +107,79 @@
  
      property var updatePage
      property bool versionNotify
@@ -161,7 +165,9 @@
 +                "TextConfirm", {
 +                    name: "X1Plus version notify",
 +                    type: TextConfirm.YES_NO,
-+                    text: qsTr("The firmware versions on the printer's peripheral boards do not match the recommended versions for this X1Plus installation.  Printing may not be reliable, and some features may not be available.<br><br>Would you like to go to the update page?"),
++                    text: fwOnlyFilament
++                        ? qsTr("The printer's filament database is older than the one included with this X1Plus installation. Would you like to go to the update page?")
++                        : qsTr("The firmware versions on the printer's peripheral boards do not match the recommended versions for this X1Plus installation.  Printing may not be reliable, and some features may not be available.<br><br>Would you like to go to the update page?"),
 +                    callback: function(index) {
 +                        if (index === TextConfirm.CONFIRM) {
 +                            screen.jumpTo("Settings/Device")
@@ -182,7 +188,7 @@
          var msg = updater.consistency
                  ? qsTr("The firmware version is abnormal. Repairing and updating are required, or printing cannot be started. Do you want to update now? You can also update later from \"Settings > General > Version\".")
                  : updater.forceUpgrade
-@@ -53,12 +193,8 @@
+@@ -53,12 +199,8 @@
                          // finished: Qt.binding(function() { return settingListener.printIdle }),
                          callback: function(index) {
                              if (index === TextConfirm.CONFIRM) {
@@ -197,7 +203,7 @@
                              }
                              versionNotify = false
                          }
-@@ -98,6 +234,7 @@
+@@ -98,6 +240,7 @@
      property var power: DeviceManager.power
      property bool sleep: power.hasSleep
      property bool aboutToSleep: power.aboutToSleep
@@ -205,7 +211,7 @@
  
      anchors.fill: parent
      color: sleep ? (blackColor ? Colors.gray_800 : "#EFEFEF") : "#80000000"
-@@ -165,7 +302,7 @@
+@@ -165,7 +308,7 @@
              blackColor = !blackColor
          }
      }
@@ -214,7 +220,7 @@
      Connections {
          target: DeviceManager
          ignoreUnknownSignals: false
-@@ -206,7 +343,8 @@
+@@ -206,7 +349,8 @@
                              if(index === TextConfirm.YES) {
                                  screen.jumpTo("Settings/Maintenance")
                              }
@@ -224,7 +230,7 @@
                      })
      }
  
-@@ -219,14 +357,14 @@
+@@ -219,14 +363,14 @@
              }
          }
      }
