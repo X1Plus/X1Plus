@@ -213,13 +213,23 @@ Item {
                     return "&nbsp;(<font size=\"3\" color=\"#05ae4b\"><a href='" + tipo +"'>" + qsTr("reset") + "</a></font>)";
                 }
                 statsListModel.append({"leftText": qsTr("Lead screws last lubricated: "), "rightText": formatDate(maintain_info.lead_screws.last_record_timestamp) + mkResetLink('screws')});
-                let absTime = maintain_info.carbon_rods.abs_last_print_time;
-                let asaTime = maintain_info.carbon_rods.asa_last_print_time;
-                if (asaTime > 0) {
-                    statsListModel.append({"leftText": qsTr("ASA carbon rod maintenance timer: "), "rightText": formatDate(asaDate) + mkResetLink('carbon')});
+                // The printer doesn't save a date for rod cleaning, but uses a time in seconds of how much abs/asa is printed.
+                // Only checks plain abs/asa as that's all the stock check has.
+                // -1 means the type has never been printed to hide the row.
+                function sinceCleaned(fil) {
+                    let total = 0;
+                    if (!filament_info) return -1;
+                    (filament_info.ams_array_total_filament_info || []).concat((filament_info.virtual_tray || {}).filament_info || [])
+                        .forEach(e => { if (fil in e) total += e.print_time; });
+                    if (total == 0) return -1;
+                    return Math.max(0, total - (maintain_info.carbon_rods[fil.toLowerCase() + "_last_print_time"] || 0));
                 }
-                if (absTime > 0) {
-                    statsListModel.append({"leftText": qsTr("ABS carbon rod maintenance timer: "), "rightText": formatDate(absDate) + mkResetLink('carbon')});
+                let absTime = sinceCleaned("ABS");
+                let asaTime = sinceCleaned("ASA");
+                // One timer like the stock check, asa counts at 80% of abs and it asks for a cleaning past 168 hours.
+                if (absTime >= 0 || asaTime >= 0) {
+                    let rodTime = Math.max(absTime, 0) + 0.8 * Math.max(asaTime, 0);
+                    statsListModel.append({"leftText": qsTr("Carbon rod maintenance timer: "), "rightText": qsTr("%1 hours").arg((rodTime / 3600).toFixed(2)) + mkResetLink('carbon')});
                 }
             }
             
