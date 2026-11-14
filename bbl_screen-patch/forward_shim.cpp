@@ -531,6 +531,16 @@ publish_result:
                 x1plus_logf("forward: input ams_mapping: %d", map);
                 if (map == -1) {
                     new_ams_mapping.push_back(-1);
+                } else if (map >= 0x80 && map < 0x80 + 4) {
+                    /* AMS HT: we report these to the slicer as AMS ID
+                     * 0x80 | logical ID, and the slicer echoes that ID
+                     * back as the whole mapping entry (an AMS HT has only
+                     * one slot), rather than as (ams_id << 2) + slot.
+                     * Without this, 129 is decoded as AMS 32 slot 1 and
+                     * the MC gets an AMS mapping of 0xFFFF ("Failed to
+                     * get AMS mapping table", 0700-8012).  */
+                    int ams_id = map & 0x7F;
+                    new_ams_mapping.push_back(ams_id << 2);
                 } else {
                     int ams_id = map >> 2;
                     int slot_id = map & 3;
