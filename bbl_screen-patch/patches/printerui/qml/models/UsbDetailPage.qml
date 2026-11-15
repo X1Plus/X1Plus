@@ -11,7 +11,6 @@ import "qrc:/uibase/qml/widgets"
 Item {
     property string selectedPath: ""
     property var selectedMeta: null
-    property var dialogStack: null
 
     signal backClicked()
     signal printClicked(var payload)
@@ -59,25 +58,19 @@ Item {
         return ["A","B","C","D"][Math.floor(idx / 4)] + (idx % 4 + 1);
     }
 
-    function findMatchingTray(filament) {
+    function findMatchingTray(filament, usedTrays, needColor) {
         if (!filament) return null;
         var targetType = (filament.type || "").toLowerCase();
         if (!targetType || targetType === "?") return null;
         var trays = PrintManager.feeder.amsTrays;
-        var typeOnlyMatch = null;
         for (var i = 0; i < trays.length; i++) {
             var td = trays[i];
-            if (!td.exist) continue;
-            var trayType = (td.typeName + "").toLowerCase();
-            var typeMatches = trayType === targetType ||
-                              trayType.indexOf(targetType) >= 0 ||
-                              targetType.indexOf(trayType) >= 0;
-            if (!typeMatches) continue;
-            if (typeOnlyMatch === null) typeOnlyMatch = td;
-            if (filament.color && td.colored && Qt.colorEqual(filament.color, td.color))
+            if (!td.exist || usedTrays.indexOf(td.index) >= 0) continue;
+            if (!typeMatches(td.typeName + "", targetType)) continue;
+            if (!needColor || (filament.color && td.colored && Qt.colorEqual(filament.color, td.color)))
                 return td;
         }
-        return typeOnlyMatch;
+        return null;
     }
 
     function typeMatches(trayTypeName, filamentType) {
@@ -87,11 +80,19 @@ Item {
         return tray === req || tray.indexOf(req) >= 0 || req.indexOf(tray) >= 0;
     }
 
+    // Each tray only gets used once like the SD card page, color matches first then just the type.
+    // Anything left over shows "--" and has to be picked by hand
     function autoAssignTrays(meta) {
         if (!meta || !meta.filaments) return [];
-        var result = [];
-        for (var i = 0; i < meta.filaments.length; i++)
-            result.push(findMatchingTray(meta.filaments[i]));
+        var result = meta.filaments.map(function() { return null; });
+        var used = [];
+        [true, false].forEach(function(needColor) {
+            for (var i = 0; i < meta.filaments.length; i++) {
+                if (result[i]) continue;
+                var td = findMatchingTray(meta.filaments[i], used, needColor);
+                if (td) { result[i] = td; used.push(td.index); }
+            }
+        });
         return result;
     }
 
@@ -118,7 +119,7 @@ Item {
         for (var i = 0; i < ff.length; i++) {
             if (!selectedTrays[i])
                 return { name: "AMS mapping confirm", type: 0,
-                         text: qsTr("There is a filament that could not be matched to an AMS tray. Please assign all filaments before printing.") };
+                         text: qsTr("Please manually set AMS slots for the filaments marked with \"--\".") };
         }
         for (var j = 0; j < ff.length; j++) {
             var t = selectedTrays[j];
@@ -224,11 +225,6 @@ Item {
         var remaining = checks.slice(1);
         var res = check();
         if (res === null) { runPreflightChecks(remaining, onAllPassed); return; }
-        if (!dialogStack) {
-            if (res.type === 0) return; // Can't show the warning without a dialog, so just don't print
-            runPreflightChecks(remaining, onAllPassed);
-            return;
-        }
         if (res.type === 0) {
             res.onConfirm = function() {}; // This one blocks printing, OK just closes the warning
         } else {
@@ -252,15 +248,14 @@ Item {
                 return slotMap.map(function(di) { if (di < 0) return -1; var t = selectedTrays[di]; return t ? t.index : 0; });
             return selectedTrays.map(function(t) { return t ? t.index : 0; });
         })();
+        // Same fields the SD card page sends. Sending bed_type "auto" made the printer think it was a cool plate
         printClicked(is3mf ? {
             command: "project_file",
             param: "Metadata/plate_" + selectedPlate + ".gcode",
+            plate: selectedPlate - 1,
             url: "file://" + path,
-            project_id: "0", profile_id: "0", task_id: "0",
-            subtask_id: "0", subtask_name: baseName(path), md5: "",
-            timelapse: timelapse, bed_type: "auto",
-            bed_levelling: bedLeveling, flow_cali: flowCali,
-            vibration_cali: true, layer_inspect: true,
+            subtask_name: baseName(path),
+            timelapse: timelapse, bed_leveling: bedLeveling, flow_cali: flowCali,
             ams_mapping: amsMapping, use_ams: useAms,
             sequence_id: "0"
         } : {
@@ -269,6 +264,12 @@ Item {
             use_ams: useAms, bed_leveling: bedLeveling,
             flow_cali: flowCali, timelapse: timelapse
         });
+        if (currentPlateData && currentPlateData.bedTooHot)
+            dialogStack.popupDialog("ErrorPrompt", {
+                level: PrintModule.Notice,
+                name: "bed temp over vitrification",
+                errorMsg: qsTr("High bed temperature may lead to filament clogging in the nozzle. You may open the chamber door.") + " [1000 c001 201215]"
+            });
     }
 
     // ── Left side: plate picture ─────────────────────────────────────────────
@@ -483,7 +484,7 @@ Item {
             Flow {
                 id: swatchFlow
                 width: parent.width
-                spacing: 8
+                spacing: 10
 
                 Repeater {
                     model: (currentPlateData && currentPlateData.filaments)
@@ -491,7 +492,7 @@ Item {
 
                     delegate: Item {
                         id: swatchItem
-                        width: 120
+                        width: (swatchFlow.width - swatchFlow.spacing) / 2
                         height: 110
 
                         property int filamentIdx: index
@@ -557,8 +558,9 @@ Item {
                                 anchors.margins: -3
                                 color: "transparent"
                                 radius: 13
-                                border.width: (pickerOpen && pickerFilamentIdx === swatchItem.filamentIdx) ? 2 : 0
-                                border.color: Colors.brand
+                                border.width: (pickerOpen && pickerFilamentIdx === swatchItem.filamentIdx)
+                                              || (swatchContainer.amsActive && !swatchItem.assignedTray) ? 2 : 0
+                                border.color: (pickerOpen && pickerFilamentIdx === swatchItem.filamentIdx) ? Colors.brand : Colors.warning
                             }
                         }
 
@@ -577,6 +579,19 @@ Item {
                     }
                 }
             }
+        }
+
+        Text {
+            anchors.top: swatchContainer.bottom
+            anchors.topMargin: 20
+            anchors.left: swatchContainer.left
+            anchors.right: swatchContainer.right
+            visible: swatchContainer.visible && swatchContainer.amsActive
+                     && _plateFilaments().some(function(f, i) { return !selectedTrays[i]; })
+            wrapMode: Text.WordWrap
+            font: Fonts.body_20
+            color: Colors.warning
+            text: qsTr("Please manually set AMS slots for the filaments marked with \"--\".")
         }
 
         Rectangle {

@@ -176,7 +176,7 @@ BaseTabPage {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.topMargin: barHeight
+        anchors.topMargin: usbSelectedPath !== "" ? 0 : barHeight
         anchors.bottom: parent.bottom
         z: 10
 
@@ -208,7 +208,6 @@ BaseTabPage {
             visible: usbSelectedPath !== ""
             selectedPath: tab.usbSelectedPath
             selectedMeta: tab.usbSelectedMeta
-            dialogStack: dialogStack
             onBackClicked: {
                 tab.usbSelectedPath = "";
                 tab.usbSelectedMeta = null;

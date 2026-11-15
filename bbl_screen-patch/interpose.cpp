@@ -406,6 +406,16 @@ eject:
         std::vector<std::string> filamentTypes  = _splitSemicolon(_gcodeValue(firstGcode, "filament_type = "));
         std::vector<std::string> gcodeColors    = _splitSemicolon(_gcodeValue(firstGcode, "filament_colour = "));
 
+        json projSettings;
+        try { projSettings = json::parse(_zipReadFile(zf, "Metadata/project_settings.config")); } catch (...) {}
+        auto _settingInt = [&projSettings](const std::string &key, int i) -> int {
+            if (!projSettings.is_object() || !projSettings.contains(key) || !projSettings[key].is_array()) return -1;
+            const json &arr = projSettings[key];
+            if (i < 0 || i >= (int)arr.size()) return -1;
+            if (arr[i].is_string()) return atoi(arr[i].get<std::string>().c_str());
+            return arr[i].is_number() ? arr[i].get<int>() : -1;
+        };
+
         // Build per-plate data
         json platesArr = json::array();
         for (int pn : plateNums) {
@@ -457,16 +467,29 @@ eject:
                     fp = fe;
                 }
             }
-            std::string pjStr = fids.empty() ? _zipReadFile(zf, jsonName) : "";
+            std::string bedType;
+            std::string pjStr = _zipReadFile(zf, jsonName);
             if (!pjStr.empty()) {
                 try {
                     json pj = json::parse(pjStr);
-                    if (pj.contains("filament_colors") && pj["filament_colors"].is_array())
-                        for (auto &c : pj["filament_colors"]) fcolors.push_back(c.get<std::string>());
-                    if (pj.contains("filament_ids") && pj["filament_ids"].is_array())
-                        for (auto &id : pj["filament_ids"]) fids.push_back(id.get<int>());
+                    if (pj.contains("bed_type") && pj["bed_type"].is_string()) bedType = pj["bed_type"].get<std::string>();
+                    if (fids.empty()) {
+                        if (pj.contains("filament_colors") && pj["filament_colors"].is_array())
+                            for (auto &c : pj["filament_colors"]) fcolors.push_back(c.get<std::string>());
+                        if (pj.contains("filament_ids") && pj["filament_ids"].is_array())
+                            for (auto &id : pj["filament_ids"]) fids.push_back(id.get<int>());
+                    }
                 } catch (...) {}
             }
+
+            // Same check the SD card page does, warns about the door if the bed is hotter than a filament can handle
+            bool bedTooHot = false;
+            if (!bedType.empty())
+                for (int id : fids) {
+                    int vit = _settingInt("temperature_vitrification", id);
+                    int bed = std::max(_settingInt(bedType + "_temp", id), _settingInt(bedType + "_temp_initial_layer", id));
+                    if (vit > 0 && bed > vit) bedTooHot = true;
+                }
 
             // Build the filament list without duplicates and map each slot to a swatch
             // First pass: one entry per AMS slot, keeping the first one so the color lines up
@@ -538,6 +561,7 @@ eject:
             plate["filamentSlotMap"] = slotMap;
             plate["printerModelId"]  = printerModelId;
             plate["nozzleDiameters"] = nozzleDiameters;
+            plate["bedTooHot"]       = bedTooHot;
             platesArr.push_back(plate);
         }
         unzClose(zf);
