@@ -32,7 +32,12 @@ import subprocess
 from jeepney.bus_messages import MatchRule, message_bus
 from jeepney.io.asyncio import Proxy
 
+from x1plus.services.x1plusd.dbus import X1PlusDBusService
+
 logger = logging.getLogger(__name__)
+
+SD_OFFLOAD_INTERFACE = "x1plus.sd_offload"
+SD_OFFLOAD_PATH = "/x1plus/sd_offload"
 
 OFFLOAD_DIRS = [
     "/sdcard/log",
@@ -43,7 +48,8 @@ OFFLOAD_DIRS = [
 _daemon = None
 
 
-def _mount_dir(usb_mount, sdcard_path):
+def _mount_dir(usb_mount, sdcard_path, quiet=False):
+    # quiet on retries so a failed bind isn't logged every poll
     usb_path = os.path.join(usb_mount, os.path.basename(sdcard_path))
     try:
         os.makedirs(usb_path, exist_ok=True)
@@ -55,9 +61,9 @@ def _mount_dir(usb_mount, sdcard_path):
         if result.returncode == 0:
             logger.info(f"bind-mounted {sdcard_path} -> {usb_path}")
         else:
-            logger.error(f"bind mount failed for {sdcard_path}: {result.stderr.strip()}")
+            (logger.debug if quiet else logger.error)(f"bind mount failed for {sdcard_path}: {result.stderr.strip()}")
     except Exception as e:
-        logger.error(f"error mounting {sdcard_path}: {e}")
+        (logger.debug if quiet else logger.error)(f"error mounting {sdcard_path}: {e}")
 
 
 def _umount_dir(sdcard_path):
@@ -81,6 +87,10 @@ def _setup_mounts(usb_mount):
         _mount_dir(usb_mount, path)
 
 
+def _all_mounted():
+    return all(os.path.ismount(path) for path in OFFLOAD_DIRS)
+
+
 def _teardown_mounts():
     # Checks what's actually mounted and cleans up stale mounts
     for path in OFFLOAD_DIRS:
@@ -88,11 +98,17 @@ def _teardown_mounts():
             pass
 
 
-class SdOffload:
+class SdOffload(X1PlusDBusService):
     def __init__(self, daemon):
         self.daemon = daemon
+        super().__init__(router=daemon.router, dbus_interface=SD_OFFLOAD_INTERFACE, dbus_path=SD_OFFLOAD_PATH)
         self._usb_mount = None
         self._rejected = None
+        # status for the General page: off / no_drive / not_fat32 / failed / active
+        self.status = "off"
+
+    async def dbus_GetStatus(self, req):
+        return {"status": self.status}
 
     def _on_settings_changed(self):
         try:
@@ -105,10 +121,12 @@ class SdOffload:
         mounts = usb_state.get("mounts", [])
 
         new_mount = None
+        wrong_fs = False
         if selected_port != "off":
             for m in mounts:
                 if str(m.get("usb_port", "")) == str(selected_port):
-                    if m.get("filesystem") == "vfat":
+                    wrong_fs = m.get("filesystem") != "vfat"
+                    if not wrong_fs:
                         new_mount = m["mount_point"]
                     elif self._rejected != m["mount_point"]:
                         logger.warning(f"drive on port {selected_port} is {m.get('filesystem')}, not FAT32; not offloading to it")
@@ -121,13 +139,33 @@ class SdOffload:
             logger.info(f"USB drive on port {selected_port} detected at {new_mount}, setting up offload mounts")
             self._usb_mount = new_mount
             _setup_mounts(self._usb_mount)
-        elif not new_mount:
+        elif new_mount:
+            # same drive, only retry the binds that failed, the working
+            # ones might have files open so leave them alone
+            for path in OFFLOAD_DIRS:
+                if not os.path.ismount(path):
+                    _mount_dir(new_mount, path, quiet=True)
+        else:
             if self._usb_mount:
                 logger.info("USB drive removed or offload disabled, tearing down mounts")
             self._usb_mount = None
             _teardown_mounts()
 
+        if selected_port == "off":
+            status = "off"
+        elif not new_mount:
+            status = "not_fat32" if wrong_fs else "no_drive"
+        else:
+            status = "active" if _all_mounted() else "failed"
+        if status != self.status:
+            self.status = status
+            asyncio.create_task(self.emit_signal("StatusChanged", {"status": status}))
+
     async def task(self):
+        asyncio.create_task(self._watch_usb())
+        await super().task()  # serves GetStatus
+
+    async def _watch_usb(self):
         logger.info("SD offload module started")
 
         self.daemon.settings.on("sd_offload.port", self._on_settings_changed)

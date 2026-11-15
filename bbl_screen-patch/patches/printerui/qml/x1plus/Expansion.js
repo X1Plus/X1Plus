@@ -28,6 +28,8 @@ var _X1PlusNative = JSX1PlusNative.X1PlusNative;
 var [hardware, _onHardware, _setHardware] = Binding.makeBinding(null);
 var [database, _onDatabase, _setDatabase] = Binding.makeBinding({});
 var [usb, _onUsb, _setUsb] = Binding.makeBinding({});
+/* sd_offload status: off / no_drive / not_fat32 / failed / active */
+var [sdOffloadStatus, _onSdOffloadStatus, _setSdOffloadStatus] = Binding.makeBinding("off");
 
 function status() {
 	// status is hardware, augmented with configuration for each port
@@ -97,4 +99,12 @@ function awaken() {
 
 	_setUsb(X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetUsb")({}) || {"mounts": {}, "devices": {}});
 	X1Plus.DBus.onSignal("x1plus.expansion", "UsbChanged", function(usb) { _setUsb(usb); } );
+
+	// sd_offload only runs with an Expander, if it isn't loaded the
+	// call just hangs until it times out
+	if (curHardware && X1Plus.Settings.get("x1plusd.modules.sd_offload", true)) {
+		var st = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/sd_offload", "x1plus.sd_offload", "GetStatus")({});
+		if (st && st.status) _setSdOffloadStatus(st.status);
+		X1Plus.DBus.onSignal("x1plus.sd_offload", "StatusChanged", function(st) { _setSdOffloadStatus(st.status); });
+	}
 }
