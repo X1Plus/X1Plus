@@ -19,6 +19,10 @@
 #define _XOPEN_SOURCE
 #define _FILE_OFFSET_BITS 64
 
+__asm__(".symver strtol,   strtol@GLIBC_2.4");
+__asm__(".symver strtoll,  strtoll@GLIBC_2.4");
+__asm__(".symver strtoull, strtoull@GLIBC_2.4");
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -34,6 +38,9 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/fcntl.h>
@@ -100,6 +107,53 @@ void mocdump() {
     }
 }
 #endif
+
+static const char _b64chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static std::string _base64Encode(const unsigned char *d, size_t len) {
+    std::string out;
+    out.reserve(((len + 2) / 3) * 4);
+    for (size_t i = 0; i < len; i += 3) {
+        unsigned char b0 = d[i], b1 = (i+1<len)?d[i+1]:0, b2 = (i+2<len)?d[i+2]:0;
+        out += _b64chars[(b0>>2)&0x3F];
+        out += _b64chars[((b0&3)<<4)|((b1>>4)&0xF)];
+        out += (i+1<len) ? _b64chars[((b1&0xF)<<2)|((b2>>6)&3)] : '=';
+        out += (i+2<len) ? _b64chars[b2&0x3F] : '=';
+    }
+    return out;
+}
+static std::string _zipReadFile(unzFile zf, const char *name, size_t maxBytes = (size_t)-1) {
+    if (unzLocateFile(zf, name, 1) != UNZ_OK) return "";
+    if (unzOpenCurrentFile(zf) != UNZ_OK) return "";
+    std::string data;
+    char buf[8192];
+    int n;
+    while (data.size() < maxBytes) {
+        size_t toRead = std::min(sizeof(buf), maxBytes - data.size());
+        n = unzReadCurrentFile(zf, buf, (unsigned)toRead);
+        if (n <= 0) break;
+        data.append(buf, n);
+    }
+    unzCloseCurrentFile(zf);
+    return data;
+}
+static int _parseTimeStr(const std::string &s) {
+    int h=0, m=0, sec=0;
+    if (sscanf(s.c_str(), "%dh %dm %ds", &h, &m, &sec) == 3) return h*3600+m*60+sec;
+    if (sscanf(s.c_str(), "%dm %ds", &m, &sec) == 2) return m*60+sec;
+    if (sscanf(s.c_str(), "%ds", &sec) == 1) return sec;
+    return 0;
+}
+static std::string _gcodeValue(const std::string &text, const std::string &prefix) {
+    size_t pos = text.find("\n; " + prefix);
+    if (pos == std::string::npos) return "";
+    pos = text.find_first_not_of(" \t", pos + 3 + prefix.size());
+    if (pos == std::string::npos) return "";
+    size_t end = text.find('\n', pos);
+    std::string val = text.substr(pos, end == std::string::npos ? std::string::npos : end - pos);
+    if (!val.empty() && val.back() == '\r') val.pop_back();
+    return val;
+}
 
 class X1PlusNativeClass : public QObject {
     Q_OBJECT
@@ -284,6 +338,219 @@ eject:
             result.append(obj);
         }
         return QJsonDocument(result).toJson(QJsonDocument::Compact);
+    }
+
+    Q_INVOKABLE QString parseGcodeMetadata(QString filePath) {
+        std::string path = filePath.toStdString();
+
+        auto makeErr = [](bool printable) {
+            json r; r["hasPrintableGcode"]=printable; r["thumbnail"]="";
+            r["timeEstimate"]=0; r["weightEstimate"]=0.0;
+            return QString::fromStdString(r.dump());
+        };
+
+        unzFile zf = unzOpen64(path.c_str());
+        if (!zf) return makeErr(false);
+
+        // Find the plate gcode files, sscanf without %c makes sure it's just .gcode at the end
+        std::vector<int> plateNums;
+        if (unzGoToFirstFile(zf) == UNZ_OK) {
+            do {
+                char name[256] = {};
+                if (unzGetCurrentFileInfo64(zf, nullptr, name, sizeof(name)-1, nullptr, 0, nullptr, 0) == UNZ_OK) {
+                    int n = 0; char extra = 0;
+                    if (sscanf(name, "Metadata/plate_%d.gcode%c", &n, &extra) == 1 && n > 0)
+                        plateNums.push_back(n);
+                }
+            } while (unzGoToNextFile(zf) == UNZ_OK);
+        }
+        std::sort(plateNums.begin(), plateNums.end());
+        plateNums.erase(std::unique(plateNums.begin(), plateNums.end()), plateNums.end());
+
+        if (plateNums.empty()) { unzClose(zf); return makeErr(false); }
+
+        // Get the printer model and nozzle size for each plate from slice_info.config
+        auto _xmlMetaVal = [](const std::string &block, const std::string &key) -> std::string {
+            std::string pat = "key=\"" + key + "\" value=\"";
+            size_t p = block.find(pat);
+            if (p == std::string::npos) return "";
+            p += pat.size();
+            size_t e = block.find('"', p);
+            return e == std::string::npos ? "" : block.substr(p, e - p);
+        };
+        std::map<int, std::string> slicePlateBlocks;
+        {
+            std::string si = _zipReadFile(zf, "Metadata/slice_info.config");
+            size_t pos = 0;
+            while ((pos = si.find("<plate>", pos)) != std::string::npos) {
+                size_t end = si.find("</plate>", pos);
+                if (end == std::string::npos) break;
+                std::string block = si.substr(pos, end - pos);
+                std::string idxStr = _xmlMetaVal(block, "index");
+                if (!idxStr.empty()) slicePlateBlocks[atoi(idxStr.c_str())] = block;
+                pos = end;
+            }
+        }
+
+        // Get the filament types and colors from the first plate's gcode header
+        char gcName0[64];
+        snprintf(gcName0, sizeof(gcName0), "Metadata/plate_%d.gcode", plateNums[0]);
+        std::string firstGcode = _zipReadFile(zf, gcName0, 65536);
+
+        auto _splitSemicolon = [](const std::string &s) {
+            std::vector<std::string> out;
+            std::istringstream ss(s); std::string tok;
+            while (std::getline(ss, tok, ';')) if (!tok.empty()) out.push_back(tok);
+            return out;
+        };
+        std::vector<std::string> filamentTypes  = _splitSemicolon(_gcodeValue(firstGcode, "filament_type = "));
+        std::vector<std::string> gcodeColors    = _splitSemicolon(_gcodeValue(firstGcode, "filament_colour = "));
+
+        // Build per-plate data
+        json platesArr = json::array();
+        for (int pn : plateNums) {
+            char gcName[64], pngName[64], jsonName[64];
+            snprintf(gcName,   sizeof(gcName),   "Metadata/plate_%d.gcode", pn);
+            snprintf(pngName,  sizeof(pngName),  "Metadata/plate_%d.png",   pn);
+            snprintf(jsonName, sizeof(jsonName), "Metadata/plate_%d.json",  pn);
+
+            std::string gcText  = (pn == plateNums[0]) ? firstGcode : _zipReadFile(zf, gcName, 65536);
+            std::string pngData = _zipReadFile(zf, pngName);
+            std::string thumb   = pngData.empty() ? "" : _base64Encode((const unsigned char*)pngData.data(), pngData.size());
+
+            // Print time comes from slice_info like the SD page, the gcode header is just a fallback
+            std::string predStr   = slicePlateBlocks.count(pn) ? _xmlMetaVal(slicePlateBlocks[pn], "prediction") : "";
+            std::string weightStr = slicePlateBlocks.count(pn) ? _xmlMetaVal(slicePlateBlocks[pn], "weight") : "";
+            if (atof(weightStr.c_str()) <= 0) weightStr = _gcodeValue(gcText, "total filament weight [g] : "); // Orca 2.5 has no weight line
+            int timeEst = predStr.empty() ? 0 : atoi(predStr.c_str());
+            if (timeEst <= 0) {
+                size_t tp = gcText.find("total estimated time: ");
+                if (tp != std::string::npos)
+                    timeEst = _parseTimeStr(gcText.substr(tp + 22, gcText.find('\n', tp) - tp - 22));
+            }
+            double weight  = weightStr.empty() ? 0.0 : atof(weightStr.c_str());
+
+            // Filaments for this plate come from slice_info like the SD page. plate_N.json is just
+            // a fallback, Bambu Studio leaves it empty on most plates and puts everything on the last one
+            std::vector<std::string> fcolors;
+            std::vector<int> fids;
+            if (slicePlateBlocks.count(pn)) {
+                const std::string &blk = slicePlateBlocks[pn];
+                auto attr = [](const std::string &tag, const std::string &name) -> std::string {
+                    std::string pat = " " + name + "=\"";
+                    size_t p = tag.find(pat);
+                    if (p == std::string::npos) return "";
+                    p += pat.size();
+                    size_t e = tag.find('"', p);
+                    return e == std::string::npos ? "" : tag.substr(p, e - p);
+                };
+                size_t fp = 0;
+                while ((fp = blk.find("<filament ", fp)) != std::string::npos) {
+                    size_t fe = blk.find('>', fp);
+                    if (fe == std::string::npos) break;
+                    std::string tag = blk.substr(fp, fe - fp);
+                    std::string idStr = attr(tag, "id");
+                    if (!idStr.empty()) {
+                        fids.push_back(atoi(idStr.c_str()) - 1); // 1-based in slice_info
+                        fcolors.push_back(attr(tag, "color"));
+                    }
+                    fp = fe;
+                }
+            }
+            std::string pjStr = fids.empty() ? _zipReadFile(zf, jsonName) : "";
+            if (!pjStr.empty()) {
+                try {
+                    json pj = json::parse(pjStr);
+                    if (pj.contains("filament_colors") && pj["filament_colors"].is_array())
+                        for (auto &c : pj["filament_colors"]) fcolors.push_back(c.get<std::string>());
+                    if (pj.contains("filament_ids") && pj["filament_ids"].is_array())
+                        for (auto &id : pj["filament_ids"]) fids.push_back(id.get<int>());
+                } catch (...) {}
+            }
+
+            // Build the filament list without duplicates and map each slot to a swatch
+            // First pass: one entry per AMS slot, keeping the first one so the color lines up
+            struct SlotInfo { int id; std::string type, color; };
+            std::vector<SlotInfo> bySlot;
+            {
+                std::vector<int> seen;
+                for (size_t i = 0; i < fids.size(); i++) {
+                    int id = fids[i];
+                    bool already = false;
+                    for (int s : seen) if (s == id) { already = true; break; }
+                    if (already) continue;
+                    seen.push_back(id);
+                    std::string t = (id >= 0 && id < (int)filamentTypes.size()) ? filamentTypes[id] : "?";
+                    // If slice_info has no color use the gcode header, id >= 0 skips bad plate json
+                    std::string c = (i < fcolors.size() && !fcolors[i].empty()) ? fcolors[i]
+                                  : (id >= 0 && id < (int)gcodeColors.size()) ? gcodeColors[id] : "#808080";
+                    bySlot.push_back({id, t, c});
+                }
+            }
+            // Second pass: slots with the same type and color just show as one swatch
+            struct DispFilament { std::string type, color; };
+            std::vector<DispFilament> dispFilaments;
+            std::vector<int> slotIdToDispIdx; // same order as bySlot
+            for (auto &sl : bySlot) {
+                int di = -1;
+                for (int k = 0; k < (int)dispFilaments.size(); k++)
+                    if (dispFilaments[k].type == sl.type && dispFilaments[k].color == sl.color)
+                        { di = k; break; }
+                if (di < 0) { di = (int)dispFilaments.size(); dispFilaments.push_back({sl.type, sl.color}); }
+                slotIdToDispIdx.push_back(di);
+            }
+
+            json filaments = json::array();
+            if (fids.empty()) {
+                // Single filament plate, just show 1 swatch from the gcode config
+                json f;
+                f["type"]  = filamentTypes.empty() ? "?" : filamentTypes[0];
+                f["color"] = gcodeColors.empty()   ? "#808080" : gcodeColors[0];
+                filaments.push_back(f);
+            } else {
+                for (auto &df : dispFilaments) {
+                    json f; f["type"] = df.type; f["color"] = df.color;
+                    filaments.push_back(f);
+                }
+            }
+
+            // filamentSlotMap[i] is the swatch for project filament i, or -1 if this plate doesn't use it.
+            // QML turns it into ams_mapping the same way the SD page does, like [1,-1,-1]
+            std::map<int,int> slotIdMap;
+            for (size_t k = 0; k < bySlot.size(); k++) slotIdMap[bySlot[k].id] = slotIdToDispIdx[k];
+            int totalFilaments = (int)std::max(filamentTypes.size(), gcodeColors.size());
+            for (int id : fids) totalFilaments = std::max(totalFilaments, id + 1);
+            json slotMap = json::array();
+            if (!fids.empty())
+                for (int id = 0; id < totalFilaments; id++) slotMap.push_back(slotIdMap.count(id) ? slotIdMap[id] : -1);
+
+            std::string printerModelId, nozzleDiameters;
+            if (slicePlateBlocks.count(pn)) {
+                printerModelId = _xmlMetaVal(slicePlateBlocks[pn], "printer_model_id");
+                nozzleDiameters = _xmlMetaVal(slicePlateBlocks[pn], "nozzle_diameters");
+            }
+
+            json plate;
+            plate["thumbnail"]       = thumb;
+            plate["timeEstimate"]    = timeEst;
+            plate["weightEstimate"]  = weight;
+            plate["filaments"]       = filaments;
+            plate["filamentSlotMap"] = slotMap;
+            plate["printerModelId"]  = printerModelId;
+            plate["nozzleDiameters"] = nozzleDiameters;
+            platesArr.push_back(plate);
+        }
+        unzClose(zf);
+
+        json result;
+        result["hasPrintableGcode"] = true;
+        result["plateCount"]        = (int)plateNums.size();
+        result["plates"]            = platesArr;
+        result["thumbnail"]         = platesArr[0]["thumbnail"];
+        result["timeEstimate"]      = platesArr[0]["timeEstimate"];
+        result["weightEstimate"]    = platesArr[0]["weightEstimate"];
+        result["filaments"]         = platesArr[0]["filaments"];
+        return QString::fromStdString(result.dump());
     }
 
     Q_INVOKABLE void vncEnable(int enabled) {
