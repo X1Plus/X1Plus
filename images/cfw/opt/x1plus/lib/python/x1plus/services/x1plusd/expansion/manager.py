@@ -144,6 +144,10 @@ class ExpansionManager(X1PlusDBusService):
             # map drive USB ports (if present) to marketing names on
             # Expander
             if self.expansion:
+                # only list drives on Expander ports, this hides the RP2040 boot
+                # drive and old mounts that showed up as "USB port undefined"
+                mounts = [d for d in mounts
+                          if any(d.get('usb_port', '').startswith(p) for p in self.expansion.usb_port_map)]
                 for drive in mounts:
                     if 'usb_port' in drive:
                         drive['usb_port'] = self.expansion.usb_port_id_to_name(drive['usb_port'].split(":")[0])
@@ -167,19 +171,31 @@ class ExpansionManager(X1PlusDBusService):
 
                     name = self.expansion.usb_port_id_to_name(dev)
                     syspath = f"/sys/bus/usb/devices/{dev}"
-                    devices[name] = {
-                        "path": dev,
-                        "vendor_id": open(f"{syspath}/idVendor", "r").read().strip(),
-                        "product_id": open(f"{syspath}/idProduct", "r").read().strip(),
-                        "manufacturer_string": open(f"{syspath}/manufacturer", "r").read().strip(),
-                        "product_string": open(f"{syspath}/product", "r").read().strip(),
-                    }
+                    # a device mid plug/unplug can be missing these files, skip it
+                    # until the next poll instead of crashing x1plusd
+                    try:
+                        info = {
+                            "path": dev,
+                            "vendor_id": open(f"{syspath}/idVendor", "r").read().strip(),
+                            "product_id": open(f"{syspath}/idProduct", "r").read().strip(),
+                        }
+                        # not every device has these
+                        for key, fn in (("manufacturer_string", "manufacturer"), ("product_string", "product")):
+                            try:
+                                info[key] = open(f"{syspath}/{fn}", "r").read().strip()
+                            except OSError:
+                                info[key] = ""
+
+                        # is there a configuration that we can read a driver from?
+                        for subpath in os.listdir(syspath):
+                            if os.path.exists(f"{syspath}/{subpath}/driver"):
+                                info['driver'] = os.path.basename(os.path.realpath(f"{syspath}/{subpath}/driver"))
+                    except OSError:
+                        continue
+                    devices[name] = info
                     
-                    # is there a configuration that we can read a driver from?
-                    for subpath in os.listdir(syspath):
-                        if os.path.exists(f"{syspath}/{subpath}/driver"):
-                            devices[name]['driver'] = os.path.basename(os.path.realpath(f"{syspath}/{subpath}/driver"))
-                    
+            # sort drives so Port A comes before Port B
+            mounts.sort(key=lambda d: (d.get('usb_port') or d['mount_point']).upper())
             usb = { "mounts": mounts, "devices": devices }
             if usb != self._usb:
                 self._usb = usb

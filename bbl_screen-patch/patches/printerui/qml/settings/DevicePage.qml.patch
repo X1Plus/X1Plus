@@ -263,7 +263,7 @@
          var export_ = function(index) {
  //            if (!DeviceManager.exportSystemLog())
  //                return
-@@ -173,81 +263,189 @@
+@@ -173,81 +263,258 @@
                                          onYes: restore
                                      })
          }
@@ -300,7 +300,7 @@
 -            rightRadiusOff: true
 -            color: Colors.gray_700
 +            color: Colors.gray_600
-+            height: 32 + 80 + usbMounts.length * 81
++            height: 32 + 80 + usbMounts.length * 81 + (X1Plus.Expansion.hardware() !== null ? 81 : 0)
  
 -            ZText {
 -                id: sdName
@@ -409,8 +409,77 @@
 +                    }
 +                }
 +            }
++
++            // SD offload selection row
++            Item {
++                id: sdOffloadRow
++                visible: X1Plus.Expansion.hardware() !== null
++                width: storagePanel.width
++                height: 81
++                y: 95 + usbMounts.length * 81
++
++                Rectangle {
++                    width: parent.width - 32
++                    height: 1
++                    anchors.horizontalCenter: parent.horizontalCenter
++                    anchors.top: parent.top
++                    color: Colors.gray_400
++                }
++                Text {
++                    id: sdOffloadLabel
++                    anchors.left: parent.left
++                    anchors.leftMargin: 16
++                    anchors.verticalCenter: parent.verticalCenter
++                    anchors.verticalCenterOffset: sdOffloadStatus.text ? -14 : 0
++                    font: Fonts.body_26
++                    color: Colors.gray_200
++                    text: qsTr("USB SD offload")
++                }
++                // sd_offload status, so a failed offload shows up here
++                Text {
++                    id: sdOffloadStatus
++                    property string status: X1Plus.Expansion.sdOffloadStatus()
++                    anchors.left: sdOffloadLabel.left
++                    anchors.top: sdOffloadLabel.bottom
++                    font: Fonts.body_20
++                    color: status === "active" ? Colors.brand
++                         : status === "failed" ? Colors.error
++                         : status === "not_fat32" ? Colors.warning
++                         : Colors.gray_300
++                    text: status === "active" ? qsTr("Active")
++                        : status === "no_drive" ? qsTr("Port %1: no drive").arg(X1Plus.Settings.get("sd_offload.port", ""))
++                        : status === "not_fat32" ? qsTr("Not FAT32")
++                        : status === "failed" ? qsTr("Failed, see syslog")
++                        : ""
++                }
++                Choise {
++                    anchors.right: parent.right
++                    anchors.rightMargin: 25
++                    anchors.verticalCenter: parent.verticalCenter
++                    width: right - sdOffloadLabel.right - 25
++                    textFont: Fonts.body_26
++                    listTextFont: Fonts.body_28
++                    backgroundColor: Colors.gray_500
++                    model: [qsTr("Off")].concat(usbMounts.map(function(m) { return qsTr("Port ") + m.usb_port }))
++                    currentIndex: {
++                        var p = X1Plus.Settings.get("sd_offload.port", "off")
++                        if (p === "off") return 0
++                        for (var i = 0; i < usbMounts.length; i++) {
++                            if (String(usbMounts[i].usb_port) === String(p)) return i + 1
++                        }
++                        return 0
++                    }
++                    onChoiseTapped: {
++                        if (currentIndex === 0) {
++                            X1Plus.Settings.put("sd_offload.port", "off")
++                        } else {
++                            X1Plus.Settings.put("sd_offload.port", String(usbMounts[currentIndex - 1].usb_port))
++                        }
++                    }
++                }
++            }
          }
- 
+
          MarginPanel {
 -            id: formatSD
 -            width: 187
@@ -498,7 +567,7 @@
                  }
              }
          }
-@@ -255,10 +453,10 @@
+@@ -255,10 +471,10 @@
          MarginPanel {
              id: lanOnly
              width: 426
@@ -512,7 +581,7 @@
              color: Colors.gray_600
              radius: 15
              marginColor: "transparent"
-@@ -266,30 +464,45 @@
+@@ -266,30 +482,45 @@
              Text {
                  id: lanOnlyText
                  anchors.top: parent.top
@@ -572,7 +641,7 @@
                                              if (!RecordManager.rtspServerOn) {
                                                  dialogStack.popupDialog(
                                                              "TextConfirm", {
-@@ -297,103 +510,48 @@
+@@ -297,103 +528,48 @@
                                                                  text: qsTr("Do you need to open LAN Mode Liveview?"),
                                                                  defaultButton: 0,
                                                                  onYes: function() {
@@ -702,7 +771,7 @@
              }
          }
      }
-@@ -404,7 +562,9 @@
+@@ -404,7 +612,9 @@
          anchors.right: parent.right
          anchors.top: parent.top
          anchors.bottom: parent.bottom
@@ -713,7 +782,7 @@
          radius: 15
          color: Colors.gray_600
  
-@@ -418,6 +578,8 @@
+@@ -418,6 +628,8 @@
              delegate: infoComp
          }
  
@@ -722,7 +791,7 @@
          SimplePager {
              visible: infoList
              anchors.right: parent.right
-@@ -428,6 +590,7 @@
+@@ -428,6 +608,7 @@
              btnType: ZButtonAppearance.Secondary
              onStepTo: infoList.contentY = position
          }
@@ -730,7 +799,7 @@
      }
  
      PopupPad {
-@@ -581,6 +744,114 @@
+@@ -581,6 +794,114 @@
  
      }
  
@@ -845,7 +914,7 @@
      function setResolution(res)
      {
          if(res === RecordManager.resolution)
-@@ -607,4 +878,41 @@
+@@ -607,4 +896,41 @@
              }
          }
      }
