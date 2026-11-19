@@ -100,8 +100,7 @@ function awaken() {
 	_setUsb(X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/expansion", "x1plus.expansion", "GetUsb")({}) || {"mounts": {}, "devices": {}});
 	X1Plus.DBus.onSignal("x1plus.expansion", "UsbChanged", function(usb) { _setUsb(usb); } );
 
-	// sd_offload only runs with an Expander, if it isn't loaded the
-	// call just hangs until it times out
+	// if the sd_offload module is disabled, the call just hangs until it times out; avoid that
 	if (curHardware && X1Plus.Settings.get("x1plusd.modules.sd_offload", true)) {
 		var st = X1Plus.DBus.proxyFunction("x1plus.x1plusd", "/x1plus/sd_offload", "x1plus.sd_offload", "GetStatus")({});
 		if (st && st.status) _setSdOffloadStatus(st.status);
