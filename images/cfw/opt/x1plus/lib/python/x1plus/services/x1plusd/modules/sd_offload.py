@@ -50,7 +50,7 @@ _daemon = None
 
 def _mount_dir(usb_mount, sdcard_path, quiet=False):
     # quiet on retries so a failed bind isn't logged every poll
-    usb_path = os.path.join(usb_mount, os.path.basename(sdcard_path))
+    usb_path = os.path.join(usb_mount, f"x1plus/printers/{x1plus.utils.serial_number()}/{os.path.basename(sdcard_path)}")
     try:
         os.makedirs(usb_path, exist_ok=True)
         os.makedirs(sdcard_path, exist_ok=True)
