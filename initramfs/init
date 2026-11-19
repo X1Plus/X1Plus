@@ -74,21 +74,31 @@ set -x
 
 mkdir /fs/sdcard || die
 
-# Before we mount, wait up to 5 seconds for mmcblk2p1 to ACTUALLY exist
+# Before we mount, wait up to 10 seconds for mmcblk2p1 to ACTUALLY exist
 if ! grep -q "mmcblk2p1" /proc/partitions; then
-	for i in $(seq 0 5); do
+	for i in $(seq 0 10); do
 		sleep 1
 		# Is it available?
 		if grep -q "mmcblk2p1" /proc/partitions; then break; fi
+		echo "Waiting for MicroSD card to become available..." > /dev/tty0
 		# Did we time out?
-		if [ $i -eq 5 ]; then
-			echo "Error mounting MicroSD card.  Try another brand of SD card?" > /dev/tty0
+		if [ $i -eq 10 ]; then
+			echo "Timeout waiting for MicroSD card to become available.  Try another brand of SD card?" > /dev/tty0
 			die
 		fi
 	done
 fi
 
-mount -o rw,uid=1000,gid=1000,dmask=022,fmask=133,noatime /dev/mmcblk2p1 /fs/sdcard || die
+#try very hard to mount sdcard
+for i in $(seq 0 10); do
+	if mount -o rw,uid=1000,gid=1000,dmask=022,fmask=133,noatime /dev/mmcblk2p1 /fs/sdcard; then break; fi
+	if [ $i -eq 10 ]; then
+		echo "Maximum retries mounting /dev/mmcblk2p1 /fs/sdcard, giving up" > /dev/tty0
+		die
+	fi
+	echo "Error mounting /dev/mmcblk2p1 /fs/sdcard, retrying..." > /dev/tty0
+	sleep 1
+done
 
 LOWERDIRS=
 while [ $# -gt 1 ]; do
