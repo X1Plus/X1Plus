@@ -7,7 +7,7 @@ The Bambu X1 SD card accumulates heavy write traffic from three sources:
    /sdcard/ipcam/    : continuous writes during prints
 
 When a USB drive is detected this redirects those directories
-to the USB drive using bind mounts. All existing firmware
+to x1plus/printers/<serial>/ on the USB drive using bind mounts. All existing firmware
 code continues to use the same /sdcard/* paths transparently. When USB is
 removed the bind mounts are lazily unmounted and writes fall back to SD.
 
@@ -32,6 +32,7 @@ import subprocess
 from jeepney.bus_messages import MatchRule, message_bus
 from jeepney.io.asyncio import Proxy
 
+import x1plus.utils
 from x1plus.services.x1plusd.dbus import X1PlusDBusService
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,9 @@ OFFLOAD_DIRS = [
     "/sdcard/timelapse",
     "/sdcard/ipcam",
 ]
+
+# give up on a mount point that won't come off, rather than looping forever
+MAX_UMOUNT_ATTEMPTS = 10
 
 _daemon = None
 
@@ -94,8 +98,12 @@ def _all_mounted():
 def _teardown_mounts():
     # Checks what's actually mounted and cleans up stale mounts
     for path in OFFLOAD_DIRS:
-        while os.path.ismount(path) and _umount_dir(path):
-            pass
+        for _ in range(MAX_UMOUNT_ATTEMPTS):
+            if not os.path.ismount(path) or not _umount_dir(path):
+                break
+        else:
+            if os.path.ismount(path):
+                logger.error(f"{path} still mounted after {MAX_UMOUNT_ATTEMPTS} unmounts, giving up")
 
 
 class SdOffload(X1PlusDBusService):
@@ -110,13 +118,13 @@ class SdOffload(X1PlusDBusService):
     async def dbus_GetStatus(self, req):
         return {"status": self.status}
 
-    def _on_settings_changed(self):
+    async def _on_settings_changed(self):
         try:
-            self._handle_usb_state(self.daemon.expansion._usb)
+            await self._handle_usb_state(self.daemon.expansion._usb)
         except AttributeError:
             pass
 
-    def _handle_usb_state(self, usb_state):
+    async def _handle_usb_state(self, usb_state):
         selected_port = self.daemon.settings.get("sd_offload.port", "off")
         mounts = usb_state.get("mounts", [])
 
@@ -159,7 +167,7 @@ class SdOffload(X1PlusDBusService):
             status = "active" if _all_mounted() else "failed"
         if status != self.status:
             self.status = status
-            asyncio.create_task(self.emit_signal("StatusChanged", {"status": status}))
+            await self.emit_signal("StatusChanged", {"status": status})
 
     async def task(self):
         asyncio.create_task(self._watch_usb())
@@ -168,7 +176,7 @@ class SdOffload(X1PlusDBusService):
     async def _watch_usb(self):
         logger.info("SD offload module started")
 
-        self.daemon.settings.on("sd_offload.port", self._on_settings_changed)
+        self.daemon.settings.on("sd_offload.port", lambda: asyncio.create_task(self._on_settings_changed()))
 
         match = MatchRule(type="signal", interface="x1plus.expansion", path="/", member="UsbChanged")
         await Proxy(message_bus, self.daemon.router).AddMatch(match)
@@ -176,14 +184,14 @@ class SdOffload(X1PlusDBusService):
         with self.daemon.router.filter(match) as queue:
             # A drive may already be plugged in before we start listening, so check once now
             try:
-                self._handle_usb_state(self.daemon.expansion._usb)
+                await self._handle_usb_state(self.daemon.expansion._usb)
             except AttributeError:
                 pass  # USB state isn't ready yet, the first UsbChanged will cover it
 
             while True:
                 msg = await queue.get()
                 try:
-                    self._handle_usb_state(json.loads(msg.body[0]))
+                    await self._handle_usb_state(json.loads(msg.body[0]))
                 except Exception as e:
                     logger.error(f"error handling UsbChanged signal: {e}")
 
