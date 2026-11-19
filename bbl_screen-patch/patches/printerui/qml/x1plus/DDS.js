@@ -66,6 +66,7 @@ registerHandler("device/report/info", function(datum) {
 var [gcodeAction, gcodeActionChanged, _setGcodeAction] = Binding.makeBinding(-1);
 var [amsInfo, amsInfoChanged, _setAmsInfo] = Binding.makeBinding({});
 var [lastAmsFilamentDrying, lastAmsFilamentDryingChanged, setLastAmsFilamentDrying] = Binding.makeBinding(null);
+var [printSubtask, printSubtaskChanged, _setPrintSubtask] = Binding.makeBinding("");
 
 registerHandler("device/report/print", function(datum) {
     if (datum.command == "push_status" && datum.print_gcode_action) {
@@ -76,6 +77,13 @@ registerHandler("device/report/print", function(datum) {
     if (datum.command == "push_status" && datum.ams) {
         if (JSON.stringify(amsInfo()) != JSON.stringify(datum.ams)) {
             _setAmsInfo(datum.ams);
+        }
+    }
+    // Keeps the print name so Print again only shows after a USB print, not every report
+    // has the name so only update it when it's there
+    if (datum.command == "push_status" && datum.subtask_name !== undefined) {
+        if (printSubtask() != datum.subtask_name) {
+            _setPrintSubtask(datum.subtask_name);
         }
     }
     if (datum.command == "ams_filament_drying") {

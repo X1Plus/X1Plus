@@ -103,6 +103,10 @@ var printerConfigDir = null;
 var emulating = _X1PlusNative.getenv("EMULATION_WORKAROUNDS");
 X1Plus.emulating = emulating;
 
+/* Saves the last USB print so Print again can open it back up in the USB tab */
+var lastUsbPrint = null;
+var [usbReprint, usbReprintChanged, setUsbReprint] = Binding.makeBinding(null);
+
 
 function isIdle() {
 	return PrintManager.currentTask.stage < PrintTask.WORKING;

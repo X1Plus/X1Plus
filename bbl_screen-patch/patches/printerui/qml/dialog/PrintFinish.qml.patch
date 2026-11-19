@@ -1,0 +1,44 @@
+--- printer_ui-orig/printerui/qml/dialog/PrintFinish.qml
++++ printer_ui/printerui/qml/dialog/PrintFinish.qml
+@@ -5,6 +5,7 @@
+ 
+ import "qrc:/uibase/qml/widgets"
+ import ".."
++import "../X1Plus.js" as X1Plus
+ 
+ Item {
+ 
+@@ -34,6 +35,16 @@
+         }
+ 
+         DialogButtonItem {
++            name: "print_again_usb"; title: qsTr("Print again")
++            visible: usbPrint !== null
++            isDefault: isSelect === 0
++            onClicked: {
++                Printer.jumpTo("Models/Usb")
++                X1Plus.setUsbReprint(usbPrint)
++            }
++        }
++
++        DialogButtonItem {
+             name: "report"; title: qsTr("Official Help")
+             onClicked: {
+                 dialogStack.popupDialog("ReportQRcode")
+@@ -68,11 +79,16 @@
+     property int isSelect: 0
+     property var subtaskId
+     property bool finish
++    property var usbPrint: null
+ 
+     Component.onCompleted: {
+         model = PrintManager.currentTask.model.clone()
+         subtaskId = PrintManager.currentTask.getReportUrl().match(/taskId=(\S*)&startTime/)[1];
+         finish = (PrintManager.currentTask.state == PrintTask.FINISH)
++        // Only offer the USB reprint for the job that was started from the USB tab
++        var usb = X1Plus.lastUsbPrint;
++        if (usb && !model.exists() && usb.subtask === X1Plus.DDS.printSubtask())
++            usbPrint = usb;
+     }
+ 
+     Component.onDestruction: {
