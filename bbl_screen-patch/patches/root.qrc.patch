@@ -102,9 +102,11 @@
  <file>printerui/image/feed.png</file>
  <file>printerui/image/frame.svg</file>
  <file>printerui/image/gcode.png</file>
-@@ -178,6 +226,9 @@
+@@ -178,6 +226,11 @@
  <file>printerui/qml/models/ModelInfoBar.qml</file>
  <file>printerui/qml/models/ModelListPage.qml</file>
++<file>printerui/qml/models/UsbDetailPage.qml</file>
++<file>printerui/qml/models/UsbListPage.qml</file>
  <file>printerui/qml/printer/AMSSettingPage.qml</file>
 +<file>printerui/qml/printer/BedMesh.qml</file>
 +<file>printerui/qml/printer/BedLevelDiag.qml</file>
